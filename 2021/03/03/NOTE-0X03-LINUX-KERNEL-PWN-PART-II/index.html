@@ -420,12 +420,21 @@ umount /sys
 
 poweroff -d 0  -f</code></pre>
 
-<p>不出意外的话<code>core.ko</code>就是存在漏洞的内核模块</p>
-<p>惯例的<code>checksec</code>一下，开了NX和canary</p>
+<ul>
+<li><p>内核开启了KASLR保护</p>
+</li>
+<li><p>不出意外的话<code>core.ko</code>就是存在漏洞的内核模块</p>
+</li>
+</ul>
+<h3 id="分析-1"><a href="#分析-1" class="headerlink" title="分析"></a>分析</h3><p>惯例的<code>checksec</code>一下，开了NX和canary</p>
 <p><img src="https://i.loli.net/2021/03/04/Nrpe675FRtBP4ju.png" srcset="/img/loading.gif" alt="image.png"></p>
 <p>拖入IDA进行分析，符号表没抠，很开心（</p>
 <p>初始化函数中创建了一个进程节点文件<code>/proc/core</code>，这也是我们后续与内核模块间通信的媒介</p>
 <p><img src="https://i.loli.net/2021/03/04/zocOw75hPrBIZkH.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>简单分析自定义的fop结构体<code>core_fops</code>，发现只自定义了三个回调函数</p>
+<p><img src="https://i.loli.net/2021/03/04/JHyemlLTK5G34E2.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/03/04/TvhVpN86dmfzHoW.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/03/04/lDBmUK5fia3bnHL.png" srcset="/img/loading.gif" alt="image.png"></p>
 <h1 id="0x03-ret2usr"><a href="#0x03-ret2usr" class="headerlink" title="0x03.ret2usr"></a>0x03.ret2usr</h1><h1 id="0x04-ret2dir"><a href="#0x04-ret2dir" class="headerlink" title="0x04.ret2dir"></a>0x04.ret2dir</h1><h1 id="0x05-条件竞争"><a href="#0x05-条件竞争" class="headerlink" title="0x05.条件竞争"></a>0x05.条件竞争</h1><h1 id="0x06-内核堆喷"><a href="#0x06-内核堆喷" class="headerlink" title="0x06.内核堆喷"></a>0x06.内核堆喷</h1>
             </div>
             <hr>
