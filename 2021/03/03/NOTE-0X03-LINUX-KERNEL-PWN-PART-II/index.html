@@ -204,7 +204,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      1.3k 字
+      1.6k 字
     </span>
   
 
@@ -214,7 +214,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      17
+      21
        分钟
     </span>
   
@@ -256,7 +256,7 @@
             
               <p class="note note-info">
                 
-                  本文最后更新于：2021年3月3日 晚上
+                  本文最后更新于：2021年3月4日 凌晨
                 
               </p>
             
@@ -291,8 +291,9 @@
 <p>Linux Kernel中同样有着一个动态内存分配器——slab/slub内存分配器，若是在kernel中存在着垂悬指针，我们同样可以以此完成对slab/slub内存分配器的利用，通过Kernel UAF完成提权</p>
 <h2 id="CISCN-2017-babydriver"><a href="#CISCN-2017-babydriver" class="headerlink" title="CISCN - 2017 - babydriver"></a>CISCN - 2017 - babydriver</h2><blockquote>
 <p>最最最最最最最经典的kernel pwn入门题</p>
+<p>以及内核镜像真的是太太太太太大了，传不上GitHub…这里只好只放一个.ko文件…</p>
 </blockquote>
-<p><a href="/download/ciscn2017/pwn/babydriver.tar.gz" title="点击此处下载原题">点击下载-babydriver.tar.gz</a></p>
+<p><a href="/download/ciscn2017/pwn/babydriver.ko" title="点击此处下载原题">点击下载-babydriver.ko</a></p>
 <p>解压，惯例的<code>磁盘镜像 + 内核镜像 + 启动脚本</code>结构</p>
 <p>首先先解压磁盘镜像看看有没有什么可以利用的东西</p>
 <pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> mkdir core</span>
@@ -392,7 +393,40 @@ poweroff -d 0  -f</code></pre>
 
 <p>本地测试的话就放进磁盘重新打包后qemu起系统，运行即可获得root shell</p>
 <p><img src="https://i.loli.net/2021/03/03/qC9eGRgHU3axBJW.png" srcset="/img/loading.gif" alt="image.png"></p>
-<h1 id="0x02-Kernel-ROP"><a href="#0x02-Kernel-ROP" class="headerlink" title="0x02.Kernel ROP"></a>0x02.Kernel ROP</h1><h2 id="强网杯2018-core"><a href="#强网杯2018-core" class="headerlink" title="强网杯2018 - core"></a>强网杯2018 - core</h2>
+<h1 id="0x02-Kernel-ROP"><a href="#0x02-Kernel-ROP" class="headerlink" title="0x02.Kernel ROP"></a>0x02.Kernel ROP</h1><p>ROP即<code>返回导向编程</code>（Return-oriented programming），应当是大家比较熟悉的一种攻击方式——通过复用代码片段的方式控制程序执行流，内核态的ROP与用户态的ROP一般无二，只不过利用的gadget变成了内核中的gadget</p>
+<h2 id="强网杯2018-core"><a href="#强网杯2018-core" class="headerlink" title="强网杯2018 - core"></a>强网杯2018 - core</h2><p>解压文件系统，查看<code>init</code>文件：</p>
+<pre><code class="hljs sh"><span class="hljs-meta">#!/bin/sh</span>
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t devtmpfs none /dev
+/sbin/mdev -s
+mkdir -p /dev/pts
+mount -vt devpts -o gid=4,mode=620 none /dev/pts
+chmod 666 /dev/ptmx
+cat /proc/kallsyms &gt; /tmp/kallsyms
+<span class="hljs-built_in">echo</span> 1 &gt; /proc/sys/kernel/kptr_restrict
+<span class="hljs-built_in">echo</span> 1 &gt; /proc/sys/kernel/dmesg_restrict
+ifconfig eth0 up
+udhcpc -i eth0
+ifconfig eth0 10.0.2.15 netmask 255.255.255.0
+route add default gw 10.0.2.2 
+insmod /core.ko
+
+poweroff -d 120 -f &amp;
+setsid /bin/cttyhack setuidgid 1000 /bin/sh
+<span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;sh end!\n&#x27;</span>
+umount /proc
+umount /sys
+
+poweroff -d 0  -f</code></pre>
+
+<p>不出意外的话<code>core.ko</code>就是存在漏洞的内核模块</p>
+<p>惯例的<code>checksec</code>一下，开了NX和canary</p>
+<p><img src="https://i.loli.net/2021/03/04/Nrpe675FRtBP4ju.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>拖入IDA进行分析，符号表没抠，很开心（</p>
+<p>初始化函数中创建了一个进程节点文件<code>/proc/core</code>，这也是我们后续与内核模块间通信的媒介</p>
+<p><img src="https://i.loli.net/2021/03/04/zocOw75hPrBIZkH.png" srcset="/img/loading.gif" alt="image.png"></p>
+<h1 id="0x03-ret2usr"><a href="#0x03-ret2usr" class="headerlink" title="0x03.ret2usr"></a>0x03.ret2usr</h1><h1 id="0x04-ret2dir"><a href="#0x04-ret2dir" class="headerlink" title="0x04.ret2dir"></a>0x04.ret2dir</h1><h1 id="0x05-条件竞争"><a href="#0x05-条件竞争" class="headerlink" title="0x05.条件竞争"></a>0x05.条件竞争</h1><h1 id="0x06-内核堆喷"><a href="#0x06-内核堆喷" class="headerlink" title="0x06.内核堆喷"></a>0x06.内核堆喷</h1>
             </div>
             <hr>
             <div>
