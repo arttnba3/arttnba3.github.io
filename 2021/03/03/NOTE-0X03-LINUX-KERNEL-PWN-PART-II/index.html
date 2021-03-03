@@ -204,7 +204,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      1.6k 字
+      1.7k 字
     </span>
   
 
@@ -214,7 +214,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      21
+      22
        分钟
     </span>
   
@@ -287,6 +287,12 @@
     <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[34m\033[1m[*] Status has been saved.\033[0m\n&quot;</span>);
 &#125;</code></pre>
 
+<h2 id="返回用户态"><a href="#返回用户态" class="headerlink" title="返回用户态"></a>返回用户态</h2><p>在<a href="https://arttnba3.cn/2021/02/21/NOTE-0X02-LINUX-KERNEL-PWN-PART-I/#%E5%86%85%E6%A0%B8%E6%80%81-%E2%80%94-gt-%E7%94%A8%E6%88%B7%E6%80%81"> Linux Kernel Pwn学习笔记 I：一切开始之前 </a>当中笔者简要叙述了内核态返回用户态的过程：</p>
+<ul>
+<li><code>swapgs</code>指令恢复用户态GS寄存器</li>
+<li><code>sysretq</code>或者<code>iretq</code>恢复到用户空间</li>
+</ul>
+<p>那么我们只需要在内核中找到相应的gadget并执行<code>swapgd;iretq</code>就可以成功着陆回用户态</p>
 <h1 id="0x01-Kernel-UAF（Use-After-Free）"><a href="#0x01-Kernel-UAF（Use-After-Free）" class="headerlink" title="0x01.Kernel UAF（Use After Free）"></a>0x01.Kernel UAF（Use After Free）</h1><p>UAF即Use After Free，通常指的是<strong>对于释放后未重置的垂悬指针的利用</strong>，此前的heap阶段对于ptmalloc的利用很多都是基于UAF漏洞进行进一步的利用</p>
 <p>Linux Kernel中同样有着一个动态内存分配器——slab/slub内存分配器，若是在kernel中存在着垂悬指针，我们同样可以以此完成对slab/slub内存分配器的利用，通过Kernel UAF完成提权</p>
 <h2 id="CISCN-2017-babydriver"><a href="#CISCN-2017-babydriver" class="headerlink" title="CISCN - 2017 - babydriver"></a>CISCN - 2017 - babydriver</h2><blockquote>
