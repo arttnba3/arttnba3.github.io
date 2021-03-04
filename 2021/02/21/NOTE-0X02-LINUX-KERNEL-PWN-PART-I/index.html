@@ -204,7 +204,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      12.4k 字
+      12.5k 字
     </span>
   
 
@@ -214,7 +214,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      157
+      159
        分钟
     </span>
   
@@ -256,7 +256,7 @@
             
               <p class="note note-info">
                 
-                  本文最后更新于：2021年3月4日 凌晨
+                  本文最后更新于：2021年3月4日 中午
                 
               </p>
             
@@ -1302,7 +1302,47 @@ MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);
 <p>注：实际生产开发中推荐使用bash/dash等成熟的shell，这里仅仅是做了一个勉强能用的小玩具</p>
 </blockquote>
 <p>我们的kernel虽然成功地跑了起来，但是不可置否的是，仅有一个白色的<code>/#</code>作为提示符的默认shell似乎过于丑陋了（），于是我们接下来试着开发一个属于自己的可爱的shell吧！</p>
-<h3 id="获取基本信息"><a href="#获取基本信息" class="headerlink" title="获取基本信息"></a>获取基本信息</h3><h3 id="改变字体颜色"><a href="#改变字体颜色" class="headerlink" title="改变字体颜色"></a>改变字体颜色</h3><h3 id="命令行解析"><a href="#命令行解析" class="headerlink" title="命令行解析"></a>命令行解析</h3><h3 id="进程创建"><a href="#进程创建" class="headerlink" title="进程创建"></a>进程创建</h3><h2 id="八、替换系统原有内核"><a href="#八、替换系统原有内核" class="headerlink" title="八、替换系统原有内核"></a>八、替换系统原有内核</h2><p>一切都准备好啦！现在我们来将我们的内核安装到我们原有的操作机上吧！</p>
+<p>通常而言，一个shell可以简化为如下形式：</p>
+<blockquote>
+<p>参考自《现代操作系统》P31 图 1-19</p>
+</blockquote>
+<pre><code class="hljs c"><span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)
+&#123;
+    typePrompt(<span class="hljs-literal">NULL</span>);
+    readCommand();
+
+    <span class="hljs-keyword">int</span> pid = fork();
+
+    <span class="hljs-keyword">if</span>(pid &lt; <span class="hljs-number">0</span>)
+    &#123;
+        typePrompt(<span class="hljs-string">&quot;Unable to fork the child, inner error.&quot;</span>);
+    &#125;
+    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(pid == <span class="hljs-number">0</span>) <span class="hljs-comment">// the child thread</span>
+    &#123;
+        execve(command); <span class="hljs-comment">//execve the command</span>
+    &#125;
+    <span class="hljs-keyword">else</span> <span class="hljs-comment">// the parent thread</span>
+    &#123;
+        wait(<span class="hljs-literal">NULL</span>); <span class="hljs-comment">//waiting for the child to exit</span>
+    &#125;
+&#125;</code></pre>
+
+<p>当我们在shell中进行输入时，fork()出子进程来执行我们的输入，父进程则等待我们的子进程执行完成</p>
+<h3 id="打印提示符"><a href="#打印提示符" class="headerlink" title="打印提示符"></a>打印提示符</h3><p>一个“比较好看”的shell应当形如如下形式：</p>
+<blockquote>
+<p>bash，大多数Linux发行版上默认的shell</p>
+</blockquote>
+<p><img src="https://i.loli.net/2021/03/04/JSlezZnQ3GPFfXy.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>即我们在输入命令之前应当有如下结构的提示符：</p>
+<pre><code class="hljs shell">user@hostname:current_path$</code></pre>
+
+
+
+
+
+
+
+<h3 id="命令行解析"><a href="#命令行解析" class="headerlink" title="命令行解析"></a>命令行解析</h3><h3 id="进程创建"><a href="#进程创建" class="headerlink" title="进程创建"></a>进程创建</h3><h2 id="八、替换系统原有内核"><a href="#八、替换系统原有内核" class="headerlink" title="八、替换系统原有内核"></a>八、替换系统原有内核</h2><p>一切都准备好啦！现在我们来将我们的内核安装到我们原有的操作机上吧！</p>
 <h2 id="九、CTF中使用docker映射kernel"><a href="#九、CTF中使用docker映射kernel" class="headerlink" title="九、CTF中使用docker映射kernel"></a>九、CTF中使用docker映射kernel</h2><h1 id="0xFF-reference"><a href="#0xFF-reference" class="headerlink" title="0xFF.reference"></a>0xFF.reference</h1><blockquote>
 <p><a target="_blank" rel="noopener" href="https://eqqie.cn/index.php/laji_note/1475/">eqqie - Linux下kernel调试环境搭建</a></p>
 <p><a target="_blank" rel="noopener" href="http://taqini.space/2020/11/21/linux-kernel-pwn-learning/">TaQini - Linux Kernel Pwn 入门笔记</a></p>
