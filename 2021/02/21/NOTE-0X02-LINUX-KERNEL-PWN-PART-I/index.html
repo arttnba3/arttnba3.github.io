@@ -204,7 +204,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      12.5k 字
+      12.9k 字
     </span>
   
 
@@ -214,7 +214,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      159
+      165
        分钟
     </span>
   
@@ -256,7 +256,7 @@
             
               <p class="note note-info">
                 
-                  本文最后更新于：2021年3月4日 中午
+                  本文最后更新于：2021年3月4日 下午
                 
               </p>
             
@@ -1336,12 +1336,98 @@ MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);
 <p>即我们在输入命令之前应当有如下结构的提示符：</p>
 <pre><code class="hljs shell">user@hostname:current_path$</code></pre>
 
+<ul>
+<li><p>获取用户相关信息可以使用<code>getpwuid(getuid())</code>获取一个<code>passwd</code>结构体</p>
+</li>
+<li><p>获取主机名则可以使用<code>gethostname()</code>函数</p>
+</li>
+<li><p>获取当前路径可以使用<code>getcwd()</code>函数，按照bash的风格若是包含当前用户的home路径则我们应当将其缩写为<code>~</code></p>
+</li>
+<li><p>改变字体颜色则可以用相应的转义序列控制字符，便不在此赘叙</p>
+</li>
+</ul>
+<p>最终我们得到的打印提示符的函数如下：</p>
+<pre><code class="hljs c"><span class="hljs-keyword">uid_t</span> uid;
+<span class="hljs-keyword">int</span> user_path_len;
+<span class="hljs-keyword">char</span> local_host_name[<span class="hljs-number">0x100</span>];
+<span class="hljs-keyword">char</span> user_path[<span class="hljs-number">0x100</span>];
+<span class="hljs-keyword">char</span> current_path[<span class="hljs-number">0x200</span>];
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">passwd</span> * <span class="hljs-title">user_info</span> = <span class="hljs-title">NULL</span>;</span>
 
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">typePrompt</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
+<span class="hljs-function"></span>&#123;
+    uid = getuid();
+    user_info = getpwuid(uid);
+    user_path_len = <span class="hljs-built_in">strlen</span>(user_info-&gt;pw_dir);
 
+    <span class="hljs-keyword">if</span>(gethostname(local_host_name, <span class="hljs-number">0x100</span>))
+    &#123;
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[31m\033[1m[x] Unable to get the hostname, inner error.\033[0m\n&quot;</span>);
+        <span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);
+    &#125;
 
+    <span class="hljs-keyword">if</span>(!getcwd(current_path, <span class="hljs-number">0x200</span>))
+    &#123;
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[31m\033[1m[x] Unable to get the current path, inner error.\033[0m\n&quot;</span>);
+        <span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);
+    &#125;
 
+    <span class="hljs-keyword">if</span>(uid == <span class="hljs-number">0</span>) <span class="hljs-comment">// for root, no color</span>
+    &#123;
+        <span class="hljs-built_in">printf</span>(user_info-&gt;pw_name);
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;@&quot;</span>);
+        <span class="hljs-built_in">printf</span>(local_host_name);
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;:&quot;</span>);
+        <span class="hljs-keyword">if</span>(<span class="hljs-built_in">strlen</span>(current_path) &gt; user_path_len)
+        &#123;
+            <span class="hljs-built_in">memcpy</span>(user_path, current_path, user_path_len);
+            user_path[user_path_len] = <span class="hljs-string">&#x27;\0&#x27;</span>;
+            <span class="hljs-keyword">if</span>(!<span class="hljs-built_in">strcmp</span>(user_path, user_info-&gt;pw_dir))
+            &#123;
+                <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;~&quot;</span>);
+                <span class="hljs-built_in">printf</span>(current_path + user_path_len);
+            &#125;
+            <span class="hljs-keyword">else</span>
+                <span class="hljs-built_in">printf</span>(current_path);
+        &#125;
+        <span class="hljs-keyword">else</span>
+        &#123;
+            <span class="hljs-built_in">printf</span>(current_path);
+        &#125;
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;#&quot;</span>);
+    &#125;
+    <span class="hljs-keyword">else</span>
+    &#123;
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[32m\033[1m&quot;</span>);
+        <span class="hljs-built_in">printf</span>(user_info-&gt;pw_name);
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;@&quot;</span>);
+        <span class="hljs-built_in">printf</span>(local_host_name);
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[0m\033[1m&quot;</span>);
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;:&quot;</span>);
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[34m&quot;</span>);
+        <span class="hljs-keyword">if</span>(<span class="hljs-built_in">strlen</span>(current_path) &gt; user_path_len)
+        &#123;
+            <span class="hljs-built_in">memcpy</span>(user_path, current_path, user_path_len);
+            user_path[user_path_len] = <span class="hljs-string">&#x27;\0&#x27;</span>;
+            <span class="hljs-keyword">if</span>(!<span class="hljs-built_in">strcmp</span>(user_path, user_info-&gt;pw_dir))
+            &#123;
+                <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;~&quot;</span>);
+                <span class="hljs-built_in">printf</span>(current_path + user_path_len);
+            &#125;
+            <span class="hljs-keyword">else</span>
+                <span class="hljs-built_in">printf</span>(current_path);
+        &#125;
+        <span class="hljs-keyword">else</span>
+        &#123;
+            <span class="hljs-built_in">printf</span>(current_path);
+        &#125;
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[0m&quot;</span>);
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;$&quot;</span>);
+    &#125;
+&#125;</code></pre>
 
-
+<p>简单测试一下，以假乱真还是没什么问题的（）</p>
+<p><img src="https://i.loli.net/2021/03/04/L73rDxGoI4ifbRX.png" srcset="/img/loading.gif" alt="image.png"></p>
 <h3 id="命令行解析"><a href="#命令行解析" class="headerlink" title="命令行解析"></a>命令行解析</h3><h3 id="进程创建"><a href="#进程创建" class="headerlink" title="进程创建"></a>进程创建</h3><h2 id="八、替换系统原有内核"><a href="#八、替换系统原有内核" class="headerlink" title="八、替换系统原有内核"></a>八、替换系统原有内核</h2><p>一切都准备好啦！现在我们来将我们的内核安装到我们原有的操作机上吧！</p>
 <h2 id="九、CTF中使用docker映射kernel"><a href="#九、CTF中使用docker映射kernel" class="headerlink" title="九、CTF中使用docker映射kernel"></a>九、CTF中使用docker映射kernel</h2><h1 id="0xFF-reference"><a href="#0xFF-reference" class="headerlink" title="0xFF.reference"></a>0xFF.reference</h1><blockquote>
 <p><a target="_blank" rel="noopener" href="https://eqqie.cn/index.php/laji_note/1475/">eqqie - Linux下kernel调试环境搭建</a></p>
