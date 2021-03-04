@@ -204,7 +204,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      14.2k 字
+      14.8k 字
     </span>
   
 
@@ -214,7 +214,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      184
+      191
        分钟
     </span>
   
@@ -256,7 +256,7 @@
             
               <p class="note note-info">
                 
-                  本文最后更新于：2021年3月4日 晚上
+                  本文最后更新于：2021年3月5日 凌晨
                 
               </p>
             
@@ -1647,7 +1647,46 @@ MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);
 </blockquote>
 <p>编译运行，勉强能用（），后面还会继续进行进一步的优化（如代码补全等</p>
 <p><img src="https://i.loli.net/2021/03/04/iJPF9CqwBpzmlaZ.png" srcset="/img/loading.gif" alt="image.png"></p>
-<h3 id="EXTRA-MORE-POWERFUL-SHELL"><a href="#EXTRA-MORE-POWERFUL-SHELL" class="headerlink" title="EXTRA.MORE POWERFUL SHELL"></a>EXTRA.MORE POWERFUL SHELL</h3><h2 id="八、替换系统原有内核"><a href="#八、替换系统原有内核" class="headerlink" title="八、替换系统原有内核"></a>八、替换系统原有内核</h2><p>一切都准备好啦！现在我们来将我们的内核安装到我们原有的操作机上吧！</p>
+<h3 id="EXTRA-MORE-POWERFUL-SHELL"><a href="#EXTRA-MORE-POWERFUL-SHELL" class="headerlink" title="EXTRA.MORE POWERFUL SHELL"></a>EXTRA.MORE POWERFUL SHELL</h3><p>毫无疑问的是，一个成熟易用的shell应当还要具备如<code>代码补全</code>、<code>上下切换历史记录</code>等功能，因此我们决定为我们的shell添加这样的功能，让她成为一个更加强大的shell</p>
+<p>在这里我们将会用到一个库<a target="_blank" rel="noopener" href="https://tiswww.case.edu/php/chet/readline/rltop.html">The GNU Readline Library</a></p>
+<h4 id="安装readline库"><a href="#安装readline库" class="headerlink" title="安装readline库"></a>安装readline库</h4><pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> sudo apt-get install libreadline-gplv2-dev</span>
+<span class="hljs-meta">$</span><span class="bash"> sudo apt-get install libreadline6-dev</span></code></pre>
+
+<p>也可以在<a target="_blank" rel="noopener" href="http://git.savannah.gnu.org/cgit/readline.git/snapshot/readline-master.tar.gz">这里</a>下载源码</p>
+<h4 id="使用readline读取输入"><a href="#使用readline读取输入" class="headerlink" title="使用readline读取输入"></a>使用readline读取输入</h4><p>需要<code>#include &lt;readline/readline.h&gt;</code></p>
+<p>只需要将我们原来的<code>readCommand()</code>函数换为<code>readline()</code>函数即可，返回值即为读取到的输入</p>
+<p>需要注意的是<strong>我们需要手动进行释放，否则会造成内存泄漏</strong></p>
+<p>readline()函数接收一个参数作为输入前的提示符，我们只需要稍微原有函数将拼接好的提示符传入即可</p>
+<p>✳需要注意的是<strong>我们传入的提示符字符串应当以</strong><code>&#39;\001&#39;</code><strong>开头</strong>、<code>&#39;\002&#39;</code><strong>结尾</strong></p>
+<p>对于空行而言，readline()将会返回一个空字符串（buf[0] == ‘\0’）而不是NULL</p>
+<h4 id="记录历史输入"><a href="#记录历史输入" class="headerlink" title="记录历史输入"></a>记录历史输入</h4><p>readline库提供了强大的历史输入记录功能，在使用<code>readline()</code>函数读取输入后我们可以使用<code>add_history()</code>记录输入，传入的参数则是readline()返回的字符串</p>
+<p><strong>添加历史后我们便可以像普通的shell那样使用↑↓来显示历史输入记录</strong></p>
+<p>打印的功能依然需要我们自定义，在readline lib中使用一个<code>HIST_ENTRY</code>结构体数组来记录我们传入的历史输入，而使用<code>history_list()</code>便可以获得指向该结构体数组的指针</p>
+<p>代码如下：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;readline/history.h&gt;</span></span>
+
+...
+
+HIST_ENTRY ** his = history_list();
+<span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; his[i]; i++)
+&#123;
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot; %d\t\t&quot;</span>, i);
+    <span class="hljs-built_in">puts</span>(his[i]-&gt;line);
+&#125;</code></pre>
+
+<h4 id="编译运行"><a href="#编译运行" class="headerlink" title="编译运行"></a>编译运行</h4><p>需要注意的是我们编译时应当添加上<code>-lreadline</code>参数</p>
+<blockquote>
+<p>示例：</p>
+<pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> gcc shell.c -o a3sh -lreadline</span></code></pre>
+
+<p>程序完整代码见<a target="_blank" rel="noopener" href="https://github.com/arttnba3/a3shell">https://github.com/arttnba3/a3shell</a></p>
+</blockquote>
+<p>大概效果图如下（自动补全的效果没法表现出来，感受一下…）</p>
+<p><img src="https://i.loli.net/2021/03/05/a2PZdr8ULscwjky.png" srcset="/img/loading.gif" alt="image.png"></p>
+<blockquote>
+<p>说实话按照笔者个人的体验而言这个库并不算特别完善…</p>
+</blockquote>
+<h2 id="八、替换系统原有内核"><a href="#八、替换系统原有内核" class="headerlink" title="八、替换系统原有内核"></a>八、替换系统原有内核</h2><p>一切都准备好啦！现在我们来将我们的内核安装到我们原有的操作机上吧！</p>
 <h2 id="九、CTF中使用docker映射kernel"><a href="#九、CTF中使用docker映射kernel" class="headerlink" title="九、CTF中使用docker映射kernel"></a>九、CTF中使用docker映射kernel</h2><h1 id="0xFF-reference"><a href="#0xFF-reference" class="headerlink" title="0xFF.reference"></a>0xFF.reference</h1><blockquote>
 <p><a target="_blank" rel="noopener" href="https://eqqie.cn/index.php/laji_note/1475/">eqqie - Linux下kernel调试环境搭建</a></p>
 <p><a target="_blank" rel="noopener" href="http://taqini.space/2020/11/21/linux-kernel-pwn-learning/">TaQini - Linux Kernel Pwn 入门笔记</a></p>
