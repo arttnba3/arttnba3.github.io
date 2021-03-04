@@ -204,7 +204,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      13.4k 字
+      13.9k 字
     </span>
   
 
@@ -214,7 +214,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      172
+      179
        分钟
     </span>
   
@@ -1308,14 +1308,14 @@ MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);
 </blockquote>
 <pre><code class="hljs c"><span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)
 &#123;
-    typePrompt(<span class="hljs-literal">NULL</span>);
+    typePrompt();
     readCommand();
 
     <span class="hljs-keyword">int</span> pid = fork();
 
     <span class="hljs-keyword">if</span>(pid &lt; <span class="hljs-number">0</span>)
     &#123;
-        typePrompt(<span class="hljs-string">&quot;Unable to fork the child, inner error.&quot;</span>);
+        <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;Unable to fork the child, inner error.&quot;</span>);
     &#125;
     <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(pid == <span class="hljs-number">0</span>) <span class="hljs-comment">// the child thread</span>
     &#123;
@@ -1465,6 +1465,7 @@ MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);
         command_buf[count++] = ch;
     &#125;
     command_buf[count] = <span class="hljs-string">&#x27;\0&#x27;</span>;
+    historyRecord();
 &#125;</code></pre>
 
 <h3 id="命令行解析"><a href="#命令行解析" class="headerlink" title="命令行解析"></a>命令行解析</h3><p>最为简单的解析方式便是使用<code>strtok()</code>函数进行分割，这里我们选择以空格<code>&quot; &quot;</code>作为分隔符</p>
@@ -1487,20 +1488,108 @@ MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);
         <span class="hljs-keyword">if</span>(args_count + <span class="hljs-number">1</span> == ARGS_MAX)
             <span class="hljs-keyword">break</span>;
     &#125;
-    <span class="hljs-keyword">if</span>(!<span class="hljs-built_in">strcmp</span>(args[<span class="hljs-number">0</span>], <span class="hljs-string">&quot;exit&quot;</span>))
-    &#123;
-        <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;Exit the a3shell now, see you again!&quot;</span>)
-        <span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);
-    &#125;
 &#125;</code></pre>
 
 <h3 id="命令执行"><a href="#命令执行" class="headerlink" title="命令执行"></a>命令执行</h3><p>相比起<code>execve()</code>，<code>execvp()</code>函数更适合用以执行我们输入的命令，同时我们解析后的命令行格式可以直接传入，较为方便</p>
 <pre><code class="hljs c">execvp(args[<span class="hljs-number">0</span>], args);
 <span class="hljs-built_in">memset</span>(args, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">char</span>*) * args_count); <span class="hljs-comment">// clear the args buf</span></code></pre>
 
-<h3 id="内建命令"><a href="#内建命令" class="headerlink" title="内建命令"></a>内建命令</h3><h3 id="代码测试"><a href="#代码测试" class="headerlink" title="代码测试"></a>代码测试</h3><p>完整代码见<a target="_blank" rel="noopener" href="https://github.com/arttnba3/a3shell">https://github.com/arttnba3/a3shell</a></p>
-<p>编译运行，勉强能用（），后面还会继续进行优化</p>
-<p><img src="https://i.loli.net/2021/03/04/OMXG4jvrYU8fWE7.png" srcset="/img/loading.gif" alt="image.png"></p>
+<h3 id="内建命令"><a href="#内建命令" class="headerlink" title="内建命令"></a>内建命令</h3><p>部分命令如<code>cd</code>（改变当前工作目录）、<code>history</code>（查看历史）、<code>exit</code>（退出）等命令若是直接使用execvp()执行的话我们会发现<strong>毫无效果</strong>，因此这几个命令我们需要自行建立在我们的shell当中</p>
+<ul>
+<li><code>cd</code>命令可以直接使用<code>chdir()</code>函数改变当前工作目录，需要注意的是对于字符串<code>&quot;~&quot;</code>我们应当单独解析——将其替换为用户工作目录后再进行字符串拼接</li>
+<li><code>history</code>命令则需要我们预先有一个储存历史命令的缓冲区，同时当历史记录达到上限时我们应当进行清除，这里我们选择模拟一个循环链表以在历史命令满之后每次输入命令时都会去除现存的最早的命令</li>
+<li><code>exit</code>命令则只需要在主进程中识别到该字符串时直接调用<code>exit()</code>即可</li>
+</ul>
+<p>同样地，在主进程若是检测到输入的命令为内建命令，则应当<strong>不调用</strong><code>execvp()</code>，在这里笔者选择添加一个返回值进行判定</p>
+<p>代码如下：</p>
+<pre><code class="hljs c"><span class="hljs-keyword">static</span> <span class="hljs-keyword">char</span> * history[HIS_MAX];
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> his_count = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> his_start = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> his_full = <span class="hljs-number">0</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">innerCommand</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
+<span class="hljs-function"></span>&#123;
+    <span class="hljs-keyword">if</span>(!<span class="hljs-built_in">strcmp</span>(args[<span class="hljs-number">0</span>], <span class="hljs-string">&quot;exit&quot;</span>))
+    &#123;
+        <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;Exit the a3shell now, see you again!&quot;</span>);
+        <span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);
+    &#125;
+    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(!<span class="hljs-built_in">strcmp</span>(args[<span class="hljs-number">0</span>], <span class="hljs-string">&quot;cd&quot;</span>))
+    &#123;
+        <span class="hljs-keyword">if</span>(args_count &gt; <span class="hljs-number">1</span>)
+            <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;cd: too many arguments&quot;</span>);
+        <span class="hljs-keyword">else</span>
+        &#123;
+            <span class="hljs-keyword">if</span>(args[<span class="hljs-number">1</span>][<span class="hljs-number">0</span>] == <span class="hljs-string">&#x27;~&#x27;</span> &amp;&amp; args[<span class="hljs-number">1</span>][<span class="hljs-number">1</span>] == <span class="hljs-string">&#x27;/&#x27;</span>)
+            &#123;
+                <span class="hljs-keyword">char</span> * dir = <span class="hljs-built_in">malloc</span>(<span class="hljs-built_in">strlen</span>(args[<span class="hljs-number">1</span>]) + <span class="hljs-built_in">strlen</span>(user_info-&gt;pw_dir));
+                <span class="hljs-built_in">strcpy</span>(dir, user_info-&gt;pw_dir);
+                <span class="hljs-built_in">strncat</span>(dir, args[<span class="hljs-number">1</span>][<span class="hljs-number">1</span>], <span class="hljs-built_in">strlen</span>(args[<span class="hljs-number">1</span>]) - <span class="hljs-number">1</span>);
+                chdir(dir);
+                <span class="hljs-built_in">free</span>(dir);
+                dir = <span class="hljs-literal">NULL</span>;
+            &#125;
+            <span class="hljs-keyword">else</span>
+                chdir(args[<span class="hljs-number">1</span>]);
+        &#125;
+        <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;
+    &#125;
+    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(!<span class="hljs-built_in">strcmp</span>(args[<span class="hljs-number">0</span>], <span class="hljs-string">&quot;history&quot;</span>))
+    &#123;
+        <span class="hljs-keyword">if</span>(args[<span class="hljs-number">1</span>] &amp;&amp; !<span class="hljs-built_in">strcmp</span>(args[<span class="hljs-number">1</span>], <span class="hljs-string">&quot;-c&quot;</span>))
+        &#123;
+            his_count = <span class="hljs-number">0</span>;
+            his_full = <span class="hljs-number">0</span>;
+            his_start = <span class="hljs-number">0</span>;
+            <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;
+        &#125;
+        <span class="hljs-keyword">int</span> count = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">if</span>(his_full)
+        &#123;
+            <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i = his_start; i &lt; HIS_MAX; i++)
+            &#123;
+                <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot; %d  &quot;</span>, count++);
+                <span class="hljs-built_in">puts</span>(history[i]);
+            &#125;
+            <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; his_start;i++)
+            &#123;
+                <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot; %d  &quot;</span>, count++);
+                <span class="hljs-built_in">puts</span>(history[i]);
+            &#125;
+        &#125;
+        <span class="hljs-keyword">else</span>
+        &#123;
+            <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; his_count; i++)
+            &#123;
+                <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot; %d  &quot;</span>, count++);
+                <span class="hljs-built_in">puts</span>(history[i]);
+            &#125;
+        &#125;
+        <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;
+    &#125;
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">historyRecord</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span><span class="hljs-comment">//to record the history</span></span>
+<span class="hljs-function"></span>&#123;
+    history[his_count] = <span class="hljs-built_in">malloc</span>(<span class="hljs-built_in">strlen</span>(command_buf));
+    <span class="hljs-built_in">strcpy</span>(history[his_count], command_buf);
+    his_count++;
+    <span class="hljs-keyword">if</span>(his_full)
+    &#123;
+        his_start++;
+        his_start %= HIS_MAX;
+    &#125;
+    <span class="hljs-keyword">if</span>(his_count == HIS_MAX)
+    &#123;
+        his_count = <span class="hljs-number">0</span>;
+        his_full = <span class="hljs-number">1</span>;
+    &#125;
+&#125;</code></pre>
+
+<h3 id="代码测试"><a href="#代码测试" class="headerlink" title="代码测试"></a>代码测试</h3><p>完整代码见<a target="_blank" rel="noopener" href="https://github.com/arttnba3/a3shell">https://github.com/arttnba3/a3shell</a></p>
+<p>编译运行，勉强能用（），后面还会继续进行进一步的优化（如代码补全等</p>
+<p><img src="https://i.loli.net/2021/03/04/iJPF9CqwBpzmlaZ.png" srcset="/img/loading.gif" alt="image.png"></p>
 <h2 id="八、替换系统原有内核"><a href="#八、替换系统原有内核" class="headerlink" title="八、替换系统原有内核"></a>八、替换系统原有内核</h2><p>一切都准备好啦！现在我们来将我们的内核安装到我们原有的操作机上吧！</p>
 <h2 id="九、CTF中使用docker映射kernel"><a href="#九、CTF中使用docker映射kernel" class="headerlink" title="九、CTF中使用docker映射kernel"></a>九、CTF中使用docker映射kernel</h2><h1 id="0xFF-reference"><a href="#0xFF-reference" class="headerlink" title="0xFF.reference"></a>0xFF.reference</h1><blockquote>
 <p><a target="_blank" rel="noopener" href="https://eqqie.cn/index.php/laji_note/1475/">eqqie - Linux下kernel调试环境搭建</a></p>
