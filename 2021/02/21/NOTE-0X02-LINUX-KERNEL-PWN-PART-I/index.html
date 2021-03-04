@@ -204,7 +204,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      12.9k 字
+      13.4k 字
     </span>
   
 
@@ -214,7 +214,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      165
+      172
        分钟
     </span>
   
@@ -1394,7 +1394,7 @@ MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);
         &#123;
             <span class="hljs-built_in">printf</span>(current_path);
         &#125;
-        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;#&quot;</span>);
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;# &quot;</span>);
     &#125;
     <span class="hljs-keyword">else</span>
     &#123;
@@ -1422,13 +1422,86 @@ MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);
             <span class="hljs-built_in">printf</span>(current_path);
         &#125;
         <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[0m&quot;</span>);
-        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;$&quot;</span>);
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;$ &quot;</span>);
     &#125;
 &#125;</code></pre>
 
 <p>简单测试一下，以假乱真还是没什么问题的（）</p>
 <p><img src="https://i.loli.net/2021/03/04/L73rDxGoI4ifbRX.png" srcset="/img/loading.gif" alt="image.png"></p>
-<h3 id="命令行解析"><a href="#命令行解析" class="headerlink" title="命令行解析"></a>命令行解析</h3><h3 id="进程创建"><a href="#进程创建" class="headerlink" title="进程创建"></a>进程创建</h3><h2 id="八、替换系统原有内核"><a href="#八、替换系统原有内核" class="headerlink" title="八、替换系统原有内核"></a>八、替换系统原有内核</h2><p>一切都准备好啦！现在我们来将我们的内核安装到我们原有的操作机上吧！</p>
+<h3 id="输入读取"><a href="#输入读取" class="headerlink" title="输入读取"></a>输入读取</h3><p>对于用户的一次输入，毫无疑问我们不应当也不可能无限进行读取，因此我们应当对输入的读取的字符的上限做一个限制，超出这个限制长度往后的字符尽数丢弃</p>
+<p>同样地，为了避免一开始就分配过大的内存空间，笔者选择使用malloc进行动态内存分配，一开始时先分配一个适当大小的缓冲区，后续若输入超出这个大小则重新分配一个两倍大小的缓冲区</p>
+<p>完整代码如下：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> BUF_MAX 0x10000</span>
+
+<span class="hljs-keyword">char</span> * command_buf = <span class="hljs-literal">NULL</span>;
+<span class="hljs-keyword">int</span> command_buf_size = <span class="hljs-number">0</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">readCommand</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
+<span class="hljs-function"></span>&#123;
+    <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> count = <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">char</span> ch;
+    <span class="hljs-keyword">while</span>((ch = getchar()) != <span class="hljs-string">&#x27;\n&#x27;</span>)
+    &#123;
+        <span class="hljs-keyword">if</span>(count == command_buf_size)
+        &#123;
+            <span class="hljs-keyword">if</span>(<span class="hljs-number">2</span> * command_buf_size &gt; BUF_MAX) <span class="hljs-comment">//overflow</span>
+            &#123;
+                <span class="hljs-keyword">while</span>((ch = getchar()) != <span class="hljs-string">&#x27;\n&#x27;</span>)
+                    <span class="hljs-keyword">continue</span>;
+                <span class="hljs-keyword">break</span>;
+            &#125;
+            <span class="hljs-keyword">char</span> * new_buf = (<span class="hljs-keyword">char</span>*)<span class="hljs-built_in">malloc</span>(<span class="hljs-number">2</span> * command_buf_size);
+            <span class="hljs-keyword">if</span>(!new_buf) <span class="hljs-comment">//malloc error</span>
+            &#123;
+                <span class="hljs-keyword">while</span>((ch = getchar()) != <span class="hljs-string">&#x27;\n&#x27;</span>)
+                    <span class="hljs-keyword">continue</span>;
+                <span class="hljs-keyword">break</span>;
+            &#125;
+            <span class="hljs-built_in">memcpy</span>(new_buf, command_buf, command_buf_size);
+            command_buf_size *= <span class="hljs-number">2</span>;
+            <span class="hljs-built_in">free</span>(command_buf);
+            command_buf = new_buf;
+        &#125;
+        command_buf[count++] = ch;
+    &#125;
+    command_buf[count] = <span class="hljs-string">&#x27;\0&#x27;</span>;
+&#125;</code></pre>
+
+<h3 id="命令行解析"><a href="#命令行解析" class="headerlink" title="命令行解析"></a>命令行解析</h3><p>最为简单的解析方式便是使用<code>strtok()</code>函数进行分割，这里我们选择以空格<code>&quot; &quot;</code>作为分隔符</p>
+<p>同样地，一行命令中的参数数量不应当过多，我们应当限制仅读取一定数量的参数</p>
+<p>代码如下：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ARGS_MAX 0x100</span>
+
+<span class="hljs-keyword">char</span> * args[<span class="hljs-number">0x100</span>];
+<span class="hljs-keyword">int</span> args_count = <span class="hljs-number">0</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">analyseCommand</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
+<span class="hljs-function"></span>&#123;
+    args_count = <span class="hljs-number">0</span>;
+    args[args_count] = strtok(command_buf, <span class="hljs-string">&quot; &quot;</span>);
+    <span class="hljs-keyword">char</span> * ptr;
+    <span class="hljs-keyword">while</span>(ptr = strtok(<span class="hljs-literal">NULL</span>, <span class="hljs-string">&quot; &quot;</span>))
+    &#123;
+        args_count++;
+        args[args_count] = ptr;
+        <span class="hljs-keyword">if</span>(args_count + <span class="hljs-number">1</span> == ARGS_MAX)
+            <span class="hljs-keyword">break</span>;
+    &#125;
+    <span class="hljs-keyword">if</span>(!<span class="hljs-built_in">strcmp</span>(args[<span class="hljs-number">0</span>], <span class="hljs-string">&quot;exit&quot;</span>))
+    &#123;
+        <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;Exit the a3shell now, see you again!&quot;</span>)
+        <span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);
+    &#125;
+&#125;</code></pre>
+
+<h3 id="命令执行"><a href="#命令执行" class="headerlink" title="命令执行"></a>命令执行</h3><p>相比起<code>execve()</code>，<code>execvp()</code>函数更适合用以执行我们输入的命令，同时我们解析后的命令行格式可以直接传入，较为方便</p>
+<pre><code class="hljs c">execvp(args[<span class="hljs-number">0</span>], args);
+<span class="hljs-built_in">memset</span>(args, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">char</span>*) * args_count); <span class="hljs-comment">// clear the args buf</span></code></pre>
+
+<h3 id="代码测试"><a href="#代码测试" class="headerlink" title="代码测试"></a>代码测试</h3><p>完整代码见<a target="_blank" rel="noopener" href="https://github.com/arttnba3/a3shell">https://github.com/arttnba3/a3shell</a></p>
+<p>编译运行，勉强能用（），后面还会继续进行优化</p>
+<p><img src="https://i.loli.net/2021/03/04/OMXG4jvrYU8fWE7.png" srcset="/img/loading.gif" alt="image.png"></p>
+<h2 id="八、替换系统原有内核"><a href="#八、替换系统原有内核" class="headerlink" title="八、替换系统原有内核"></a>八、替换系统原有内核</h2><p>一切都准备好啦！现在我们来将我们的内核安装到我们原有的操作机上吧！</p>
 <h2 id="九、CTF中使用docker映射kernel"><a href="#九、CTF中使用docker映射kernel" class="headerlink" title="九、CTF中使用docker映射kernel"></a>九、CTF中使用docker映射kernel</h2><h1 id="0xFF-reference"><a href="#0xFF-reference" class="headerlink" title="0xFF.reference"></a>0xFF.reference</h1><blockquote>
 <p><a target="_blank" rel="noopener" href="https://eqqie.cn/index.php/laji_note/1475/">eqqie - Linux下kernel调试环境搭建</a></p>
 <p><a target="_blank" rel="noopener" href="http://taqini.space/2020/11/21/linux-kernel-pwn-learning/">TaQini - Linux Kernel Pwn 入门笔记</a></p>
@@ -1443,6 +1516,7 @@ MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);
 <p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/geneil/archive/2011/12/03/2272869.html">linux设备驱动程序之简单字符设备驱动 - LoveFM - 博客园</a></p>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_41453285/article/details/102942629">Linux驱动(字符设备):02—设备号（dev_t、MAJOR、MINOR、MKDEV、register_chrdev_region、alloc_chrdev_region）_江南、董少-CSDN博客</a></p>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/yeshennet/article/details/82315816">Linux内核模块编程指南(三)_yeshen.org-CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/wuyuegb2312/p/3399566.html">手把手教你编写一个具有基本功能的shell（已开源） - 五岳 - 博客园</a></p>
 <p>《Understanding the Linux Kernel(Third Edition)》 —— Daniel P. Bovet &amp; Marco Cesati</p>
 <p>《Modern Operating System(Fourth Edition)》 —— Andrew S. Tanenbaum &amp; Herbert Bos</p>
 </blockquote>
