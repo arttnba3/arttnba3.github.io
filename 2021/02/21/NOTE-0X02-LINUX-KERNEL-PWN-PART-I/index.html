@@ -204,7 +204,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      13.9k 字
+      14.2k 字
     </span>
   
 
@@ -214,7 +214,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      179
+      184
        分钟
     </span>
   
@@ -256,7 +256,7 @@
             
               <p class="note note-info">
                 
-                  本文最后更新于：2021年3月4日 下午
+                  本文最后更新于：2021年3月4日 晚上
                 
               </p>
             
@@ -1430,13 +1430,18 @@ MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);
 <p><img src="https://i.loli.net/2021/03/04/L73rDxGoI4ifbRX.png" srcset="/img/loading.gif" alt="image.png"></p>
 <h3 id="输入读取"><a href="#输入读取" class="headerlink" title="输入读取"></a>输入读取</h3><p>对于用户的一次输入，毫无疑问我们不应当也不可能无限进行读取，因此我们应当对输入的读取的字符的上限做一个限制，超出这个限制长度往后的字符尽数丢弃</p>
 <p>同样地，为了避免一开始就分配过大的内存空间，笔者选择使用malloc进行动态内存分配，一开始时先分配一个适当大小的缓冲区，后续若输入超出这个大小则重新分配一个两倍大小的缓冲区</p>
+<p>对于输入历史是否记录，我们还需要进行判断，若是用户仅仅是在不断敲击<code>ENTER</code>，那么就没必要记录了</p>
+<h4 id="后台执行"><a href="#后台执行" class="headerlink" title="后台执行"></a>后台执行</h4><p>有的时候我们想要让应用被放到后台去执行，那么我们的父进程（shell）就不应当等待子进程，笔者选择仿照bash的方式——若最后一个字符是<code>&#39;&amp;&#39;</code>则不等待子进程执行，这里我们选择在读取命令时使用一个返回值进行标识</p>
 <p>完整代码如下：</p>
 <pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> BUF_MAX 0x10000</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> FLAG_NULL_INPUT -1</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> FLAG_EXECVE_BACKGROUND 0</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> FLAG_EXECVE_WAIT 1</span>
 
 <span class="hljs-keyword">char</span> * command_buf = <span class="hljs-literal">NULL</span>;
 <span class="hljs-keyword">int</span> command_buf_size = <span class="hljs-number">0</span>;
 
-<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">readCommand</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">readCommand</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
 <span class="hljs-function"></span>&#123;
     <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> count = <span class="hljs-number">0</span>;
     <span class="hljs-keyword">char</span> ch;
@@ -1465,7 +1470,15 @@ MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);
         command_buf[count++] = ch;
     &#125;
     command_buf[count] = <span class="hljs-string">&#x27;\0&#x27;</span>;
+    <span class="hljs-keyword">if</span>(count == <span class="hljs-number">0</span>)
+        <span class="hljs-keyword">return</span> FLAG_NULL_INPUT;
     historyRecord();
+    <span class="hljs-keyword">if</span>(command_buf[count - <span class="hljs-number">1</span>] == <span class="hljs-string">&#x27;&amp;&#x27;</span>)
+    &#123;
+        command_buf[count - <span class="hljs-number">1</span>] = <span class="hljs-string">&#x27;\0&#x27;</span>;
+        <span class="hljs-keyword">return</span> FLAG_EXECVE_BACKGROUND;
+    &#125;
+    <span class="hljs-keyword">return</span> FLAG_EXECVE_WAIT;
 &#125;</code></pre>
 
 <h3 id="命令行解析"><a href="#命令行解析" class="headerlink" title="命令行解析"></a>命令行解析</h3><p>最为简单的解析方式便是使用<code>strtok()</code>函数进行分割，这里我们选择以空格<code>&quot; &quot;</code>作为分隔符</p>
@@ -1491,8 +1504,18 @@ MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);
 &#125;</code></pre>
 
 <h3 id="命令执行"><a href="#命令执行" class="headerlink" title="命令执行"></a>命令执行</h3><p>相比起<code>execve()</code>，<code>execvp()</code>函数更适合用以执行我们输入的命令，同时我们解析后的命令行格式可以直接传入，较为方便</p>
-<pre><code class="hljs c">execvp(args[<span class="hljs-number">0</span>], args);
-<span class="hljs-built_in">memset</span>(args, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">char</span>*) * args_count); <span class="hljs-comment">// clear the args buf</span></code></pre>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">createChild</span><span class="hljs-params">(<span class="hljs-keyword">int</span> flag)</span></span>
+<span class="hljs-function"></span>&#123;
+    <span class="hljs-keyword">int</span> pid = fork();
+
+    <span class="hljs-keyword">if</span>(pid &lt; <span class="hljs-number">0</span>) <span class="hljs-comment">// failed to fork a new thread</span>
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[31m\033[1m[x] Unable to fork the child, inner error.\033[0m\n&quot;</span>);
+    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(pid == <span class="hljs-number">0</span>) <span class="hljs-comment">// the child thread</span>
+        execvp(args[<span class="hljs-number">0</span>], args);
+    <span class="hljs-keyword">else</span> <span class="hljs-comment">// the parent thread</span>
+        <span class="hljs-keyword">if</span>(flag == FLAG_EXECVE_WAIT)
+            wait(<span class="hljs-literal">NULL</span>); <span class="hljs-comment">//waiting for the child to exit</span>
+&#125;</code></pre>
 
 <h3 id="内建命令"><a href="#内建命令" class="headerlink" title="内建命令"></a>内建命令</h3><p>部分命令如<code>cd</code>（改变当前工作目录）、<code>history</code>（查看历史）、<code>exit</code>（退出）等命令若是直接使用execvp()执行的话我们会发现<strong>毫无效果</strong>，因此这几个命令我们需要自行建立在我们的shell当中</p>
 <ul>
@@ -1587,7 +1610,41 @@ MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);
     &#125;
 &#125;</code></pre>
 
-<h3 id="代码测试"><a href="#代码测试" class="headerlink" title="代码测试"></a>代码测试</h3><p>完整代码见<a target="_blank" rel="noopener" href="https://github.com/arttnba3/a3shell">https://github.com/arttnba3/a3shell</a></p>
+<h3 id="代码测试"><a href="#代码测试" class="headerlink" title="代码测试"></a>代码测试</h3><p>最终我们的主程序如下：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;unistd.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;string.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;fcntl.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/ioctl.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;pwd.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/types.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&quot;func.c&quot;</span></span>
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
+<span class="hljs-function"></span>&#123;
+    init();
+
+    <span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)
+    &#123;
+        <span class="hljs-built_in">memset</span>(args, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">char</span>*) * <span class="hljs-number">0x100</span>);
+        typePrompt();
+        <span class="hljs-keyword">int</span> flag = readCommand();
+        <span class="hljs-keyword">if</span>(flag == FLAG_NULL_INPUT)
+            <span class="hljs-keyword">continue</span>;
+        analyseCommand();
+        <span class="hljs-keyword">if</span>(innerCommand())
+            <span class="hljs-keyword">continue</span>;
+
+        createChild(flag);
+    &#125;
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;
+</code></pre>
+
+<blockquote>
+<p>完整代码见<a target="_blank" rel="noopener" href="https://github.com/arttnba3/a3shell">https://github.com/arttnba3/a3shell</a></p>
+</blockquote>
 <p>编译运行，勉强能用（），后面还会继续进行进一步的优化（如代码补全等</p>
 <p><img src="https://i.loli.net/2021/03/04/iJPF9CqwBpzmlaZ.png" srcset="/img/loading.gif" alt="image.png"></p>
 <h2 id="八、替换系统原有内核"><a href="#八、替换系统原有内核" class="headerlink" title="八、替换系统原有内核"></a>八、替换系统原有内核</h2><p>一切都准备好啦！现在我们来将我们的内核安装到我们原有的操作机上吧！</p>
