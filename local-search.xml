@@ -22,11 +22,15 @@
       
       <tag>Pwn</tag>
       
+      <tag>Use After Free</tag>
+      
       <tag>学习札记</tag>
       
       <tag>Linux Kernel</tag>
       
       <tag>Linux</tag>
+      
+      <tag>Kernel UAF</tag>
       
     </tags>
     
