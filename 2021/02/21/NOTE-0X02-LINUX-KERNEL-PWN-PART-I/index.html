@@ -204,7 +204,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      14.8k 字
+      16.3k 字
     </span>
   
 
@@ -214,7 +214,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      191
+      215
        分钟
     </span>
   
@@ -256,7 +256,7 @@
             
               <p class="note note-info">
                 
-                  本文最后更新于：2021年3月5日 凌晨
+                  本文最后更新于：2021年3月6日 晚上
                 
               </p>
             
@@ -834,7 +834,7 @@ make[1]: Leaving directory &#x27;/usr/src/linux-headers-5.8.0-43-generic&#x27;</
 <p><img src="https://i.loli.net/2021/02/28/vJitGgkFTzcPx8a.png" srcset="/img/loading.gif" alt="image.png"></p>
 <h3 id="提供应用程式I-O接口"><a href="#提供应用程式I-O接口" class="headerlink" title="提供应用程式I/O接口"></a>提供应用程式I/O接口</h3><p>虽然说我们的新模块成功跑起来了，但是除了在内核缓冲区进行输入输出以外好像就做不了什么了，我们希望我们写的内核模块能够向我们提供更多的功能并能够让用户与其进行交互，以发挥更多的作用</p>
 <h4 id="I-设备注册"><a href="#I-设备注册" class="headerlink" title="I.设备注册"></a>I.设备注册</h4><p>前面讲到，*NIX/Linux的哲学之一便是<code>万物皆文件</code>，<strong>一切都可以被抽象为文件，一切都可以使用访问文件的方式进行操作</strong>，这提供了高层次上的操作一致性</p>
-<p>同样地，我们若是想要能够与我们的内核模块进行交互，则同样可以通过文件进行——注册一个“虚拟设备”，随后我们的用户态程序便可以使用系统调用<code>read、write、ioctl</code>来完成与内核模块间的通信</p>
+<p>同样地，我们若是想要能够与我们的内核模块进行交互，则同样可以通过文件进行——注册一个“虚拟设备节点”，随后我们的用户态程序便可以使用系统调用<code>read、write、ioctl</code>来完成与内核模块间的通信</p>
 <h5 id="设备分类"><a href="#设备分类" class="headerlink" title="设备分类"></a>设备分类</h5><p>在Linux中I/O设备分为如下两类：</p>
 <ul>
 <li><code>字符设备</code>：在I/O传输过程中<strong>以字符为单位</strong>进行传输的设备，例如键盘、串口等。字符设备<strong>按照字符流的方式被有序访问，不能够进行随机读取</strong></li>
@@ -1285,6 +1285,109 @@ MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);
 
 <p>编译运行，一切正常，撒花~🌸</p>
 <p><img src="https://i.loli.net/2021/03/03/bEUdnsRgOSlxKaV.png" srcset="/img/loading.gif" alt="image.png"></p>
+<h4 id="EXTRA-procfs接口"><a href="#EXTRA-procfs接口" class="headerlink" title="EXTRA.procfs接口"></a>EXTRA.procfs接口</h4><p>除了创建虚拟设备节点供通信以外，我们也可以选择创建虚拟文件节点的方式与用户进程间进行通信</p>
+<h5 id="procfs：进程文件系统"><a href="#procfs：进程文件系统" class="headerlink" title="procfs：进程文件系统"></a>procfs：进程文件系统</h5><p>procfs即<code>进程文件系统</code>（ Process file system ），其中包含一个<strong>伪文件系统</strong>，在系统启动时动态生成文件，不会占用真正的储存空间，而是占用一定的内存</p>
+<p>procfs用以通过内核访问进程信息，通常被挂载到<code>/proc</code>目录下</p>
+<h5 id="proc-ops结构体"><a href="#proc-ops结构体" class="headerlink" title="proc_ops结构体"></a>proc_ops结构体</h5><p>类似于<code>file_operations</code>结构体，不同的是该结构体被用于procfs</p>
+<p>定义于<code>include/linux/proc_fs.h</code>中，仅定义了少量函数指针成员，如下：</p>
+<pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">proc_ops</span> &#123;</span>
+	<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">int</span> proc_flags;
+	<span class="hljs-keyword">int</span>	(*proc_open)(struct inode *, struct file *);
+	<span class="hljs-keyword">ssize_t</span>	(*proc_read)(struct file *, <span class="hljs-keyword">char</span> __user *, <span class="hljs-keyword">size_t</span>, <span class="hljs-keyword">loff_t</span> *);
+	<span class="hljs-keyword">ssize_t</span> (*proc_read_iter)(struct kiocb *, struct iov_iter *);
+	<span class="hljs-keyword">ssize_t</span>	(*proc_write)(struct file *, <span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> __user *, <span class="hljs-keyword">size_t</span>, <span class="hljs-keyword">loff_t</span> *);
+	<span class="hljs-keyword">loff_t</span>	(*proc_lseek)(struct file *, <span class="hljs-keyword">loff_t</span>, <span class="hljs-keyword">int</span>);
+	<span class="hljs-keyword">int</span>	(*proc_release)(struct inode *, struct file *);
+	<span class="hljs-keyword">__poll_t</span> (*proc_poll)(struct file *, struct poll_table_struct *);
+	<span class="hljs-keyword">long</span>	(*proc_ioctl)(struct file *, <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">int</span>, <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>);
+<span class="hljs-meta">#<span class="hljs-meta-keyword">ifdef</span> CONFIG_COMPAT</span>
+	<span class="hljs-keyword">long</span>	(*proc_compat_ioctl)(struct file *, <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">int</span>, <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>);
+<span class="hljs-meta">#<span class="hljs-meta-keyword">endif</span></span>
+	<span class="hljs-keyword">int</span>	(*proc_mmap)(struct file *, struct vm_area_struct *);
+	<span class="hljs-function"><span class="hljs-keyword">unsigned</span> <span class="hljs-title">long</span> <span class="hljs-params">(*proc_get_unmapped_area)</span><span class="hljs-params">(struct file *, <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>, <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>, <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>, <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span>)</span></span>;
+&#125; __randomize_layout;</code></pre>
+
+<h5 id="创建虚拟文件夹"><a href="#创建虚拟文件夹" class="headerlink" title="创建虚拟文件夹"></a>创建虚拟文件夹</h5><p>使用<code>proc_mkdir(const char *, struct proc_dir_entry *)</code>函数可以快速创建虚拟文件夹，第一个参数用以指定文件夹名，第二个参数用以指定该📂挂载于哪个procfs节点下，若为NULL则自动挂载到<code>/proc</code>目录下</p>
+<p>该函数的返回值为<code>proc_dir_entry</code>类型的指针，该结构体定义于<code>fs/proc/internal.h</code>中，我们可以通过这个结构体指针管理我们的虚拟文件</p>
+<h5 id="创建虚拟文件节点"><a href="#创建虚拟文件节点" class="headerlink" title="创建虚拟文件节点"></a>创建虚拟文件节点</h5><p>使用<code>proc_create(const char *name, umode_t mode, struct proc_dir_entry *parent, const struct proc_ops *proc_ops)</code>函数可以快速创建一个文件节点</p>
+<ul>
+<li><code>name</code>：文件名</li>
+<li><code>mode</code>：文件读写执行权限</li>
+<li><code>parent</code>：该文件挂载的procfs节点，若为NULL则自动挂载到<code>/proc</code>目录下</li>
+<li><code>proc_ops</code>：该文件的proc_ops结构体</li>
+</ul>
+<p>该函数的返回值同样为<code>proc_dir_entry</code>类型的指针</p>
+<h5 id="注销虚拟文件节点"><a href="#注销虚拟文件节点" class="headerlink" title="注销虚拟文件节点"></a>注销虚拟文件节点</h5><p>函数<code>remove_proc_entry(const char *, struct proc_dir_entry *)</code>用以注销此前创建的文件，其中第一个参数为文件名，第二个参数为其挂载的节点，若为NULL则默认为<code>/proc</code>目录</p>
+<h5 id="测试模块接口"><a href="#测试模块接口" class="headerlink" title="测试模块接口"></a>测试模块接口</h5><p>我们此前的模块代码只需稍加修改即可适用于procfs，这里只贴出修改后的部分：</p>
+<blockquote>
+<p>a3module.c</p>
+</blockquote>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> __init <span class="hljs-title">kernel_module_init</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
+<span class="hljs-function"></span>&#123;
+    spin_lock_init(&amp;spin);
+    
+    a3_module_proc = proc_create(PROC_NAME, <span class="hljs-number">0666</span>, <span class="hljs-literal">NULL</span>, &amp;a3_module_fo);
+
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> __exit <span class="hljs-title">kernel_module_exit</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
+<span class="hljs-function"></span>&#123;
+    printk(KERN_INFO <span class="hljs-string">&quot;[arttnba3_TestModule:] Start to clean up the module.\n&quot;</span>);
+    remove_proc_entry(PROC_NAME, <span class="hljs-literal">NULL</span>);
+    printk(KERN_INFO <span class="hljs-string">&quot;[arttnba3_TestModule:] Module clean up complete. See you next time.\n&quot;</span>);
+&#125;</code></pre>
+
+<blockquote>
+<p>a3module.h</p>
+</blockquote>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> PROC_NAME <span class="hljs-meta-string">&quot;a3proc&quot;</span></span>
+
+<span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">proc_dir_entry</span> * <span class="hljs-title">a3_module_proc</span> = <span class="hljs-title">NULL</span>;</span>
+
+<span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">proc_ops</span> <span class="hljs-title">a3_module_fo</span> = </span>
+<span class="hljs-class">&#123;</span>
+    .proc_ioctl = a3_module_ioctl,
+    .proc_open = a3_module_open,
+    .proc_read = a3_module_read,
+    .proc_write = a3_module_write,
+    .proc_release = a3_module_release,
+&#125;;</code></pre>
+
+<p>我们使用如下程序进行测试：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;unistd.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;string.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;fcntl.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/ioctl.h&gt;</span></span>
+
+<span class="hljs-keyword">char</span> * buf = <span class="hljs-string">&quot;test for read and write.\n&quot;</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
+<span class="hljs-function"></span>&#123;
+    <span class="hljs-keyword">char</span> ch[<span class="hljs-number">0x100</span>];
+    <span class="hljs-keyword">int</span> fd = open(<span class="hljs-string">&quot;/proc/a3proc&quot;</span>, <span class="hljs-number">2</span>);
+    <span class="hljs-keyword">int</span> len = <span class="hljs-built_in">strlen</span>(buf);
+    ioctl(fd, <span class="hljs-number">0x1000</span>, <span class="hljs-literal">NULL</span>);
+
+    write(fd, buf, len);
+
+    ioctl(fd, <span class="hljs-number">0x1001</span>, <span class="hljs-literal">NULL</span>);
+    write(fd, buf, len);
+    read(fd, ch, len);
+    write(<span class="hljs-number">0</span>, ch, len);
+
+    ioctl(fd, <span class="hljs-number">0x1002</span>, <span class="hljs-literal">NULL</span>);
+    read(fd, ch, len);
+    write(<span class="hljs-number">0</span>, ch, len);
+
+    close(fd);
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;</code></pre>
+
+<p>成功运行~撒花~🌸</p>
+<p><img src="https://i.loli.net/2021/03/06/85BoO6QiqMhj2XG.png" srcset="/img/loading.gif" alt="image.png"></p>
 <h2 id="六、使用gdb调试Linux内核"><a href="#六、使用gdb调试Linux内核" class="headerlink" title="六、使用gdb调试Linux内核"></a>六、使用gdb调试Linux内核</h2><h3 id="remote连接"><a href="#remote连接" class="headerlink" title="remote连接"></a>remote连接</h3><p>我们启动时已经将内核挂载到了本地的1234端口，只需要gdb连接上就行</p>
 <pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> gdb</span>
 <span class="hljs-meta">pwndbg&gt;</span><span class="bash"> <span class="hljs-built_in">set</span> architecture i386:x86-64</span>
@@ -1432,16 +1535,9 @@ MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);
 <p>同样地，为了避免一开始就分配过大的内存空间，笔者选择使用malloc进行动态内存分配，一开始时先分配一个适当大小的缓冲区，后续若输入超出这个大小则重新分配一个两倍大小的缓冲区</p>
 <p>对于输入历史是否记录，我们还需要进行判断，若是用户仅仅是在不断敲击<code>ENTER</code>，那么就没必要记录了</p>
 <h4 id="后台执行"><a href="#后台执行" class="headerlink" title="后台执行"></a>后台执行</h4><p>有的时候我们想要让应用被放到后台去执行，那么我们的父进程（shell）就不应当等待子进程，笔者选择仿照bash的方式——若最后一个字符是<code>&#39;&amp;&#39;</code>则不等待子进程执行，这里我们选择在读取命令时使用一个返回值进行标识</p>
+<h4 id="历史命令"><a href="#历史命令" class="headerlink" title="历史命令"></a>历史命令</h4><p>为了模拟bash的功能，我们还应当实现<code>!!</code>执行上一条命令、<code>!数字</code>执行历史记录中的某条命令，简单判断即可 </p>
 <p>完整代码如下：</p>
-<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> BUF_MAX 0x10000</span>
-<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> FLAG_NULL_INPUT -1</span>
-<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> FLAG_EXECVE_BACKGROUND 0</span>
-<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> FLAG_EXECVE_WAIT 1</span>
-
-<span class="hljs-keyword">char</span> * command_buf = <span class="hljs-literal">NULL</span>;
-<span class="hljs-keyword">int</span> command_buf_size = <span class="hljs-number">0</span>;
-
-<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">readCommand</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">readCommand</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
 <span class="hljs-function"></span>&#123;
     <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span> <span class="hljs-keyword">long</span> count = <span class="hljs-number">0</span>;
     <span class="hljs-keyword">char</span> ch;
@@ -1472,7 +1568,74 @@ MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);
     command_buf[count] = <span class="hljs-string">&#x27;\0&#x27;</span>;
     <span class="hljs-keyword">if</span>(count == <span class="hljs-number">0</span>)
         <span class="hljs-keyword">return</span> FLAG_NULL_INPUT;
+    
+    <span class="hljs-keyword">if</span>(count &gt; <span class="hljs-number">1</span>)
+    &#123;
+        <span class="hljs-keyword">if</span> (command_buf[<span class="hljs-number">0</span>] == <span class="hljs-string">&#x27;!&#x27;</span>)
+        &#123;
+            <span class="hljs-keyword">if</span> (command_buf[<span class="hljs-number">1</span>] == <span class="hljs-string">&#x27;!&#x27;</span>)
+            &#123;
+                <span class="hljs-keyword">if</span>(!his_full &amp;&amp; his_count == <span class="hljs-number">0</span>)
+                &#123;
+                    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\033[31m\033[1m[x] No available command, history is empty.\033[0m&quot;</span>);
+                    <span class="hljs-keyword">return</span> FLAG_NULL_INPUT;
+                &#125;
+
+                <span class="hljs-keyword">char</span> * temp = <span class="hljs-built_in">malloc</span>(command_buf_size);
+                <span class="hljs-keyword">int</span> flag = FLAG_EXECVE_WAIT;
+
+                <span class="hljs-keyword">if</span>(command_buf[count - <span class="hljs-number">1</span>] == <span class="hljs-string">&#x27;&amp;&#x27;</span>)
+                &#123;
+                    command_buf[count - <span class="hljs-number">1</span>] = <span class="hljs-string">&#x27;\0&#x27;</span>;
+                    flag = FLAG_EXECVE_BACKGROUND;
+                &#125;
+
+                <span class="hljs-built_in">strcpy</span>(temp, history[((his_count + HIS_MAX - <span class="hljs-number">1</span>) % HIS_MAX)]);
+                <span class="hljs-built_in">strncat</span>(temp, command_buf + <span class="hljs-number">2</span>, command_buf_size - <span class="hljs-built_in">strlen</span>(temp));
+                <span class="hljs-built_in">strcpy</span>(command_buf, temp);
+                <span class="hljs-built_in">free</span>(temp);
+                historyRecord();
+                <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n%s\n&quot;</span>, command_buf);
+                <span class="hljs-keyword">return</span> flag;
+            &#125;
+            <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (command_buf[<span class="hljs-number">1</span>] &gt;= <span class="hljs-string">&#x27;0&#x27;</span> &amp;&amp; command_buf[<span class="hljs-number">1</span>] &lt;= <span class="hljs-string">&#x27;9&#x27;</span>)
+            &#123;
+                <span class="hljs-keyword">int</span> num_end = <span class="hljs-number">1</span>;
+                <span class="hljs-keyword">while</span>(command_buf[num_end] &gt;= <span class="hljs-string">&#x27;0&#x27;</span> &amp;&amp; command_buf[num_end] &lt;= <span class="hljs-string">&#x27;9&#x27;</span>)
+                    num_end++;
+                <span class="hljs-keyword">char</span> ch = command_buf[num_end];
+                command_buf[num_end] = <span class="hljs-string">&#x27;\0&#x27;</span>;
+                <span class="hljs-keyword">int</span> his = atoi(command_buf + <span class="hljs-number">1</span>);
+                command_buf[num_end] = ch;
+
+                <span class="hljs-keyword">if</span> (his &lt; <span class="hljs-number">0</span> || his &gt;= HIS_MAX || !history[his])
+                &#123;
+                    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\033[31m\033[1m[x] No available command, invalid history index.\033[0m&quot;</span>);
+                    <span class="hljs-keyword">return</span> FLAG_NULL_INPUT;
+                &#125;
+
+                <span class="hljs-keyword">char</span> * temp = <span class="hljs-built_in">malloc</span>(command_buf_size);
+                <span class="hljs-keyword">int</span> flag = FLAG_EXECVE_WAIT;
+
+                <span class="hljs-keyword">if</span>(command_buf[count - <span class="hljs-number">1</span>] == <span class="hljs-string">&#x27;&amp;&#x27;</span>)
+                &#123;
+                    command_buf[count - <span class="hljs-number">1</span>] = <span class="hljs-string">&#x27;\0&#x27;</span>;
+                    flag = FLAG_EXECVE_BACKGROUND;
+                &#125;
+
+                <span class="hljs-built_in">strcpy</span>(temp, history[his]);
+                <span class="hljs-built_in">strncat</span>(temp, command_buf + num_end, command_buf_size - <span class="hljs-built_in">strlen</span>(temp));
+                <span class="hljs-built_in">strcpy</span>(command_buf, temp);
+                <span class="hljs-built_in">free</span>(temp);
+                historyRecord();
+                <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\n%s\n&quot;</span>, command_buf);
+                <span class="hljs-keyword">return</span> flag;
+            &#125;
+        &#125;
+    &#125;
+
     historyRecord();
+    
     <span class="hljs-keyword">if</span>(command_buf[count - <span class="hljs-number">1</span>] == <span class="hljs-string">&#x27;&amp;&#x27;</span>)
     &#123;
         command_buf[count - <span class="hljs-number">1</span>] = <span class="hljs-string">&#x27;\0&#x27;</span>;
@@ -1645,8 +1808,9 @@ MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);
 <blockquote>
 <p>完整代码见<a target="_blank" rel="noopener" href="https://github.com/arttnba3/a3shell">https://github.com/arttnba3/a3shell</a></p>
 </blockquote>
-<p>编译运行，勉强能用（），后面还会继续进行进一步的优化（如代码补全等</p>
-<p><img src="https://i.loli.net/2021/03/04/iJPF9CqwBpzmlaZ.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>编译运行，示意图如下，左边为<code>a3shell</code>，右边为<code>bash</code></p>
+<p><img src="https://i.loli.net/2021/03/05/dVrnBjGHvlz9Ioe.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>勉强能用（），后面还会继续进行进一步的优化（如代码补全等</p>
 <h3 id="EXTRA-MORE-POWERFUL-SHELL"><a href="#EXTRA-MORE-POWERFUL-SHELL" class="headerlink" title="EXTRA.MORE POWERFUL SHELL"></a>EXTRA.MORE POWERFUL SHELL</h3><p>毫无疑问的是，一个成熟易用的shell应当还要具备如<code>代码补全</code>、<code>上下切换历史记录</code>等功能，因此我们决定为我们的shell添加这样的功能，让她成为一个更加强大的shell</p>
 <p>在这里我们将会用到一个库<a target="_blank" rel="noopener" href="https://tiswww.case.edu/php/chet/readline/rltop.html">The GNU Readline Library</a></p>
 <h4 id="安装readline库"><a href="#安装readline库" class="headerlink" title="安装readline库"></a>安装readline库</h4><pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> sudo apt-get install libreadline-gplv2-dev</span>
@@ -1662,6 +1826,7 @@ MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);
 <h4 id="记录历史输入"><a href="#记录历史输入" class="headerlink" title="记录历史输入"></a>记录历史输入</h4><p>readline库提供了强大的历史输入记录功能，在使用<code>readline()</code>函数读取输入后我们可以使用<code>add_history()</code>记录输入，传入的参数则是readline()返回的字符串</p>
 <p><strong>添加历史后我们便可以像普通的shell那样使用↑↓来显示历史输入记录</strong></p>
 <p>打印的功能依然需要我们自定义，在readline lib中使用一个<code>HIST_ENTRY</code>结构体数组来记录我们传入的历史输入，而使用<code>history_list()</code>便可以获得指向该结构体数组的指针</p>
+<p>使用<code>clear_history()</code>则可以清除所有历史记录</p>
 <p>代码如下：</p>
 <pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;readline/history.h&gt;</span></span>
 
@@ -1686,8 +1851,102 @@ HIST_ENTRY ** his = history_list();
 <blockquote>
 <p>说实话按照笔者个人的体验而言这个库并不算特别完善…</p>
 </blockquote>
-<h2 id="八、替换系统原有内核"><a href="#八、替换系统原有内核" class="headerlink" title="八、替换系统原有内核"></a>八、替换系统原有内核</h2><p>一切都准备好啦！现在我们来将我们的内核安装到我们原有的操作机上吧！</p>
-<h2 id="九、CTF中使用docker映射kernel"><a href="#九、CTF中使用docker映射kernel" class="headerlink" title="九、CTF中使用docker映射kernel"></a>九、CTF中使用docker映射kernel</h2><h1 id="0xFF-reference"><a href="#0xFF-reference" class="headerlink" title="0xFF.reference"></a>0xFF.reference</h1><blockquote>
+<h2 id="八、CTF中kernel类题目的部署"><a href="#八、CTF中kernel类题目的部署" class="headerlink" title="八、CTF中kernel类题目的部署"></a>八、CTF中kernel类题目的部署</h2><p>和常规的CTF题目的布置方法是相类似的，最常见的办法便是使用<code>ctf_xinted</code> + <code>docker</code>布置，我们只需要配置用ctf_xinetd启动boot.sh即可</p>
+<p>首先下载<code>ctf_xinted</code>：</p>
+<pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> git <span class="hljs-built_in">clone</span> https://github.com/Eadom/ctf_xinetd.git</span></code></pre>
+
+<p>之后将内核复制进来，大概的架构如下：</p>
+<pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> tree</span>
+.
+├── ctf.xinetd
+├── Dockerfile
+├── files
+│   ├── boot.sh
+│   ├── bzImage
+│   └── rootfs.cpio
+├── README.md
+└── start.sh
+
+1 directory, 7 files</code></pre>
+
+<blockquote>
+<p>ctf.xinted</p>
+</blockquote>
+<pre><code class="hljs shell">service ctf
+&#123;
+    disable = no
+    socket_type = stream
+    protocol    = tcp
+    wait        = no
+    user        = ctf
+    type        = UNLISTED
+    port        = 25000
+    bind        = 0.0.0.0
+    server      = /usr/sbin/chroot
+    # replace helloworld to your program
+    server_args = --userspec=1000:1000 /home/ctf ./boot.sh
+    banner_fail = /etc/banner_fail
+    # safety options
+    per_source	= 10 # the maximum instances of this service per source IP address
+    rlimit_cpu	= 1024 # the maximum number of CPU seconds that the service may use
+    #rlimit_as  = 1024M # the Address Space resource limit for the service
+    #access_times = 2:00-9:00 12:00-24:00
+&#125;
+</code></pre>
+
+<blockquote>
+<p>Dockerfile</p>
+</blockquote>
+<pre><code class="hljs shell">FROM ubuntu:20.04
+
+RUN sed -i &quot;s/http:\/\/archive.ubuntu.com/http:\/\/mirrors.tuna.tsinghua.edu.cn/g&quot; /etc/apt/sources.list &amp;&amp; \
+    apt-get update &amp;&amp; apt-get -y dist-upgrade &amp;&amp; \
+    apt-get install -y lib32z1 xinetd
+
+RUN useradd -m ctf
+
+WORKDIR /home/ctf
+
+RUN mkdir /home/ctf/usr &amp;&amp; \ 
+    cp -rf /lib* /home/ctf &amp;&amp; \
+    cp -rf /usr/lib* /home/ctf/usr
+
+RUN mkdir /home/ctf/dev &amp;&amp; \
+    mknod /home/ctf/dev/null c 1 3 &amp;&amp; \
+    mknod /home/ctf/dev/zero c 1 5 &amp;&amp; \
+    mknod /home/ctf/dev/random c 1 8 &amp;&amp; \
+    mknod /home/ctf/dev/urandom c 1 9 &amp;&amp; \
+    chmod 666 /home/ctf/dev/*
+
+RUN mkdir /home/ctf/bin &amp;&amp; \
+    cp /bin/sh /home/ctf/bin &amp;&amp; \
+    cp /bin/ls /home/ctf/bin &amp;&amp; \
+    cp /bin/cat /home/ctf/bin
+
+COPY ./ctf.xinetd /etc/xinetd.d/ctf
+COPY ./start.sh /start.sh
+RUN echo &quot;Blocked by ctf_xinetd&quot; &gt; /etc/banner_fail
+
+RUN chmod +x /start.sh
+
+COPY ./bin/ /home/ctf/
+COPY ./flag /home/ctf/flag
+RUN chown -R root:ctf /home/ctf &amp;&amp; \
+    chmod -R 750 /home/ctf &amp;&amp; \
+    chmod 600 /home/ctf/flag
+
+CMD [&quot;/start.sh&quot;]
+
+EXPOSE 25000
+</code></pre>
+
+<p>之后使用如下命令启动<code>xinted</code></p>
+<pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> docker build -t <span class="hljs-string">&quot;kernel&quot;</span> .</span>
+<span class="hljs-meta">$</span><span class="bash"> docker run -d -p <span class="hljs-string">&quot;0.0.0.0:25000:25000&quot;</span> -h <span class="hljs-string">&quot;kernel&quot;</span> --name=<span class="hljs-string">&quot;kernel&quot;</span> kernel</span></code></pre>
+
+
+
+<h1 id="0xFF-reference"><a href="#0xFF-reference" class="headerlink" title="0xFF.reference"></a>0xFF.reference</h1><blockquote>
 <p><a target="_blank" rel="noopener" href="https://eqqie.cn/index.php/laji_note/1475/">eqqie - Linux下kernel调试环境搭建</a></p>
 <p><a target="_blank" rel="noopener" href="http://taqini.space/2020/11/21/linux-kernel-pwn-learning/">TaQini - Linux Kernel Pwn 入门笔记</a></p>
 <p><a target="_blank" rel="noopener" href="https://mask6asok.top/2020/02/06/Linux_Kernel_Pwn_1.html">Mask - Linux Kernel Pwn I: Basic Knowledge</a></p>
