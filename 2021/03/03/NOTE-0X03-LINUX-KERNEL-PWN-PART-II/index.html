@@ -204,7 +204,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      1.7k 字
+      2.1k 字
     </span>
   
 
@@ -214,7 +214,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      22
+      27
        分钟
     </span>
   
@@ -256,7 +256,7 @@
             
               <p class="note note-info">
                 
-                  本文最后更新于：2021年3月5日 下午
+                  本文最后更新于：2021年3月8日 下午
                 
               </p>
             
@@ -400,7 +400,20 @@ poweroff -d 0  -f</code></pre>
 <p>本地测试的话就放进磁盘重新打包后qemu起系统，运行即可获得root shell</p>
 <p><img src="https://i.loli.net/2021/03/03/qC9eGRgHU3axBJW.png" srcset="/img/loading.gif" alt="image.png"></p>
 <h1 id="0x02-Kernel-ROP"><a href="#0x02-Kernel-ROP" class="headerlink" title="0x02.Kernel ROP"></a>0x02.Kernel ROP</h1><p>ROP即<code>返回导向编程</code>（Return-oriented programming），应当是大家比较熟悉的一种攻击方式——通过复用代码片段的方式控制程序执行流，内核态的ROP与用户态的ROP一般无二，只不过利用的gadget变成了内核中的gadget</p>
-<h2 id="强网杯2018-core"><a href="#强网杯2018-core" class="headerlink" title="强网杯2018 - core"></a>强网杯2018 - core</h2><p>解压文件系统，查看<code>init</code>文件：</p>
+<h2 id="强网杯2018-core"><a href="#强网杯2018-core" class="headerlink" title="强网杯2018 - core"></a>强网杯2018 - core</h2><p>首先查看启动脚本<code>start.sh</code>：</p>
+<pre><code class="hljs shell">qemu-system-x86_64 \
+-m 128M \
+-kernel ./bzImage \
+-initrd  ./core.cpio \
+-append &quot;root=/dev/ram rw console=ttyS0 oops=panic panic=1 quiet kaslr&quot; \
+-s  \
+-netdev user,id=t0, -device e1000,netdev=t0,id=nic0 \
+-nographic  \</code></pre>
+
+<ul>
+<li>开启了KASLR保护</li>
+</ul>
+<p>解压文件系统，查看<code>init</code>文件：</p>
 <pre><code class="hljs sh"><span class="hljs-meta">#!/bin/sh</span>
 mount -t proc proc /proc
 mount -t sysfs sysfs /sys
@@ -427,10 +440,9 @@ umount /sys
 poweroff -d 0  -f</code></pre>
 
 <ul>
-<li><p>内核开启了KASLR保护</p>
-</li>
-<li><p>不出意外的话<code>core.ko</code>就是存在漏洞的内核模块</p>
-</li>
+<li>开始时内核符号表被复制了一份到<code>/tmp/kalsyms</code>中，利用这个我们可以获得内核中所有函数的地址</li>
+<li>不出意外的话<code>core.ko</code>就是存在漏洞的内核模块</li>
+<li>改变权限前设置了定时关机，调试的时候可以把这个语句先删掉</li>
 </ul>
 <h3 id="分析-1"><a href="#分析-1" class="headerlink" title="分析"></a>分析</h3><p>惯例的<code>checksec</code>一下，开了NX和canary</p>
 <p><img src="https://i.loli.net/2021/03/04/Nrpe675FRtBP4ju.png" srcset="/img/loading.gif" alt="image.png"></p>
@@ -441,6 +453,18 @@ poweroff -d 0  -f</code></pre>
 <p><img src="https://i.loli.net/2021/03/04/JHyemlLTK5G34E2.png" srcset="/img/loading.gif" alt="image.png"></p>
 <p><img src="https://i.loli.net/2021/03/04/TvhVpN86dmfzHoW.png" srcset="/img/loading.gif" alt="image.png"></p>
 <p><img src="https://i.loli.net/2021/03/04/lDBmUK5fia3bnHL.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>其中<code>core_release</code>仅为打印功能，就不在此放出了</p>
+<p>而<code>core_write</code>的功能主要是允许用户向bss段上写入最多<code>0x800</code>字节的内容</p>
+<p><img src="https://i.loli.net/2021/03/08/bHKGQyTV7xMB5jS.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>在<code>core_ioctl</code>中允许我们调用<code>core_read</code>和<code>core_copy_func</code>这两个函数，以及设置全局变量<code>off</code>的值</p>
+<p><img src="https://i.loli.net/2021/03/08/faCDRKvMSN64eux.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>在<code>core_read</code>函数中允许我们从栈上读取数据，由于<code>off</code>变量的值可以由我们控制，故我们可以利用该函数泄露栈上数据，包括<code>canary</code></p>
+<p><img src="https://i.loli.net/2021/03/08/5ITzXBM3gJ2YEch.png" srcset="/img/loading.gif" alt="image.png"></p>
+<h3 id="漏洞利用：Kernel-ROP"><a href="#漏洞利用：Kernel-ROP" class="headerlink" title="漏洞利用：Kernel ROP"></a>漏洞利用：Kernel ROP</h3><p>在<code>core_copy_func</code>中将会拷贝bss段上内容到栈上，由于拷贝数据长度内容皆为我们可控，故<strong>存在栈溢出，且溢出数据可控</strong></p>
+<p><img src="https://i.loli.net/2021/03/08/2RYiWgwhFbpq7VC.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>那么我们便能够利用栈溢出在栈上构造ROP chain以提权</p>
+<p>而canary的值可以通过ioctl提供的功能以泄露，此前内核符号表又已经被拷贝到了<code>/tmp/kallsyms</code>下，我们便可以从中读取各个内核符号的地址</p>
+<p>只要我们能够在内核空间执行<code>commit_cred(prepare_kernel_cred(NULL))</code>，那么就能够将进程的权限提升到<code>root</code></p>
 <h1 id="0x03-ret2usr"><a href="#0x03-ret2usr" class="headerlink" title="0x03.ret2usr"></a>0x03.ret2usr</h1><h1 id="0x04-ret2dir"><a href="#0x04-ret2dir" class="headerlink" title="0x04.ret2dir"></a>0x04.ret2dir</h1><h1 id="0x05-条件竞争"><a href="#0x05-条件竞争" class="headerlink" title="0x05.条件竞争"></a>0x05.条件竞争</h1><h1 id="0x06-内核堆喷"><a href="#0x06-内核堆喷" class="headerlink" title="0x06.内核堆喷"></a>0x06.内核堆喷</h1>
             </div>
             <hr>
