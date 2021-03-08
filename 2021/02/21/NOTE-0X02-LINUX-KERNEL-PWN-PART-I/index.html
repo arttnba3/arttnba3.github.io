@@ -256,7 +256,7 @@
             
               <p class="note note-info">
                 
-                  本文最后更新于：2021年3月8日 晚上
+                  本文最后更新于：2021年3月9日 凌晨
                 
               </p>
             
@@ -448,7 +448,7 @@
 ...</code></pre>
 
 <p>在<code>prepare_kernel_cred()</code>函数中，若传入的参数为NULL，则会缺省使用<code>init</code>进程的<code>cred</code>作为模板进行拷贝，<strong>即可以直接获得一个标识着root权限的cred结构体</strong></p>
-<p>那么我们不难想到，只要我们能够在内核空间执行<code>commit_cred(prepare_kernel_cred(NULL))</code>，那么就能够将进程的权限提升到<code>root</code></p>
+<p>那么我们不难想到，只要我们能够在内核空间执行<code>commit_creds(prepare_kernel_cred(NULL))</code>，那么就能够将进程的权限提升到<code>root</code></p>
 <h2 id="五、I-O"><a href="#五、I-O" class="headerlink" title="五、I/O"></a>五、I/O</h2><p>*NIX/Linux追求高层次抽象上的统一，其设计哲学之一便是<code>万物皆文件</code></p>
 <h3 id="“万物皆文件”"><a href="#“万物皆文件”" class="headerlink" title="“万物皆文件”"></a>“万物皆文件”</h3><p>*NIX/Linux设计的哲学之一——<code>万物皆文件</code>，在Linux系统的视角下，无论是文件、设备、管道，还是目录、进程，甚至是磁盘、套接字等等，<strong>一切都可以被抽象为文件，一切都可以使用访问文件的方式进行操作</strong></p>
 <p>通过这样一种哲学，Linux予开发者以高层次抽象的统一性，提供了<code>操作的一致性</code>：</p>
