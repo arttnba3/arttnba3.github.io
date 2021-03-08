@@ -515,7 +515,7 @@
 <li><p>Intel下系统根据CR4控制寄存器的第20位标识是否开启SMEP保护（1为开启，0为关闭），若是能够通过kernel ROP改变CR4寄存器的值便能够关闭SMEP保护，完成SMEP-bypass，就能够重新进行ret2usr</p>
 </li>
 </ul>
-<h3 id="KPTI"><a href="#KPTI" class="headerlink" title="KPTI"></a>KPTI</h3><p>KPTI即```内核页表隔离``（Kernel page-table isolation），内核空间与用户空间分别使用两组不同的页表集，这对于内核的内存管理产生了根本性的变化</p>
+<h3 id="KPTI"><a href="#KPTI" class="headerlink" title="KPTI"></a>KPTI</h3><p>KPTI即<code>内核页表隔离</code>（Kernel page-table isolation），内核空间与用户空间分别使用两组不同的页表集，这对于内核的内存管理产生了根本性的变化</p>
 <h1 id="0x01-Linux-Kernel-简易食用指南"><a href="#0x01-Linux-Kernel-简易食用指南" class="headerlink" title="0x01.Linux Kernel 简易食用指南"></a>0x01.Linux Kernel 简易食用指南</h1><h2 id="Pre-安装依赖"><a href="#Pre-安装依赖" class="headerlink" title="Pre.安装依赖"></a>Pre.安装依赖</h2><p>环境是Ubuntu20.04</p>
 <pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> sudo apt-get update</span>
 <span class="hljs-meta">$</span><span class="bash"> sudo apt-get install git fakeroot build-essential ncurses-dev xz-utils qemu flex libncurses5-dev fakeroot build-essential ncurses-dev xz-utils libssl-dev bc bison libglib2.0-dev libfdt-dev libpixman-1-dev zlib1g-dev</span></code></pre>
