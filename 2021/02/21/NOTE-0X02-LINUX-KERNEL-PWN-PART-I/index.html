@@ -204,7 +204,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      16.3k 字
+      16.6k 字
     </span>
   
 
@@ -214,7 +214,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      215
+      222
        分钟
     </span>
   
@@ -256,7 +256,7 @@
             
               <p class="note note-info">
                 
-                  本文最后更新于：2021年3月7日 凌晨
+                  本文最后更新于：2021年3月8日 晚上
                 
               </p>
             
@@ -1403,9 +1403,80 @@ MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);
 </blockquote>
 <p><img src="https://i.loli.net/2021/02/22/vI3sCVmwUrfHMnh.png" srcset="/img/loading.gif" alt="image.png"></p>
 <h3 id="寻找gadget"><a href="#寻找gadget" class="headerlink" title="寻找gadget"></a>寻找gadget</h3><p>用ROPgadget或者ropper都行，笔者比较喜欢使用ROPgadget</p>
-<pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> ROPgadget --binary ./bzImage &gt; gadget.txt</span></code></pre>
+<pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> ROPgadget --binary ./vmlinux &gt; gadget.txt</span></code></pre>
 
-<p>一般出来大概有个40+MB</p>
+<p>一般出来大概有个几十MB</p>
+<p>在CTF中有的kernel pwn题目仅给出压缩后镜像<code>bzImage</code>，此时我们可以使用如下脚本进行解压（来自<a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/scripts/extract-vmlinux">github</a>）：</p>
+<pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">!/bin/sh</span>
+<span class="hljs-meta">#</span><span class="bash"> SPDX-License-Identifier: GPL-2.0-only</span>
+<span class="hljs-meta">#</span><span class="bash"> ----------------------------------------------------------------------</span>
+<span class="hljs-meta">#</span><span class="bash"> extract-vmlinux - Extract uncompressed vmlinux from a kernel image</span>
+<span class="hljs-meta">#</span>
+<span class="hljs-meta">#</span><span class="bash"> Inspired from extract-ikconfig</span>
+<span class="hljs-meta">#</span><span class="bash"> (c) 2009,2010 Dick Streefland &lt;dick@streefland.net&gt;</span>
+<span class="hljs-meta">#</span>
+<span class="hljs-meta">#</span><span class="bash"> (c) 2011      Corentin Chary &lt;corentin.chary@gmail.com&gt;</span>
+<span class="hljs-meta">#</span>
+<span class="hljs-meta">#</span><span class="bash"> ----------------------------------------------------------------------</span>
+
+check_vmlinux()
+&#123;
+<span class="hljs-meta">	#</span><span class="bash"> Use readelf to check <span class="hljs-keyword">if</span> it<span class="hljs-string">&#x27;s a valid ELF</span></span>
+<span class="hljs-meta">	#</span><span class="bash"> TODO: find a better to way to check that it<span class="hljs-string">&#x27;s really vmlinux</span></span>
+<span class="hljs-meta">	#</span><span class="bash">       and not just an elf</span>
+	readelf -h $1 &gt; /dev/null 2&gt;&amp;1 || return 1
+
+	cat $1
+	exit 0
+&#125;
+
+try_decompress()
+&#123;
+<span class="hljs-meta">	#</span><span class="bash"> The obscure use of the <span class="hljs-string">&quot;tr&quot;</span> filter is to work around older versions of</span>
+<span class="hljs-meta">	#</span><span class="bash"> <span class="hljs-string">&quot;grep&quot;</span> that report the byte offset of the line instead of the pattern.</span>
+
+<span class="hljs-meta">	#</span><span class="bash"> Try to find the header (<span class="hljs-variable">$1</span>) and decompress from here</span>
+	for	pos in `tr &quot;$1\n$2&quot; &quot;\n$2=&quot; &lt; &quot;$img&quot; | grep -abo &quot;^$2&quot;`
+	do
+		pos=$&#123;pos%%:*&#125;
+		tail -c+$pos &quot;$img&quot; | $3 &gt; $tmp 2&gt; /dev/null
+		check_vmlinux $tmp
+	done
+&#125;
+
+<span class="hljs-meta">#</span><span class="bash"> Check invocation:</span>
+me=$&#123;0##*/&#125;
+img=$1
+if	[ $# -ne 1 -o ! -s &quot;$img&quot; ]
+then
+	echo &quot;Usage: $me &lt;kernel-image&gt;&quot; &gt;&amp;2
+	exit 2
+fi
+
+<span class="hljs-meta">#</span><span class="bash"> Prepare temp files:</span>
+tmp=$(mktemp /tmp/vmlinux-XXX)
+trap &quot;rm -f $tmp&quot; 0
+
+<span class="hljs-meta">#</span><span class="bash"> That didn<span class="hljs-string">&#x27;t work, so retry after decompression.</span></span>
+try_decompress &#x27;\037\213\010&#x27; xy    gunzip
+try_decompress &#x27;\3757zXZ\000&#x27; abcde unxz
+try_decompress &#x27;BZh&#x27;          xy    bunzip2
+try_decompress &#x27;\135\0\0\0&#x27;   xxx   unlzma
+try_decompress &#x27;\211\114\132&#x27; xy    &#x27;lzop -d&#x27;
+try_decompress &#x27;\002!L\030&#x27;   xxx   &#x27;lz4 -d&#x27;
+try_decompress &#x27;(\265/\375&#x27;   xxx   unzstd
+
+<span class="hljs-meta">#</span><span class="bash"> Finally check <span class="hljs-keyword">for</span> uncompressed images or objects:</span>
+check_vmlinux $img
+
+<span class="hljs-meta">#</span><span class="bash"> Bail out:</span>
+echo &quot;$me: Cannot find vmlinux.&quot; &gt;&amp;2</code></pre>
+
+<p>用法如下：</p>
+<pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> ./extract-vmlinux ./bzImage &gt; vmlinux</span></code></pre>
+
+
+
 <h2 id="七、编写自己的shell"><a href="#七、编写自己的shell" class="headerlink" title="七、编写自己的shell"></a>七、编写自己的shell</h2><blockquote>
 <p>注：实际生产开发中推荐使用bash/dash等成熟的shell，这里仅仅是做了一个勉强能用的小玩具</p>
 </blockquote>

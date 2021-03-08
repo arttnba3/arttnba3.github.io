@@ -204,7 +204,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      2.1k 字
+      2.2k 字
     </span>
   
 
@@ -214,7 +214,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      27
+      28
        分钟
     </span>
   
@@ -256,7 +256,7 @@
             
               <p class="note note-info">
                 
-                  本文最后更新于：2021年3月8日 下午
+                  本文最后更新于：2021年3月9日 凌晨
                 
               </p>
             
@@ -271,7 +271,7 @@
 <p>需要注意的是，CTF中的kernel pwn通常不会让选手去真正寻找内核中的漏洞，而通常是给出一个有漏洞的LKM让选手进行分析</p>
 </blockquote>
 <h2 id="状态保存"><a href="#状态保存" class="headerlink" title="状态保存"></a>状态保存</h2><p>通常情况下，我们的exploit需要进入到内核当中完成提权，而我们最终仍然需要<strong>着陆回用户态</strong>以获得一个root权限的shell，因此在我们的exploit进入内核态之前我们需要<strong>手动模拟用户态进入内核态的准备工作</strong>——保存各寄存器的值，以便于后续着陆回用户态</p>
-<p>通常情况下使用如下函数保存各寄存器值到栈上：</p>
+<p>通常情况下使用如下函数保存各寄存器值到我们自己定义的变量中：</p>
 <blockquote>
 <p>方便起见，使用了内联汇编</p>
 </blockquote>
@@ -465,6 +465,14 @@ poweroff -d 0  -f</code></pre>
 <p>那么我们便能够利用栈溢出在栈上构造ROP chain以提权</p>
 <p>而canary的值可以通过ioctl提供的功能以泄露，此前内核符号表又已经被拷贝到了<code>/tmp/kallsyms</code>下，我们便可以从中读取各个内核符号的地址</p>
 <p>只要我们能够在内核空间执行<code>commit_cred(prepare_kernel_cred(NULL))</code>，那么就能够将进程的权限提升到<code>root</code></p>
+<p>至于gadget可以直接使用ROPgadget或者ropper对着vmlinux镜像跑一轮，这里便不再赘叙</p>
+<h3 id="exploit-1"><a href="#exploit-1" class="headerlink" title="exploit"></a>exploit</h3><p>我们这里选择执行<code>commit_cred(prepare_kernel_cred(NULL))</code>以提权</p>
+<p>由于是内核态的rop，故我们需要手动返回用户态执行<code>/bin/sh</code>，这里我们需要模拟由用户态进入内核态再返回用户态的过程</p>
+<p>构造exp如下：</p>
+<pre><code class="hljs c"></code></pre>
+
+
+
 <h1 id="0x03-ret2usr"><a href="#0x03-ret2usr" class="headerlink" title="0x03.ret2usr"></a>0x03.ret2usr</h1><h1 id="0x04-ret2dir"><a href="#0x04-ret2dir" class="headerlink" title="0x04.ret2dir"></a>0x04.ret2dir</h1><h1 id="0x05-条件竞争"><a href="#0x05-条件竞争" class="headerlink" title="0x05.条件竞争"></a>0x05.条件竞争</h1><h1 id="0x06-内核堆喷"><a href="#0x06-内核堆喷" class="headerlink" title="0x06.内核堆喷"></a>0x06.内核堆喷</h1>
             </div>
             <hr>
