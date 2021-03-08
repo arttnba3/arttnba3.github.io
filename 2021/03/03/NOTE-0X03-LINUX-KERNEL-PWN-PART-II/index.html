@@ -204,7 +204,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      2.2k 字
+      2.3k 字
     </span>
   
 
@@ -214,7 +214,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      28
+      29
        分钟
     </span>
   
@@ -292,7 +292,17 @@
 <li><code>swapgs</code>指令恢复用户态GS寄存器</li>
 <li><code>sysretq</code>或者<code>iretq</code>恢复到用户空间</li>
 </ul>
-<p>那么我们只需要在内核中找到相应的gadget并执行<code>swapgd;iretq</code>就可以成功着陆回用户态</p>
+<p>那么我们只需要在内核中找到相应的gadget并执行<code>swapgs;iretq</code>就可以成功着陆回用户态</p>
+<p>通常来说，我们应当构造如下rop链以返回用户态并获得一个shell：</p>
+<pre><code class="hljs awk">swapgs
+iretq
+user_shell_addr
+user_cs
+user_eflags <span class="hljs-regexp">//</span><span class="hljs-number">64</span>bit user_rflags
+user_sp
+user_ss</code></pre>
+
+<p>内核ROP和用户态的ROP本质上没有太大区别，细节便不在此赘叙了</p>
 <h1 id="0x01-Kernel-UAF（Use-After-Free）"><a href="#0x01-Kernel-UAF（Use-After-Free）" class="headerlink" title="0x01.Kernel UAF（Use After Free）"></a>0x01.Kernel UAF（Use After Free）</h1><p>UAF即Use After Free，通常指的是<strong>对于释放后未重置的垂悬指针的利用</strong>，此前的heap阶段对于ptmalloc的利用很多都是基于UAF漏洞进行进一步的利用</p>
 <p>Linux Kernel中同样有着一个动态内存分配器——slab/slub内存分配器，若是在kernel中存在着垂悬指针，我们同样可以以此完成对slab/slub内存分配器的利用，通过Kernel UAF完成提权</p>
 <h2 id="CISCN-2017-babydriver"><a href="#CISCN-2017-babydriver" class="headerlink" title="CISCN - 2017 - babydriver"></a>CISCN - 2017 - babydriver</h2><blockquote>
@@ -400,7 +410,10 @@ poweroff -d 0  -f</code></pre>
 <p>本地测试的话就放进磁盘重新打包后qemu起系统，运行即可获得root shell</p>
 <p><img src="https://i.loli.net/2021/03/03/qC9eGRgHU3axBJW.png" srcset="/img/loading.gif" alt="image.png"></p>
 <h1 id="0x02-Kernel-ROP"><a href="#0x02-Kernel-ROP" class="headerlink" title="0x02.Kernel ROP"></a>0x02.Kernel ROP</h1><p>ROP即<code>返回导向编程</code>（Return-oriented programming），应当是大家比较熟悉的一种攻击方式——通过复用代码片段的方式控制程序执行流，内核态的ROP与用户态的ROP一般无二，只不过利用的gadget变成了内核中的gadget</p>
-<h2 id="强网杯2018-core"><a href="#强网杯2018-core" class="headerlink" title="强网杯2018 - core"></a>强网杯2018 - core</h2><p>首先查看启动脚本<code>start.sh</code>：</p>
+<h2 id="强网杯2018-core"><a href="#强网杯2018-core" class="headerlink" title="强网杯2018 - core"></a>强网杯2018 - core</h2><blockquote>
+<p>依然是十分经典的kernel pwn入门题</p>
+</blockquote>
+<p>首先查看启动脚本<code>start.sh</code>：</p>
 <pre><code class="hljs shell">qemu-system-x86_64 \
 -m 128M \
 -kernel ./bzImage \
@@ -466,6 +479,10 @@ poweroff -d 0  -f</code></pre>
 <p>而canary的值可以通过ioctl提供的功能以泄露，此前内核符号表又已经被拷贝到了<code>/tmp/kallsyms</code>下，我们便可以从中读取各个内核符号的地址</p>
 <p>只要我们能够在内核空间执行<code>commit_cred(prepare_kernel_cred(NULL))</code>，那么就能够将进程的权限提升到<code>root</code></p>
 <p>至于gadget可以直接使用ROPgadget或者ropper对着vmlinux镜像跑一轮，这里便不再赘叙</p>
+<blockquote>
+<p>不明原因，笔者的ROPgadget没法找到<code>iretq</code>，只好直接用IDA按字节搜…</p>
+<p><img src="https://i.loli.net/2021/03/09/phXUkMOWyYmZBcF.png" srcset="/img/loading.gif" alt="image.png"></p>
+</blockquote>
 <h3 id="exploit-1"><a href="#exploit-1" class="headerlink" title="exploit"></a>exploit</h3><p>我们这里选择执行<code>commit_cred(prepare_kernel_cred(NULL))</code>以提权</p>
 <p>由于是内核态的rop，故我们需要手动返回用户态执行<code>/bin/sh</code>，这里我们需要模拟由用户态进入内核态再返回用户态的过程</p>
 <p>构造exp如下：</p>
