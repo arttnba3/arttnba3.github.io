@@ -204,7 +204,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      4k 字
+      4.5k 字
     </span>
   
 
@@ -214,7 +214,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      58
+      64
        分钟
     </span>
   
@@ -256,7 +256,7 @@
             
               <p class="note note-info">
                 
-                  本文最后更新于：2021年3月10日 凌晨
+                  本文最后更新于：2021年3月11日 凌晨
                 
               </p>
             
@@ -265,11 +265,13 @@
 <a id="more"></a>
 
 <h1 id="0x00-绪论"><a href="#0x00-绪论" class="headerlink" title="0x00.绪论"></a>0x00.绪论</h1><p>毫无疑问，对于内核漏洞进行利用，并最终提权到root，在黑客界是一种最为old school的美学（</p>
-<p>而对于Linux Kernel Pwn入门的最简单的方式，毫无疑问就是从CTF中的kernel pwn题目开始，一步一步地从最基础的几种简单的利用方式开始学习，最后迈向真实世界中的各大CVE</p>
-<p>✳ <strong>kernel pwn与用户态的pwn在本质上并无差别</strong></p>
-<p>本篇来讲讲CTF中几种较为常见的kernel利用方式</p>
+<p>而CTF中的kernel pwn类型的题目则恰好是入门kernel exploit最好的方式之一，因此本篇来讲讲CTF中几种较为常见的kernel利用方式</p>
+<p> <strong>✳ kernel pwn与用户态的pwn在本质上并无差别</strong></p>
 <blockquote>
 <p>需要注意的是，CTF中的kernel pwn通常不会让选手去真正寻找内核中的漏洞，而通常是给出一个有漏洞的LKM让选手进行分析</p>
+</blockquote>
+<blockquote>
+<p>本文中所出现的所有的题目因为文件太大的缘故无法放上github（），若是有需要的可以发邮件给<a href="mailto:1543127579@qq.com">笔者</a></p>
 </blockquote>
 <h1 id="0x01-Kernel-UAF（Use-After-Free）"><a href="#0x01-Kernel-UAF（Use-After-Free）" class="headerlink" title="0x01.Kernel UAF（Use After Free）"></a>0x01.Kernel UAF（Use After Free）</h1><p>UAF即Use After Free，通常指的是<strong>对于释放后未重置的垂悬指针的利用</strong>，此前的heap阶段对于ptmalloc的利用很多都是基于UAF漏洞进行进一步的利用</p>
 <p>Linux Kernel中同样有着一个动态内存分配器——slab/slub内存分配器，若是在kernel中存在着垂悬指针，我们同样可以以此完成对slab/slub内存分配器的利用，通过Kernel UAF完成提权</p>
@@ -279,7 +281,15 @@
 </blockquote>
 <p><a href="/download/ciscn2017/pwn/babydriver.ko" title="点击此处下载原题">点击下载-babydriver.ko</a></p>
 <p>解压，惯例的<code>磁盘镜像 + 内核镜像 + 启动脚本</code>结构</p>
-<p>首先先解压磁盘镜像看看有没有什么可以利用的东西</p>
+<p>查看<code>boot.sh</code>：<del>写的好乱啊</del>（<del>恼</del>）</p>
+<pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">!/bin/bash</span>
+
+qemu-system-x86_64 -initrd core.cpio -kernel bzImage -append &#x27;console=ttyS0 root=/dev/ram oops=panic panic=1&#x27;  -monitor /dev/null -m 128M --nographic  -smp cores=1,threads=1 -cpu kvm64,+smep -s</code></pre>
+
+<ul>
+<li>开启了SMEP保护</li>
+</ul>
+<p>解压磁盘镜像看看有没有什么可以利用的东西</p>
 <pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> mkdir core</span>
 <span class="hljs-meta">$</span><span class="bash"> cp ./core.cpio ./core</span>
 <span class="hljs-meta">$</span><span class="bash"> <span class="hljs-built_in">cd</span> core</span>
@@ -804,7 +814,37 @@ poweroff -d 0  -f</code></pre>
 
 <p>重新打包，运行，成功获取root权限</p>
 <p><img src="https://i.loli.net/2021/03/10/ZJr5aWSmlBM8AXt.png" srcset="/img/loading.gif" alt="image.png"></p>
-<h1 id="0x04-Kernel-ROP-ret2dir"><a href="#0x04-Kernel-ROP-ret2dir" class="headerlink" title="0x04.Kernel ROP - ret2dir"></a>0x04.Kernel ROP - ret2dir</h1><h1 id="0x05-条件竞争"><a href="#0x05-条件竞争" class="headerlink" title="0x05.条件竞争"></a>0x05.条件竞争</h1><h1 id="0x06-内核堆喷-heap-spraying"><a href="#0x06-内核堆喷-heap-spraying" class="headerlink" title="0x06.内核堆喷(heap spraying)"></a>0x06.内核堆喷(heap spraying)</h1><pre><code class="hljs plain"></code></pre>
+<h2 id="ret2usr-with-SMEP-BYPASS"><a href="#ret2usr-with-SMEP-BYPASS" class="headerlink" title="ret2usr with SMEP-BYPASS"></a>ret2usr with SMEP-BYPASS</h2><p>前面我们讲到，当kernel开启SMEP保护时，ret2usr这种攻击手法将会触发页错误，引起kernel panic，因此若是我们仍然想要进行ret2dir攻击，则需要先关闭SMEP保护</p>
+<p>Intel下系统根据CR4控制寄存器的第20位标识是否开启SMEP保护（1为开启，0为关闭），<strong>若是能够通过kernel ROP改变CR4寄存器的值便能够关闭SMEP保护</strong>，完成SMEP-bypass，接下来就能够重新进行ret2usr</p>
+<p>（下图来自ctf-wiki）</p>
+<p><img src="https://ctf-wiki.org/pwn/linux/kernel/figure/smep.jpg" srcset="/img/loading.gif" alt="image.png"></p>
+<h3 id="例题：CISCN-2017-babydriver-1"><a href="#例题：CISCN-2017-babydriver-1" class="headerlink" title="例题：CISCN - 2017 - babydriver"></a>例题：CISCN - 2017 - babydriver</h3><p>具体的分析就不再赘叙了，</p>
+<h1 id="0x04-Kernel-ROP-ret2dir"><a href="#0x04-Kernel-ROP-ret2dir" class="headerlink" title="0x04.Kernel ROP - ret2dir"></a>0x04.Kernel ROP - ret2dir</h1><blockquote>
+<p><del>笔者第一次见这个名字的时候还以为是 return to directory</del></p>
+</blockquote>
+<p>在设计中，为了使隔离的数据进行交换时具有更高的性能，隐性地址共享始终存在，<strong>用户态进程与内核共享同一块物理内存</strong>，因此通过隐性内存共享可以完整的绕过软件和硬件的隔离保护，这种攻击方式被称之为<code>ret2dir</code>（return-to-direct-mapped memory ）</p>
+<p>在用户态进程中存在着两块这样的用以提高性能的内存：<code>vdso</code>与<code>vsyscall</code></p>
+<p><img src="https://i.loli.net/2021/03/11/thXJvr6wfxogkiR.png" srcset="/img/loading.gif" alt="image.png"></p>
+<h2 id="VDSO：虚拟动态共享对象"><a href="#VDSO：虚拟动态共享对象" class="headerlink" title="VDSO：虚拟动态共享对象"></a>VDSO：虚拟动态共享对象</h2><h2 id="VSYSCALL：虚拟系统调用"><a href="#VSYSCALL：虚拟系统调用" class="headerlink" title="VSYSCALL：虚拟系统调用"></a>VSYSCALL：虚拟系统调用</h2><p>vsyscall即<code>virtual system call</code></p>
+<h2 id="例题：CSAWCTF2015-StringIPC"><a href="#例题：CSAWCTF2015-StringIPC" class="headerlink" title="例题：CSAWCTF2015 - StringIPC"></a>例题：CSAWCTF2015 - StringIPC</h2><blockquote>
+<p>原题见<a target="_blank" rel="noopener" href="https://github.com/mncoppola/StringIPC">https://github.com/mncoppola/StringIPC</a></p>
+<p>题目太过久远了…实在找不到原文件…只好自己编译一份</p>
+</blockquote>
+<p>惯例的查看启动脚本</p>
+<pre><code class="hljs shell">qemu-system-x86_64 \  
+    -m 512 \  
+    -kernel ./bzImage \  
+    -initrd ./rootfs.cpio \  
+    -append &quot;console=ttyS0 root=/dev/ram rdinit=/sbin/init&quot; \  
+    -nographic \  
+    -s \  
+    -netdev user,id=t0, -device e1000,netdev=t0,id=nic0 \</code></pre>
+
+
+
+<p>大概是注册了一个misc类型设备</p>
+<p><img src="https://i.loli.net/2021/03/11/fmWz2K6VJeXoTZb.png" srcset="/img/loading.gif" alt="image.png"></p>
+<h1 id="0x05-条件竞争"><a href="#0x05-条件竞争" class="headerlink" title="0x05.条件竞争"></a>0x05.条件竞争</h1><h2 id="例题：0CTF2018-Final-baby-kernel"><a href="#例题：0CTF2018-Final-baby-kernel" class="headerlink" title="例题：0CTF2018 Final - baby kernel"></a>例题：0CTF2018 Final - baby kernel</h2><h1 id="0x06-测信道攻击"><a href="#0x06-测信道攻击" class="headerlink" title="0x06.测信道攻击"></a>0x06.测信道攻击</h1><h2 id="例题：0CTF2018-Final-baby-kernel-1"><a href="#例题：0CTF2018-Final-baby-kernel-1" class="headerlink" title="例题：0CTF2018 Final - baby kernel"></a>例题：0CTF2018 Final - baby kernel</h2><h1 id="0x07-内核堆喷-heap-spraying"><a href="#0x07-内核堆喷-heap-spraying" class="headerlink" title="0x07.内核堆喷(heap spraying)"></a>0x07.内核堆喷(heap spraying)</h1>
             </div>
             <hr>
             <div>
