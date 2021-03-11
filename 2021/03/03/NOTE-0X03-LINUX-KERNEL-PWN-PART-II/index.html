@@ -204,7 +204,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      4.5k 字
+      4.8k 字
     </span>
   
 
@@ -214,7 +214,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      64
+      68
        分钟
     </span>
   
@@ -256,7 +256,7 @@
             
               <p class="note note-info">
                 
-                  本文最后更新于：2021年3月11日 凌晨
+                  本文最后更新于：2021年3月12日 凌晨
                 
               </p>
             
@@ -392,7 +392,7 @@ poweroff -d 0  -f</code></pre>
 <h2 id="状态保存"><a href="#状态保存" class="headerlink" title="状态保存"></a>状态保存</h2><p>通常情况下，我们的exploit需要进入到内核当中完成提权，而我们最终仍然需要<strong>着陆回用户态</strong>以获得一个root权限的shell，因此在我们的exploit进入内核态之前我们需要<strong>手动模拟用户态进入内核态的准备工作</strong>——保存各寄存器的值，以便于后续着陆回用户态</p>
 <p>通常情况下使用如下函数保存各寄存器值到我们自己定义的变量中：</p>
 <blockquote>
-<p>方便起见，使用了内联汇编</p>
+<p>方便起见，使用了内联汇编，编译时需要指定参数：<code>-masm=intel</code></p>
 </blockquote>
 <pre><code class="hljs c"><span class="hljs-keyword">size_t</span> user_cs, user_ss, user_rflags, user_sp;
 <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">save_status</span><span class="hljs-params">()</span></span>
@@ -818,7 +818,31 @@ poweroff -d 0  -f</code></pre>
 <p>Intel下系统根据CR4控制寄存器的第20位标识是否开启SMEP保护（1为开启，0为关闭），<strong>若是能够通过kernel ROP改变CR4寄存器的值便能够关闭SMEP保护</strong>，完成SMEP-bypass，接下来就能够重新进行ret2usr</p>
 <p>（下图来自ctf-wiki）</p>
 <p><img src="https://ctf-wiki.org/pwn/linux/kernel/figure/smep.jpg" srcset="/img/loading.gif" alt="image.png"></p>
-<h3 id="例题：CISCN-2017-babydriver-1"><a href="#例题：CISCN-2017-babydriver-1" class="headerlink" title="例题：CISCN - 2017 - babydriver"></a>例题：CISCN - 2017 - babydriver</h3><p>具体的分析就不再赘叙了，</p>
+<p>我们可以通过如下命令查看CPU相关信息，其中包括开启的保护类型：</p>
+<pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> cat /proc/cpuinfo</span></code></pre>
+
+<h3 id="例题：CISCN-2017-babydriver-1"><a href="#例题：CISCN-2017-babydriver-1" class="headerlink" title="例题：CISCN - 2017 - babydriver"></a>例题：CISCN - 2017 - babydriver</h3><p>具体的分析就不再赘叙了，我们这一次选择通过ret2usr进行攻击</p>
+<p>内核符号表可读，我们能够很方便地获得相应内核函数的地址</p>
+<p><img src="https://i.loli.net/2021/03/11/aJCcp63nqtIbfU1.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>考虑要绕过SMEP，我们需要改变cr4寄存器的值，观察到在内核中有着如下的gadget可以很方便地改变cr4寄存器的值：</p>
+<p><img src="https://i.loli.net/2021/03/11/rztYCIH579dc6vu.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>接下来考虑如何通过UAF构造ROP</p>
+<p>在<code>/dev</code>下有一个伪终端设备<code>ptmx</code>，在我们打开这个设备时内核中会创建一个<code>tty_struct</code>结构体，与其他类型设备相同，tty驱动设备中同样存在着一个存放着函数指针的结构体<code>tty_operations</code></p>
+<blockquote>
+<p>推荐阅读<a href="https://arttnba3.cn/2021/02/21/NOTE-0X02-LINUX-KERNEL-PWN-PART-I/#%E4%BA%94%E3%80%81%E7%BC%96%E5%86%99%E5%8F%AF%E8%A3%85%E8%BD%BD%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%EF%BC%88LKMs%EF%BC%89">NOTE-0X02-LINUX-KERNEL-PWN-PART-I - 五、编写可装载内核模块（LKMs）</a>以获取更多设备相关知识（）</p>
+</blockquote>
+<p>那么我们不难想到的是我们可以通过UAF劫持<code>/dev/ptmx</code>这个设备的<code>tty_struct</code>结构体与其内部的<code>tty_operations</code>结构体，那么在我们对这个设备进行相应操作（如write、ioctl）时便会执行我们布置好的恶意函数指针</p>
+<blockquote>
+<pre><code class="hljs tty_struct```位于```include/linux/tty.h```中，```tty_operations```位于```include/linux/tty_driver.h```中">
+由于没有开启SMAP保护，故我们可以在用户态进程的栈上布置ROP链与&#96;&#96;&#96;fake tty_operations&#96;&#96;&#96;结构体
+
+需要注意的是**计算相应结构体大小时应当选取与题目相同版本的内核源码**
+
+最终的exploit应当如下：
+
+&#96;&#96;&#96;c
+</code></pre>
+</blockquote>
 <h1 id="0x04-Kernel-ROP-ret2dir"><a href="#0x04-Kernel-ROP-ret2dir" class="headerlink" title="0x04.Kernel ROP - ret2dir"></a>0x04.Kernel ROP - ret2dir</h1><blockquote>
 <p><del>笔者第一次见这个名字的时候还以为是 return to directory</del></p>
 </blockquote>
@@ -844,7 +868,7 @@ poweroff -d 0  -f</code></pre>
 
 <p>大概是注册了一个misc类型设备</p>
 <p><img src="https://i.loli.net/2021/03/11/fmWz2K6VJeXoTZb.png" srcset="/img/loading.gif" alt="image.png"></p>
-<h1 id="0x05-条件竞争"><a href="#0x05-条件竞争" class="headerlink" title="0x05.条件竞争"></a>0x05.条件竞争</h1><h2 id="例题：0CTF2018-Final-baby-kernel"><a href="#例题：0CTF2018-Final-baby-kernel" class="headerlink" title="例题：0CTF2018 Final - baby kernel"></a>例题：0CTF2018 Final - baby kernel</h2><h1 id="0x06-测信道攻击"><a href="#0x06-测信道攻击" class="headerlink" title="0x06.测信道攻击"></a>0x06.测信道攻击</h1><h2 id="例题：0CTF2018-Final-baby-kernel-1"><a href="#例题：0CTF2018-Final-baby-kernel-1" class="headerlink" title="例题：0CTF2018 Final - baby kernel"></a>例题：0CTF2018 Final - baby kernel</h2><h1 id="0x07-内核堆喷-heap-spraying"><a href="#0x07-内核堆喷-heap-spraying" class="headerlink" title="0x07.内核堆喷(heap spraying)"></a>0x07.内核堆喷(heap spraying)</h1>
+<h1 id="0x05-条件竞争"><a href="#0x05-条件竞争" class="headerlink" title="0x05.条件竞争"></a>0x05.条件竞争</h1><h2 id="例题：0CTF2018-Final-baby-kernel"><a href="#例题：0CTF2018-Final-baby-kernel" class="headerlink" title="例题：0CTF2018 Final - baby kernel"></a>例题：0CTF2018 Final - baby kernel</h2><h1 id="0x06-测信道攻击"><a href="#0x06-测信道攻击" class="headerlink" title="0x06.测信道攻击"></a>0x06.测信道攻击</h1><h2 id="例题：0CTF2018-Final-baby-kernel-1"><a href="#例题：0CTF2018-Final-baby-kernel-1" class="headerlink" title="例题：0CTF2018 Final - baby kernel"></a>例题：0CTF2018 Final - baby kernel</h2><h1 id="0x07-内核堆喷-heap-spraying"><a href="#0x07-内核堆喷-heap-spraying" class="headerlink" title="0x07.内核堆喷(heap spraying)"></a>0x07.内核堆喷(heap spraying)</h1><pre><code class="hljs plain"></code></pre>
             </div>
             <hr>
             <div>
