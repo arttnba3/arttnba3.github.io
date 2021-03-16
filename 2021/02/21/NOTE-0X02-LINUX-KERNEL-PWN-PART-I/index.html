@@ -256,7 +256,7 @@
             
               <p class="note note-info">
                 
-                  本文最后更新于：2021年3月11日 中午
+                  本文最后更新于：2021年3月16日 下午
                 
               </p>
             
@@ -757,7 +757,7 @@ qemu-system-x86_64 \
 <li><code>console=ttyS0</code>：指定终端为<code>/dev/ttyS0</code>，这样一启动就能进入终端界面</li>
 </ul>
 </li>
-<li><code>-monitor</code>：将监视器重定向到主机设备<code>/dev/null</code></li>
+<li><code>-monitor</code>：将监视器重定向到主机设备<code>/dev/null</code>，这里重定向至null主要是防止CTF中被人给偷了qemu拿flag</li>
 <li><code>-cpu</code>：设置CPU安全选项，在这里开启了smep保护</li>
 <li><code>-s</code>：相当于<code>-gdb tcp::1234</code>的简写（也可以直接这么写），后续我们可以通过gdb连接本地端口进行调试</li>
 </ul>
