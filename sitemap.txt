@@ -1,4 +1,4 @@
-http://blog.arttnba3.cn/2022/07/04/FUZZ-0X02-SYZKALLER-II/
+http://blog.arttnba3.cn/2022/07/04/FUZZ-0X02-SYZKALLER-II_SYZ-MANAGER/
 http://blog.arttnba3.cn/2021/02/01/FUZZ-0X00-AFL-I/
 http://blog.arttnba3.cn/2021/09/27/NETWORK-0X00-COMPUTER_NETWORK_BASIS/
 http://blog.arttnba3.cn/2021/01/15/GLIBC-0X00-MALLOC-2.23-PART-I/
