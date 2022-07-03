@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="zh-CN" color-mode="light">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="arttnba3" />
+  <meta name="description" content="あがいた夢を捨てて揺れる今日は眠って誤魔化せ" />
+  
+  
+  <title>
+    
+      【CODE.0x02】软件工程：设计模式浅析 
+      
+      
+      |
+    
+     arttnba3&#39;s blog
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/img/favicon.png">
+    <link rel="icon" href="/img/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/color-scheme.css">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/comments.css">
+
+  <!-- 代码块风格 -->
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a target="_blank" rel="noopener" href="https://arttnba3.cn">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/img/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a target="_blank" rel="noopener" href="https://arttnba3.cn">arttnba3's blog</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">Categories</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">Tags</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">Friends</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">【CODE.0x02】软件工程：设计模式浅析</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="更新时间"></i>
+          2022-01-04 00:50:06
+        </span>
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="分类"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/CODE/" title="CODE">
+                    <b>#</b> CODE
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="标签"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/design-pattern/" title="design pattern">
+                    <b>#</b> design pattern
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" title="设计模式">
+                    <b>#</b> 设计模式
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <p>其实👴不会写代码</p>
+<span id="more"></span>
+
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00.一切开始之前"></a>0x00.一切开始之前</h1><blockquote>
+<p>先来一段面向 Wikipedia 的废话（</p>
+<blockquote>
+<p>在软件工程中，设计模式（design pattern）是对软件设计中普遍存在（反复出现）的各种问题，所提出的解决方案。这个术语是由埃里希·伽玛（Erich Gamma）等人在1990年代从建筑设计领域引入到计算机科学的。</p>
+<p>设计模式并不直接用来完成代码的编写，而是描述在各种不同情况下，要怎么解决问题的一种方案。面向对象设计模式通常以类别或对象来描述其中的关系和相互作用，但不涉及用来完成应用程序的特定类别或对象。设计模式能使不稳定依赖于相对稳定、具体依赖于相对抽象，避免会引起麻烦的紧耦合，以增强软件设计面对并适应变化的能力。</p>
+<p>并非所有的软件模式都是设计模式，设计模式特指软件“设计”层次上的问题。还有其他非设计模式的模式，如架构模式。同时，<strong>算法不能算是一种设计模式</strong>，因为算法主要是用来解决计算上的问题，而非设计上的问题。</p>
+<p><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F_(%E8%AE%A1%E7%AE%97%E6%9C%BA)">设计模式 (计算机) - 维基百科，自由的百科全书 (wikipedia.org)</a></p>
+</blockquote>
+<p>笔者本身也不是软工专业的，所以下文中笔者的拙见可能有误，还望读者不吝指正。</p>
+</blockquote>
+<p>在笔者看来，通俗地来说，<strong>设计模式</strong>（design pattern）就是<strong>软件的架构设计问题</strong>——我们在如何去设计、组织一个软件的架构</p>
+<p>当我们谈论到设计模式这一词语时，我们通常是基于<strong>面向对象程序设计</strong>（Object Oriented Programming）这一基础出发，而非传统的_面向过程的程序设计_，这意味着设计模式是软件设计的<strong>抽象层面</strong>——即<strong>我们并不关注细节的实现，而是关注于更高一层的组织</strong></p>
+<p>方便起见，本篇笔者选用“最面向对象的语言”—— Java 语言来讲解不同的设计模式</p>
+<h2 id="设计模式的类别"><a href="#设计模式的类别" class="headerlink" title="设计模式的类别"></a>设计模式的类别</h2><p>在《<strong>设计模式：可复用面向对象软件的基础</strong>》（Design Patterns: Elements of Reusable Object-Oriented Software）一书中，GoF 总结了<strong>23种设计模式</strong>，分为三大类：</p>
+<h3 id="创建型模式（5种）"><a href="#创建型模式（5种）" class="headerlink" title="创建型模式（5种）"></a>创建型模式（5种）</h3><ul>
+<li>工厂方法模式</li>
+<li>抽象工厂模式</li>
+<li>单例模式</li>
+<li>建造者模式</li>
+<li>原型模式</li>
+</ul>
+<h3 id="结构型模式（7种）"><a href="#结构型模式（7种）" class="headerlink" title="结构型模式（7种）"></a>结构型模式（7种）</h3><ul>
+<li>适配器模式</li>
+<li>装饰器模式</li>
+<li>代理模式</li>
+<li>外观模式</li>
+<li>桥接模式</li>
+<li>组合模式</li>
+<li>享元模式</li>
+</ul>
+<h3 id="行为型模式（11种）"><a href="#行为型模式（11种）" class="headerlink" title="行为型模式（11种）"></a>行为型模式（11种）</h3><ul>
+<li>策略模式</li>
+<li>模板方法模式</li>
+<li>观察者模式</li>
+<li>迭代子模式</li>
+<li>责任链模式</li>
+<li>命令模式</li>
+<li>备忘录模式</li>
+<li>状态模式</li>
+<li>访问者模式</li>
+<li>中介者模式</li>
+<li>解释器模式</li>
+</ul>
+<p>随着现代软件设计理论的发展，更多的设计模式也被开发了出来，除了书上所述的上述三大类都分别新增有设计模式之外，针对于多线程与并发软件设计，还新增了一个<strong>并发型模式</strong>，以及由 Sun Java Center 鉴定的 J2EE模式等等…</p>
+<p>本篇主要还是讲书上的23种设计模式，额外的设计模式如果有时间可能也会讲讲</p>
+<blockquote>
+<p>其实笔者本人也还没买钱这本书…（<del>体谅一哈，👴是学生，建议v👴200</del>）</p>
+</blockquote>
+<h1 id="0x01-创建型模式"><a href="#0x01-创建型模式" class="headerlink" title="0x01.创建型模式"></a>0x01.创建型模式</h1><p>在软件工程中，创建型模式是用以处理<strong>对象创建</strong>的设计模式，该类别模式根据实际情况使用合适的方式创建对象，因为基本的对象创建方式可能会导致设计上的问题，或增加设计的复杂度</p>
+<p>创建型模式的关注点是<strong>如何创建对象</strong>，其核心思想是要<strong>把对象的创建和使用相分离</strong></p>
+<blockquote>
+<p>例如，当我们在C++中使用 string 类的各种方法时，我们并不需要关注其底层（allocator、扩容…）是如何实现的</p>
+</blockquote>
+<h2 id="一、工厂方法模式（Factory-method-pattern）"><a href="#一、工厂方法模式（Factory-method-pattern）" class="headerlink" title="一、工厂方法模式（Factory method pattern）"></a>一、工厂方法模式（Factory method pattern）</h2><p>工厂方法模式通常又简称工厂模式，该设计模式引入了一种名为“工厂”的概念——_<strong>由一个“工厂”来“生产”出我们所需要的对象</strong>_</p>
+<p>在工厂模式中，我们<strong>将对象的创建与对象的使用进行分开</strong>，当我们需要创建一个对象时，我们首先需要创建一个“工厂类”对象实例，后续的对象创建都从该“工厂”中获得</p>
+<p>下图是<del>笔者偷的</del>一张描述工厂模式的图</p>
+<p>假设我们现在要帮 Apple 设计一个生产工厂来生产最新的 iPhone13 和 iPad5，步骤如下：</p>
+<h3 id="I-物品接口"><a href="#I-物品接口" class="headerlink" title="I.物品接口"></a>I.物品接口</h3><p>我们首先需要定义我们“生产”的对象的类型，例如，我们这个生产工厂可以生产 iPhone13 和 iPad5，那么我们这里便定义一个_设备类的接口类_作为不同产品的接口，同时声明一些这些设备共有的方法，这里随便定义两个方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Device</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">showScreen</span><span class="params">()</span>;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">reboot</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="II-工厂接口"><a href="#II-工厂接口" class="headerlink" title="II.工厂接口"></a>II.工厂接口</h3><p>要实现不同类型的工厂，我们通常需要先定义一个工厂类的接口类，我们要“生产”的是电子设备，那就叫_DeviceFactor_ 好了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">DeviceFactory</span></span><br><span class="line">&#123;</span><br><span class="line">    Device <span class="title function_">createDevice</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="III-物品实体类"><a href="#III-物品实体类" class="headerlink" title="III.物品实体类"></a>III.物品实体类</h3><p>有了物品接口，我们可以开始定义相应的设备了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">iPhone13</span> <span class="keyword">implements</span> <span class="title class_">Device</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">showScreen</span><span class="params">()</span></span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;This is screen of iPhone13.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">reboot</span><span class="params">()</span></span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;The iPhone13 is going to reboot sooooooon...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">iPad5</span> <span class="keyword">implements</span> <span class="title class_">Device</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">showScreen</span><span class="params">()</span></span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;This is screen of iPad5.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">reboot</span><span class="params">()</span></span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;The iPad5 is going to reboot sooooon...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="IV-工厂类"><a href="#IV-工厂类" class="headerlink" title="IV.工厂类"></a>IV.工厂类</h3><p>有了工厂接口与物品接口，我们可以开始实现我们的工厂类了，对于 iPhone 而言我们需要一个 iPhone13Factory，而对于 iPad5 我们则需要一个独立的 iPad5 工厂，相应地这两个工厂都要实现 DeviceFactory 接口的 <code>createDevice()</code> 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">iPhone13Factory</span> <span class="keyword">implements</span> <span class="title class_">DeviceFactory</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> iPhone13 <span class="title function_">createDevice</span><span class="params">()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">iPhone13</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">iPad5Factory</span> <span class="keyword">implements</span> <span class="title class_">DeviceFactory</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> iPad5 <span class="title function_">createDevice</span><span class="params">()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">iPad5</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="O-工厂方法模式的工作方式"><a href="#O-工厂方法模式的工作方式" class="headerlink" title="O.工厂方法模式的工作方式"></a><em>O.工厂方法模式的工作方式</em></h3><p>以下测试主程序用以说明工厂方法模式如何工作：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.lang.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FactoryMethodMode</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">iPhone13Factory</span> <span class="variable">iphone_13_factory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">iPhone13Factory</span>();</span><br><span class="line">        <span class="type">iPad5Factory</span> <span class="variable">ipad_5_factory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">iPad5Factory</span>();</span><br><span class="line"></span><br><span class="line">        <span class="type">iPhone13</span> <span class="variable">iphone13</span> <span class="operator">=</span> iphone_13_factory.createDevice();</span><br><span class="line">        <span class="type">iPad5</span> <span class="variable">ipad5</span> <span class="operator">=</span> ipad_5_factory.createDevice();</span><br><span class="line"></span><br><span class="line">        iphone13.showScreen();</span><br><span class="line">        ipad5.showScreen();</span><br><span class="line"></span><br><span class="line">        iphone13.reboot();</span><br><span class="line">        ipad5.reboot();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">This is screen of iPhone13.</span><br><span class="line">This is screen of iPad5.</span><br><span class="line">The iPhone13 is going to reboot sooooooon...</span><br><span class="line">The iPad5 is going to reboot sooooon...</span><br></pre></td></tr></table></figure>
+
+<h2 id="二、抽象工厂模式（Abstract-factory-pattern）"><a href="#二、抽象工厂模式（Abstract-factory-pattern）" class="headerlink" title="二、抽象工厂模式（Abstract factory pattern）"></a>二、抽象工厂模式（Abstract factory pattern）</h2><p>抽象工厂模式与工厂模式相类似，不同的是，在工厂模式中，我们以_独立的对象种类_来创建工厂（例如 iPhone13和 iPad5），而在抽象工厂模式中，则以<strong>同一种类别的对象</strong>作为划分的依据——<strong>每一类对象都有一个工厂，该工厂生产同一类别的不同种类的对象实例</strong></p>
+<p><img src="https://s2.loli.net/2022/01/04/PKxLXrTFRpWiNZg.png" alt="偷的图"></p>
+<p>还是拿 Apple 的工厂做例子，这里我们有两条生产线：一条生产全系 iPhone，另一条生产全系 iPad</p>
+<h3 id="I-物品接口-1"><a href="#I-物品接口-1" class="headerlink" title="I.物品接口"></a>I.物品接口</h3><p>我们首先需要定义我们“生产”的对象的类型，例如，我们这个生产工厂可以生产各系 iPhone 和 iPad，那么我们这里便定义一个_设备类的接口类_作为不同产品的接口，同时声明一些这些设备<strong>共有</strong>的方法，这里随便定义两个方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Device</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">showScreen</span><span class="params">()</span>;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">reboot</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>基于 Device 类，我们再定义两个<strong>抽象类</strong>——iPhone 和 iPad</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">iPhone</span> <span class="keyword">implements</span> <span class="title class_">Device</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title function_">showScreen</span><span class="params">()</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title function_">reboot</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">iPad</span> <span class="keyword">implements</span> <span class="title class_">Device</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title function_">showScreen</span><span class="params">()</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title function_">reboot</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="II-工厂接口-1"><a href="#II-工厂接口-1" class="headerlink" title="II.工厂接口"></a>II.工厂接口</h3><p>要实现不同类型的工厂，我们通常需要先定义一个工厂类的接口类，我们要“生产”的是电子设备，那就叫_DeviceFactor_ 好了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">DeviceFactory</span></span><br><span class="line">&#123;</span><br><span class="line">    Device <span class="title function_">createDevice</span><span class="params">(<span class="type">int</span> version)</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="III-物品实体类-1"><a href="#III-物品实体类-1" class="headerlink" title="III.物品实体类"></a>III.物品实体类</h3><p>有了 iPhone 和 iPad 这两个抽象类，我们便可以定义具体的设备了，比如 iPhone13 类和 iPad 类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">iPhone13</span> <span class="keyword">extends</span> <span class="title class_">iPhone</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">showScreen</span><span class="params">()</span></span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;This is screen of iPhone13.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">reboot</span><span class="params">()</span></span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;The iPhone13 is going to reboot sooooooon...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">iPad5</span> <span class="keyword">extends</span> <span class="title class_">iPad</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">showScreen</span><span class="params">()</span></span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;This is screen of iPad5.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">reboot</span><span class="params">()</span></span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;The iPad5 is going to reboot sooooon...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="IV-工厂类-1"><a href="#IV-工厂类-1" class="headerlink" title="IV.工厂类"></a>IV.工厂类</h3><p>有了工厂接口与物品接口，我们可以开始实现我们的工厂类了，对于 iPhone 而言我们需要一个 iPhoneFactory，而对于 iPad 我们则需要一个独立的 iPad 工厂，相应地这两个工厂都要实现工厂接口的 <code>createDevice()</code> 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">iPhoneFactory</span> <span class="keyword">implements</span> <span class="title class_">DeviceFactory</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Device <span class="title function_">createDevice</span><span class="params">(<span class="type">int</span> version)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (version == <span class="number">13</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">iPhone13</span>();</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">iPadFactory</span> <span class="keyword">implements</span> <span class="title class_">DeviceFactory</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Device <span class="title function_">createDevice</span><span class="params">(<span class="type">int</span> version)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (version == <span class="number">5</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">iPad5</span>();</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="O-抽象工厂模式的工作方式"><a href="#O-抽象工厂模式的工作方式" class="headerlink" title="O.抽象工厂模式的工作方式"></a><em>O.抽象工厂模式的工作方式</em></h3><p>以下测试主程序用以说明工厂方法模式如何工作：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AbstractFactoryPattern</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">iPhoneFactory</span> <span class="variable">iphone_factory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">iPhoneFactory</span>();</span><br><span class="line">        <span class="type">iPadFactory</span> <span class="variable">ipad_factory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">iPadFactory</span>();</span><br><span class="line"></span><br><span class="line">        <span class="type">iPhone</span> <span class="variable">iPhone_13</span> <span class="operator">=</span> iphone_factory.createDevice(<span class="number">13</span>);</span><br><span class="line">        <span class="type">iPad</span> <span class="variable">iPad_5</span> <span class="operator">=</span> ipad_factory.createDevice(<span class="number">5</span>);</span><br><span class="line">        </span><br><span class="line">        iPhone_13.showScreen();</span><br><span class="line">        iPad_5.showScreen();</span><br><span class="line">        </span><br><span class="line">        iPhone_13.reboot();</span><br><span class="line">        iPad_5.reboot();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">This is screen of iPhone13.</span><br><span class="line">This is screen of iPad5.</span><br><span class="line">The iPhone13 is going to reboot sooooooon...</span><br><span class="line">The iPad5 is going to reboot sooooon...</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、单例模式（Singleton-Pattern）"><a href="#三、单例模式（Singleton-Pattern）" class="headerlink" title="三、单例模式（Singleton Pattern）"></a>三、单例模式（Singleton Pattern）</h2><p>单例模式即<strong>在一个进程当中，一个类至多仅有一个实例，并提供一个全局访问点</strong>，当一个对象只需要一个全局实例时，便可以使用单例模式（例如 glibc 中的 errno？）</p>
+<p>单例模式能够避免对象的重复创建，从而节约空间，并能避免由于操作不同实例而导致的逻辑错误</p>
+<p>单例模式涉及的对象通常有两种创建方式（名字怪怪的）：</p>
+<h3 id="懒汉方式"><a href="#懒汉方式" class="headerlink" title="懒汉方式"></a>懒汉方式</h3><p>类似于 Linux 下的 lazy-binding 机制，我们并不在一运行程序便创建对象实例，而是等到我们第一次使用该对象时再进行创建</p>
+<p>这是一个🌰：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.lang.*;</span><br><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SimpleObject</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> <span class="variable">val</span> <span class="operator">=</span> -<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">SimpleObject</span><span class="params">()</span></span><br><span class="line">	&#123;</span><br><span class="line">		System.out.println(<span class="string">&quot;SimpleObject is created!&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getVal</span><span class="params">()</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="built_in">this</span>.val;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setVal</span><span class="params">(<span class="type">int</span> val)</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">this</span>.val = val;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">InterfaceOutside</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">SimpleObject</span> <span class="variable">simpleObject</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="type">int</span> <span class="title function_">getVal</span><span class="params">()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span>.simpleObject == <span class="literal">null</span>)</span><br><span class="line">			<span class="built_in">this</span>.simpleObject = <span class="keyword">new</span> <span class="title class_">SimpleObject</span>();</span><br><span class="line">		<span class="keyword">return</span> <span class="built_in">this</span>.simpleObject.getVal();</span><br><span class="line">    &#125;</span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">setVal</span><span class="params">(<span class="type">int</span> val)</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span> (<span class="built_in">this</span>.simpleObject == <span class="literal">null</span>)</span><br><span class="line">			<span class="built_in">this</span>.simpleObject = <span class="keyword">new</span> <span class="title class_">SimpleObject</span>();</span><br><span class="line">		<span class="built_in">this</span>.simpleObject.setVal(val);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SingletonPattern</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span></span><br><span class="line">	&#123;</span><br><span class="line">		System.out.println(<span class="string">&quot;Create new InterfaceOutside instance.&quot;</span>);</span><br><span class="line">		<span class="type">InterfaceOutside</span> <span class="variable">instance1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">InterfaceOutside</span>();</span><br><span class="line">		<span class="type">InterfaceOutside</span> <span class="variable">instance2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">InterfaceOutside</span>();</span><br><span class="line">		System.out.println(<span class="string">&quot;Done.&quot;</span>);</span><br><span class="line"></span><br><span class="line">		System.out.println(<span class="string">&quot;Set val of instance1&quot;</span>);</span><br><span class="line">		instance1.setVal(<span class="number">114514</span>);</span><br><span class="line">		System.out.println(<span class="string">&quot;Get val of instance2: &quot;</span> + Integer.toString(instance2.getVal()));</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Create new InterfaceOutside instance.</span><br><span class="line">Done.</span><br><span class="line">Set val of instance1</span><br><span class="line">SimpleObject is created!</span><br><span class="line">Get val of instance2: 114514</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是，为了保证初始化的<strong>线程安全</strong>，InterfaceOutside 类的两个方法都上了锁，且每次都需要判断对象是否存在，这会造成<strong>不可忽视的性能开销</strong>，故通常情况下不会使用懒汉方式来创建单例模式中的对象实例</p>
+<h3 id="饿汉方式"><a href="#饿汉方式" class="headerlink" title="饿汉方式"></a>饿汉方式</h3><p>相比于懒汉方式，饿汉方式会在一开始就将需要用到的实例进行初始化，这种方式便能够直接使用已经生成的对象，而不需要判断对象是否存在</p>
+<p>需要注意的是这种方式无论你在程序中是否需要使用该对象，他都会将该对象进行实例化，这通常会造成额外的开销</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.lang.*;</span><br><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SimpleObject</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> <span class="variable">val</span> <span class="operator">=</span> -<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">SimpleObject</span><span class="params">()</span></span><br><span class="line">	&#123;</span><br><span class="line">		System.out.println(<span class="string">&quot;SimpleObject is created!&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getVal</span><span class="params">()</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="built_in">this</span>.val;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setVal</span><span class="params">(<span class="type">int</span> val)</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">this</span>.val = val;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">InterfaceOutside</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">SimpleObject</span> <span class="variable">simpleObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SimpleObject</span>();</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="type">int</span> <span class="title function_">getVal</span><span class="params">()</span></span><br><span class="line">    &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="built_in">this</span>.simpleObject.getVal();</span><br><span class="line">    &#125;</span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">setVal</span><span class="params">(<span class="type">int</span> val)</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">this</span>.simpleObject.setVal(val);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SingletonPattern</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span></span><br><span class="line">	&#123;</span><br><span class="line">		System.out.println(<span class="string">&quot;Create new InterfaceOutside instance.&quot;</span>);</span><br><span class="line">		<span class="type">InterfaceOutside</span> <span class="variable">instance1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">InterfaceOutside</span>();</span><br><span class="line">		<span class="type">InterfaceOutside</span> <span class="variable">instance2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">InterfaceOutside</span>();</span><br><span class="line">		System.out.println(<span class="string">&quot;Done.&quot;</span>);</span><br><span class="line"></span><br><span class="line">		System.out.println(<span class="string">&quot;Set val of instance1&quot;</span>);</span><br><span class="line">		instance1.setVal(<span class="number">114514</span>);</span><br><span class="line">		System.out.println(<span class="string">&quot;Get val of instance2: &quot;</span> + Integer.toString(instance2.getVal()));</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Create new InterfaceOutside instance.</span><br><span class="line">SimpleObject is created!</span><br><span class="line">Done.</span><br><span class="line">Set val of instance1</span><br><span class="line">Get val of instance2: 114514</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、建造者模式（Builder-Pattern）"><a href="#四、建造者模式（Builder-Pattern）" class="headerlink" title="四、建造者模式（Builder Pattern）"></a>四、建造者模式（Builder Pattern）</h2><h2 id="五、原型模式"><a href="#五、原型模式" class="headerlink" title="五、原型模式"></a>五、原型模式</h2><h1 id="0x02-结构型模式"><a href="#0x02-结构型模式" class="headerlink" title="0x02.结构型模式"></a>0x02.结构型模式</h1><p>在软件工程中，结构型模式主要关注于<strong>各个元件间的关系</strong>，以此简化设计</p>
+<h2 id="一、适配器模式"><a href="#一、适配器模式" class="headerlink" title="一、适配器模式"></a>一、适配器模式</h2><h2 id="二、装饰器模式"><a href="#二、装饰器模式" class="headerlink" title="二、装饰器模式"></a>二、装饰器模式</h2><h2 id="三、代理模式"><a href="#三、代理模式" class="headerlink" title="三、代理模式"></a>三、代理模式</h2><h2 id="四、外观模式"><a href="#四、外观模式" class="headerlink" title="四、外观模式"></a>四、外观模式</h2><h2 id="五、桥接模式"><a href="#五、桥接模式" class="headerlink" title="五、桥接模式"></a>五、桥接模式</h2><h2 id="六、组合模式"><a href="#六、组合模式" class="headerlink" title="六、组合模式"></a>六、组合模式</h2><h2 id="七、享元模式"><a href="#七、享元模式" class="headerlink" title="七、享元模式"></a>七、享元模式</h2><h1 id="0x03-行为型模式"><a href="#0x03-行为型模式" class="headerlink" title="0x03.行为型模式"></a>0x03.行为型模式</h1><p>创建型模式关注对象如何被创建，结构型模式关注对象间的组织结构，那么我们还缺少什么？从OOP的角度来看，我们似乎还少了一个类的“成员函数”——即对象之间的行为</p>
+<p>在软件工程当中，行为型模式主要关注于对象之间的交流模式并进行实现</p>
+<h2 id="一、策略模式"><a href="#一、策略模式" class="headerlink" title="一、策略模式"></a>一、策略模式</h2><h2 id="二、模板方法"><a href="#二、模板方法" class="headerlink" title="二、模板方法"></a>二、模板方法</h2><h2 id="三、模式观察者模式"><a href="#三、模式观察者模式" class="headerlink" title="三、模式观察者模式"></a>三、模式观察者模式</h2><h2 id="四、迭代子模式"><a href="#四、迭代子模式" class="headerlink" title="四、迭代子模式"></a>四、迭代子模式</h2><h2 id="五、责任链模式"><a href="#五、责任链模式" class="headerlink" title="五、责任链模式"></a>五、责任链模式</h2><h2 id="六、命令模式"><a href="#六、命令模式" class="headerlink" title="六、命令模式"></a>六、命令模式</h2><h2 id="七、备忘录模式"><a href="#七、备忘录模式" class="headerlink" title="七、备忘录模式"></a>七、备忘录模式</h2><h2 id="八、状态模式"><a href="#八、状态模式" class="headerlink" title="八、状态模式"></a>八、状态模式</h2><h2 id="九、访问者模式"><a href="#九、访问者模式" class="headerlink" title="九、访问者模式"></a>九、访问者模式</h2><h2 id="十、中介者模式"><a href="#十、中介者模式" class="headerlink" title="十、中介者模式"></a>十、中介者模式</h2><h2 id="十一、解释器模式"><a href="#十一、解释器模式" class="headerlink" title="十一、解释器模式"></a>十一、解释器模式</h2><h1 id="0x04-并发型模式"><a href="#0x04-并发型模式" class="headerlink" title="0x04.并发型模式"></a>0x04.并发型模式</h1><p>并发型模式主要是随着多线程处理器的不断发展壮大而新出现的一种设计模式，在软件工程中，并发型模式是用来处理多线程编程范式的一类设计模式</p>
+<blockquote>
+<p>to be 🕊🕊🕊</p>
+</blockquote>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2021/12/31/PIECES-0X02-SHELL_OUTSIDE-2-DEEP_INTO_THE_SEA/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>上一页</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime" title="更新时间"></i>
+              2022-01-04 00:50:06
+            </span>
+            
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="分类"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/CODE/" title="CODE">
+                        <b>#</b> CODE
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags" title="标签"></i>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/design-pattern/" title="design pattern">
+                        <b>#</b> design pattern
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" title="设计模式">
+                        <b>#</b> 设计模式
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/2022/01/17/CVE-0X05-CVE-2019-13272/" target="_self">
+                <span>下一页</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">目录</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00-%E4%B8%80%E5%88%87%E5%BC%80%E5%A7%8B%E4%B9%8B%E5%89%8D"><span class="toc-text">0x00.一切开始之前</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%9A%84%E7%B1%BB%E5%88%AB"><span class="toc-text">设计模式的类别</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F%EF%BC%885%E7%A7%8D%EF%BC%89"><span class="toc-text">创建型模式（5种）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F%EF%BC%887%E7%A7%8D%EF%BC%89"><span class="toc-text">结构型模式（7种）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A1%8C%E4%B8%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F%EF%BC%8811%E7%A7%8D%EF%BC%89"><span class="toc-text">行为型模式（11种）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F"><span class="toc-text">0x01.创建型模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F%EF%BC%88Factory-method-pattern%EF%BC%89"><span class="toc-text">一、工厂方法模式（Factory method pattern）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#I-%E7%89%A9%E5%93%81%E6%8E%A5%E5%8F%A3"><span class="toc-text">I.物品接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#II-%E5%B7%A5%E5%8E%82%E6%8E%A5%E5%8F%A3"><span class="toc-text">II.工厂接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#III-%E7%89%A9%E5%93%81%E5%AE%9E%E4%BD%93%E7%B1%BB"><span class="toc-text">III.物品实体类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#IV-%E5%B7%A5%E5%8E%82%E7%B1%BB"><span class="toc-text">IV.工厂类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#O-%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%96%B9%E5%BC%8F"><span class="toc-text">O.工厂方法模式的工作方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F%EF%BC%88Abstract-factory-pattern%EF%BC%89"><span class="toc-text">二、抽象工厂模式（Abstract factory pattern）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#I-%E7%89%A9%E5%93%81%E6%8E%A5%E5%8F%A3-1"><span class="toc-text">I.物品接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#II-%E5%B7%A5%E5%8E%82%E6%8E%A5%E5%8F%A3-1"><span class="toc-text">II.工厂接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#III-%E7%89%A9%E5%93%81%E5%AE%9E%E4%BD%93%E7%B1%BB-1"><span class="toc-text">III.物品实体类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#IV-%E5%B7%A5%E5%8E%82%E7%B1%BB-1"><span class="toc-text">IV.工厂类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#O-%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%96%B9%E5%BC%8F"><span class="toc-text">O.抽象工厂模式的工作方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F%EF%BC%88Singleton-Pattern%EF%BC%89"><span class="toc-text">三、单例模式（Singleton Pattern）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%87%92%E6%B1%89%E6%96%B9%E5%BC%8F"><span class="toc-text">懒汉方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A5%BF%E6%B1%89%E6%96%B9%E5%BC%8F"><span class="toc-text">饿汉方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F%EF%BC%88Builder-Pattern%EF%BC%89"><span class="toc-text">四、建造者模式（Builder Pattern）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F"><span class="toc-text">五、原型模式</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F"><span class="toc-text">0x02.结构型模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F"><span class="toc-text">一、适配器模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E8%A3%85%E9%A5%B0%E5%99%A8%E6%A8%A1%E5%BC%8F"><span class="toc-text">二、装饰器模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F"><span class="toc-text">三、代理模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%A4%96%E8%A7%82%E6%A8%A1%E5%BC%8F"><span class="toc-text">四、外观模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F"><span class="toc-text">五、桥接模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F"><span class="toc-text">六、组合模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F"><span class="toc-text">七、享元模式</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-%E8%A1%8C%E4%B8%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F"><span class="toc-text">0x03.行为型模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F"><span class="toc-text">一、策略模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95"><span class="toc-text">二、模板方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%A8%A1%E5%BC%8F%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F"><span class="toc-text">三、模式观察者模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E8%BF%AD%E4%BB%A3%E5%AD%90%E6%A8%A1%E5%BC%8F"><span class="toc-text">四、迭代子模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E8%B4%A3%E4%BB%BB%E9%93%BE%E6%A8%A1%E5%BC%8F"><span class="toc-text">五、责任链模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F"><span class="toc-text">六、命令模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F"><span class="toc-text">七、备忘录模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E7%8A%B6%E6%80%81%E6%A8%A1%E5%BC%8F"><span class="toc-text">八、状态模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E8%AE%BF%E9%97%AE%E8%80%85%E6%A8%A1%E5%BC%8F"><span class="toc-text">九、访问者模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E3%80%81%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F"><span class="toc-text">十、中介者模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%81%E4%B8%80%E3%80%81%E8%A7%A3%E9%87%8A%E5%99%A8%E6%A8%A1%E5%BC%8F"><span class="toc-text">十一、解释器模式</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04-%E5%B9%B6%E5%8F%91%E5%9E%8B%E6%A8%A1%E5%BC%8F"><span class="toc-text">0x04.并发型模式</span></a></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  
+    <script async type="text/javascript" src="/plugins/valine.min.js" onload="loadValineSuc(this)"></script>
+  
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz',
+        appKey: 'tuvJh3xYxPFcW2JB6K26RKP2',
+        placeholder: '说点什么呗...',
+        avatar: 'retro',
+        lang: 'zh-CN'
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/arttnba3">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="email" href="mailto:arttnba@gmail.com">
+            <i class="iconfont icon-envelope"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="twitter" target="_blank" rel="noopener" href="https://twitter.com/arttnba3">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="rss" href="/atom.xml">
+            <i class="iconfont icon-rss"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/arttnba3">Copyright © 2022 arttnba3</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>首次搜索，正在载入索引文件，请稍后……<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>没有找到内容，请尝试更换检索词。<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>未找到search.xml文件，具体请参考：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>请求失败，尝试重新刷新页面或稍后重试。<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + %E3%80%90CODE.0x02%E3%80%91%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%EF%BC%9A%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E6%B5%85%E6%9E%90 + '&url=' + http%3A%2F%2Fblog.arttnba3.cn%2F2022%2F01%2F04%2FCODE-0X02-DESIGN_PATTERN%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://blog.arttnba3.cn/2022/01/04/CODE-0X02-DESIGN_PATTERN/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>

