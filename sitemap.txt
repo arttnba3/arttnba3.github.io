@@ -1,3 +1,4 @@
+http://blog.arttnba3.cn/friends/index.html
 http://blog.arttnba3.cn/2021/01/15/GLIBC-0X01-MALLOC-2.23-PART-II/
 http://blog.arttnba3.cn/2021/02/01/FUZZ-0X00-AFL-I/
 http://blog.arttnba3.cn/2021/09/27/NETWORK-0X00-COMPUTER_NETWORK_BASIS/
@@ -14,7 +15,6 @@ http://blog.arttnba3.cn/2022/02/21/EXPR-0X00-MIT_6_828/
 http://blog.arttnba3.cn/2022/03/18/PIECES-0X03-SHELL_OUTSIDE-3-IDEALIST_DEATH/
 http://blog.arttnba3.cn/2000/10/12/hello-world/
 http://blog.arttnba3.cn/about/index.html
-http://blog.arttnba3.cn/friends/index.html
 http://blog.arttnba3.cn/tags/index.html
 http://blog.arttnba3.cn/categories/index.html
 http://blog.arttnba3.cn/links/index.html

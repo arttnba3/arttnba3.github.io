@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.arttnba3.cn/friends/index.html</loc>
+    
+    <lastmod>2022-07-03</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://blog.arttnba3.cn/2021/01/15/GLIBC-0X01-MALLOC-2.23-PART-II/</loc>
     
     <lastmod>2022-07-03</lastmod>
@@ -138,15 +147,6 @@
   
   <url>
     <loc>http://blog.arttnba3.cn/about/index.html</loc>
-    
-    <lastmod>2022-07-03</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://blog.arttnba3.cn/friends/index.html</loc>
     
     <lastmod>2022-07-03</lastmod>
     
