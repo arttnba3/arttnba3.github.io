@@ -2,6 +2,33 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.arttnba3.cn/2022/07/22/VIRTUALIZATION-0X01-QEMU-PART-II/</loc>
+    
+    <lastmod>2022-07-21</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://blog.arttnba3.cn/2022/07/15/VIRTUALIZATION-0X00-QEMU-PART-I/</loc>
+    
+    <lastmod>2022-07-21</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://blog.arttnba3.cn/2022/07/07/OS-0X04-LINUX-KERNEL-MEMORY-5.11-PART-III/</loc>
+    
+    <lastmod>2022-07-21</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://blog.arttnba3.cn/2021/03/03/PWN-0X00-LINUX-KERNEL-PWN-PART-I/</loc>
     
     <lastmod>2022-07-20</lastmod>
@@ -14,15 +41,6 @@
     <loc>http://blog.arttnba3.cn/2021/05/10/PWN-0X01-GLIBC_HEAP-EXPLOIT/</loc>
     
     <lastmod>2022-07-20</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://blog.arttnba3.cn/2022/07/07/OS-0X04-LINUX-KERNEL-MEMORY-5.11-PART-III/</loc>
-    
-    <lastmod>2022-07-06</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -1054,6 +1072,34 @@
     <priority>0.2</priority>
   </url>
   
+  <url>
+    <loc>http://blog.arttnba3.cn/tags/Qemu/</loc>
+    <lastmod>2022-07-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://blog.arttnba3.cn/tags/%E8%99%9A%E6%8B%9F%E5%8C%96/</loc>
+    <lastmod>2022-07-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://blog.arttnba3.cn/tags/PCI/</loc>
+    <lastmod>2022-07-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://blog.arttnba3.cn/tags/VNC/</loc>
+    <lastmod>2022-07-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
 
   
   <url>
@@ -1135,6 +1181,13 @@
   
   <url>
     <loc>http://blog.arttnba3.cn/categories/NETWORK/</loc>
+    <lastmod>2022-07-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://blog.arttnba3.cn/categories/VIRTUALIZATION/</loc>
     <lastmod>2022-07-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>

@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="zh-CN" color-mode="light">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="arttnba3" />
+  <meta name="description" content="あがいた夢を捨てて揺れる今日は眠って誤魔化せ" />
+  
+  
+  <title>
+    
+      【VIRTUALIZATION.0x01】Qemu - II：Qemu VNC 模块源码分析 
+      
+      
+      |
+    
+     arttnba3&#39;s blog
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/img/favicon.png">
+    <link rel="icon" href="/img/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/color-scheme.css">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/comments.css">
+
+  <!-- 代码块风格 -->
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a target="_blank" rel="noopener" href="https://arttnba3.cn">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/img/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a target="_blank" rel="noopener" href="https://arttnba3.cn">arttnba3's blog</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">Categories</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">Tags</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">Friends</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">【VIRTUALIZATION.0x01】Qemu - II：Qemu VNC 模块源码分析</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="更新时间"></i>
+          2022-07-22 01:39:15
+        </span>
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="分类"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/VIRTUALIZATION/" title="VIRTUALIZATION">
+                    <b>#</b> VIRTUALIZATION
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="标签"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E5%AD%A6%E4%B9%A0%E6%9C%AD%E8%AE%B0/" title="学习札记">
+                    <b>#</b> 学习札记
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/Qemu/" title="Qemu">
+                    <b>#</b> Qemu
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E8%99%9A%E6%8B%9F%E5%8C%96/" title="虚拟化">
+                    <b>#</b> 虚拟化
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/VNC/" title="VNC">
+                    <b>#</b> VNC
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <p>vnc，🐕都不用</p>
+<span id="more"></span>
+
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00.一切开始之前"></a>0x00.一切开始之前</h1><p>VNC 即 Virtual Network Computing，是基于RFB（Remote Frame Buffer）协议进行通信的远程桌面协议，与 telnet、ssh 等相比，VNC 最大的特点便是支持图形化了，用户可以看到远程机器的图形化界面，且能使用键盘与鼠标进行输入</p>
+<p>Qemu 虚拟机同样支持通过 VNC只需要指定 <code>-vnc</code> 参数便能够建立 VNC Server，从而使得远程用户可以通过 VNC 连接到 Qemu 虚拟机上</p>
+<p>本篇主要是对 Qemu 中 VNC 实现的源码分析，同时也会夹杂着部分 Qemu 显示相关的分析，源码版本 Qemu 7.0.0</p>
+<h1 id="0x01-qemu-init-displays-显示设备初始化"><a href="#0x01-qemu-init-displays-显示设备初始化" class="headerlink" title="0x01. qemu_init_displays() - 显示设备初始化"></a>0x01. qemu_init_displays() - 显示设备初始化</h1><p>我们都知道 Qemu 的入口函数是 <code>softmmu/main.c</code> 中的 <code>qemu_main()</code>，在其中会调用到 <code>sotftmmuvl.c</code> 中的 <code>qemu_init()</code> 函数进行 Qemu 的初始化工作，包括一系列的参数解析、设备初始化等</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">undef</span> main</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> main qemu_main</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//...</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> **argv, <span class="type">char</span> **envp)</span></span><br><span class="line">&#123;</span><br><span class="line">    qemu_init(argc, argv, envp);</span><br><span class="line">    qemu_main_loop();</span><br><span class="line">    qemu_cleanup();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>本篇我们主要关注与 VNC 相关的内容，注意到在 <code>qemu_init()</code> 的末尾会调用到 <code>qemu_init_displays()</code> 进行显示初始化的工作</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">qemu_init</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> **argv, <span class="type">char</span> **envp)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">    qemu_init_displays();</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个函数比较简短，首先是调用 <code>init_displaystate()</code> 与 <code>qemu_display_init()</code> 对虚拟机本地的显示设备进行初始化，之后才是使用 <code>qemu_opts_foreach</code> 宏来遍历参数中与 vnc 相关的配置，最后调用到的是 <code>vnc_init_func()</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">qemu_init_displays</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    DisplayState *ds;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 初始化本地显示 */</span></span><br><span class="line">    ds = init_displaystate();</span><br><span class="line">    qemu_display_init(ds, &amp;dpy);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 必须在终端初始化后, 由 SDL 库更改信号的 handlers */</span></span><br><span class="line">    os_setup_signal_handling();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 初始化远程显示 */</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_VNC</span></span><br><span class="line">    qemu_opts_foreach(qemu_find_opts(<span class="string">&quot;vnc&quot;</span>),</span><br><span class="line">                      vnc_init_func, <span class="literal">NULL</span>, &amp;error_fatal);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (using_spice) &#123;</span><br><span class="line">        qemu_spice.display_init();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="〇、显示设备相关结构体"><a href="#〇、显示设备相关结构体" class="headerlink" title="〇、显示设备相关结构体"></a>〇、显示设备相关结构体</h2><p>在 Qemu 当中有着多个与显示设备相关的结构，他们之间的关系如下图所示：</p>
+<p><img src="https://s2.loli.net/2022/07/20/FUkehDzTocbtu4O.png" alt="image.png"></p>
+<blockquote>
+<p>本图来自于<a target="_blank" rel="noopener" href="https://www.linux-kvm.org/images/b/b2/01x10b-QEMUGfraphics.pdf">这个ppt</a></p>
+</blockquote>
+<h3 id="I、QemuConsole-单个控制台实例"><a href="#I、QemuConsole-单个控制台实例" class="headerlink" title="I、QemuConsole - 单个控制台实例"></a>I、QemuConsole - 单个控制台实例</h3><p>在开始分析之前我们先介绍一个新的结构体：<code>QemuConsole</code>，一个该结构体实例在 Qemu 中表示一个控制台（console）实例，对应着<strong>一个特定的 VGA 设备与一组特定的输入设备</strong>。在 Qemu 当中主要有两类控制台：图形化控制台与字符型控制台。</p>
+<p>该结构体定义于 <code>ui/console.c</code> 中，如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">QemuConsole</span> &#123;</span></span><br><span class="line">    Object parent;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> index;</span><br><span class="line">    <span class="type">console_type_t</span> console_type; <span class="comment">// 控制台类型</span></span><br><span class="line">    DisplayState *ds;           <span class="comment">// 对应的显示设备</span></span><br><span class="line">    DisplaySurface *surface;</span><br><span class="line">    DisplayScanout scanout;</span><br><span class="line">    <span class="type">int</span> dcls;</span><br><span class="line">    DisplayGLCtx *gl;</span><br><span class="line">    <span class="type">int</span> gl_block;</span><br><span class="line">    QEMUTimer *gl_unblock_timer;</span><br><span class="line">    <span class="type">int</span> window_id;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 图形化控制台状态.  */</span></span><br><span class="line">    Object *device; <span class="comment">// 对应的图形化设备</span></span><br><span class="line">    <span class="type">uint32_t</span> head;</span><br><span class="line">    QemuUIInfo ui_info;</span><br><span class="line">    QEMUTimer *ui_timer;  <span class="comment">// 对应的 Timer</span></span><br><span class="line">    <span class="type">const</span> GraphicHwOps *hw_ops;  <span class="comment">// 硬件操作函数</span></span><br><span class="line">    <span class="type">void</span> *hw;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 字符控制台状态 */</span></span><br><span class="line">    <span class="type">int</span> width;</span><br><span class="line">    <span class="type">int</span> height;</span><br><span class="line">    <span class="type">int</span> total_height;</span><br><span class="line">    <span class="type">int</span> backscroll_height;</span><br><span class="line">    <span class="type">int</span> x, y;</span><br><span class="line">    <span class="type">int</span> x_saved, y_saved;</span><br><span class="line">    <span class="type">int</span> y_displayed;</span><br><span class="line">    <span class="type">int</span> y_base;</span><br><span class="line">    TextAttributes t_attrib_default; <span class="comment">/* 默认字符属性 */</span></span><br><span class="line">    TextAttributes t_attrib; <span class="comment">/* 当前活动字符属性 */</span></span><br><span class="line">    TextCell *cells;</span><br><span class="line">    <span class="type">int</span> text_x[<span class="number">2</span>], text_y[<span class="number">2</span>], cursor_invalidate;</span><br><span class="line">    <span class="type">int</span> echo;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> update_x0;</span><br><span class="line">    <span class="type">int</span> update_y0;</span><br><span class="line">    <span class="type">int</span> update_x1;</span><br><span class="line">    <span class="type">int</span> update_y1;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">enum</span> <span class="title">TTYState</span> <span class="title">state</span>;</span></span><br><span class="line">    <span class="type">int</span> esc_params[MAX_ESC_PARAMS];</span><br><span class="line">    <span class="type">int</span> nb_esc_params;</span><br><span class="line"></span><br><span class="line">    Chardev *chr;</span><br><span class="line">    <span class="comment">/* 先进先出的按键输入 */</span></span><br><span class="line">    Fifo8 out_fifo;</span><br><span class="line">    CoQueue dump_queue;</span><br><span class="line"></span><br><span class="line">    QTAILQ_ENTRY(QemuConsole) next;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>对于图形化设备相关的操作，主要通过函数表 <code>hw_ops</code> 来完成，对于纯字符型显示设备而言，该函数表为 <code>text_console_ops</code>，对于普通的 VGA 设备而言则为 <code>vga_ops</code>，我们在后面会看到这一点。</p>
+<p>QemuConsole 的创建主要通过 <code>new_console()</code> 来完成，在 Qemu 中有一个全局的 QemuConsole 变量 <code>consoles</code>，每当创建一个新的 QemuConsole 后就会通过尾插法插入到这个全局的 QemuConsole 链表中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="title function_">QTAILQ_HEAD</span><span class="params">(, QemuConsole)</span> consoles =</span><br><span class="line">    QTAILQ_HEAD_INITIALIZER(consoles);</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>什么是 <code>console</code>？狭义地说，console 最初指的就是一个设备的控制台，<em>包含了显示设备与基本输入设备</em> ，与 terminal 不同，console 通常是机器自带的，而 terminal 则往往指的是需要我们通过串口进行连接的外部设备<br>不过随着时代的发展，现在对于 console 与 terminal 之间概念的定义区别也逐渐趋于模糊，现在的机器大都不再有实体的 console，而采用软件模拟的方式，例如在 Linux 中定义了 6 个 virtual terminal（可以使用 <code>ctrl + f1 ~ f6</code> 进行切换），而当我们向 <code>/dev/console</code> 输入时，则会输出到当前的 virtual terminal 上；而在一些其他的类 UNIX 系统中，console 则往往被固定为第一个 virtual terminal</p>
+</blockquote>
+<h3 id="II、DisplayState-显示设备总状态"><a href="#II、DisplayState-显示设备总状态" class="headerlink" title="II、DisplayState - 显示设备总状态"></a>II、DisplayState - 显示设备总状态</h3><p>在 Qemu 当中使用一个 <code>DisplayState</code> 表示显示设备的总状态，该结构体定义于 <code>ui/console.c</code> 中,如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">DisplayState</span> &#123;</span></span><br><span class="line">    QEMUTimer *gui_timer;   <span class="comment">// 对应更新的 timer</span></span><br><span class="line">    <span class="type">uint64_t</span> last_update;   <span class="comment">// 上次更新时间</span></span><br><span class="line">    <span class="type">uint64_t</span> update_interval;</span><br><span class="line">    <span class="type">bool</span> refreshing;</span><br><span class="line">    <span class="type">bool</span> have_gfx;          <span class="comment">// 是否有图形化显示</span></span><br><span class="line">    <span class="type">bool</span> have_text;         <span class="comment">// 是否有纯文本显示</span></span><br><span class="line"></span><br><span class="line">    QLIST_HEAD(, DisplayChangeListener) listeners;  <span class="comment">// 各个 Display 的 Listener 的链表</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> DisplayState *display_state; <span class="comment">// 全局的 DisplayState</span></span><br></pre></td></tr></table></figure>
+
+<p>通常而言，一个 DisplayState 可以对应着多个 QemuConsole，因为其可以对应着多个 VGA 设备，因此相应地其可以有着多个 <code>DisplayChangeListener</code> 来监视多个 Display 设备的更改，多个 <code>DisplayChangeListener</code> 之间连成一个链表</p>
+<h3 id="III、DisplayChangeListener-监视单个显示设备的更改"><a href="#III、DisplayChangeListener-监视单个显示设备的更改" class="headerlink" title="III、DisplayChangeListener - 监视单个显示设备的更改"></a>III、DisplayChangeListener - 监视单个显示设备的更改</h3><p><code>DisplayChangeListener</code> 结构体用于<strong>监视单个显示设备的更改</strong>并进行相关操作，因此一个 DisplayChangeListener 应当与一个特定的 QemuConsole 相关联</p>
+<p>通常而言一个 QemuConsole 可以有着多个 DisplayChangeListener（例如一个 QemuConsole 可以对应有着一个 VNC 的 DCL + 一个本地虚拟终端的 DCL）</p>
+<p>该结构体定义于 <code>include/ui/console.h</code> 中,如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">DisplayChangeListener</span> &#123;</span></span><br><span class="line">    <span class="type">uint64_t</span> update_interval;</span><br><span class="line">    <span class="type">const</span> DisplayChangeListenerOps *ops;</span><br><span class="line">    DisplayState *ds;</span><br><span class="line">    QemuConsole *con;</span><br><span class="line"></span><br><span class="line">    QLIST_ENTRY(DisplayChangeListener) next;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>其成员 <code>ops</code> 为一个 <code>DisplayChangeListenerOps</code> 函数表，该函数表中包含大量的函数指针，用以进行显示相关的操作（例如 <code>dpy_refresh</code> 指针用于刷新显示， <code>gfx_hw_update</code> 指针用于进行显卡硬件相关更新，我们在后面会看到这一点）</p>
+<h2 id="一、init-displaystate-遍历所有的-QemuConsole-并加入-qom-tree，初始化字符型-console"><a href="#一、init-displaystate-遍历所有的-QemuConsole-并加入-qom-tree，初始化字符型-console" class="headerlink" title="一、init_displaystate() - 遍历所有的 QemuConsole 并加入 qom tree，初始化字符型 console"></a>一、init_displaystate() - 遍历所有的 QemuConsole 并加入 qom tree，初始化字符型 console</h2><p><code>init_displaystate()</code> 主要用于对 QemuConsole 进行初始化的工作，该函数定义于 <code>ui/console.c</code> 中，如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * 由 main() 调用, 在创建 QemuConsoles 之后</span></span><br><span class="line"><span class="comment"> * 在初始化 ui (sdl/vnc/...) 之前.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">DisplayState *<span class="title function_">init_displaystate</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    gchar *name;</span><br><span class="line">    QemuConsole *con;</span><br><span class="line"></span><br><span class="line">    get_alloc_displaystate();</span><br><span class="line">    QTAILQ_FOREACH(con, &amp;consoles, next) &#123;</span><br><span class="line">        <span class="keyword">if</span> (con-&gt;console_type != GRAPHIC_CONSOLE &amp;&amp;</span><br><span class="line">            con-&gt;ds == <span class="literal">NULL</span>) &#123;</span><br><span class="line">            text_console_do_init(con-&gt;chr, display_state);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* 在这里连接上 qom tree (而不在 new_console()), </span></span><br><span class="line"><span class="comment">         * 在所有的 QemuConsoles 都被创建后，其顺序与序号</span></span><br><span class="line"><span class="comment">         * 都将不再更改 */</span></span><br><span class="line">        name = g_strdup_printf(<span class="string">&quot;console[%d]&quot;</span>, con-&gt;index);</span><br><span class="line">        object_property_add_child(container_get(object_get_root(), <span class="string">&quot;/backend&quot;</span>),</span><br><span class="line">                                  name, OBJECT(con));</span><br><span class="line">        g_free(name);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> display_state;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>该函数主要是遍历全局的 QemuConsole 链表并将其加入到 qom tree 中，若非图形化的 console 则还会调用 <code>text_console_do_init()</code> 进行初始化工作，主要是将其设为标准的 <code>80*24</code> 的字符显示设备，并将其 <code>hw_ops</code> 设为 <code>text_console_ops</code>，其 <code>hw</code> 则指向 QemuConsole 自身</p>
+<h2 id="二、qemu-display-init-调用对应类型-QemuDisplay-的-init-函数进行初始化"><a href="#二、qemu-display-init-调用对应类型-QemuDisplay-的-init-函数进行初始化" class="headerlink" title="二、qemu_display_init() - 调用对应类型 QemuDisplay 的 init 函数进行初始化"></a>二、qemu_display_init() - 调用对应类型 QemuDisplay 的 init 函数进行初始化</h2><p>该函数同样定义于 <code>ui/console.c</code> 中，如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">qemu_display_init</span><span class="params">(DisplayState *ds, DisplayOptions *opts)</span></span><br><span class="line">&#123;</span><br><span class="line">    assert(opts-&gt;type &lt; DISPLAY_TYPE__MAX);</span><br><span class="line">    <span class="keyword">if</span> (opts-&gt;type == DISPLAY_TYPE_NONE) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    assert(dpys[opts-&gt;type] != <span class="literal">NULL</span>);</span><br><span class="line">    dpys[opts-&gt;type]-&gt;init(ds, opts);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的 dpys 是一个 <code>QemuDisplay</code> 类型的全局数组，定义于 <code>ui/console.c</code> 中，表示 Qemu 所支持的所有显示类型，我们可以通过 <code>qemu_display_register()</code> 将显示类型注册到该数组中：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> QemuDisplay *dpys[DISPLAY_TYPE__MAX];</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">qemu_display_register</span><span class="params">(QemuDisplay *ui)</span></span><br><span class="line">&#123;</span><br><span class="line">    assert(ui-&gt;type &lt; DISPLAY_TYPE__MAX);</span><br><span class="line">    dpys[ui-&gt;type] = ui;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>QemuDisplay</code> 结构体定义于 <code>ui/console.h</code> 中，表示 Qemu 所支持的单个显示类型，主要就是类型 + 初始化的函数指针，如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">QemuDisplay</span> &#123;</span></span><br><span class="line">    DisplayType type;</span><br><span class="line">    <span class="type">void</span> (*early_init)(DisplayOptions *opts);</span><br><span class="line">    <span class="type">void</span> (*init)(DisplayState *ds, DisplayOptions *opts);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>不过经笔者调试通常情况下不特定指定的话都会是 <code>DISPLAY_TYPE_NONE</code> </p>
+</blockquote>
+<h1 id="0x02-vnc-init-func-初始化单个-VNC-Server"><a href="#0x02-vnc-init-func-初始化单个-VNC-Server" class="headerlink" title="0x02. vnc_init_func() - 初始化单个 VNC Server"></a>0x02. vnc_init_func() - 初始化单个 VNC Server</h1><p>在一个 Qemu 实例当中，我们通常只会使用到一个 VGA 设备（也可以多个），不过我们可以同时启动多个 VNC Server，例如我们可以附加启动参数 <code>-vnc yourip:0 -vnc yourip:1</code>，此时 Qemu 就会在 5700 与 5701 端口上启动两个 VNC 服务器，而每个 VNC Server 的启动都是通过 <code>vnc_init_func()</code> 来完成的</p>
+<p>当我们只有一个 VGA 设备输出时，其输出会被同时更新给多个 VNC Client，此时多个 VNC Client 所获取到的画面是相同的</p>
+<p><code>vnc_init_func()</code> 定义于 <code>ui/vnc.c</code> 中，比较简短，如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">vnc_init_func</span><span class="params">(<span class="type">void</span> *opaque, QemuOpts *opts, Error **errp)</span></span><br><span class="line">&#123;</span><br><span class="line">    Error *local_err = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="type">char</span> *id = (<span class="type">char</span> *)qemu_opts_id(opts);</span><br><span class="line"></span><br><span class="line">    assert(id);</span><br><span class="line">    vnc_display_init(id, &amp;local_err);</span><br><span class="line">    <span class="keyword">if</span> (local_err) &#123;</span><br><span class="line">        error_propagate(errp, local_err);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    vnc_display_open(id, &amp;local_err);</span><br><span class="line">    <span class="keyword">if</span> (local_err != <span class="literal">NULL</span>) &#123;</span><br><span class="line">        error_propagate(errp, local_err);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>主要做了两件事：</p>
+<ul>
+<li><code>vnc_display_init()</code>：初始化一个 <code>VncDisplay</code> 实例</li>
+<li><code>vnc_display_open()</code>：启动一个 VNC Server</li>
+</ul>
+<p><code>vnc_display_open()</code> 主要就是单纯的创建一个普通的 server，以及一些和 VNC 协议具体细节相关的部分，故我们接下来主要分析 <code>vnc_display_init()</code></p>
+<h2 id="〇、VNC-相关结构体"><a href="#〇、VNC-相关结构体" class="headerlink" title="〇、VNC 相关结构体"></a>〇、VNC 相关结构体</h2><h3 id="I、VncDisplay-单个-VNC-Server-实例"><a href="#I、VncDisplay-单个-VNC-Server-实例" class="headerlink" title="I、VncDisplay - 单个 VNC Server 实例"></a>I、VncDisplay - 单个 VNC Server 实例</h3><p>该结构体定义于 <code>ui/vnc.h</code> 中，表示单个 VNC Server 实例：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">VncDisplay</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    QTAILQ_HEAD(, VncState) clients;</span><br><span class="line">    <span class="type">int</span> num_connecting;</span><br><span class="line">    <span class="type">int</span> num_shared;</span><br><span class="line">    <span class="type">int</span> num_exclusive;</span><br><span class="line">    <span class="type">int</span> connections_limit;</span><br><span class="line">    VncSharePolicy share_policy;</span><br><span class="line">    QIONetListener *listener;</span><br><span class="line">    QIONetListener *wslistener;</span><br><span class="line">    DisplaySurface *ds;</span><br><span class="line">    DisplayChangeListener dcl;</span><br><span class="line">    <span class="type">kbd_layout_t</span> *kbd_layout;</span><br><span class="line">    <span class="type">int</span> lock_key_sync;</span><br><span class="line">    QEMUPutLEDEntry *led;</span><br><span class="line">    <span class="type">int</span> ledstate;</span><br><span class="line">    QKbdState *kbd;</span><br><span class="line">    QemuMutex mutex;</span><br><span class="line"></span><br><span class="line">    QEMUCursor *cursor;</span><br><span class="line">    <span class="type">int</span> cursor_msize;</span><br><span class="line">    <span class="type">uint8_t</span> *cursor_mask;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">VncSurface</span> <span class="title">guest</span>;</span>   <span class="comment">/* guest visible surface (aka ds-&gt;surface) */</span></span><br><span class="line">    <span class="type">pixman_image_t</span> *server;    <span class="comment">/* vnc server surface */</span></span><br><span class="line">    <span class="type">int</span> true_width; <span class="comment">/* server surface width before rounding up */</span></span><br><span class="line"></span><br><span class="line">    <span class="type">const</span> <span class="type">char</span> *id;</span><br><span class="line">    QTAILQ_ENTRY(VncDisplay) next;</span><br><span class="line">    <span class="type">bool</span> is_unix;</span><br><span class="line">    <span class="type">char</span> *password;</span><br><span class="line">    <span class="type">time_t</span> expires;</span><br><span class="line">    <span class="type">int</span> auth;</span><br><span class="line">    <span class="type">int</span> subauth; <span class="comment">/* Used by VeNCrypt */</span></span><br><span class="line">    <span class="type">int</span> ws_auth; <span class="comment">/* Used by websockets */</span></span><br><span class="line">    <span class="type">int</span> ws_subauth; <span class="comment">/* Used by websockets */</span></span><br><span class="line">    <span class="type">bool</span> lossy;</span><br><span class="line">    <span class="type">bool</span> non_adaptive;</span><br><span class="line">    <span class="type">bool</span> power_control;</span><br><span class="line">    QCryptoTLSCreds *tlscreds;</span><br><span class="line">    QAuthZ *tlsauthz;</span><br><span class="line">    <span class="type">char</span> *tlsauthzid;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_VNC_SASL</span></span><br><span class="line">    VncDisplaySASL sasl;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    AudioState *audio_state;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>我们主要关注这几个成员变量：</p>
+<ul>
+<li><code>clients</code>：连接到该服务器上的所有客户端，每个客户端为一个 <code>VncClient</code> 实例，多个 <code>VncClient</code> 实例间形成一个链表</li>
+<li><code>ds</code>：</li>
+<li><code>dcl</code>：该 VNC Server 所监听的 QemuConsole 的监听器，当对应的 QemuConsole 发生更改时便会调用 <code>dcl-&gt;ops</code> 中对应函数指针</li>
+<li><code>next</code>：多个 VncDisplay 之间互相连接形成一个链表</li>
+</ul>
+<p>同时存在着一个全局变量 <code>vnc_displays</code>，Qemu 中所有的 VncDisplay 都挂载在该链表上：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="title function_">QTAILQ_HEAD</span><span class="params">(, VncDisplay)</span> vnc_displays =</span><br><span class="line">    QTAILQ_HEAD_INITIALIZER(vnc_displays);</span><br></pre></td></tr></table></figure>
+
+<h3 id="II、VncState-单个-VNC-连接（VNC-Client）"><a href="#II、VncState-单个-VNC-连接（VNC-Client）" class="headerlink" title="II、VncState - 单个 VNC 连接（VNC Client）"></a>II、VncState - 单个 VNC 连接（VNC Client）</h3><p>该结构体定义于 <code>ui/vnc.h</code> 中，表示连接到特定 VNC Server 上的单个 VNC Client 实例，其中包含客户端的各种信息：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">VncState</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="type">uint64_t</span> magic;</span><br><span class="line">    QIOChannelSocket *sioc; <span class="comment">/* The underlying socket */</span></span><br><span class="line">    QIOChannel *ioc; <span class="comment">/* The channel currently used for I/O */</span></span><br><span class="line">    guint ioc_tag;</span><br><span class="line">    gboolean disconnecting;</span><br><span class="line"></span><br><span class="line">    DECLARE_BITMAP(dirty[VNC_MAX_HEIGHT], VNC_DIRTY_BITS);</span><br><span class="line">    <span class="type">uint8_t</span> **lossy_rect; <span class="comment">/* Not an Array to avoid costly memcpy in</span></span><br><span class="line"><span class="comment">                           * vnc-jobs-async.c */</span></span><br><span class="line"></span><br><span class="line">    VncDisplay *vd;</span><br><span class="line">    VncStateUpdate update; <span class="comment">/* Most recent pending request from client */</span></span><br><span class="line">    VncStateUpdate job_update; <span class="comment">/* Currently processed by job thread */</span></span><br><span class="line">    <span class="type">int</span> has_dirty;</span><br><span class="line">    <span class="type">uint32_t</span> features;</span><br><span class="line">    <span class="type">int</span> absolute;</span><br><span class="line">    <span class="type">int</span> last_x;</span><br><span class="line">    <span class="type">int</span> last_y;</span><br><span class="line">    <span class="type">uint32_t</span> last_bmask;</span><br><span class="line">    <span class="type">size_t</span> client_width; <span class="comment">/* limited to u16 by RFB proto */</span></span><br><span class="line">    <span class="type">size_t</span> client_height; <span class="comment">/* limited to u16 by RFB proto */</span></span><br><span class="line">    VncShareMode share_mode;</span><br><span class="line"></span><br><span class="line">    <span class="type">uint32_t</span> vnc_encoding;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> major;</span><br><span class="line">    <span class="type">int</span> minor;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> auth;</span><br><span class="line">    <span class="type">int</span> subauth; <span class="comment">/* Used by VeNCrypt */</span></span><br><span class="line">    <span class="type">char</span> challenge[VNC_AUTH_CHALLENGE_SIZE];</span><br><span class="line">    QCryptoTLSSession *tls; <span class="comment">/* Borrowed pointer from channel, don&#x27;t free */</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_VNC_SASL</span></span><br><span class="line">    VncStateSASL sasl;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="type">bool</span> encode_ws;</span><br><span class="line">    <span class="type">bool</span> websocket;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_VNC</span></span><br><span class="line">    VncClientInfo *info;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Job thread bottom half has put data for a forced update</span></span><br><span class="line"><span class="comment">     * into the output buffer. This offset points to the end of</span></span><br><span class="line"><span class="comment">     * the update data in the output buffer. This lets us determine</span></span><br><span class="line"><span class="comment">     * when a force update is fully sent to the client, allowing</span></span><br><span class="line"><span class="comment">     * us to process further forced updates. */</span></span><br><span class="line">    <span class="type">size_t</span> force_update_offset;</span><br><span class="line">    <span class="comment">/* We allow multiple incremental updates or audio capture</span></span><br><span class="line"><span class="comment">     * samples to be queued in output buffer, provided the</span></span><br><span class="line"><span class="comment">     * buffer size doesn&#x27;t exceed this threshold. The value</span></span><br><span class="line"><span class="comment">     * is calculating dynamically based on framebuffer size</span></span><br><span class="line"><span class="comment">     * and audio sample settings in vnc_update_throttle_offset() */</span></span><br><span class="line">    <span class="type">size_t</span> throttle_output_offset;</span><br><span class="line">    Buffer output;</span><br><span class="line">    Buffer input;</span><br><span class="line">    <span class="comment">/* current output mode information */</span></span><br><span class="line">    VncWritePixels *write_pixels;</span><br><span class="line">    PixelFormat client_pf;</span><br><span class="line">    <span class="type">pixman_format_code_t</span> client_format;</span><br><span class="line">    <span class="type">bool</span> client_be;</span><br><span class="line"></span><br><span class="line">    CaptureVoiceOut *audio_cap;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">audsettings</span> <span class="title">as</span>;</span></span><br><span class="line"></span><br><span class="line">    VncReadEvent *read_handler;</span><br><span class="line">    <span class="type">size_t</span> read_handler_expect;</span><br><span class="line"></span><br><span class="line">    <span class="type">bool</span> <span class="built_in">abort</span>;</span><br><span class="line">    QemuMutex output_mutex;</span><br><span class="line">    QEMUBH *bh;</span><br><span class="line">    Buffer jobs_buffer;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Encoding specific, if you add something here, don&#x27;t forget to</span></span><br><span class="line"><span class="comment">     *  update vnc_async_encoding_start()</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    VncTight *tight;</span><br><span class="line">    VncZlib zlib;</span><br><span class="line">    VncHextile hextile;</span><br><span class="line">    VncZrle *zrle;</span><br><span class="line">    VncZywrle zywrle;</span><br><span class="line"></span><br><span class="line">    Notifier mouse_mode_notifier;</span><br><span class="line"></span><br><span class="line">    QemuClipboardPeer cbpeer;</span><br><span class="line">    QemuClipboardInfo *cbinfo;</span><br><span class="line">    <span class="type">uint32_t</span> cbpending;</span><br><span class="line"></span><br><span class="line">    QTAILQ_ENTRY(VncState) next;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>在同一个 VncDisplay （VNC Server）下的所有 VncState（VNC Client）连接成一个链表</p>
+<h3 id="III、VncJob-单个-VNC-连接单次需要更新的图像信息"><a href="#III、VncJob-单个-VNC-连接单次需要更新的图像信息" class="headerlink" title="III、VncJob - 单个 VNC 连接单次需要更新的图像信息"></a>III、VncJob - 单个 VNC 连接单次需要更新的图像信息</h3><p>VncJob 结构体用来表示单个 VNC 连接（VncState）单次需要更新的图像信息，定义于 <code>ui/vnc.h</code> 中，如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">VncJob</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    VncState *vs;</span><br><span class="line"></span><br><span class="line">    QLIST_HEAD(, VncRectEntry) rectangles;</span><br><span class="line">    QTAILQ_ENTRY(VncJob) next;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>在单次的图像更新当中，单个矩形区域具体的的更新信息使用 <code>VncRectEntry</code> 结构体表示，单个 VncJob 中可以有多个 VncRectEntry，他们之间形成一个单向链表：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">VncRect</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="type">int</span> x;</span><br><span class="line">    <span class="type">int</span> y;</span><br><span class="line">    <span class="type">int</span> w;</span><br><span class="line">    <span class="type">int</span> h;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">VncRectEntry</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">VncRect</span> <span class="title">rect</span>;</span></span><br><span class="line">    QLIST_ENTRY(VncRectEntry) next;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>多个 VncJob 之间也构成一个单向链表，最终挂载到一个 <code>VncJobQueue</code> 结构体上，该结构体定义于 <code>ui/vnc-jobs.c</code> 中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">VncJobQueue</span> &#123;</span></span><br><span class="line">    QemuCond cond;</span><br><span class="line">    QemuMutex mutex;</span><br><span class="line">    QemuThread thread;</span><br><span class="line">    <span class="type">bool</span> <span class="built_in">exit</span>;</span><br><span class="line">    QTAILQ_HEAD(, VncJob) jobs;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">VncJobQueue</span> <span class="title">VncJobQueue</span>;</span></span><br></pre></td></tr></table></figure>
+
+<p>同时我们存在着一个全局的 VncJobQueue，默认情况下我们会将 VncJob 挂载到上面，同时 vnc worker thread（负责将图像信息发送给 client 的线程）也是主要依赖于这个全局的 queue</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * We use a single global queue, but most of the functions are</span></span><br><span class="line"><span class="comment"> * already reentrant, so we can easily add more than one encoding thread</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">static</span> VncJobQueue *<span class="built_in">queue</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="一、vnc-display-init"><a href="#一、vnc-display-init" class="headerlink" title="一、vnc_display_init()"></a>一、vnc_display_init()</h2><p>该函数主要作用便是初始化一个 <code>VncDisplay</code> 结构体，定义于 <code>ui/vnc.c</code> 中，如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">vnc_display_init</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *id, Error **errp)</span></span><br><span class="line">&#123;</span><br><span class="line">    VncDisplay *vd;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (vnc_display_find(id) != <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    vd = g_malloc0(<span class="keyword">sizeof</span>(*vd));</span><br><span class="line"></span><br><span class="line">    vd-&gt;id = strdup(id);</span><br><span class="line">    QTAILQ_INSERT_TAIL(&amp;vnc_displays, vd, next);  <span class="comment">// 加入到全局链表中</span></span><br><span class="line"></span><br><span class="line">    QTAILQ_INIT(&amp;vd-&gt;clients);</span><br><span class="line">    vd-&gt;expires = TIME_MAX;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (keyboard_layout) &#123;  <span class="comment">// 初始化键盘布局</span></span><br><span class="line">        trace_vnc_key_map_init(keyboard_layout);</span><br><span class="line">        vd-&gt;kbd_layout = init_keyboard_layout(name2keysym,</span><br><span class="line">                                              keyboard_layout, errp);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        vd-&gt;kbd_layout = init_keyboard_layout(name2keysym, <span class="string">&quot;en-us&quot;</span>, errp);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!vd-&gt;kbd_layout) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    vd-&gt;share_policy = VNC_SHARE_POLICY_ALLOW_EXCLUSIVE;</span><br><span class="line">    vd-&gt;connections_limit = <span class="number">32</span>;</span><br><span class="line"></span><br><span class="line">    qemu_mutex_init(&amp;vd-&gt;mutex);</span><br><span class="line">    vnc_start_worker_thread();  <span class="comment">// 启动 VNC 的 worker 线程</span></span><br><span class="line"></span><br><span class="line">    vd-&gt;dcl.ops = &amp;dcl_ops; <span class="comment">// 设置 DisplayChangeListener 的 ops</span></span><br><span class="line">    register_displaychangelistener(&amp;vd-&gt;dcl);</span><br><span class="line">    vd-&gt;kbd = qkbd_state_init(vd-&gt;dcl.con);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>大致流程如下：</p>
+<ul>
+<li>创建一个 VncDisplay，加入到全局链表中</li>
+<li>初始化键盘布局</li>
+<li>启动 VNC worker thread（若未启动），由 worker thread 将图像信息发送给 client</li>
+<li>设置该 VncDisplay 对应的 DisplayChangeListener 的 ops 为 <code>dcl_ops</code></li>
+<li>调用 <code>register_displaychangelistener()</code> 注册该 VncDisplay 对应的 DisplayChangeListener</li>
+</ul>
+<h3 id="I、VNC-worker-thread-将图像更新发送给客户端"><a href="#I、VNC-worker-thread-将图像更新发送给客户端" class="headerlink" title="I、VNC worker thread - 将图像更新发送给客户端"></a>I、VNC worker thread - 将图像更新发送给客户端</h3><p><code>vnc worker thread</code> 是 Qemu 中 VNC 服务中的一个重要的线程，其用以持续地处理挂载在全局的 VncJobQueue 上的 VncJob，并将图像更新数据发送给 vnc 客户端</p>
+<p>在 <code>vnc_display_init()</code> 中创建 VncDisplay 实例时，其还会调用 <code>vnc_start_worker_thread()</code> 启动 vnc worker thread：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">bool</span> <span class="title function_">vnc_worker_thread_running</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">queue</span>; <span class="comment">/* Check global queue */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">vnc_start_worker_thread</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    VncJobQueue *q;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (vnc_worker_thread_running())</span><br><span class="line">        <span class="keyword">return</span> ;</span><br><span class="line"></span><br><span class="line">    q = vnc_queue_init();</span><br><span class="line">    qemu_thread_create(&amp;q-&gt;thread, <span class="string">&quot;vnc_worker&quot;</span>, vnc_worker_thread, q,</span><br><span class="line">                       QEMU_THREAD_DETACHED);</span><br><span class="line">    <span class="built_in">queue</span> = q; <span class="comment">/* Set global queue */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>该线程的本体便是 <code>vnc_worker_thread</code> 函数，主要就是一个重复调用 <code>vnc_worker_thread_loop</code> 的大循环：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> *<span class="title function_">vnc_worker_thread</span><span class="params">(<span class="type">void</span> *arg)</span></span><br><span class="line">&#123;</span><br><span class="line">    VncJobQueue *<span class="built_in">queue</span> = arg;</span><br><span class="line"></span><br><span class="line">    qemu_thread_get_self(&amp;<span class="built_in">queue</span>-&gt;thread);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (!vnc_worker_thread_loop(<span class="built_in">queue</span>)) ;</span><br><span class="line">    vnc_queue_clear(<span class="built_in">queue</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>vnc_worker_thread_loop</code> 定义如下，该函数会一直等待到全局的 VncJobQueue 的 VncJob 链表非空，单次调用处理一个 VncJob：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">vnc_worker_thread_loop</span><span class="params">(VncJobQueue *<span class="built_in">queue</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    VncJob *job;</span><br><span class="line">    VncRectEntry *entry, *tmp;</span><br><span class="line">    VncState vs = &#123;&#125;;</span><br><span class="line">    <span class="type">int</span> n_rectangles;</span><br><span class="line">    <span class="type">int</span> saved_offset;</span><br><span class="line"></span><br><span class="line">    vnc_lock_queue(<span class="built_in">queue</span>);  <span class="comment">// 等待全局 queue 不为空</span></span><br><span class="line">    <span class="keyword">while</span> (QTAILQ_EMPTY(&amp;<span class="built_in">queue</span>-&gt;jobs) &amp;&amp; !<span class="built_in">queue</span>-&gt;<span class="built_in">exit</span>) &#123;</span><br><span class="line">        qemu_cond_wait(&amp;<span class="built_in">queue</span>-&gt;cond, &amp;<span class="built_in">queue</span>-&gt;mutex);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/* Here job can only be NULL if queue-&gt;exit is true */</span></span><br><span class="line">    job = QTAILQ_FIRST(&amp;<span class="built_in">queue</span>-&gt;jobs);  <span class="comment">// 取下第一个 job</span></span><br><span class="line">    vnc_unlock_queue(<span class="built_in">queue</span>);</span><br><span class="line">    assert(job-&gt;vs-&gt;magic == VNC_MAGIC);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">queue</span>-&gt;<span class="built_in">exit</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    vnc_lock_output(job-&gt;vs);  <span class="comment">// 锁上 VncState</span></span><br><span class="line">    <span class="keyword">if</span> (job-&gt;vs-&gt;ioc == <span class="literal">NULL</span> || job-&gt;vs-&gt;<span class="built_in">abort</span> == <span class="literal">true</span>) &#123;</span><br><span class="line">        <span class="comment">// io channel 为空或 abort 为真，断开连接</span></span><br><span class="line">        vnc_unlock_output(job-&gt;vs);</span><br><span class="line">        <span class="keyword">goto</span> disconnected;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (buffer_empty(&amp;job-&gt;vs-&gt;output)) &#123;</span><br><span class="line">        <span class="comment">// 这里的 output 为 Buffer 类型，类似于 iovec，包含着长度与一个指向 buffer 的指针</span></span><br><span class="line">        <span class="comment">// buffer_move_empty(*to, *from) 的作用就是释放 to 的 buffer，将 from 的 buffer 给到 to 的 buffer</span></span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         * Looks like a NOP as it obviously moves no data.  But it</span></span><br><span class="line"><span class="comment">         * moves the empty buffer, so we don&#x27;t have to malloc a new</span></span><br><span class="line"><span class="comment">         * one for vs.output</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        buffer_move_empty(&amp;vs.output, &amp;job-&gt;vs-&gt;output);</span><br><span class="line">    &#125;</span><br><span class="line">    vnc_unlock_output(job-&gt;vs);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Make a local copy of vs and switch output buffers */</span></span><br><span class="line">    vnc_async_encoding_start(job-&gt;vs, &amp;vs);</span><br><span class="line">    vs.magic = VNC_MAGIC;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Start sending rectangles */</span></span><br><span class="line">    n_rectangles = <span class="number">0</span>;</span><br><span class="line">    vnc_write_u8(&amp;vs, VNC_MSG_SERVER_FRAMEBUFFER_UPDATE);</span><br><span class="line">    vnc_write_u8(&amp;vs, <span class="number">0</span>);</span><br><span class="line">    saved_offset = vs.output.offset;</span><br><span class="line">    vnc_write_u16(&amp;vs, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    vnc_lock_display(job-&gt;vs-&gt;vd);</span><br><span class="line">    <span class="comment">// 遍历该 job 上的 VncRect，发送给 client</span></span><br><span class="line">    QLIST_FOREACH_SAFE(entry, &amp;job-&gt;rectangles, next, tmp) &#123;</span><br><span class="line">        <span class="type">int</span> n;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (job-&gt;vs-&gt;ioc == <span class="literal">NULL</span>) &#123;</span><br><span class="line">            <span class="comment">// io channel 为空，断开连接</span></span><br><span class="line">            vnc_unlock_display(job-&gt;vs-&gt;vd);</span><br><span class="line">            <span class="comment">/* Copy persistent encoding data */</span></span><br><span class="line">            vnc_async_encoding_end(job-&gt;vs, &amp;vs);</span><br><span class="line">            <span class="keyword">goto</span> disconnected;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (vnc_worker_clamp_rect(&amp;vs, job, &amp;entry-&gt;rect)) &#123;</span><br><span class="line">            <span class="comment">// 发送 buffer</span></span><br><span class="line">            n = vnc_send_framebuffer_update(&amp;vs, entry-&gt;rect.x, entry-&gt;rect.y,</span><br><span class="line">                                            entry-&gt;rect.w, entry-&gt;rect.h);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (n &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">                n_rectangles += n;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        g_free(entry);</span><br><span class="line">    &#125;</span><br><span class="line">    trace_vnc_job_nrects(&amp;vs, job, n_rectangles);</span><br><span class="line">    vnc_unlock_display(job-&gt;vs-&gt;vd);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Put n_rectangles at the beginning of the message */</span></span><br><span class="line">    vs.output.buffer[saved_offset] = (n_rectangles &gt;&gt; <span class="number">8</span>) &amp; <span class="number">0xFF</span>;</span><br><span class="line">    vs.output.buffer[saved_offset + <span class="number">1</span>] = n_rectangles &amp; <span class="number">0xFF</span>;</span><br><span class="line"></span><br><span class="line">    vnc_lock_output(job-&gt;vs);</span><br><span class="line">    <span class="keyword">if</span> (job-&gt;vs-&gt;ioc != <span class="literal">NULL</span>) &#123;</span><br><span class="line">        buffer_move(&amp;job-&gt;vs-&gt;jobs_buffer, &amp;vs.output);</span><br><span class="line">        <span class="comment">/* Copy persistent encoding data */</span></span><br><span class="line">        vnc_async_encoding_end(job-&gt;vs, &amp;vs);</span><br><span class="line"></span><br><span class="line">        qemu_bh_schedule(job-&gt;vs-&gt;bh);</span><br><span class="line">    &#125;  <span class="keyword">else</span> &#123;</span><br><span class="line">        buffer_reset(&amp;vs.output);</span><br><span class="line">        <span class="comment">/* Copy persistent encoding data */</span></span><br><span class="line">        vnc_async_encoding_end(job-&gt;vs, &amp;vs);</span><br><span class="line">    &#125;</span><br><span class="line">    vnc_unlock_output(job-&gt;vs);</span><br><span class="line"></span><br><span class="line">disconnected:</span><br><span class="line">    vnc_lock_queue(<span class="built_in">queue</span>);</span><br><span class="line">    QTAILQ_REMOVE(&amp;<span class="built_in">queue</span>-&gt;jobs, job, next);</span><br><span class="line">    vnc_unlock_queue(<span class="built_in">queue</span>);</span><br><span class="line">    qemu_cond_broadcast(&amp;<span class="built_in">queue</span>-&gt;cond);</span><br><span class="line">    g_free(job);</span><br><span class="line">    vs.magic = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>该函数的流程如下：</p>
+<ul>
+<li>检查全局 queue 的 job 链表是否为空，若是则进入睡眠等待</li>
+<li>锁上第一个 job，检查对应 VncState 的 IO channel 是否为空，若是则跳到结束发送</li>
+<li>若 VncState 的 output buffer （Buffer 类型，类似于 iovec，有长度和指向实际 buffer 的指针）的 offset 为 0，则将其给到函数内临时创建的 VncState 的 output buffer，原 buffer 设为 NULL</li>
+<li>遍历该 job 上的 VncRect，发送给 client，若 io channel 为空，则跳到结束发送</li>
+<li>若 VncState 的 io channel 不为空，则将函数内临时创建的 VncState 的 output buffer 给回原 VncState</li>
+<li>（结束发送）从全局 queue 上取下该 job 并释放</li>
+</ul>
+<h3 id="II、VNC-的-dcl-ops"><a href="#II、VNC-的-dcl-ops" class="headerlink" title="II、VNC 的 dcl_ops"></a>II、VNC 的 dcl_ops</h3><p>在 <code>vnc_display_init()</code> 中创建 VncDisplay 实例时会将其 DisplayChangeListener 的函数表初始化为 <code>dcl_ops</code> 函数表，定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">const</span> DisplayChangeListenerOps dcl_ops = &#123;</span><br><span class="line">    .dpy_name             = <span class="string">&quot;vnc&quot;</span>,</span><br><span class="line">    .dpy_refresh          = vnc_refresh,</span><br><span class="line">    .dpy_gfx_update       = vnc_dpy_update,</span><br><span class="line">    .dpy_gfx_switch       = vnc_dpy_switch,</span><br><span class="line">    .dpy_gfx_check_format = qemu_pixman_check_format,</span><br><span class="line">    .dpy_mouse_set        = vnc_mouse_set,</span><br><span class="line">    .dpy_cursor_define    = vnc_dpy_cursor_define,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到的是其中主要都是与 vnc 相关的操作函数，后面涉及到具体函数时我们再展开分析</p>
+<h3 id="III、register-displaychangelistener-注册-dcl，启动-timer"><a href="#III、register-displaychangelistener-注册-dcl，启动-timer" class="headerlink" title="III、register_displaychangelistener - 注册 dcl，启动 timer"></a>III、register_displaychangelistener - 注册 dcl，启动 timer</h3><p>该函数定义于 <code>ui/console.c</code> 中，如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">register_displaychangelistener</span><span class="params">(DisplayChangeListener *dcl)</span></span><br><span class="line">&#123;</span><br><span class="line">    QemuConsole *con;</span><br><span class="line"></span><br><span class="line">    assert(!dcl-&gt;ds);</span><br><span class="line"></span><br><span class="line">    trace_displaychangelistener_register(dcl, dcl-&gt;ops-&gt;dpy_name);</span><br><span class="line">    dcl-&gt;ds = get_alloc_displaystate();</span><br><span class="line">    QLIST_INSERT_HEAD(&amp;dcl-&gt;ds-&gt;listeners, dcl, next);</span><br><span class="line">    gui_setup_refresh(dcl-&gt;ds);</span><br><span class="line">    <span class="keyword">if</span> (dcl-&gt;con) &#123;</span><br><span class="line">        dcl-&gt;con-&gt;dcls++;</span><br><span class="line">        con = dcl-&gt;con;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        con = active_console;</span><br><span class="line">    &#125;</span><br><span class="line">    displaychangelistener_display_console(dcl, con, dcl-&gt;con ? &amp;error_fatal : <span class="literal">NULL</span>);</span><br><span class="line">    text_console_update_cursor(<span class="literal">NULL</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>主要做了这些事情：</p>
+<ul>
+<li>将 dcl 插到对应 DisplayState 的 listeners 链表上</li>
+<li>调用 <code>gui_setup_refresh()</code> 启动一个 Qemu Timer</li>
+<li>调用 <code>displaychangelistener_display_console()</code> 进行相关初始化操作，其中会调用 <code>dcl-&gt;ops</code> 中函数</li>
+</ul>
+<p>我们主要关注 <code>gui_setup_refresh()</code>，其会启动一个 Qemu 定时器，定期地刷新 frame buffer，这也是更新显卡数据的核心：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">gui_setup_refresh</span><span class="params">(DisplayState *ds)</span></span><br><span class="line">&#123;</span><br><span class="line">    DisplayChangeListener *dcl;</span><br><span class="line">    <span class="type">bool</span> need_timer = <span class="literal">false</span>;</span><br><span class="line">    <span class="type">bool</span> have_gfx = <span class="literal">false</span>;</span><br><span class="line">    <span class="type">bool</span> have_text = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">    QLIST_FOREACH(dcl, &amp;ds-&gt;listeners, next) &#123;</span><br><span class="line">        <span class="keyword">if</span> (dcl-&gt;ops-&gt;dpy_refresh != <span class="literal">NULL</span>) &#123;</span><br><span class="line">            need_timer = <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (dcl-&gt;ops-&gt;dpy_gfx_update != <span class="literal">NULL</span>) &#123;</span><br><span class="line">            have_gfx = <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (dcl-&gt;ops-&gt;dpy_text_update != <span class="literal">NULL</span>) &#123;</span><br><span class="line">            have_text = <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (need_timer &amp;&amp; ds-&gt;gui_timer == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        ds-&gt;gui_timer = timer_new_ms(QEMU_CLOCK_REALTIME, gui_update, ds);</span><br><span class="line">        timer_mod(ds-&gt;gui_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!need_timer &amp;&amp; ds-&gt;gui_timer != <span class="literal">NULL</span>) &#123;</span><br><span class="line">        timer_free(ds-&gt;gui_timer);</span><br><span class="line">        ds-&gt;gui_timer = <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ds-&gt;have_gfx = have_gfx;</span><br><span class="line">    ds-&gt;have_text = have_text;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当 dcl-&gt;ops 的 <code>dpy_refresh</code> 指针非空<strong>且当前 DisplayState 未设置 timer 时</strong>，便会调用 <code>timer_new_ms()</code> 新建一个毫秒级别的定时器，定时调用 <code>gui_update()</code> 刷新显存，接收的参数便为该 DisplayState</p>
+<h1 id="0x03-显示设备更新相关函数"><a href="#0x03-显示设备更新相关函数" class="headerlink" title="0x03.显示设备更新相关函数"></a>0x03.显示设备更新相关函数</h1><p>前面我们讲到，在 Qemu 启动时会启动一个 Timer 定时进行显存的刷新，其代码调用关系如下图所示：</p>
+<p><img src="https://s2.loli.net/2022/07/20/TVEaSGf7MgvjCO4.png" alt="image.png"></p>
+<h2 id="一、gui-update-timer-定时调用进行更新操作"><a href="#一、gui-update-timer-定时调用进行更新操作" class="headerlink" title="一、gui_update - timer 定时调用进行更新操作"></a>一、gui_update - timer 定时调用进行更新操作</h2><p>我们先来看 <code>gui_update()</code> 这个由 timer 定时调用的函数，其定义于 <code>ui/console.c</code> 中，如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">gui_update</span><span class="params">(<span class="type">void</span> *opaque)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">uint64_t</span> interval = GUI_REFRESH_INTERVAL_IDLE;</span><br><span class="line">    <span class="type">uint64_t</span> dcl_interval;</span><br><span class="line">    DisplayState *ds = opaque;</span><br><span class="line">    DisplayChangeListener *dcl;</span><br><span class="line">    QemuConsole *con;</span><br><span class="line"></span><br><span class="line">    ds-&gt;refreshing = <span class="literal">true</span>;</span><br><span class="line">    dpy_refresh(ds);</span><br><span class="line">    ds-&gt;refreshing = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">    QLIST_FOREACH(dcl, &amp;ds-&gt;listeners, next) &#123;</span><br><span class="line">        dcl_interval = dcl-&gt;update_interval ?</span><br><span class="line">            dcl-&gt;update_interval : GUI_REFRESH_INTERVAL_DEFAULT;</span><br><span class="line">        <span class="keyword">if</span> (interval &gt; dcl_interval) &#123;</span><br><span class="line">            interval = dcl_interval;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (ds-&gt;update_interval != interval) &#123;</span><br><span class="line">        ds-&gt;update_interval = interval;</span><br><span class="line">        QTAILQ_FOREACH(con, &amp;consoles, next) &#123;</span><br><span class="line">            <span class="keyword">if</span> (con-&gt;hw_ops-&gt;update_interval) &#123;</span><br><span class="line">                con-&gt;hw_ops-&gt;update_interval(con-&gt;hw, interval);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        trace_console_refresh(interval);</span><br><span class="line">    &#125;</span><br><span class="line">    ds-&gt;last_update = qemu_clock_get_ms(QEMU_CLOCK_REALTIME);</span><br><span class="line">    timer_mod(ds-&gt;gui_timer, ds-&gt;last_update + interval);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>主要流程如下：</p>
+<ul>
+<li>调用 <code>dpy_refresh()</code> ，该函数会遍历 DisplayState 中的所有 DisplayChangeListener 并调用 <code>dcl-&gt;ops-&gt;dpy_refresh()</code></li>
+<li>遍历 DisplayState 中的所有 DisplayChangeListener，检查 <code>dcl-&gt;update_interval</code></li>
+<li>若 <code>ds-&gt;update_interval != interval</code>，遍历所有的 QemuConsole 并调用 <code>con-&gt;hw_ops-&gt;update_interval()</code> 进行硬件数据更新</li>
+</ul>
+<h2 id="二、dpy-refresh-遍历-dcl-并调用-dcl-gt-ops-gt-dpy-refresh-进行更新"><a href="#二、dpy-refresh-遍历-dcl-并调用-dcl-gt-ops-gt-dpy-refresh-进行更新" class="headerlink" title="二、dpy_refresh - 遍历 dcl 并调用 dcl-&gt;ops-&gt;dpy_refresh 进行更新"></a>二、dpy_refresh - 遍历 dcl 并调用 dcl-&gt;ops-&gt;dpy_refresh 进行更新</h2><p><code>dpy_refresh()</code> 比较简单，主要就是遍历 DisplayState 中的所有 DisplayChangeListener 并调用 <code>dcl-&gt;ops-&gt;dpy_refresh()</code>，如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">dpy_refresh</span><span class="params">(DisplayState *s)</span></span><br><span class="line">&#123;</span><br><span class="line">    DisplayChangeListener *dcl;</span><br><span class="line"></span><br><span class="line">    QLIST_FOREACH(dcl, &amp;s-&gt;listeners, next) &#123;</span><br><span class="line">        <span class="keyword">if</span> (dcl-&gt;ops-&gt;dpy_refresh) &#123;</span><br><span class="line">            dcl-&gt;ops-&gt;dpy_refresh(dcl);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们主要关注与 VNC 有关的部分，对于 VNC 而言，其 <code>dcl-&gt;ops-&gt;dpy_refresh</code> 应为 <code>vnc_refresh</code>，该函数定义于 <code>ui/vnc.c</code> 中，如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">vnc_refresh</span><span class="params">(DisplayChangeListener *dcl)</span></span><br><span class="line">&#123;</span><br><span class="line">    VncDisplay *vd = container_of(dcl, VncDisplay, dcl);</span><br><span class="line">    VncState *vs, *vn;</span><br><span class="line">    <span class="type">int</span> has_dirty, rects = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (QTAILQ_EMPTY(&amp;vd-&gt;clients)) &#123;   <span class="comment">// 没有 client，直接返回</span></span><br><span class="line">        update_displaychangelistener(&amp;vd-&gt;dcl, VNC_REFRESH_INTERVAL_MAX);   <span class="comment">//更新计时</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    graphic_hw_update(vd-&gt;dcl.con); <span class="comment">// 硬件更新</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (vnc_trylock_display(vd)) &#123;</span><br><span class="line">        update_displaychangelistener(&amp;vd-&gt;dcl, VNC_REFRESH_INTERVAL_BASE);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    has_dirty = vnc_refresh_server_surface(vd); <span class="comment">// 检查是否有待更新数据</span></span><br><span class="line">    vnc_unlock_display(vd);</span><br><span class="line"></span><br><span class="line">    QTAILQ_FOREACH_SAFE(vs, &amp;vd-&gt;clients, next, vn) &#123;</span><br><span class="line">        rects += vnc_update_client(vs, has_dirty);  <span class="comment">// 遍历更新 client</span></span><br><span class="line">        <span class="comment">/* vs might be free()ed here */</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (has_dirty &amp;&amp; rects) &#123;</span><br><span class="line">        vd-&gt;dcl.update_interval /= <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">if</span> (vd-&gt;dcl.update_interval &lt; VNC_REFRESH_INTERVAL_BASE) &#123;</span><br><span class="line">            vd-&gt;dcl.update_interval = VNC_REFRESH_INTERVAL_BASE;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        vd-&gt;dcl.update_interval += VNC_REFRESH_INTERVAL_INC;</span><br><span class="line">        <span class="keyword">if</span> (vd-&gt;dcl.update_interval &gt; VNC_REFRESH_INTERVAL_MAX) &#123;</span><br><span class="line">            vd-&gt;dcl.update_interval = VNC_REFRESH_INTERVAL_MAX;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>该函数主要流程如下：</p>
+<ul>
+<li>检查是否有连接的客户端，若否则更新计时后直接返回</li>
+<li>调用 <code>graphic_hw_update()</code> 更新 dcl 对应的 QemuConsole 对应的硬件设备</li>
+<li>调用 <code>vnc_refresh_server_surface()</code> 检查是否有 dirty 区域（待更新区域）</li>
+<li>遍历 dcl 上的 client， 调用 <code>vnc_update_client()</code> 创建新的 VncJob 挂载到全局链表上，由 worker thread 进行推送</li>
+</ul>
+<h2 id="三、graphic-hw-update-图形硬件数据更新"><a href="#三、graphic-hw-update-图形硬件数据更新" class="headerlink" title="三、graphic_hw_update - 图形硬件数据更新"></a>三、graphic_hw_update - 图形硬件数据更新</h2><p>前面我们涉及到的都是 console、vnc 这一块的数据更新，并没有触及到实际的硬件方面（qemu 模拟显卡等）的更新，这一块实际的更新是由 <code>graphic_hw_update()</code> 来完成的，该函数定义于 <code>ui/console.c</code> 中，如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">graphic_hw_update</span><span class="params">(QemuConsole *con)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">bool</span> async = <span class="literal">false</span>;</span><br><span class="line">    con = con ? con : active_console;</span><br><span class="line">    <span class="keyword">if</span> (!con) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (con-&gt;hw_ops-&gt;gfx_update) &#123;</span><br><span class="line">        con-&gt;hw_ops-&gt;gfx_update(con-&gt;hw);</span><br><span class="line">        async = con-&gt;hw_ops-&gt;gfx_update_async;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!async) &#123;</span><br><span class="line">        graphic_hw_update_done(con);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>前面我们讲到一个 QemuConsole 对应一个显示设备，因此在 <code>graphic_hw_update()</code> 当中会直接调用 <code>con-&gt;hw_ops-&gt;gfx_update()</code> 来完成硬件方面的数据更新</p>
+<p>如果是纯字符型显示设备，则为 <code>text_console_ops</code>，定义于 <code>ui/console.c</code> 中，该函数表没有 <code>gfx_update</code> 指针，故会直接返回：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">const</span> GraphicHwOps text_console_ops = &#123;</span><br><span class="line">    .invalidate  = text_console_invalidate,</span><br><span class="line">    .text_update = text_console_update,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>对于默认的图形化界面，<code>con-&gt;hw-&gt;ops</code> 应为 <code>vga_ops</code>，定义于 <code>hw/display/vga.c</code> 中，其 <code>gfx_update</code> 指针为 <code>vga_update_display</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">const</span> GraphicHwOps vga_ops = &#123;</span><br><span class="line">    .invalidate  = vga_invalidate_display,</span><br><span class="line">    .gfx_update  = vga_update_display,</span><br><span class="line">    .text_update = vga_update_text,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里主要是根据指定的硬件决定的，默认的图形界面便是 <code>vga_ops</code>，如果你在启动时指定了一个 QXL 显卡，那么这里就应该是 <code>qxl_ops</code>，最终调用到 <code>qxl_hw_update()</code></p>
+</blockquote>
+<p>该函数定义于 <code>hw/display/vga.c</code> 中，主要作用就是根据显示模式调用不同的更新函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">vga_update_display</span><span class="params">(<span class="type">void</span> *opaque)</span></span><br><span class="line">&#123;</span><br><span class="line">    VGACommonState *s = opaque;</span><br><span class="line">    DisplaySurface *surface = qemu_console_surface(s-&gt;con);</span><br><span class="line">    <span class="type">int</span> full_update, graphic_mode;</span><br><span class="line"></span><br><span class="line">    qemu_flush_coalesced_mmio_buffer();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (surface_bits_per_pixel(surface) == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">/* nothing to do */</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        full_update = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (!(s-&gt;ar_index &amp; <span class="number">0x20</span>)) &#123;</span><br><span class="line">            graphic_mode = GMODE_BLANK;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            graphic_mode = s-&gt;gr[VGA_GFX_MISC] &amp; VGA_GR06_GRAPHICS_MODE;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (graphic_mode != s-&gt;graphic_mode) &#123;</span><br><span class="line">            s-&gt;graphic_mode = graphic_mode;</span><br><span class="line">            s-&gt;cursor_blink_time = qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL);</span><br><span class="line">            full_update = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">switch</span>(graphic_mode) &#123;</span><br><span class="line">        <span class="keyword">case</span> GMODE_TEXT:</span><br><span class="line">            vga_draw_text(s, full_update);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> GMODE_GRAPH:</span><br><span class="line">            vga_draw_graphic(s, full_update);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> GMODE_BLANK:</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            vga_draw_blank(s, full_update);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这些 <code>vga_draw_*</code> 函数最后都会调用到 <code>dpy_gfx_update()</code> 将更新推送到显示设备上，其定义于 <code>ui/console.c</code> 中：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">dpy_gfx_update</span><span class="params">(QemuConsole *con, <span class="type">int</span> x, <span class="type">int</span> y, <span class="type">int</span> w, <span class="type">int</span> h)</span></span><br><span class="line">&#123;</span><br><span class="line">    DisplayState *s = con-&gt;ds;</span><br><span class="line">    DisplayChangeListener *dcl;</span><br><span class="line">    <span class="type">int</span> width = qemu_console_get_width(con, x + w);</span><br><span class="line">    <span class="type">int</span> height = qemu_console_get_height(con, y + h);</span><br><span class="line"></span><br><span class="line">    x = MAX(x, <span class="number">0</span>);</span><br><span class="line">    y = MAX(y, <span class="number">0</span>);</span><br><span class="line">    x = MIN(x, width);</span><br><span class="line">    y = MIN(y, height);</span><br><span class="line">    w = MIN(w, width - x);</span><br><span class="line">    h = MIN(h, height - y);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!qemu_console_is_visible(con)) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    dpy_gfx_update_texture(con, con-&gt;surface, x, y, w, h);</span><br><span class="line">    QLIST_FOREACH(dcl, &amp;s-&gt;listeners, next) &#123;</span><br><span class="line">        <span class="keyword">if</span> (con != (dcl-&gt;con ? dcl-&gt;con : active_console)) &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (dcl-&gt;ops-&gt;dpy_gfx_update) &#123;</span><br><span class="line">            dcl-&gt;ops-&gt;dpy_gfx_update(dcl, x, y, w, h);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>主要流程如下：</p>
+<ul>
+<li>若 QemuConsole 不可视，直接返回</li>
+<li>调用 <code>dpy_gfx_update_texture()</code>，其最终会调用到 <code>con-&gt;gl-&gt;ops-&gt;dpy_gl_ctx_update_texture()</code>，这一块是与 GL 相关的操作，这里暂且不展开</li>
+<li>遍历 QemuConsole 上的 DisplayChangeListener，调用 <code>dcl-&gt;ops-&gt;dpy_gfx_update()</code>，更新 dcl 对应的 display 设备</li>
+</ul>
+<p>对于 VNC 而言，<code>dcl-&gt;ops-&gt;dpy_gfx_update</code> 指针应为 <code>vnc_dpy_update()</code> 函数，定义于 <code>ui/vnc.c</code> 中，主要就是调用 <code>vnc_set_area_dirty()</code> 将一块区域标记为 dirty：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">vnc_dpy_update</span><span class="params">(DisplayChangeListener *dcl,</span></span><br><span class="line"><span class="params">                           <span class="type">int</span> x, <span class="type">int</span> y, <span class="type">int</span> w, <span class="type">int</span> h)</span></span><br><span class="line">&#123;</span><br><span class="line">    VncDisplay *vd = container_of(dcl, VncDisplay, dcl);</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">VncSurface</span> *<span class="title">s</span> =</span> &amp;vd-&gt;guest;</span><br><span class="line"></span><br><span class="line">    vnc_set_area_dirty(s-&gt;dirty, vd, x, y, w, h);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最终这些被标记为 dirty 的区域会在 <code>vnc_refresh()</code> 中调用 <code>vnc_refresh_server_surface()</code> 时被进一步处理，在 <code>vnc_update_client()</code> 中变为新的 VncJob 链到全局链表上</p>
+<h2 id="四、vnc-client-update-创建新的-VncJob-挂载到全局链表上"><a href="#四、vnc-client-update-创建新的-VncJob-挂载到全局链表上" class="headerlink" title="四、vnc_client_update - 创建新的 VncJob 挂载到全局链表上"></a>四、vnc_client_update - 创建新的 VncJob 挂载到全局链表上</h2><p>当前面我们将特定的显示区域标记为 dirty 之后，最终会由 <code>vnc_update_client()</code> 函数来扫描 dirty 区域，并创建相应的 VncJob 挂载到全局的 queue 上，因此最后实际上还是由 vnc worker thread 完成推送的任务</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">vnc_update_client</span><span class="params">(VncState *vs, <span class="type">int</span> has_dirty)</span></span><br><span class="line">&#123;</span><br><span class="line">    VncDisplay *vd = vs-&gt;vd;</span><br><span class="line">    VncJob *job;</span><br><span class="line">    <span class="type">int</span> y;</span><br><span class="line">    <span class="type">int</span> height, width;</span><br><span class="line">    <span class="type">int</span> n = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (vs-&gt;disconnecting) &#123;</span><br><span class="line">        vnc_disconnect_finish(vs);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    vs-&gt;has_dirty += has_dirty;</span><br><span class="line">    <span class="keyword">if</span> (!vnc_should_update(vs)) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!vs-&gt;has_dirty &amp;&amp; vs-&gt;update != VNC_STATE_UPDATE_FORCE) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Send screen updates to the vnc client using the server</span></span><br><span class="line"><span class="comment">     * surface and server dirty map.  guest surface updates</span></span><br><span class="line"><span class="comment">     * happening in parallel don&#x27;t disturb us, the next pass will</span></span><br><span class="line"><span class="comment">     * send them to the client.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    job = vnc_job_new(vs);  <span class="comment">// 创建新的 VncJob</span></span><br><span class="line"></span><br><span class="line">    height = pixman_image_get_height(vd-&gt;server);</span><br><span class="line">    width = pixman_image_get_width(vd-&gt;server);</span><br><span class="line"></span><br><span class="line">    y = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">        <span class="comment">// 扫描 dirty 区域</span></span><br><span class="line">        <span class="type">int</span> x, h;</span><br><span class="line">        <span class="type">unsigned</span> <span class="type">long</span> x2;</span><br><span class="line">        <span class="type">unsigned</span> <span class="type">long</span> offset = find_next_bit((<span class="type">unsigned</span> <span class="type">long</span> *) &amp;vs-&gt;dirty,</span><br><span class="line">                                             height * VNC_DIRTY_BPL(vs),</span><br><span class="line">                                             y * VNC_DIRTY_BPL(vs));</span><br><span class="line">        <span class="keyword">if</span> (offset == height * VNC_DIRTY_BPL(vs)) &#123;</span><br><span class="line">            <span class="comment">/* no more dirty bits */</span></span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        y = offset / VNC_DIRTY_BPL(vs);</span><br><span class="line">        x = offset % VNC_DIRTY_BPL(vs);</span><br><span class="line">        x2 = find_next_zero_bit((<span class="type">unsigned</span> <span class="type">long</span> *) &amp;vs-&gt;dirty[y],</span><br><span class="line">                                VNC_DIRTY_BPL(vs), x);</span><br><span class="line">        bitmap_clear(vs-&gt;dirty[y], x, x2 - x);</span><br><span class="line">        h = find_and_clear_dirty_height(vs, y, x, x2, height);</span><br><span class="line">        x2 = MIN(x2, width / VNC_DIRTY_PIXELS_PER_BIT);</span><br><span class="line">        <span class="keyword">if</span> (x2 &gt; x) &#123;</span><br><span class="line">            <span class="comment">// 创建新的 VncRect，挂载到 VncJob 上</span></span><br><span class="line">            n += vnc_job_add_rect(job, x * VNC_DIRTY_PIXELS_PER_BIT, y,</span><br><span class="line">                                  (x2 - x) * VNC_DIRTY_PIXELS_PER_BIT, h);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (!x &amp;&amp; x2 == width / VNC_DIRTY_PIXELS_PER_BIT) &#123;</span><br><span class="line">            y += h;</span><br><span class="line">            <span class="keyword">if</span> (y == height) &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    vs-&gt;job_update = vs-&gt;update;</span><br><span class="line">    vs-&gt;update = VNC_STATE_UPDATE_NONE;</span><br><span class="line">    vnc_job_push(job);  <span class="comment">// 挂载到全局 queue 上</span></span><br><span class="line">    vs-&gt;has_dirty = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">return</span> n;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>至此，Qemu 中 VNC 的工作流程基本分析完毕</p>
+<h1 id="0xFF-总览"><a href="#0xFF-总览" class="headerlink" title="0xFF.总览"></a>0xFF.总览</h1><p>最后让我们重新看一下 Qemu VNC 的基本架构，这里再放一张从<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/69568087">知乎</a>上偷来的一个 Qemu VNC 的基本架构图：</p>
+<p><img src="https://s2.loli.net/2022/07/21/7BcC1jzxESl3ZWt.png" alt="image.png"></p>
+<p>在 Qemu 中内部的显示结构如下图所示：</p>
+<p><img src="https://s2.loli.net/2022/07/20/FUkehDzTocbtu4O.png" alt="image.png"></p>
+<p>最终的更新调用链路则如下所示：</p>
+<p><img src="https://s2.loli.net/2022/07/20/TVEaSGf7MgvjCO4.png" alt="image.png"></p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2022/07/15/VIRTUALIZATION-0X00-QEMU-PART-I/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>上一页</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime" title="更新时间"></i>
+              2022-07-22 01:39:15
+            </span>
+            
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="分类"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/VIRTUALIZATION/" title="VIRTUALIZATION">
+                        <b>#</b> VIRTUALIZATION
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags" title="标签"></i>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/%E5%AD%A6%E4%B9%A0%E6%9C%AD%E8%AE%B0/" title="学习札记">
+                        <b>#</b> 学习札记
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/Qemu/" title="Qemu">
+                        <b>#</b> Qemu
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/%E8%99%9A%E6%8B%9F%E5%8C%96/" title="虚拟化">
+                        <b>#</b> 虚拟化
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/VNC/" title="VNC">
+                        <b>#</b> VNC
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">目录</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00-%E4%B8%80%E5%88%87%E5%BC%80%E5%A7%8B%E4%B9%8B%E5%89%8D"><span class="toc-text">0x00.一切开始之前</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-qemu-init-displays-%E6%98%BE%E7%A4%BA%E8%AE%BE%E5%A4%87%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-text">0x01. qemu_init_displays() - 显示设备初始化</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E3%80%87%E3%80%81%E6%98%BE%E7%A4%BA%E8%AE%BE%E5%A4%87%E7%9B%B8%E5%85%B3%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-text">〇、显示设备相关结构体</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#I%E3%80%81QemuConsole-%E5%8D%95%E4%B8%AA%E6%8E%A7%E5%88%B6%E5%8F%B0%E5%AE%9E%E4%BE%8B"><span class="toc-text">I、QemuConsole - 单个控制台实例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#II%E3%80%81DisplayState-%E6%98%BE%E7%A4%BA%E8%AE%BE%E5%A4%87%E6%80%BB%E7%8A%B6%E6%80%81"><span class="toc-text">II、DisplayState - 显示设备总状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#III%E3%80%81DisplayChangeListener-%E7%9B%91%E8%A7%86%E5%8D%95%E4%B8%AA%E6%98%BE%E7%A4%BA%E8%AE%BE%E5%A4%87%E7%9A%84%E6%9B%B4%E6%94%B9"><span class="toc-text">III、DisplayChangeListener - 监视单个显示设备的更改</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81init-displaystate-%E9%81%8D%E5%8E%86%E6%89%80%E6%9C%89%E7%9A%84-QemuConsole-%E5%B9%B6%E5%8A%A0%E5%85%A5-qom-tree%EF%BC%8C%E5%88%9D%E5%A7%8B%E5%8C%96%E5%AD%97%E7%AC%A6%E5%9E%8B-console"><span class="toc-text">一、init_displaystate() - 遍历所有的 QemuConsole 并加入 qom tree，初始化字符型 console</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81qemu-display-init-%E8%B0%83%E7%94%A8%E5%AF%B9%E5%BA%94%E7%B1%BB%E5%9E%8B-QemuDisplay-%E7%9A%84-init-%E5%87%BD%E6%95%B0%E8%BF%9B%E8%A1%8C%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-text">二、qemu_display_init() - 调用对应类型 QemuDisplay 的 init 函数进行初始化</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-vnc-init-func-%E5%88%9D%E5%A7%8B%E5%8C%96%E5%8D%95%E4%B8%AA-VNC-Server"><span class="toc-text">0x02. vnc_init_func() - 初始化单个 VNC Server</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E3%80%87%E3%80%81VNC-%E7%9B%B8%E5%85%B3%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-text">〇、VNC 相关结构体</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#I%E3%80%81VncDisplay-%E5%8D%95%E4%B8%AA-VNC-Server-%E5%AE%9E%E4%BE%8B"><span class="toc-text">I、VncDisplay - 单个 VNC Server 实例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#II%E3%80%81VncState-%E5%8D%95%E4%B8%AA-VNC-%E8%BF%9E%E6%8E%A5%EF%BC%88VNC-Client%EF%BC%89"><span class="toc-text">II、VncState - 单个 VNC 连接（VNC Client）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#III%E3%80%81VncJob-%E5%8D%95%E4%B8%AA-VNC-%E8%BF%9E%E6%8E%A5%E5%8D%95%E6%AC%A1%E9%9C%80%E8%A6%81%E6%9B%B4%E6%96%B0%E7%9A%84%E5%9B%BE%E5%83%8F%E4%BF%A1%E6%81%AF"><span class="toc-text">III、VncJob - 单个 VNC 连接单次需要更新的图像信息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81vnc-display-init"><span class="toc-text">一、vnc_display_init()</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#I%E3%80%81VNC-worker-thread-%E5%B0%86%E5%9B%BE%E5%83%8F%E6%9B%B4%E6%96%B0%E5%8F%91%E9%80%81%E7%BB%99%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-text">I、VNC worker thread - 将图像更新发送给客户端</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#II%E3%80%81VNC-%E7%9A%84-dcl-ops"><span class="toc-text">II、VNC 的 dcl_ops</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#III%E3%80%81register-displaychangelistener-%E6%B3%A8%E5%86%8C-dcl%EF%BC%8C%E5%90%AF%E5%8A%A8-timer"><span class="toc-text">III、register_displaychangelistener - 注册 dcl，启动 timer</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-%E6%98%BE%E7%A4%BA%E8%AE%BE%E5%A4%87%E6%9B%B4%E6%96%B0%E7%9B%B8%E5%85%B3%E5%87%BD%E6%95%B0"><span class="toc-text">0x03.显示设备更新相关函数</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81gui-update-timer-%E5%AE%9A%E6%97%B6%E8%B0%83%E7%94%A8%E8%BF%9B%E8%A1%8C%E6%9B%B4%E6%96%B0%E6%93%8D%E4%BD%9C"><span class="toc-text">一、gui_update - timer 定时调用进行更新操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81dpy-refresh-%E9%81%8D%E5%8E%86-dcl-%E5%B9%B6%E8%B0%83%E7%94%A8-dcl-gt-ops-gt-dpy-refresh-%E8%BF%9B%E8%A1%8C%E6%9B%B4%E6%96%B0"><span class="toc-text">二、dpy_refresh - 遍历 dcl 并调用 dcl-&gt;ops-&gt;dpy_refresh 进行更新</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81graphic-hw-update-%E5%9B%BE%E5%BD%A2%E7%A1%AC%E4%BB%B6%E6%95%B0%E6%8D%AE%E6%9B%B4%E6%96%B0"><span class="toc-text">三、graphic_hw_update - 图形硬件数据更新</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81vnc-client-update-%E5%88%9B%E5%BB%BA%E6%96%B0%E7%9A%84-VncJob-%E6%8C%82%E8%BD%BD%E5%88%B0%E5%85%A8%E5%B1%80%E9%93%BE%E8%A1%A8%E4%B8%8A"><span class="toc-text">四、vnc_client_update - 创建新的 VncJob 挂载到全局链表上</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0xFF-%E6%80%BB%E8%A7%88"><span class="toc-text">0xFF.总览</span></a></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+  
+    <script async type="text/javascript" src="/plugins/valine.min.js" onload="loadValineSuc(this)"></script>
+  
+
+  <div id="vcomments"></div>
+
+  <script>
+    function loadValineSuc() {
+      new Valine({
+        el: '#vcomments',
+        appId: 'ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz',
+        appKey: 'tuvJh3xYxPFcW2JB6K26RKP2',
+        placeholder: '说点什么呗...',
+        avatar: 'retro',
+        lang: 'zh-CN'
+      })
+    }
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/arttnba3">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="email" href="mailto:arttnba@gmail.com">
+            <i class="iconfont icon-envelope"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="twitter" target="_blank" rel="noopener" href="https://twitter.com/arttnba3">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="rss" href="/atom.xml">
+            <i class="iconfont icon-rss"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/arttnba3">Copyright © 2022 arttnba3</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>首次搜索，正在载入索引文件，请稍后……<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>没有找到内容，请尝试更换检索词。<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>未找到search.xml文件，具体请参考：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>请求失败，尝试重新刷新页面或稍后重试。<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + %E3%80%90VIRTUALIZATION.0x01%E3%80%91Qemu%20-%20II%EF%BC%9AQemu%20VNC%20%E6%A8%A1%E5%9D%97%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90 + '&url=' + http%3A%2F%2Fblog.arttnba3.cn%2F2022%2F07%2F22%2FVIRTUALIZATION-0X01-QEMU-PART-II%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://blog.arttnba3.cn/2022/07/22/VIRTUALIZATION-0X01-QEMU-PART-II/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  </body>
+</html>
