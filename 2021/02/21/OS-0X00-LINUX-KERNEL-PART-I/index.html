@@ -1,221 +1,334 @@
+
+
 <!DOCTYPE html>
-<html lang="zh-CN" color-mode="light">
-
-  <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="keywords" content="" />
-  <meta name="author" content="arttnba3" />
-  <meta name="description" content="あがいた夢を捨てて揺れる今日は眠って誤魔化せ" />
-  
-  
-  <title>
-    
-      【OS.0x00】Linux Kernel I：Basic Knowledge 
-      
-      
-      |
-    
-     arttnba3&#39;s blog
-  </title>
-
-  
-    <link rel="apple-touch-icon" href="/img/favicon.png">
-    <link rel="icon" href="/img/favicon.png">
-  
-
-  <!-- Raleway-Font -->
-  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
-
-  <!-- hexo site css -->
-  
-<link rel="stylesheet" href="/css/color-scheme.css">
-<link rel="stylesheet" href="/css/base.css">
-<link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css">
-<link rel="stylesheet" href="/css/github-markdown.css">
-<link rel="stylesheet" href="/css/highlight.css">
-<link rel="stylesheet" href="/css/comments.css">
-
-  <!-- 代码块风格 -->
-  
-
-  <!-- jquery3.3.1 -->
-  
-    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
-  
-
-  <!-- fancybox -->
-  
-    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
-    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
-  
-  
-<script src="/js/fancybox.js"></script>
+<html lang="zh-CN" data-default-color-scheme=auto>
 
 
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Big Linus is watching you!">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【OS.0x00】Linux Kernel I：Basic Knowledge">
+<meta property="og:url" content="http://blog.arttnba3.cn/2021/02/21/OS-0X00-LINUX-KERNEL-PART-I/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="Big Linus is watching you!">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/02/22/eX5h7aRdOrCkb9j.png">
+<meta property="article:published_time" content="2021-02-21T13:02:14.000Z">
+<meta property="article:modified_time" content="2022-08-18T17:49:55.815Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="Pwn">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="学习札记">
+<meta property="article:tag" content="Linux Kernel">
+<meta property="article:tag" content="Operating System">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/22/eX5h7aRdOrCkb9j.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【OS.0x00】Linux Kernel I：Basic Knowledge - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
   
 
-  <script>
-    var html = document.documentElement
-    const colorMode = localStorage.getItem('color-mode')
-    if (colorMode) {
-      document.documentElement.setAttribute('color-mode', colorMode)
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.arttnba3.cn","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
 <meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
 </head>
 
 
-  <body>
-    <div id="app">
-      <div class="header">
-  <div class="avatar">
-    <a target="_blank" rel="noopener" href="https://arttnba3.cn">
-      <!-- 头像取消懒加载，添加no-lazy -->
-      
-        <img src="/img/avatar.png" alt="">
-      
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
     </a>
-    <div class="nickname"><a target="_blank" rel="noopener" href="https://arttnba3.cn">arttnba3's blog</a></div>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
   </div>
-  <div class="navbar">
-    <ul>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://i.loli.net/2021/02/24/XZGi8QpIsTdMhAW.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【OS.0x00】Linux Kernel I：Basic Knowledge"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-02-21 21:02" pubdate>
+          2021年2月21日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          19k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          155 分钟
+        
+      </span>
+    
+
+    
+    
       
-        <li class="nav-item" data-path="/">
-          <a href="/">Home</a>
-        </li>
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
       
-        <li class="nav-item" data-path="/archives/">
-          <a href="/archives/">Archives</a>
-        </li>
+    
+  </div>
+
+
+        
+      </div>
+
       
-        <li class="nav-item" data-path="/categories/">
-          <a href="/categories/">Categories</a>
-        </li>
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
       
-        <li class="nav-item" data-path="/tags/">
-          <a href="/tags/">Tags</a>
-        </li>
-      
-        <li class="nav-item" data-path="/friends/">
-          <a href="/friends/">Friends</a>
-        </li>
-      
-        <li class="nav-item" data-path="/about/">
-          <a href="/about/">About</a>
-        </li>
-      
-    </ul>
+    </div>
   </div>
 </div>
 
+</div>
 
-<script src="/js/activeNav.js"></script>
+  </header>
 
+  <main>
+    
+      
 
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
 
-      <div class="flex-container">
-        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
-<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+    </div>
 
-
-  <!-- LaTex Display -->
-
-  
-    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
-  
-  <script>
-    MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']]
-      }
-    }
-  </script>
-
-
-
-
-
-  <!-- clipboard -->
-
-  
-    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
-  
-  
-<script src="/js/codeCopy.js"></script>
-
-
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
-  <div class="container post-details" id="post-details">
-    <div class="post-content">
-      <div class="post-title">【OS.0x00】Linux Kernel I：Basic Knowledge</div>
-      <div class="post-attach">
-        <span class="post-pubtime">
-          <i class="iconfont icon-updatetime" title="更新时间"></i>
-          2021-02-21 21:02:14
-        </span>
-        
-              <span class="post-categories">
-                <i class="iconfont icon-bookmark" title="分类"></i>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【OS.0x00】Linux Kernel I：Basic Knowledge</h1>
+            
+              <p class="note note-info">
                 
-                <span class="span--category">
-                  <a href="/categories/OS/" title="OS">
-                    <b>#</b> OS
-                  </a>
-                </span>
+                  
+                    本文最后更新于：2022年8月19日 凌晨
+                  
                 
-              </span>
-          
-              <span class="post-tags">
-                <i class="iconfont icon-tags" title="标签"></i>
+              </p>
+            
+            
+              <div class="markdown-body">
                 
-                <span class="span--tag">
-                  <a href="/tags/Pwn/" title="Pwn">
-                    <b>#</b> Pwn
-                  </a>
-                </span>
-                
-                <span class="span--tag">
-                  <a href="/tags/Linux/" title="Linux">
-                    <b>#</b> Linux
-                  </a>
-                </span>
-                
-                <span class="span--tag">
-                  <a href="/tags/%E5%AD%A6%E4%B9%A0%E6%9C%AD%E8%AE%B0/" title="学习札记">
-                    <b>#</b> 学习札记
-                  </a>
-                </span>
-                
-                <span class="span--tag">
-                  <a href="/tags/Linux-Kernel/" title="Linux Kernel">
-                    <b>#</b> Linux Kernel
-                  </a>
-                </span>
-                
-                <span class="span--tag">
-                  <a href="/tags/Operating-System/" title="Operating System">
-                    <b>#</b> Operating System
-                  </a>
-                </span>
-                
-              </span>
-          
-      </div>
-      <div class="markdown-body">
-        <p>Big Linus is watching you!</p>
+                <p>Big Linus is watching you!</p>
 <span id="more"></span>
 
 <h1 id="0x00-OS-Basis"><a href="#0x00-OS-Basis" class="headerlink" title="0x00.OS Basis"></a>0x00.OS Basis</h1><h3 id="I-操作系统究竟是什么？"><a href="#I-操作系统究竟是什么？" class="headerlink" title="I.操作系统究竟是什么？"></a>I.操作系统究竟是什么？</h3><p>用户态下的 pwn 和内核态下的 pwn 究竟有什么区别？又或者说——<strong>当计算机在执行用户进程代码时与执行操作系统内核代码时</strong>究竟有什么区别？</p>
@@ -233,7 +346,7 @@
 <p> 在一些硬件或者微代码级别上提供不同特权态模式的 CPU 架构上，保护环通常都是硬件强制的。Rings是从最高特权级（通常被叫作0级）到最低特权级（通常对应最大的数字）排列的</p>
 <p>Ring0 拥有最高特权，并且可以和最多的硬件直接交互（比如CPU，内存），因此<strong>操作系统内核代码通常运行在 ring0 下，即 CPU 在执行操作系统内核代码时处在 ring0 下</strong></p>
 <p>Intel的CPU将权限分为四个等级：<strong>Ring0</strong>、Ring1、Ring2、<strong>Ring3</strong>，权限等级依次降低，现代操作系统模型中我们通常只会使用 ring0 和 ring3，对应操作系统内核与用户进程，即 <strong>CPU 在执行用户进程代码时处在 ring3 下</strong></p>
-<p><img src="https://i.loli.net/2021/02/22/yQXZhLEHVn1b3uC.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/02/22/yQXZhLEHVn1b3uC.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>那么我们现在可以给【用户态】与【内核态】这两个概念下定义了：</p>
 <ul>
 <li>用户态：CPU 运行在 ring3 + 用户进程运行环境上下文</li>
@@ -252,7 +365,7 @@
 <p>基于这些特权级切换的方式，现代操作系统的开发者包装出了一种名为<strong>系统调用</strong>（syscall）的东西，作为由”用户态“切换到”内核态“的入口，从而执行内核代码来完成用户进程所需的一些功能；当用户进程想要请求更高权限的服务时，便需要通过由系统提供的应用接口，使用系统调用以<strong>陷入内核态，再由操作系统完成请求</strong></p>
 <h3 id="IV-进程-x3D-进程运行环境上下文-内核数据结构"><a href="#IV-进程-x3D-进程运行环境上下文-内核数据结构" class="headerlink" title="IV.进程 &#x3D; 进程运行环境上下文 + 内核数据结构"></a>IV.进程 &#x3D; 进程运行环境上下文 + 内核数据结构</h3><p>进程<strong>本质上是我们抽象出来的一个概念</strong>，CPU 是不知道也不可能知道进程是什么东西的，他只知道<strong>当前核心的寄存器的数据是这样，运行状态是这样，内存里的数据是那样</strong>，但我们可以<strong>人为地进行划分</strong>——将当前的运行环境上下文称之为一个<strong>进程实体</strong></p>
 <p>接下来我们引入一个新的概念——<strong>页表</strong>（page table）。这通常是一个多级结构，用以对应表示一个虚拟地址空间中存在的每张内存页所对应的物理内存，下图是一张经典的二级页表结构：</p>
-<p><img src="https://s2.loli.net/2022/03/15/bnYKURW1xPg7CHN.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/03/15/bnYKURW1xPg7CHN.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>当开启分页模式之后，我们对内存的访问都需要通过页表进行，利用多级页表将对应的虚拟地址转化为物理地址后才能进行内存访问，因此<strong>当前页表集所表示的物理地址空间为我们当前所能访问的物理地址空间</strong></p>
 <p>我们想要让我们的计算机真正变成一个多任务系统，让其运行多个不同的进程，则我们<strong>需要实现不同进程间的虚拟地址空间的隔离</strong>，因此就有：</p>
 <ul>
@@ -284,7 +397,7 @@
 <h1 id="0x01-内核"><a href="#0x01-内核" class="headerlink" title="0x01.内核"></a>0x01.内核</h1><h2 id="一、Introduction"><a href="#一、Introduction" class="headerlink" title="一、Introduction"></a>一、Introduction</h2><p><strong>操作系统</strong>（Operation System）本质上也是一种软件，可以看作是普通应用程式与硬件之间的一层中间层，其主要作用便是调度系统资源、控制IO设备、操作网络与文件系统等，并为上层应用提供便捷、抽象的应用接口</p>
 <p>而运行在内核态的<strong>内核</strong>（<strong>kernel</strong>）则是<strong>一个操作系统最为核心的部分</strong>，提供着一个操作系统最为基础的功能</p>
 <p>这张十分经典的图片说明了Kernel在计算机体系结构中的位置：</p>
-<p><img src="https://i.loli.net/2021/02/22/eX5h7aRdOrCkb9j.png"></p>
+<p><img src="https://i.loli.net/2021/02/22/eX5h7aRdOrCkb9j.png" srcset="/img/loading.gif" lazyload></p>
 <p>kernel的主要功能可以归为以下三点：</p>
 <ul>
 <li><strong>控制并与硬件进行交互</strong></li>
@@ -294,7 +407,7 @@
 <p>包括 I&#x2F;O，权限控制，系统调用，进程管理，内存管理等多项功能都可以归结到以上三点中</p>
 <p>与一般的应用程式不同，kernel的crash通常会引起重启</p>
 <h2 id="二、内核架构：微内核-amp-宏内核-amp-混合内核"><a href="#二、内核架构：微内核-amp-宏内核-amp-混合内核" class="headerlink" title="二、内核架构：微内核 &amp; 宏内核 &amp; 混合内核"></a>二、内核架构：微内核 &amp; 宏内核 &amp; 混合内核</h2><p>通常来说我们可以把内核架构分为两种：<code>宏内核</code>和<code>微内核</code>，现在还有一种内核是混合了宏内核与微内核的特性，称为 <code>混合内核</code> ，三种内核的大致架构如下图所示：</p>
-<p><img src="https://i.loli.net/2021/02/22/eQlyv3DszOjXPuw.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/02/22/eQlyv3DszOjXPuw.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h3 id="I-宏内核（Monolithic-Kernel）"><a href="#I-宏内核（Monolithic-Kernel）" class="headerlink" title="I.宏内核（Monolithic Kernel）"></a>I.宏内核（Monolithic Kernel）</h3><blockquote>
 <p> <strong>宏内核</strong>（英语：Monolithic kernel），也译为<strong>集成式内核</strong>、<strong>单体式内核</strong>，一种<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%86%85%E6%A0%B8">操作系统内核</a>架构，此架构的特性是整个内核程序是一个单一二进制可执行文件，在<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%A0%B8%E5%BF%83%E7%A9%BA%E9%96%93">内核态</a>以监管者模式（Supervisor Mode）来运行。相对于其他类型的操作系统架构，如<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%BE%AE%E6%A0%B8%E5%BF%83">微内核</a>架构或<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%B7%B7%E6%A0%B8%E5%BF%83">混合内核</a>架构等，这些内核会定义出一个高端的虚拟接口，由该接口来涵盖描述整个电脑硬件，这些描述会集合成一组硬件描述用词，有时还会附加一些<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8">系统调用</a>，如此可以用一个或多个模块来实现各种操作系统服务，如<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%A1%8C%E7%A8%8B">进程</a>管理、并发（Concurrency）控制、<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%A8%98%E6%86%B6%E9%AB%94%E7%AE%A1%E7%90%86">存储器管理</a>等。 </p>
 <p><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%95%B4%E5%A1%8A%E6%80%A7%E6%A0%B8%E5%BF%83">Wikipedia: 整塊性核心</a></p>
@@ -304,10 +417,10 @@
 </blockquote>
 <p>通俗地说，宏内核几乎将一切都集成到了内核当中，并向上层应用程式提供抽象API（通常是以系统调用的形式）</p>
 <p>Unix与类Unix便是宏内核</p>
-<p><img src="https://i.loli.net/2021/02/22/fSwY9R4KHZLnkbl.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/02/22/fSwY9R4KHZLnkbl.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h3 id="II-微内核（Micro-Kernel）"><a href="#II-微内核（Micro-Kernel）" class="headerlink" title="II.微内核（Micro Kernel）"></a>II.微内核（Micro Kernel）</h3><p>对于微内核而言，大部分的系统服务（如文件管理等）都被剥离于内核之外，内核仅仅提供最为基本的一些功能：底层的寻址空间管理、线程管理、进程间通信等</p>
 <p>Windows NT与Mach都宣称采用了微内核架构，不过本质上他们更贴近于混合内核（Hybrid Kernel）——在内核中集成了部分需要具备特权的服务组件 </p>
-<p><img src="https://i.loli.net/2021/02/22/eZY4WcMJytUNCuF.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/02/22/eZY4WcMJytUNCuF.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <blockquote>
 <p> 本文中我们主要讨论Linux内核</p>
 </blockquote>
@@ -316,7 +429,7 @@
 <p>在大多数操作系统中，Ring0 拥有最高特权，并且可以和最多的硬件直接交互（比如CPU，内存）</p>
 <p>内层ring可以任意调用外层ring的资源</p>
 <h2 id="一、Intel-Ring-Model"><a href="#一、Intel-Ring-Model" class="headerlink" title="一、Intel Ring Model"></a>一、Intel Ring Model</h2><p>Intel的CPU将权限分为四个等级：<strong>Ring0</strong>、Ring1、Ring2、<strong>Ring3</strong>，权限等级依次降低</p>
-<p><img src="https://i.loli.net/2021/02/22/yQXZhLEHVn1b3uC.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/02/22/yQXZhLEHVn1b3uC.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p><strong>大部分现代操作系统只用到了ring0 和 ring3，其中 kernel 运行在 ring0，用户态程序运行在 ring3</strong></p>
 <blockquote>
 <p> 使用 Ring Model 是为了提升系统安全性，例如某个间谍软件作为一个在 Ring 3 运行的用户程序，在不通知用户的时候打开摄像头会被阻止，因为访问硬件需要使用 being 驱动程序保留的 Ring 1 的方法 </p>
@@ -325,9 +438,9 @@
 <p>内核在完成一系列的初始化过程之后，会启动一些低权限（ring3）的进程以向我们提供用户界面</p>
 <h2 id="二、用户空间-amp-内核空间"><a href="#二、用户空间-amp-内核空间" class="headerlink" title="二、用户空间 &amp; 内核空间"></a>二、用户空间 &amp; 内核空间</h2><p>在现代操作系统中，计算机的虚拟内存地址空间通常被分为两块——供用户进程使用的用户空间（user space）与供操作系统内核使用的内核空间（kernel space）</p>
 <p>32位下的虚拟内存空间布局如下：</p>
-<p><img src="https://i.loli.net/2021/11/09/qLsr8xECYNpRbAI.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/11/09/qLsr8xECYNpRbAI.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>64位下的虚拟内存空间布局如下：</p>
-<p><img src="https://i.loli.net/2021/11/09/k8NHa1ljMEfXQbh.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/11/09/k8NHa1ljMEfXQbh.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h2 id="三、用户态-amp-内核态"><a href="#三、用户态-amp-内核态" class="headerlink" title="三、用户态 &amp; 内核态"></a>三、用户态 &amp; 内核态</h2><p>抛开华丽的辞藻，这两个词最本质的含义是：</p>
 <ul>
 <li>用户态：CPU 运行在 ring3 + 用户进程运行环境上下文</li>
@@ -345,7 +458,7 @@
 <li><strong>系统门</strong>（System gate）：Linux 特有门，类型码为 3、4、5、128；其 DPL 为 3，用以供用户进程访问，主要用以<strong>进行系统调用</strong>（int 0x80）</li>
 </ul>
 <h3 id="II-信号机制"><a href="#II-信号机制" class="headerlink" title="II.信号机制"></a>II.信号机制</h3><p>Signals机制（又称之为软中断信号）是UNIX及类UNIX系统中的一种<strong>异步</strong>的进程间通信方式，用以通知一个进程发生了某个事件，通常情况下常见的流程如下图所示：</p>
-<p><img src="https://i.loli.net/2021/03/11/DbsyXV3huR2FmQJ.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/03/11/DbsyXV3huR2FmQJ.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <ul>
 <li>Pre. 内核代替进程接受信号，将信号放入对应进程的信号队列中，同时将对应进程<strong>挂起</strong>，让进程陷入内核态</li>
 <li>① 进程陷入内核态后，在返回用户态前会检测信号队列，若存在新信号则开始进入信号处理流程：内核会<strong>将用户态进程的寄存器逐一压入【用户态进程的栈上】</strong>，形成一个<code>sigcontext</code>结构体，接下来压入 SIGNALINFO 以及<strong>指向系统调用 sigreturn 的代码</strong>，用以在后续返回时恢复用户态进程上下文；压入栈上的这一大块内容称之为一个 <code>SigreturnFrame</code>，同时也是一个<code>ucontext_t</code>结构体；接下来就是内核内部的工作了</li>
@@ -386,7 +499,7 @@
 </ul>
 <h1 id="0x03-系统调用"><a href="#0x03-系统调用" class="headerlink" title="0x03.系统调用"></a>0x03.系统调用</h1><p><strong>系统调用</strong>（<strong>system call</strong>）是由操作系统内核向上层应用程式提供的应用接口，操作系统负责调度一切的资源，当用户进程想要请求更高权限的服务时，便需要通过由系统提供的应用接口，使用系统调用以<strong>陷入内核态，再由操作系统完成请求</strong></p>
 <p>系统调用本质上与一般的C库函数没有区别，不同的是系统调用位于内核空间，以内核态运行</p>
-<p><img src="https://i.loli.net/2021/02/24/IYaievPRZpAVMH7.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/02/24/IYaievPRZpAVMH7.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <blockquote>
 <p> Windows系统下将系统调用封装在win32 API中，不过本篇博文主要讨论Linux</p>
 </blockquote>
@@ -412,10 +525,10 @@
 <h1 id="0x04-进程权限管理"><a href="#0x04-进程权限管理" class="headerlink" title="0x04.进程权限管理"></a>0x04.进程权限管理</h1><p>前面我们讲到，kernel 调度着一切的系统资源，并为用户应用程式提供运行环境，相应地，应用程式的权限也都是由 kernel 进行管理的</p>
 <h2 id="一、进程描述符（process-descriptor）"><a href="#一、进程描述符（process-descriptor）" class="headerlink" title="一、进程描述符（process descriptor）"></a>一、进程描述符（process descriptor）</h2><p>在内核中使用结构体 <code>task_struct</code> 表示一个进程，该结构体定义于内核源码<code>include/linux/sched.h</code>中，代码比较长就不在这里贴出了</p>
 <p>一个进程描述符的结构应当如下图所示：</p>
-<p><img src="https://i.loli.net/2021/02/23/2W8xIfwqm9Y7Fru.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/02/23/2W8xIfwqm9Y7Fru.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>本篇我们主要关心其对于进程权限的管理</p>
 <p>注意到<code>task_struct</code>的源码中有如下代码：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Process credentials: */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Tracer&#x27;s credentials at attach: */</span></span><br><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">cred</span> __<span class="title">rcu</span>        *<span class="title">ptracer_cred</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Objective and real subjective task credentials (COW): */</span></span><br><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">cred</span> __<span class="title">rcu</span>        *<span class="title">real_cred</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Effective (overridable) subjective task credentials (COW): */</span></span><br><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">cred</span> __<span class="title">rcu</span>        *<span class="title">cred</span>;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* Process credentials: */</span><br><br><span class="hljs-comment">/* Tracer&#x27;s credentials at attach: */</span><br><span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cred</span> __<span class="hljs-title">rcu</span>        *<span class="hljs-title">ptracer_cred</span>;</span><br><br><span class="hljs-comment">/* Objective and real subjective task credentials (COW): */</span><br><span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cred</span> __<span class="hljs-title">rcu</span>        *<span class="hljs-title">real_cred</span>;</span><br><br><span class="hljs-comment">/* Effective (overridable) subjective task credentials (COW): */</span><br><span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cred</span> __<span class="hljs-title">rcu</span>        *<span class="hljs-title">cred</span>;</span><br></code></pre></td></tr></table></figure>
 
 <p><strong>Process credentials</strong> 是 kernel 用以判断一个进程权限的凭证，在 kernel 中使用 <code>cred</code> 结构体进行标识，对于一个进程而言应当有三个 cred：</p>
 <ul>
@@ -428,7 +541,7 @@
 <p>例：当进程 A 向进程 B 发送消息时，A为主体，B为客体</p>
 </blockquote>
 <h3 id="进程权限凭证：cred结构体"><a href="#进程权限凭证：cred结构体" class="headerlink" title="进程权限凭证：cred结构体"></a>进程权限凭证：cred结构体</h3><p>对于一个进程，在内核当中使用一个结构体<code>cred</code>管理其权限，该结构体定义于内核源码<code>include/linux/cred.h</code>中，如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">cred</span> &#123;</span></span><br><span class="line">    <span class="type">atomic_t</span>    usage;</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_DEBUG_CREDENTIALS</span></span><br><span class="line">    <span class="type">atomic_t</span>    subscribers;    <span class="comment">/* number of processes subscribed */</span></span><br><span class="line">    <span class="type">void</span>        *put_addr;</span><br><span class="line">    <span class="type">unsigned</span>    magic;</span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CRED_MAGIC    0x43736564</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CRED_MAGIC_DEAD    0x44656144</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="type">kuid_t</span>        uid;        <span class="comment">/* real UID of the task */</span></span><br><span class="line">    <span class="type">kgid_t</span>        gid;        <span class="comment">/* real GID of the task */</span></span><br><span class="line">    <span class="type">kuid_t</span>        suid;        <span class="comment">/* saved UID of the task */</span></span><br><span class="line">    <span class="type">kgid_t</span>        sgid;        <span class="comment">/* saved GID of the task */</span></span><br><span class="line">    <span class="type">kuid_t</span>        euid;        <span class="comment">/* effective UID of the task */</span></span><br><span class="line">    <span class="type">kgid_t</span>        egid;        <span class="comment">/* effective GID of the task */</span></span><br><span class="line">    <span class="type">kuid_t</span>        fsuid;        <span class="comment">/* UID for VFS ops */</span></span><br><span class="line">    <span class="type">kgid_t</span>        fsgid;        <span class="comment">/* GID for VFS ops */</span></span><br><span class="line">    <span class="type">unsigned</span>    securebits;    <span class="comment">/* SUID-less security management */</span></span><br><span class="line">    <span class="type">kernel_cap_t</span>    cap_inheritable; <span class="comment">/* caps our children can inherit */</span></span><br><span class="line">    <span class="type">kernel_cap_t</span>    cap_permitted;    <span class="comment">/* caps we&#x27;re permitted */</span></span><br><span class="line">    <span class="type">kernel_cap_t</span>    cap_effective;    <span class="comment">/* caps we can actually use */</span></span><br><span class="line">    <span class="type">kernel_cap_t</span>    cap_bset;    <span class="comment">/* capability bounding set */</span></span><br><span class="line">    <span class="type">kernel_cap_t</span>    cap_ambient;    <span class="comment">/* Ambient capability set */</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_KEYS</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span>    jit_keyring;    <span class="comment">/* default keyring to attach requested</span></span><br><span class="line"><span class="comment">                     * keys to */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">key</span>    *<span class="title">session_keyring</span>;</span> <span class="comment">/* keyring inherited over fork */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">key</span>    *<span class="title">process_keyring</span>;</span> <span class="comment">/* keyring private to this process */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">key</span>    *<span class="title">thread_keyring</span>;</span> <span class="comment">/* keyring private to this thread */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">key</span>    *<span class="title">request_key_auth</span>;</span> <span class="comment">/* assumed request_key authority */</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_SECURITY</span></span><br><span class="line">    <span class="type">void</span>        *security;    <span class="comment">/* subjective LSM security */</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">user_struct</span> *<span class="title">user</span>;</span>    <span class="comment">/* real user ID subscription */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">user_namespace</span> *<span class="title">user_ns</span>;</span> <span class="comment">/* user_ns the caps and keyrings are relative to. */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">group_info</span> *<span class="title">group_info</span>;</span>    <span class="comment">/* supplementary groups for euid/fsgid */</span></span><br><span class="line">    <span class="comment">/* RCU deletion */</span></span><br><span class="line">    <span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">        <span class="type">int</span> non_rcu;            <span class="comment">/* Can we skip RCU deletion? */</span></span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">rcu_head</span>    <span class="title">rcu</span>;</span>        <span class="comment">/* RCU deletion hook */</span></span><br><span class="line">    &#125;;</span><br><span class="line">&#125; __randomize_layout;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cred</span> &#123;</span><br>    <span class="hljs-type">atomic_t</span>    usage;<br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_DEBUG_CREDENTIALS</span><br>    <span class="hljs-type">atomic_t</span>    subscribers;    <span class="hljs-comment">/* number of processes subscribed */</span><br>    <span class="hljs-type">void</span>        *put_addr;<br>    <span class="hljs-type">unsigned</span>    magic;<br><span class="hljs-meta">#<span class="hljs-keyword">define</span> CRED_MAGIC    0x43736564</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> CRED_MAGIC_DEAD    0x44656144</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>    <span class="hljs-type">kuid_t</span>        uid;        <span class="hljs-comment">/* real UID of the task */</span><br>    <span class="hljs-type">kgid_t</span>        gid;        <span class="hljs-comment">/* real GID of the task */</span><br>    <span class="hljs-type">kuid_t</span>        suid;        <span class="hljs-comment">/* saved UID of the task */</span><br>    <span class="hljs-type">kgid_t</span>        sgid;        <span class="hljs-comment">/* saved GID of the task */</span><br>    <span class="hljs-type">kuid_t</span>        euid;        <span class="hljs-comment">/* effective UID of the task */</span><br>    <span class="hljs-type">kgid_t</span>        egid;        <span class="hljs-comment">/* effective GID of the task */</span><br>    <span class="hljs-type">kuid_t</span>        fsuid;        <span class="hljs-comment">/* UID for VFS ops */</span><br>    <span class="hljs-type">kgid_t</span>        fsgid;        <span class="hljs-comment">/* GID for VFS ops */</span><br>    <span class="hljs-type">unsigned</span>    securebits;    <span class="hljs-comment">/* SUID-less security management */</span><br>    <span class="hljs-type">kernel_cap_t</span>    cap_inheritable; <span class="hljs-comment">/* caps our children can inherit */</span><br>    <span class="hljs-type">kernel_cap_t</span>    cap_permitted;    <span class="hljs-comment">/* caps we&#x27;re permitted */</span><br>    <span class="hljs-type">kernel_cap_t</span>    cap_effective;    <span class="hljs-comment">/* caps we can actually use */</span><br>    <span class="hljs-type">kernel_cap_t</span>    cap_bset;    <span class="hljs-comment">/* capability bounding set */</span><br>    <span class="hljs-type">kernel_cap_t</span>    cap_ambient;    <span class="hljs-comment">/* Ambient capability set */</span><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_KEYS</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span>    jit_keyring;    <span class="hljs-comment">/* default keyring to attach requested</span><br><span class="hljs-comment">                     * keys to */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">key</span>    *<span class="hljs-title">session_keyring</span>;</span> <span class="hljs-comment">/* keyring inherited over fork */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">key</span>    *<span class="hljs-title">process_keyring</span>;</span> <span class="hljs-comment">/* keyring private to this process */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">key</span>    *<span class="hljs-title">thread_keyring</span>;</span> <span class="hljs-comment">/* keyring private to this thread */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">key</span>    *<span class="hljs-title">request_key_auth</span>;</span> <span class="hljs-comment">/* assumed request_key authority */</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_SECURITY</span><br>    <span class="hljs-type">void</span>        *security;    <span class="hljs-comment">/* subjective LSM security */</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">user_struct</span> *<span class="hljs-title">user</span>;</span>    <span class="hljs-comment">/* real user ID subscription */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">user_namespace</span> *<span class="hljs-title">user_ns</span>;</span> <span class="hljs-comment">/* user_ns the caps and keyrings are relative to. */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">group_info</span> *<span class="hljs-title">group_info</span>;</span>    <span class="hljs-comment">/* supplementary groups for euid/fsgid */</span><br>    <span class="hljs-comment">/* RCU deletion */</span><br>    <span class="hljs-class"><span class="hljs-keyword">union</span> &#123;</span><br>        <span class="hljs-type">int</span> non_rcu;            <span class="hljs-comment">/* Can we skip RCU deletion? */</span><br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">rcu_head</span>    <span class="hljs-title">rcu</span>;</span>        <span class="hljs-comment">/* RCU deletion hook */</span><br>    &#125;;<br>&#125; __randomize_layout;<br></code></pre></td></tr></table></figure>
 
 <p>我们主要关注<code>cred</code>结构体中管理权限的变量</p>
 <h3 id="用户ID-amp-组ID"><a href="#用户ID-amp-组ID" class="headerlink" title="用户ID &amp; 组ID"></a>用户ID &amp; 组ID</h3><p>一个cred结构体中记载了<strong>一个进程四种不同的用户ID</strong>：</p>
@@ -447,7 +560,7 @@
 <li><code>int commit_creds(struct cred *new)</code>：该函数用以将一个新的<code>cred</code>结构体应用到进程</li>
 </ul>
 <h3 id="提权"><a href="#提权" class="headerlink" title="*提权"></a><em>*提权</em></h3><p>查看<code>prepare_kernel_cred()</code>函数源码，观察到如下逻辑：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> cred *<span class="title function_">prepare_kernel_cred</span><span class="params">(<span class="keyword">struct</span> task_struct *daemon)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">cred</span> *<span class="title">old</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">cred</span> *<span class="title">new</span>;</span></span><br><span class="line"></span><br><span class="line">    new = kmem_cache_alloc(cred_jar, GFP_KERNEL);</span><br><span class="line">    <span class="keyword">if</span> (!new)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    kdebug(<span class="string">&quot;prepare_kernel_cred() alloc %p&quot;</span>, new);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (daemon)</span><br><span class="line">        old = get_task_cred(daemon);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        old = get_cred(&amp;init_cred);</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">struct</span> cred *<span class="hljs-title function_">prepare_kernel_cred</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> task_struct *daemon)</span><br>&#123;<br>    <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cred</span> *<span class="hljs-title">old</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cred</span> *<span class="hljs-title">new</span>;</span><br><br>    new = kmem_cache_alloc(cred_jar, GFP_KERNEL);<br>    <span class="hljs-keyword">if</span> (!new)<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br><br>    kdebug(<span class="hljs-string">&quot;prepare_kernel_cred() alloc %p&quot;</span>, new);<br><br>    <span class="hljs-keyword">if</span> (daemon)<br>        old = get_task_cred(daemon);<br>    <span class="hljs-keyword">else</span><br>        old = get_cred(&amp;init_cred);<br>...<br></code></pre></td></tr></table></figure>
 
 <p>在<code>prepare_kernel_cred()</code>函数中，若传入的参数为NULL，则会缺省使用<code>init</code>进程的<code>cred</code>作为模板进行拷贝，<strong>即可以直接获得一个标识着root权限的cred结构体</strong></p>
 <p>那么我们不难想到，只要我们能够在内核空间执行<code>commit_creds(prepare_kernel_cred(NULL))</code>，那么就能够将当前进程的权限提升到<code>root</code></p>
@@ -462,7 +575,7 @@
 <blockquote>
 <p>例如，在较老版本的Linux中，可以使用<code>cat /dev/urandom &gt; /dev/dsp</code>命令令扬声器产生随机噪声</p>
 </blockquote>
-<p><img src="https://i.loli.net/2021/02/25/iUoHNsaK5vOG9cR.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/02/25/iUoHNsaK5vOG9cR.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h2 id="二、进程文件系统"><a href="#二、进程文件系统" class="headerlink" title="二、进程文件系统"></a>二、进程文件系统</h2><p>进程文件系统（process file system， 简写为procfs）用以描述一个进程，其中包括该进程所打开的文件描述符、堆栈内存布局、环境变量等等</p>
 <p>进程文件系统本身是一个伪文件系统，通常被挂载到<code>/proc</code>目录下，并不真正占用储存空间，而是占用一定的内存</p>
 <p>当一个进程被建立起来时，其进程文件系统便会被挂载到<code>/proc/[PID]</code>下，我们可以在该目录下查看其相关信息</p>
@@ -478,7 +591,7 @@
 <p>此后打开的文件描述符应当从标号<code>3</code>起始</p>
 <h2 id="四、系统调用：ioctl"><a href="#四、系统调用：ioctl" class="headerlink" title="四、系统调用：ioctl"></a>四、系统调用：ioctl</h2><p>在*NIX中一切都可以被视为文件，因而一切都可以以访问文件的方式进行操作，为了方便，Linux定义了系统调用<code>ioctl</code>供进程与设备之间进行通信</p>
 <p>系统调用<code>ioctl</code>是一个专用于设备输入输出操作的一个系统调用，其调用方式如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">ioctl</span><span class="params">(<span class="type">int</span> fd, <span class="type">unsigned</span> <span class="type">long</span> request, ...)</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">ioctl</span><span class="hljs-params">(<span class="hljs-type">int</span> fd, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> request, ...)</span><br></code></pre></td></tr></table></figure>
 
 <ul>
 <li><strong>fd：设备的文件描述符</strong></li>
@@ -511,15 +624,15 @@
 <li><strong>区</strong>（zone，对应结构体 zone，图上展示了三种类型的 zone）</li>
 <li><strong>页</strong>（page，对应结构体 page）</li>
 </ul>
-<p><img src="https://i.loli.net/2021/11/28/OrsvS6GTMgPLx5E.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/11/28/OrsvS6GTMgPLx5E.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h3 id="I-页（page）"><a href="#I-页（page）" class="headerlink" title="I.页（page）"></a>I.页（page）</h3><p>Linux kernel 中使用 <code>page</code> 结构体来表示一个物理页框，<strong>每个物理页框都有着一个对应的 page 结构体</strong></p>
-<p><img src="https://i.loli.net/2021/11/25/MjWZmba9SLH1xIO.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/11/25/MjWZmba9SLH1xIO.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h3 id="II-区（zone）"><a href="#II-区（zone）" class="headerlink" title="II.区（zone）"></a>II.区（zone）</h3><p>在 Linux 下将一个节点内不同用途的内存区域划分为不同的 <code>区（zone）</code>，对应结构体 <code>struct zone</code></p>
-<p><img src="https://i.loli.net/2021/11/30/sOwdI5YMNUjLSib.png" alt="自己画的图.png"></p>
+<p><img src="https://i.loli.net/2021/11/30/sOwdI5YMNUjLSib.png" srcset="/img/loading.gif" lazyload alt="自己画的图.png"></p>
 <h3 id="III-节点（node）"><a href="#III-节点（node）" class="headerlink" title="III.节点（node）"></a>III.节点（node）</h3><p>zone 再向上一层便是<strong>节点</strong>——Linux 将_内存控制器（memory controller）_作为节点划分的依据，对于 UMA 架构而言只有一个节点，而对于 NUMA 架构而言通常有多个节点，对于同一个内存控制器下的 CPU 而言其对应的节点称之为_本地内存_，不同处理器之间通过总线进行进一步的连接。如下图所示，一个 MC 对应一个节点：</p>
-<p><img src="https://i.loli.net/2021/11/27/hAopSNYg23VeWzq.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/11/27/hAopSNYg23VeWzq.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h2 id="二、内存模型"><a href="#二、内存模型" class="headerlink" title="二、内存模型"></a>二、内存模型</h2><p>Linux 提供了三种内存模型，定义于 <code>include/asm-generic/memory_model.h</code> 中，如下图所示（偷的图，侵删）：</p>
-<p><img src="https://i.loli.net/2021/11/25/wLzFuCB5n1DAIY7.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/11/25/wLzFuCB5n1DAIY7.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>内存模型在编译期就会被确定下来，目前常用的是 <code>Sparse Memory</code> 模型，即离散内存模型</p>
 <h3 id="Flat-Memory"><a href="#Flat-Memory" class="headerlink" title="Flat Memory"></a>Flat Memory</h3><p>平滑内存模型。物理内存地址连续，有一个<strong>全局变量</strong> <code>mem_map</code> ——由一个大的 struct page 数组直接对应现有的物理内存</p>
 <h3 id="Discontiguous-Memory"><a href="#Discontiguous-Memory" class="headerlink" title="Discontiguous Memory"></a>Discontiguous Memory</h3><p>非连续性内存模型。主要针对内存中存在空洞的情况。</p>
@@ -531,17 +644,17 @@
 <blockquote>
 <p>图还是偷的，侵删</p>
 </blockquote>
-<p><img src="https://i.loli.net/2021/11/25/RN47OEoaM31xQhA.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/11/25/RN47OEoaM31xQhA.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h2 id="三、buddy-system"><a href="#三、buddy-system" class="headerlink" title="三、buddy system"></a>三、buddy system</h2><blockquote>
 <p>目前的 CTF 题目当中还没有出现针对 buddy system 进行利用的题目，但是<a target="_blank" rel="noopener" href="https://etenal.me/archives/1825">有安全研究员在 CVE-2022-27666 中运用了页级堆风水的技巧</a>，笔者认为非常 nb</p>
 </blockquote>
 <p>buddy system 是 Linux kernel 中的一个较为底层的内存管理系统，<strong>以内存页为粒度管理者所有的物理内存</strong>，其存在于 <strong>区</strong> 这一级别，对当前区所对应拥有的所有物理页框进行管理</p>
 <p>在每个 zone 结构体中都有一个 free_area 结构体数组，用以存储 buddy system <strong>按照 order 管理的页面</strong></p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">zone</span> &#123;</span></span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">free_area</span>	<span class="title">free_area</span>[<span class="title">MAX_ORDER</span>];</span></span><br><span class="line">    <span class="comment">//...</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">zone</span> &#123;</span><br>    <span class="hljs-comment">//...</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">free_area</span>	<span class="hljs-title">free_area</span>[<span class="hljs-title">MAX_ORDER</span>];</span><br>    <span class="hljs-comment">//...</span><br></code></pre></td></tr></table></figure>
 
 <p>其中的 <code>MAX_ORDER</code> 为一个常量，值为 11</p>
 <p>在 buddy system 中按照空闲页面的连续大小进行分阶管理，这里的 order 的实际含义为<strong>连续的空闲页面的大小</strong>，不过单位不是页面数，而是<code>阶</code>，即对于每个下标而言，其中所存储的页面大小为：<br>$$<br>2^{order}<br>$$<br>在 free_area 中存放的页面通过自身的相应字段连接成双向链表结构，由此我们得到这样一张_Overview_：</p>
-<p><img src="https://i.loli.net/2021/11/30/sOwdI5YMNUjLSib.png" alt="自己画的图.png"></p>
+<p><img src="https://i.loli.net/2021/11/30/sOwdI5YMNUjLSib.png" srcset="/img/loading.gif" lazyload alt="自己画的图.png"></p>
 <ul>
 <li>分配：<ul>
 <li>首先会将请求的内存大小向 2 的幂次方张内存页大小对齐，之后从对应的下标取出连续内存页</li>
@@ -555,7 +668,7 @@
 </li>
 </ul>
 <p>但是我们很容易产生不容易合并的内存碎片，因此 Linux kernel 还会进行 <em>内存迁移</em> 以减少内存碎片，原理如下图，主要由一个持续运行的内核线程完成，由于不是本篇重点故不在此赘叙</p>
-<p><img src="https://i.loli.net/2021/11/30/q7T6EjtIb9PVFY3.png" alt="从知乎偷的图.png"></p>
+<p><img src="https://i.loli.net/2021/11/30/q7T6EjtIb9PVFY3.png" srcset="/img/loading.gif" lazyload alt="从知乎偷的图.png"></p>
 <h2 id="四、slab-allocator"><a href="#四、slab-allocator" class="headerlink" title="四、slab allocator"></a>四、slab allocator</h2><p>slab allocator 则是更为细粒度的内存管理器，其通过向 buddy system 请求单张或多张连续内存页后再分割成同等大小的<strong>对象</strong>（object）返还给上层调用者来实现更为细粒度的内存管理</p>
 <p>slab allocator 一共有三种版本：</p>
 <ul>
@@ -564,7 +677,7 @@
 <li>slub（优化后的版本，现在的通用版本）</li>
 </ul>
 <h3 id="I-基本结构"><a href="#I-基本结构" class="headerlink" title="I.基本结构"></a>I.基本结构</h3><p> <code>slub</code> 版本的 allocator 为现在绝大多数 Linux kernel 所装配的版本，因此本篇文章主要叙述的也是 slub allocator，其基本结构如下图所示：</p>
-<p><img src="https://i.loli.net/2021/07/22/ivPnbsjHyI94m5z.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/07/22/ivPnbsjHyI94m5z.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <ul>
 <li><p>我们将 slub allocator 每次向 buddy system 请求得来的单张&#x2F;多张内存页称之为一个 <code>slub</code>，其被分割为多个同等大小对象（object），每个 object 作为一个被分配实体，在 slub 的第一张内存页对应的 page 结构体上的 freelist 成员指向该张内存页上的第一个空闲对象，一个 slub 上的所有空闲对象组成一个以 NULL 结尾的单向链表</p>
 <blockquote>
@@ -620,7 +733,7 @@
 <li>利用内核线性映射区对物理地址空间的完整映射，找到用户空间对应页框的内核空间地址，利用该内核地址完成对用户空间的访问（即一个内核空间地址与一个用户空间地址映射到了同一个页框上），这种攻击手法称为 ret2dir</li>
 <li>Intel下系统根据CR4控制寄存器的第20位标识是否开启SMEP保护（1为开启，0为关闭），若是能够通过kernel ROP改变CR4寄存器的值便能够关闭SMEP保护，完成SMEP-bypass，接下来就能够重新进行 ret2usr，<strong>但对于开启了 KPTI 的内核而言，内核页表的用户地址空间无执行权限，这使得 ret2usr 彻底成为过去式</strong></li>
 </ul>
-<p><img src="https://i.loli.net/2021/09/07/sYFKuZiUVNIclBp.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/09/07/sYFKuZiUVNIclBp.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <blockquote>
 <p> 在 ARM 下有一种类似的保护叫 <code>PXN</code></p>
 </blockquote>
@@ -629,7 +742,7 @@
 <blockquote>
 <p>在 64 位下用户空间与内核空间都占 128 TB，所以他们占用的页全局表项（PGD）的大小应当是相同的，图上没有体现出来，因此这里由笔者代为补充（笑）</p>
 </blockquote>
-<p><img src="https://s2.loli.net/2022/03/11/q74X6lbTnrNGhC1.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/03/11/q74X6lbTnrNGhC1.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>KPTI 的发明主要是用来修复一个史诗级别的 CPU 硬件漏洞：Meltdown。简单理解就是利用 CPU 流水线设计中（乱序执行与预测执行）的漏洞来获取到用户态无法访问的内核空间的数据，属于侧信道攻击的一种</p>
 <blockquote>
 <p>简单理解：你的第一条指令是合法内存访问，第二条指令是越权内存访问，CPU会在执行第一条正常指令的过程中<strong>也会执行第二条非法指令</strong>，之后再做权限判定，若是非法访问则消除该影响，这样的流水线设计虽然有着较高的性能，<strong>但是越权访问仍会留下痕迹</strong>，这给了攻击者非法获取内核空间数据的可能</p>
@@ -658,437 +771,463 @@
 </blockquote>
 <h4 id="Random-freelist"><a href="#Random-freelist" class="headerlink" title="Random freelist"></a>Random freelist</h4><p>这种保护主要发生在 slub allocator 向 buddy system 申请到页框之后的处理过程中，对于未开启这种保护的一张完整的 slub，其上的 object 的连接顺序是线性连续的，但在开启了这种保护之后其上的 object 之间的连接顺序是随机的，这让攻击者无法直接预测下一个分配的 object 的地址</p>
 <p>需要注意的是这种保护发生在<strong>slub allocator 刚从 buddy system 拿到新 slub 的时候，运行时 freelist 的构成仍遵循 LIFO</strong></p>
-<p><img src="https://s2.loli.net/2022/03/11/wQzINfhXV3gpGxJ.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/03/11/wQzINfhXV3gpGxJ.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 
-      </div>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
       
-        <div class="prev-or-next">
-          <div class="post-foot-next">
-            
-              <a href="/2021/02/11/CTF-0X03-PWNABLE.TW/" target="_self">
-                <i class="iconfont icon-chevronleft"></i>
-                <span>上一页</span>
-              </a>
-            
-          </div>
-          <div class="post-attach">
-            <span class="post-pubtime">
-              <i class="iconfont icon-updatetime" title="更新时间"></i>
-              2021-02-21 21:02:14
-            </span>
-            
-                  <span class="post-categories">
-                    <i class="iconfont icon-bookmark" title="分类"></i>
-                    
-                    <span class="span--category">
-                      <a href="/categories/OS/" title="OS">
-                        <b>#</b> OS
-                      </a>
-                    </span>
-                    
-                  </span>
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/OS/" class="category-chain-item">OS</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Pwn/">#Pwn</a>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+        <a href="/tags/%E5%AD%A6%E4%B9%A0%E6%9C%AD%E8%AE%B0/">#学习札记</a>
+      
+        <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
+      
+        <a href="/tags/Operating-System/">#Operating System</a>
+      
+    </div>
+  
+</div>
+
+
               
-                  <span class="post-tags">
-                    <i class="iconfont icon-tags" title="标签"></i>
-                    
-                    <span class="span--tag">
-                      <a href="/tags/Pwn/" title="Pwn">
-                        <b>#</b> Pwn
-                      </a>
-                    </span>
-                    
-                    <span class="span--tag">
-                      <a href="/tags/Linux/" title="Linux">
-                        <b>#</b> Linux
-                      </a>
-                    </span>
-                    
-                    <span class="span--tag">
-                      <a href="/tags/%E5%AD%A6%E4%B9%A0%E6%9C%AD%E8%AE%B0/" title="学习札记">
-                        <b>#</b> 学习札记
-                      </a>
-                    </span>
-                    
-                    <span class="span--tag">
-                      <a href="/tags/Linux-Kernel/" title="Linux Kernel">
-                        <b>#</b> Linux Kernel
-                      </a>
-                    </span>
-                    
-                    <span class="span--tag">
-                      <a href="/tags/Operating-System/" title="Operating System">
-                        <b>#</b> Operating System
-                      </a>
-                    </span>
-                    
-                  </span>
-              
-          </div>
-          <div class="post-foot-prev">
-            
-              <a href="/2021/02/21/OS-0X01-LINUX-KERNEL-PART-II/" target="_self">
-                <span>下一页</span>
-                <i class="iconfont icon-chevronright"></i>
-              </a>
-            
-          </div>
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【OS.0x00】Linux Kernel I：Basic Knowledge</div>
+      <div>http://blog.arttnba3.cn/2021/02/21/OS-0X00-LINUX-KERNEL-PART-I/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
         </div>
       
-    </div>
-    
-  <div id="btn-catalog" class="btn-catalog">
-    <i class="iconfont icon-catalog"></i>
-  </div>
-  <div class="post-catalog hidden" id="catalog">
-    <div class="title">目录</div>
-    <div class="catalog-content">
       
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00-OS-Basis"><span class="toc-text">0x00.OS Basis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#I-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%A9%B6%E7%AB%9F%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-text">I.操作系统究竟是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#II-%E5%88%86%E7%BA%A7%E4%BF%9D%E6%8A%A4%E5%9F%9F"><span class="toc-text">II.分级保护域</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#III-%E8%BF%90%E8%A1%8C%E7%8A%B6%E6%80%81%E5%88%87%E6%8D%A2"><span class="toc-text">III.运行状态切换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#IV-%E8%BF%9B%E7%A8%8B-x3D-%E8%BF%9B%E7%A8%8B%E8%BF%90%E8%A1%8C%E7%8E%AF%E5%A2%83%E4%B8%8A%E4%B8%8B%E6%96%87-%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="toc-text">IV.进程 &#x3D; 进程运行环境上下文 + 内核数据结构</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-%E5%86%85%E6%A0%B8"><span class="toc-text">0x01.内核</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81Introduction"><span class="toc-text">一、Introduction</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%86%85%E6%A0%B8%E6%9E%B6%E6%9E%84%EF%BC%9A%E5%BE%AE%E5%86%85%E6%A0%B8-amp-%E5%AE%8F%E5%86%85%E6%A0%B8-amp-%E6%B7%B7%E5%90%88%E5%86%85%E6%A0%B8"><span class="toc-text">二、内核架构：微内核 &amp; 宏内核 &amp; 混合内核</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#I-%E5%AE%8F%E5%86%85%E6%A0%B8%EF%BC%88Monolithic-Kernel%EF%BC%89"><span class="toc-text">I.宏内核（Monolithic Kernel）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#II-%E5%BE%AE%E5%86%85%E6%A0%B8%EF%BC%88Micro-Kernel%EF%BC%89"><span class="toc-text">II.微内核（Micro Kernel）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-%E5%88%86%E7%BA%A7%E4%BF%9D%E6%8A%A4%E5%9F%9F"><span class="toc-text">0x02.分级保护域</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81Intel-Ring-Model"><span class="toc-text">一、Intel Ring Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%94%A8%E6%88%B7%E7%A9%BA%E9%97%B4-amp-%E5%86%85%E6%A0%B8%E7%A9%BA%E9%97%B4"><span class="toc-text">二、用户空间 &amp; 内核空间</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E7%94%A8%E6%88%B7%E6%80%81-amp-%E5%86%85%E6%A0%B8%E6%80%81"><span class="toc-text">三、用户态 &amp; 内核态</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E8%BF%9B%E7%A8%8B%E8%BF%90%E8%A1%8C%E6%80%81%E5%88%87%E6%8D%A2"><span class="toc-text">四、进程运行态切换</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#I-%E4%B8%AD%E6%96%AD"><span class="toc-text">I.中断</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#II-%E4%BF%A1%E5%8F%B7%E6%9C%BA%E5%88%B6"><span class="toc-text">II.信号机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#III-%E7%94%A8%E6%88%B7%E6%80%81-%E2%80%94-gt-%E5%86%85%E6%A0%B8%E6%80%81"><span class="toc-text">III.用户态 —&gt; 内核态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#IV-%E5%86%85%E6%A0%B8%E6%80%81-%E2%80%94-gt-%E7%94%A8%E6%88%B7%E6%80%81"><span class="toc-text">IV.内核态 —&gt; 用户态</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="toc-text">0x03.系统调用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E8%A1%A8"><span class="toc-text">一、系统调用表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E8%BF%9B%E8%A1%8C%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="toc-text">二、进行系统调用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E9%80%80%E5%87%BA%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="toc-text">三、退出系统调用</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04-%E8%BF%9B%E7%A8%8B%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86"><span class="toc-text">0x04.进程权限管理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E8%BF%9B%E7%A8%8B%E6%8F%8F%E8%BF%B0%E7%AC%A6%EF%BC%88process-descriptor%EF%BC%89"><span class="toc-text">一、进程描述符（process descriptor）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E6%9D%83%E9%99%90%E5%87%AD%E8%AF%81%EF%BC%9Acred%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-text">进程权限凭证：cred结构体</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%A8%E6%88%B7ID-amp-%E7%BB%84ID"><span class="toc-text">用户ID &amp; 组ID</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E8%BF%9B%E7%A8%8B%E6%9D%83%E9%99%90%E6%94%B9%E5%8F%98"><span class="toc-text">二、进程权限改变</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8F%90%E6%9D%83"><span class="toc-text">*提权</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05-I-x2F-O"><span class="toc-text">0x05.I&#x2F;O</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E2%80%9C%E4%B8%87%E7%89%A9%E7%9A%86%E6%96%87%E4%BB%B6%E2%80%9D"><span class="toc-text">一、“万物皆文件”</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E8%BF%9B%E7%A8%8B%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="toc-text">二、进程文件系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%96%87%E4%BB%B6%E6%8F%8F%E8%BF%B0%E7%AC%A6"><span class="toc-text">三、文件描述符</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#stdin%E3%80%81stdout%E3%80%81stderr"><span class="toc-text">stdin、stdout、stderr</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%EF%BC%9Aioctl"><span class="toc-text">四、系统调用：ioctl</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x06-Loadable-Kernel-Modules%EF%BC%88LKMs%EF%BC%89"><span class="toc-text">0x06.Loadable Kernel Modules（LKMs）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x07-%E5%86%85%E6%A0%B8%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84-amp-%E7%AE%A1%E7%90%86"><span class="toc-text">0x07.内核内存结构 &amp; 管理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81-%E9%A1%B5%E2%86%92%E5%8C%BA%E2%86%92%E8%8A%82%E7%82%B9%E4%B8%89%E7%BA%A7%E7%BB%93%E6%9E%84"><span class="toc-text">一、 页→区→节点三级结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#I-%E9%A1%B5%EF%BC%88page%EF%BC%89"><span class="toc-text">I.页（page）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#II-%E5%8C%BA%EF%BC%88zone%EF%BC%89"><span class="toc-text">II.区（zone）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#III-%E8%8A%82%E7%82%B9%EF%BC%88node%EF%BC%89"><span class="toc-text">III.节点（node）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="toc-text">二、内存模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Flat-Memory"><span class="toc-text">Flat Memory</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Discontiguous-Memory"><span class="toc-text">Discontiguous Memory</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sparse-Memory"><span class="toc-text">Sparse Memory</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81buddy-system"><span class="toc-text">三、buddy system</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81slab-allocator"><span class="toc-text">四、slab allocator</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#I-%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="toc-text">I.基本结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#II-%E5%88%86%E9%85%8D-x2F-%E9%87%8A%E6%94%BE%E8%BF%87%E7%A8%8B"><span class="toc-text">II.分配&#x2F;释放过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#III-slab-alias%EF%BC%88mergeability%EF%BC%89"><span class="toc-text">III. slab alias（mergeability）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x08-%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6"><span class="toc-text">0x08.保护机制</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E9%80%9A%E7%94%A8%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6"><span class="toc-text">一、通用保护机制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#KASLR"><span class="toc-text">KASLR</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#FGKASLR"><span class="toc-text">*FGKASLR</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#STACK-PROTECTOR"><span class="toc-text">STACK PROTECTOR</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SMAP-x2F-SMEP"><span class="toc-text">SMAP&#x2F;SMEP</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#KPTI"><span class="toc-text">KPTI</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%86%85%E6%A0%B8%E2%80%9C%E5%A0%86%E2%80%9D%E4%B8%8A%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6"><span class="toc-text">二、内核“堆”上保护机制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Hardened-Usercopy"><span class="toc-text">Hardened Usercopy</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Hardened-freelist"><span class="toc-text">Hardened freelist</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Random-freelist"><span class="toc-text">Random freelist</span></a></li></ol></li></ol></li></ol></li></ol>
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年2月21日</div>
+        </div>
       
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
     </div>
+    <div class="license-icon iconfont"></div>
   </div>
 
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/02/21/OS-0X01-LINUX-KERNEL-PART-II/" title="【OS.0x01】Linux Kernel II：内核简易食用指北">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【OS.0x01】Linux Kernel II：内核简易食用指北</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/02/11/CTF-0X03-PWNABLE.TW/" title="【CTF.0x03】Pwnable.tw WP by arttnba3">
+                        <span class="hidden-mobile">【CTF.0x03】Pwnable.tw WP by arttnba3</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
   
-<script src="/js/catalog.js"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
 
 
 
 
     
-      <div class="comments-container">
-        
 
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
 
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
 
   
-    <script async type="text/javascript" src="/plugins/valine.min.js" onload="loadValineSuc(this)"></script>
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
   
+</div>
 
-  <div id="vcomments"></div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
 
   <script>
-    function loadValineSuc() {
-      new Valine({
-        el: '#vcomments',
-        appId: 'ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz',
-        appKey: 'tuvJh3xYxPFcW2JB6K26RKP2',
-        placeholder: '说点什么呗...',
-        avatar: 'retro',
-        lang: 'zh-CN'
-      })
-    }
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
   </script>
 
-    <style>
-      .comments-container .v .vempty {
-        display: none!important;
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
       }
-    </style>
-
-
-
-
-      </div>
-    
-  </div>
-
-
-        
-<div class="footer">
-  <div class="social">
-    <ul>
+      var text = subtitle.getAttribute('data-typed-text');
       
-        <li>
-          <a title="github" target="_blank" rel="noopener" href="https://github.com/arttnba3">
-            <i class="iconfont icon-github"></i>
-          </a>
-        </li>
+        typing(text);
       
-        <li>
-          <a title="email" href="mailto:arttnba@gmail.com">
-            <i class="iconfont icon-envelope"></i>
-          </a>
-        </li>
-      
-        <li>
-          <a title="twitter" target="_blank" rel="noopener" href="https://twitter.com/arttnba3">
-            <i class="iconfont icon-twitter"></i>
-          </a>
-        </li>
-      
-        <li>
-          <a title="rss" href="/atom.xml">
-            <i class="iconfont icon-rss"></i>
-          </a>
-        </li>
-      
-    </ul>
-  </div>
+    })(window, document);
+  </script>
+
+
+
+
   
-    
-    <div class="footer-more">
-      
-        <a target="_blank" rel="noopener" href="https://github.com/arttnba3">Copyright © 2022 arttnba3</a>
-        
-    </div>
+    <script  src="/js/img-lazyload.js" ></script>
   
-    
-    <div class="footer-more">
-      
-        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
-        
-    </div>
+
+
+
+
   
-</div>
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
 
-      </div>
-
-      <div class="tools-bar">
-        <div class="back-to-top tools-bar-item hidden">
-  <a href="javascript: void(0)">
-    <i class="iconfont icon-chevronup"></i>
-  </a>
-</div>
-
-
-<script src="/js/backtotop.js"></script>
-
-
-
-        
-  <div class="search-icon tools-bar-item" id="search-icon">
-    <a href="javascript: void(0)">
-      <i class="iconfont icon-search"></i>
-    </a>
-  </div>
-
-  <div class="search-overlay hidden">
-    <div class="search-content" tabindex="0">
-      <div class="search-title">
-        <span class="search-icon-input">
-          <a href="javascript: void(0)">
-            <i class="iconfont icon-search"></i>
-          </a>
-        </span>
-        
-          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
-        
-        <span class="search-close-icon" id="search-close-icon">
-          <a href="javascript: void(0)">
-            <i class="iconfont icon-close"></i>
-          </a>
-        </span>
-      </div>
-      <div class="search-result" id="search-result"></div>
-    </div>
-  </div>
-
-  <script type="text/javascript">
-    var inputArea = document.querySelector("#search-input")
-    var searchOverlayArea = document.querySelector(".search-overlay")
-
-    inputArea.onclick = function() {
-      getSearchFile()
-      this.onclick = null
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
     }
+  });
+</script>
 
-    inputArea.onkeydown = function() {
-      if(event.keyCode == 13)
-        return false
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
     }
-
-    function openOrHideSearchContent() {
-      let isHidden = searchOverlayArea.classList.contains('hidden')
-      if (isHidden) {
-        searchOverlayArea.classList.remove('hidden')
-        document.body.classList.add('hidden')
-        // inputArea.focus()
-      } else {
-        searchOverlayArea.classList.add('hidden')
-        document.body.classList.remove('hidden')
-      }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
     }
-
-    function blurSearchContent(e) {
-      if (e.target === searchOverlayArea) {
-        openOrHideSearchContent()
-      }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
     }
+    window.anchors.add(res.join(', '));
+  });
+</script>
 
-    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
-    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
-    searchOverlayArea.addEventListener("click", blurSearchContent, false)
 
-    var searchFunc = function (path, search_id, content_id) {
-      'use strict';
-      var $input = document.getElementById(search_id);
-      var $resultContent = document.getElementById(content_id);
-      $resultContent.innerHTML = "<ul><span class='local-search-empty'>首次搜索，正在载入索引文件，请稍后……<span></ul>";
-      $.ajax({
-        // 0x01. load xml file
-        url: path,
-        dataType: "xml",
-        success: function (xmlResponse) {
-          // 0x02. parse xml file
-          var datas = $("entry", xmlResponse).map(function () {
-            return {
-              title: $("title", this).text(),
-              content: $("content", this).text(),
-              url: $("url", this).text()
-            };
-          }).get();
-          $resultContent.innerHTML = "";
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
 
-          $input.addEventListener('input', function () {
-            // 0x03. parse query to keywords list
-            var str = '<ul class=\"search-result-list\">';
-            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
-            $resultContent.innerHTML = "";
-            if (this.value.trim().length <= 0) {
-              return;
-            }
-            // 0x04. perform local searching
-            datas.forEach(function (data) {
-              var isMatch = true;
-              var content_index = [];
-              if (!data.title || data.title.trim() === '') {
-                data.title = "Untitled";
-              }
-              var orig_data_title = data.title.trim();
-              var data_title = orig_data_title.toLowerCase();
-              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
-              var data_content = orig_data_content.toLowerCase();
-              var data_url = data.url;
-              var index_title = -1;
-              var index_content = -1;
-              var first_occur = -1;
-              // only match artiles with not empty contents
-              if (data_content !== '') {
-                keywords.forEach(function (keyword, i) {
-                  index_title = data_title.indexOf(keyword);
-                  index_content = data_content.indexOf(keyword);
 
-                  if (index_title < 0 && index_content < 0) {
-                    isMatch = false;
-                  } else {
-                    if (index_content < 0) {
-                      index_content = 0;
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
                     }
-                    if (i == 0) {
-                      first_occur = index_content;
-                    }
-                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
-                  }
-                });
-              } else {
-                isMatch = false;
-              }
-              // 0x05. show search results
-              if (isMatch) {
-                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
-                var content = orig_data_content;
-                if (first_occur >= 0) {
-                  // cut out 100 characters
-                  var start = first_occur - 20;
-                  var end = first_occur + 80;
-
-                  if (start < 0) {
-                    start = 0;
-                  }
-
-                  if (start == 0) {
-                    end = 100;
-                  }
-
-                  if (end > content.length) {
-                    end = content.length;
-                  }
-
-                  var match_content = content.substr(start, end);
-
-                  // highlight all keywords
-                  keywords.forEach(function (keyword) {
-                    var regS = new RegExp(keyword, "gi");
-                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
                   });
-
-                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
-                }
-                str += "</li>";
+                }, '', false]
               }
-            });
-            str += "</ul>";
-            if (str.indexOf('<li>') === -1) {
-              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>没有找到内容，请尝试更换检索词。<span></ul>";
             }
-            $resultContent.innerHTML = str;
-          });
-        },
-        error: function(xhr, status, error) {
-          $resultContent.innerHTML = ""
-          if (xhr.status === 404) {
-            $resultContent.innerHTML = "<ul><span class='local-search-empty'>未找到search.xml文件，具体请参考：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
-          } else {
-            $resultContent.innerHTML = "<ul><span class='local-search-empty'>请求失败，尝试重新刷新页面或稍后重试。<span></ul>";
-          }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
         }
-      });
-      $(document).on('click', '#search-close-icon', function() {
-        $('#search-input').val('');
-        $('#search-result').html('');
-      });
-    }
+      </script>
+    
 
-    var getSearchFile = function() {
-        var path = "/search.xml";
-        searchFunc(path, 'search-input', 'search-result');
-    }
-  </script>
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 
 
-        
-  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
-    <a href="javascript: void(0)">
-      <i id="theme-icon" class="iconfont icon-moon"></i>
-    </a>
-  </div>
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
 
   
-<script src="/js/colorscheme.js"></script>
 
-
-
-
-
-        
-  
-    <div class="share-icon tools-bar-item">
-      <a href="javascript: void(0)" id="share-icon">
-        <i class="iconfont iconshare"></i>
-      </a>
-      <div class="share-content hidden">
-        
-          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + %E3%80%90OS.0x00%E3%80%91Linux%20Kernel%20I%EF%BC%9ABasic%20Knowledge + '&url=' + http%3A%2F%2Fblog.arttnba3.cn%2F2021%2F02%2F21%2FOS-0X00-LINUX-KERNEL-PART-I%2F + '" target="_blank" title="Twitter">
-            <i class="iconfont icon-twitter"></i>
-          </a>
-        
-        
-          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://blog.arttnba3.cn/2021/02/21/OS-0X00-LINUX-KERNEL-PART-I/" target="_blank" title="Facebook">
-            <i class="iconfont icon-facebooksquare"></i>
-          </a>
-        
-      </div>
-    </div>
-  
-  
-<script src="/js/shares.js"></script>
-
-
-
-      </div>
-    </div>
-  </body>
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
 </html>

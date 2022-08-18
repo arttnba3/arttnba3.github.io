@@ -1,203 +1,331 @@
+
+
 <!DOCTYPE html>
-<html lang="zh-CN" color-mode="light">
-
-  <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="keywords" content="" />
-  <meta name="author" content="arttnba3" />
-  <meta name="description" content="あがいた夢を捨てて揺れる今日は眠って誤魔化せ" />
-  
-  
-  <title>
-    
-      【NOTES.0xFF】一些暂时没地方堆放的零碎知识点 
-      
-      
-      |
-    
-     arttnba3&#39;s blog
-  </title>
-
-  
-    <link rel="apple-touch-icon" href="/img/favicon.png">
-    <link rel="icon" href="/img/favicon.png">
-  
-
-  <!-- Raleway-Font -->
-  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
-
-  <!-- hexo site css -->
-  
-<link rel="stylesheet" href="/css/color-scheme.css">
-<link rel="stylesheet" href="/css/base.css">
-<link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css">
-<link rel="stylesheet" href="/css/github-markdown.css">
-<link rel="stylesheet" href="/css/highlight.css">
-<link rel="stylesheet" href="/css/comments.css">
-
-  <!-- 代码块风格 -->
-  
-
-  <!-- jquery3.3.1 -->
-  
-    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
-  
-
-  <!-- fancybox -->
-  
-    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
-    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
-  
-  
-<script src="/js/fancybox.js"></script>
+<html lang="zh-CN" data-default-color-scheme=auto>
 
 
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="写完笔记就永远不会看了（悲）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【NOTES.0xFF】一些暂时没地方堆放的零碎知识点">
+<meta property="og:url" content="http://blog.arttnba3.cn/2000/10/12/NOTE-0XFF-PIECES_KNOWLEDGE/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="写完笔记就永远不会看了（悲）">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2022/04/25/5NqJf2k9SOtiwGm.png">
+<meta property="article:published_time" content="2000-10-12T15:51:25.000Z">
+<meta property="article:modified_time" content="2022-04-28T07:59:38.000Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="Pwn">
+<meta property="article:tag" content="学习札记">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2022/04/25/5NqJf2k9SOtiwGm.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【NOTES.0xFF】一些暂时没地方堆放的零碎知识点 - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
   
 
-  <script>
-    var html = document.documentElement
-    const colorMode = localStorage.getItem('color-mode')
-    if (colorMode) {
-      document.documentElement.setAttribute('color-mode', colorMode)
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.arttnba3.cn","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
 <meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
 </head>
 
 
-  <body>
-    <div id="app">
-      <div class="header">
-  <div class="avatar">
-    <a target="_blank" rel="noopener" href="https://arttnba3.cn">
-      <!-- 头像取消懒加载，添加no-lazy -->
-      
-        <img src="/img/avatar.png" alt="">
-      
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
     </a>
-    <div class="nickname"><a target="_blank" rel="noopener" href="https://arttnba3.cn">arttnba3's blog</a></div>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
   </div>
-  <div class="navbar">
-    <ul>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://s2.loli.net/2022/04/25/OUsG3T8mEH4qeoQ.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【NOTES.0xFF】一些暂时没地方堆放的零碎知识点"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2000-10-12 23:51" pubdate>
+          2000年10月12日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          undefined 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          NaN 分钟
+        
+      </span>
+    
+
+    
+    
       
-        <li class="nav-item" data-path="/">
-          <a href="/">Home</a>
-        </li>
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
       
-        <li class="nav-item" data-path="/archives/">
-          <a href="/archives/">Archives</a>
-        </li>
+    
+  </div>
+
+
+        
+      </div>
+
       
-        <li class="nav-item" data-path="/categories/">
-          <a href="/categories/">Categories</a>
-        </li>
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
       
-        <li class="nav-item" data-path="/tags/">
-          <a href="/tags/">Tags</a>
-        </li>
-      
-        <li class="nav-item" data-path="/friends/">
-          <a href="/friends/">Friends</a>
-        </li>
-      
-        <li class="nav-item" data-path="/about/">
-          <a href="/about/">About</a>
-        </li>
-      
-    </ul>
+    </div>
   </div>
 </div>
 
+</div>
 
-<script src="/js/activeNav.js"></script>
+  </header>
 
+  <main>
+    
+      
 
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
 
-      <div class="flex-container">
-        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
-<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+    </div>
 
-
-  <!-- LaTex Display -->
-
-  
-    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
-  
-  <script>
-    MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']]
-      }
-    }
-  </script>
-
-
-
-
-
-  <!-- clipboard -->
-
-  
-    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
-  
-  
-<script src="/js/codeCopy.js"></script>
-
-
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
-  <div class="container post-details" id="post-details">
-    <div class="post-content">
-      <div class="post-title">【NOTES.0xFF】一些暂时没地方堆放的零碎知识点</div>
-      <div class="post-attach">
-        <span class="post-pubtime">
-          <i class="iconfont icon-updatetime" title="更新时间"></i>
-          2000-10-12 23:51:25
-        </span>
-        
-              <span class="post-categories">
-                <i class="iconfont icon-bookmark" title="分类"></i>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【NOTES.0xFF】一些暂时没地方堆放的零碎知识点</h1>
+            
+              <p class="note note-info">
                 
-                <span class="span--category">
-                  <a href="/categories/NOTES/" title="NOTES">
-                    <b>#</b> NOTES
-                  </a>
-                </span>
+                  
+                    本文最后更新于：2022年4月28日 下午
+                  
                 
-              </span>
-          
-              <span class="post-tags">
-                <i class="iconfont icon-tags" title="标签"></i>
+              </p>
+            
+            
+              <div class="markdown-body">
                 
-                <span class="span--tag">
-                  <a href="/tags/Pwn/" title="Pwn">
-                    <b>#</b> Pwn
-                  </a>
-                </span>
-                
-                <span class="span--tag">
-                  <a href="/tags/%E5%AD%A6%E4%B9%A0%E6%9C%AD%E8%AE%B0/" title="学习札记">
-                    <b>#</b> 学习札记
-                  </a>
-                </span>
-                
-              </span>
-          
-      </div>
-      <div class="markdown-body">
-        <p>写完笔记就永远不会看了（悲）</p>
+                <p>写完笔记就永远不会看了（悲）</p>
 <span id="more"></span>
 
 <h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00.一切开始之前"></a>0x00.一切开始之前</h1><p>在笔者的学习过程中学到了各种各样的知识，其中不乏成体系的或是零碎的知识，比较成体系的知识点笔者倒是容易整合成一篇博客记录下来，但是那些零碎的不知如何分类的知识点却不好也跟着单开一篇新的博客，但似乎又没有地方存放，于是笔者选择在此处新开一篇博文，专门用来存放这些较为零碎的知识点，待到其中某一类积攒了足够数量之后，笔者再将之取出整合成一篇新的博客</p>
@@ -206,17 +334,17 @@
 <p>大三上学期“软件逆向工程”这门课程的一个上机作业，因为笔者以前主要还是 hacking on Linux 所以通过这次实验也学到很多东西…</p>
 </blockquote>
 <h2 id="一、PE-Header-修改思路"><a href="#一、PE-Header-修改思路" class="headerlink" title="一、PE Header 修改思路"></a>一、PE Header 修改思路</h2><h3 id="IMPORT-Directory-Table-修改思路"><a href="#IMPORT-Directory-Table-修改思路" class="headerlink" title="IMPORT Directory Table 修改思路"></a>IMPORT Directory Table 修改思路</h3><p>我们首先使用 PEview 来分析 <code>notepad.exe</code> 文件，将可执行文件拖入 PEview 中，查看其 <code>IMPORT Directory Table</code>，一个可执行文件在执行时需要加载的 DLL 文件都在其中进行描述</p>
-<p><img src="https://s2.loli.net/2022/04/25/OUsG3T8mEH4qeoQ.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/04/25/OUsG3T8mEH4qeoQ.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>我们需要向导入表中插入一个新的项，从而让程序加载我们的 DLL 文件，但这一块附近并没有多余的空间来插入我们自己的 DLL 文件（IDT 以一个全空的导入表项结尾，为了注入的稳定性，我们不能够覆盖后面的合法数据），因此我们需要把导入表给<strong>移动到一个合适的足够大的位置</strong>，在那里再在末尾添加我们的新的 <code>IMAGE_IMPORT_DESCRIPTOR</code> 结构</p>
 <p>接下来我们需要寻找该 PE 文件中是否有一个足够合适的位置</p>
 <h3 id="迁移位置：SECTION-reloc"><a href="#迁移位置：SECTION-reloc" class="headerlink" title="迁移位置：SECTION .reloc"></a>迁移位置：SECTION .reloc</h3><p>现在让我们将目光放到 <code>SECTION .reloc</code> 上，我们可以注意到其末尾是没有数据的</p>
-<p><img src="https://s2.loli.net/2022/04/25/wVU7Od9Nispj3gy.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/04/25/wVU7Od9Nispj3gy.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>使用 010 Editor 打开 notepad.exe 文件，我们发现在 .reloc 节区的末尾有着一大块的空白，这为我们移动导入表提供了可能——<strong>我们可以将导入表移动到 .reloc 节区的末尾</strong></p>
-<p><img src="https://s2.loli.net/2022/04/25/kJzhVDRvLYMaZUy.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/04/25/kJzhVDRvLYMaZUy.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>IMPORT Directory Table 的 RAW 为 <code>0x94A0</code>，有效数据一直到 <code>0x95CC</code>，这里我们将其直接整个复制到 <code>.reloc</code> 节末尾</p>
-<p><img src="https://s2.loli.net/2022/04/25/FCLzc5eSfyhTVpo.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/04/25/FCLzc5eSfyhTVpo.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>虽然在 PEview 中 .reloc 节有数据的位置只到 <code>0x2BC36</code>，但保险起见，同时也为了方便计算，笔者选择从 <code>0x2BC50</code> 这个位置开始写入</p>
-<p><img src="https://s2.loli.net/2022/04/25/fmUb8PaRHy9vhLT.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/04/25/fmUb8PaRHy9vhLT.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h3 id="添加新导入表项"><a href="#添加新导入表项" class="headerlink" title="添加新导入表项"></a>添加新导入表项</h3><p>接下来我们需要在移动的导入表后添加一个新的导入表项，从而让我们的恶意 DLL 文件能够随着程序的启动被顺利载入内存中</p>
 <h4 id="空间布局"><a href="#空间布局" class="headerlink" title="空间布局"></a>空间布局</h4><p>我们需要添加一个 <code>IMAGE_IMPORT_DESCRIPTOR</code> 结构体，其定义如下：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_IMAGE_IMPORT_DESCRIPTOR</span> &#123;</span><br><span class="line">    <span class="keyword">union</span> &#123;</span><br><span class="line">        DWORD	Characteristics;</span><br><span class="line">        DWORD	OriginalFirstThunk;</span><br><span class="line">    &#125;;</span><br><span class="line">    DWORD	TimeDateStamp;</span><br><span class="line">    DWORD	ForwarderChain;</span><br><span class="line">    DWORD	Name;</span><br><span class="line">    DWORD	FirstThunk;</span><br><span class="line">&#125; IMAGE_IMPORT_DESCRIPTOR, *PIMAGE_IMPORT_DESCRIPTOR;</span><br></pre></td></tr></table></figure>
@@ -234,53 +362,53 @@
 <p>需要注意的是 <strong>INT 与 IAT 的末尾同样需要一个 NULL 表项作为结尾标识</strong></p>
 <p>这里笔者选择将这两个表项同样布置在 .reloc 节区的末尾</p>
 <p>在这里由于剩余空间足够多，且为了方便计算地址，笔者选择尽量按照 <code>0x10</code> 进行对齐，初步的布局如下图所示</p>
-<p><img src="https://s2.loli.net/2022/04/25/5NqJf2k9SOtiwGm.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/04/25/5NqJf2k9SOtiwGm.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h4 id="地址计算"><a href="#地址计算" class="headerlink" title="地址计算"></a>地址计算</h4><p>按照这个布局，我们进行相应的 RVA 的计算：</p>
 <h5 id="reloc-RVA-amp-RAW"><a href="#reloc-RVA-amp-RAW" class="headerlink" title=".reloc RVA &amp; RAW"></a><em>.reloc RVA &amp; RAW</em></h5><p>我们首先需要获得 <code>SECTION .reloc</code> 的 RVA，查看 PEview 中该节区的 <code>IMAGE_SECTION_HEADER</code> 字段，如下：</p>
-<p><img src="https://s2.loli.net/2022/04/25/shLuRnbQZPUJ8w9.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/04/25/shLuRnbQZPUJ8w9.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>获得该节区的 RVA 为 <code>0x2F000</code></p>
 <p>查看 PEview，得到该节区的 RAW 为 <code>0X2AE00</code></p>
-<p><img src="https://s2.loli.net/2022/04/25/EcoGgLzjiYyJSsr.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/04/25/EcoGgLzjiYyJSsr.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h5 id="Name-RVA"><a href="#Name-RVA" class="headerlink" title="Name RVA"></a>Name RVA</h5><p>字符串 <code>MyDll3.dll</code> 被存放在 RAW <code>0x2BD90</code> 处，计算得到其 RVA 应为：<br>$$<br>\begin{split}<br>RVA_{Name} &amp;&#x3D; RAW_{Name} - RAW_{SECTION.reloc} + RVA_{SECTION.reloc}\<br>&amp;&#x3D; 0x2BD90 - 0x2AE00 + 0x2F000\<br>&amp;&#x3D; 0x2FF90<br>\end{split}<br>$$</p>
 <h5 id="INT-RVA"><a href="#INT-RVA" class="headerlink" title="INT RVA"></a>INT RVA</h5><p>INT 的 RAW 为 <code>0x2BDB0</code> ，计算得到其 RVA 应为：<br>$$<br>\begin{split}<br>RVA_{INT} &amp;&#x3D; RAW_{INT} - RAW_{SECTION.reloc} + RVA_{SECTION.reloc}\<br>&amp;&#x3D; 0x2BDB0 - 0x2AE00 + 0x2F000\<br>&amp;&#x3D; 0x2FFB0<br>\end{split}<br>$$</p>
 <h5 id="IAT-RVA"><a href="#IAT-RVA" class="headerlink" title="IAT RVA"></a>IAT RVA</h5><p>IAT 的 RAW 为 <code>0x2BDC0</code> ，计算得到其 RVA 应为：<br>$$<br>\begin{split}<br>RVA_{IAT} &amp;&#x3D; RAW_{IAT} - RAW_{SECTION.reloc} + RVA_{SECTION.reloc}\<br>&amp;&#x3D; 0x2BDC0 - 0x2AE00 + 0x2F000\<br>&amp;&#x3D; 0x2FFC0<br>\end{split}<br>$$</p>
 <h5 id="dummy-项-RVA"><a href="#dummy-项-RVA" class="headerlink" title="dummy 项 RVA"></a>dummy 项 RVA</h5><p>该结构的 RAW 为 <code>0x2BDA0</code>，计算得到其 RVA 应为：<br>$$<br>\begin{split}<br>RVA_{dummy} &amp;&#x3D; RAW_{dummy} - RAW_{SECTION.reloc} + RVA_{SECTION.reloc}\<br>&amp;&#x3D; 0x2BDA0 - 0x2AE00 + 0x2F000\<br>&amp;&#x3D; 0x2FFA0<br>\end{split}<br>$$</p>
 <h4 id="注入后空间布局"><a href="#注入后空间布局" class="headerlink" title="注入后空间布局"></a>注入后空间布局</h4><p>完成新导入表项的添加之后的布局如下，这里我们需要注意的是数据存放的形式为<strong>小端序</strong></p>
-<p><img src="https://s2.loli.net/2022/04/25/xLCj9WO5YlDkc7m.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/04/25/xLCj9WO5YlDkc7m.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h3 id="SECTION-权限修改"><a href="#SECTION-权限修改" class="headerlink" title="SECTION 权限修改"></a>SECTION 权限修改</h3><p>这里我们需要注意的一点是，在运行过程中 PE loader 会动态地修改 IAT ，因此我们还需要修改节区的 header 为 <code>.reloc</code> 节区添加可写权限</p>
-<p><img src="https://s2.loli.net/2022/04/25/Fz2sGoNreqEc3Zi.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/04/25/Fz2sGoNreqEc3Zi.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>我们只需要为 <code>Characteristics</code> 字段加上写权限对应的值 <code>IMAGE_SCN_MEM_WRITE</code> 即可，即加上 <code>0x80000000</code>，最终该字段的值为 <code>0xC2000040</code></p>
-<p><img src="https://s2.loli.net/2022/04/25/WFqx52bXyEsHnrd.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/04/25/WFqx52bXyEsHnrd.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h3 id="修改-IMAGE-OPTIONAL-HEADER"><a href="#修改-IMAGE-OPTIONAL-HEADER" class="headerlink" title="修改 IMAGE_OPTIONAL_HEADER"></a>修改 IMAGE_OPTIONAL_HEADER</h3><p>完成新的导入表的布置之后，我们还需要修改 PE Header 中的 IMAGE_OPTIONAL_HEADER </p>
 <h4 id="修改-IMPORT-Table-的-RVA-与-SIZE"><a href="#修改-IMPORT-Table-的-RVA-与-SIZE" class="headerlink" title="修改 IMPORT Table 的 RVA 与 SIZE"></a>修改 IMPORT Table 的 RVA 与 SIZE</h4><p>我们需要修改 PE Header 中的 IMAGE_OPTIONAL_HEADER 项中存储的导入表的 RVA 修改为我们的新导入表的 RVA</p>
-<p><img src="https://s2.loli.net/2022/04/25/tIb1AZo8keUMXru.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/04/25/tIb1AZo8keUMXru.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>IDT 的 RAW 为 <code>0x2BC50</code> ，计算得到其 RVA 应为：<br>$$<br>\begin{split}<br>RVA_{IDT} &amp;&#x3D; RAW_{IDT} - RAW_{SECTION.reloc} + RVA_{SECTION.reloc}\<br>&amp;&#x3D; 0x2BC50 - 0x2AE00 + 0x2F000\<br>&amp;&#x3D; 0x2FE50<br>\end{split}<br>$$<br>除了 RVA 以外，由于我们添加了新的表项， size 也需要进行修改，加上一个表项的大小 5 * 4 &#x3D; 20 即可</p>
-<p><img src="https://s2.loli.net/2022/04/25/Tdo9YBx6g4Ht5af.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/04/25/Tdo9YBx6g4Ht5af.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h4 id="修改-BOUND-IMPORT-Table"><a href="#修改-BOUND-IMPORT-Table" class="headerlink" title="修改 BOUND IMPORT Table"></a>修改 BOUND IMPORT Table</h4><p>若我们需要正常导入 MyDll3.dll，则还需要向绑定导入表中添加信息</p>
-<p><img src="https://s2.loli.net/2022/04/25/pZa7j3SQybclGxq.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/04/25/pZa7j3SQybclGxq.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>但实际上绑定导入表<strong>可以不存在</strong>，因此我们只需要将其 RVA 置 0 即可</p>
-<p><img src="https://s2.loli.net/2022/04/25/rltdxYnJU7L1cKA.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/04/25/rltdxYnJU7L1cKA.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h2 id="二、测试修改后可执行文件"><a href="#二、测试修改后可执行文件" class="headerlink" title="二、测试修改后可执行文件"></a>二、测试修改后可执行文件</h2><p>接下来我们在虚拟机中测试我们的修改后的可执行文件，观察其是否成功载入我们的 <code>MyDll3.dll</code> 文件并将网页下载</p>
 <p>我们使用 <code>Process Explorer</code> 查看 patch 后的 notepad 文件所载入的 DLL，在这里我们可以清晰地看到，我们的 <code>MyDll3.dll</code> 文件被成功载入</p>
-<p><img src="https://s2.loli.net/2022/04/25/jpYIqVQzgw7LJxB.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/04/25/jpYIqVQzgw7LJxB.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>观察可执行文件所在目录（笔者放到了桌面），可以看到 <code>index.html</code> 被成功下载到了桌面上，本次实验圆满结束</p>
-<p><img src="https://s2.loli.net/2022/04/25/wxkX4Tql3dSrbn2.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/04/25/wxkX4Tql3dSrbn2.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h1 id="0x02-IDA-修复-switch-生成跳表的方式"><a href="#0x02-IDA-修复-switch-生成跳表的方式" class="headerlink" title="0x02. IDA 修复 switch 生成跳表的方式"></a>0x02. IDA 修复 switch 生成跳表的方式</h1><h2 id="PRE-什么是跳表（jump-table）？"><a href="#PRE-什么是跳表（jump-table）？" class="headerlink" title="PRE.什么是跳表（jump table）？"></a>PRE.什么是跳表（jump table）？</h2><p>跳转表是 <strong>编译器对 switch 结构进行优化后生成的跳转结构</strong>：对于有着多个分支的 switch 而言，编译器会将其优化成一个特殊的结构——跳表（jump table）</p>
 <p>例如如下代码是一个十分典型的多条件 switch 结构：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> condition</span><br><span class="line"><span class="title function_">switch</span><span class="params">(condition)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">case</span> condition1:</span><br><span class="line">        	statements;</span><br><span class="line">        	<span class="keyword">break</span>;</span><br><span class="line">	<span class="keyword">case</span> condition2:</span><br><span class="line">        	statements;</span><br><span class="line">        	<span class="keyword">break</span>;</span><br><span class="line">	<span class="keyword">case</span> condition3:</span><br><span class="line">        	statements;</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">    <span class="comment">//....</span></span><br><span class="line">	<span class="keyword">case</span> conditionn:</span><br><span class="line">        	statements;</span><br><span class="line">        	<span class="keyword">break</span>;</span><br><span class="line">	<span class="keyword">default</span>:</span><br><span class="line">			default_statment;</span><br><span class="line">        	<span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>在 case 较少时，编译器默认生成的就是常规的逐一比较的代码，但是当 case 达到一定数量（好像是五个，<del>笔者也忘了</del>），编译器就会选择生成“跳表”这一结构，它会将条件跳转的 <em>多个结果代码块放置在连续的一段内存中，将每个块的偏移放置在 <code>.rodata</code> 段</em> ，形成一张表</p>
-<p><img src="https://s2.loli.net/2022/04/25/J7GNPCUVHv9Wi6L.png"></p>
+<p><img src="https://s2.loli.net/2022/04/25/J7GNPCUVHv9Wi6L.png" srcset="/img/loading.gif" lazyload></p>
 <p>在 switch 需要根据条件进行跳转时，会对这张表进行索引，取出跳转目标的对应偏移，加上条件跳转代码块的基址，就形成了最后的跳转地址</p>
-<p><img src="https://s2.loli.net/2022/04/25/xclY7uUzt2aDeIX.png"></p>
+<p><img src="https://s2.loli.net/2022/04/25/xclY7uUzt2aDeIX.png" srcset="/img/loading.gif" lazyload></p>
 <h2 id="使用-IDA-修复跳表"><a href="#使用-IDA-修复跳表" class="headerlink" title="使用 IDA 修复跳表"></a>使用 IDA 修复跳表</h2><p>当我们使用 IDA 进行逆向时，遇到编译器优化 switch 生成的跳表，通常 IDA 是无法直接识别的，这个时候就需要我们手动去完成跳表的识别</p>
-<p><img src="https://s2.loli.net/2022/04/25/JkdQyZAgB6ew74t.png" alt="只有一个 jmp rax"></p>
+<p><img src="https://s2.loli.net/2022/04/25/JkdQyZAgB6ew74t.png" srcset="/img/loading.gif" lazyload alt="只有一个 jmp rax"></p>
 <p>首先在对应的代码位置按下 <code>tab</code>，来到原始的跳转代码处，注意分辨几个关键代码的作用</p>
-<p><img src="https://s2.loli.net/2022/04/25/xclY7uUzt2aDeIX.png"></p>
+<p><img src="https://s2.loli.net/2022/04/25/xclY7uUzt2aDeIX.png" srcset="/img/loading.gif" lazyload></p>
 <p>之后将光标放在取跳表值的指令 （图上的 <code>lea rdx, ds:0[rax * 4]</code>， 单个跳表项4字节），IDA 导航栏选中 <code>Edit-&gt;Other-&gt;Specify switch idiom...</code>，进行如下设置</p>
-<p><img src="https://s2.loli.net/2022/04/25/YxSHvRPcZyGq7jm.png" alt="修复跳转表"></p>
+<p><img src="https://s2.loli.net/2022/04/25/YxSHvRPcZyGq7jm.png" srcset="/img/loading.gif" lazyload alt="修复跳转表"></p>
 <p>之后重新 F5，跳表就修好了，我们便能在 IDA 中看到正常的 switch 结构</p>
-<p><img src="https://s2.loli.net/2022/04/25/OPASme97twfKzBk.png" alt="修复后的 switch"></p>
+<p><img src="https://s2.loli.net/2022/04/25/OPASme97twfKzBk.png" srcset="/img/loading.gif" lazyload alt="修复后的 switch"></p>
 <h1 id="0x03-常见函数调用约定与传参方式"><a href="#0x03-常见函数调用约定与传参方式" class="headerlink" title="0x03. 常见函数调用约定与传参方式"></a>0x03. 常见函数调用约定与传参方式</h1><h2 id="一、x86"><a href="#一、x86" class="headerlink" title="一、x86"></a>一、x86</h2><h3 id="cdecl（Linux）"><a href="#cdecl（Linux）" class="headerlink" title="__cdecl（Linux）"></a>__cdecl（Linux）</h3><p>参数从右向左入栈，<strong>调用者完成清栈</strong>，返回值存放在 <code>eax</code> 寄存器中</p>
 <h3 id="stdcall（WinAPI）"><a href="#stdcall（WinAPI）" class="headerlink" title="__stdcall（WinAPI）"></a>__stdcall（WinAPI）</h3><p>参数从右向左入栈，<strong>被调用者完成清栈</strong>，返回值存放在 <code>eax</code> 寄存器中</p>
 <h3 id="fastcall"><a href="#fastcall" class="headerlink" title="__fastcall"></a>__fastcall</h3><p>前两个参数通过寄存器（<code>ecx、edx</code>）传递，剩余参数从右向左入栈，<strong>被调用者完成清栈</strong>，返回值存放在 <code>eax</code> 寄存器中</p>
@@ -318,417 +446,455 @@
 <p>返回值存放在 <code>rax</code> 寄存器中</p>
 <h1 id="0x05-C-的虚表"><a href="#0x05-C-的虚表" class="headerlink" title="0x05. C++ 的虚表"></a>0x05. C++ 的虚表</h1><p>虚函数表是 C++ 为了实现多态而使用的一种技术，</p>
 
-      </div>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
       
-        <div class="prev-or-next">
-          <div class="post-foot-next">
-            
-              <a href="/2000/10/12/hello-world/" target="_self">
-                <i class="iconfont icon-chevronleft"></i>
-                <span>上一页</span>
-              </a>
-            
-          </div>
-          <div class="post-attach">
-            <span class="post-pubtime">
-              <i class="iconfont icon-updatetime" title="更新时间"></i>
-              2000-10-12 23:51:25
-            </span>
-            
-                  <span class="post-categories">
-                    <i class="iconfont icon-bookmark" title="分类"></i>
-                    
-                    <span class="span--category">
-                      <a href="/categories/NOTES/" title="NOTES">
-                        <b>#</b> NOTES
-                      </a>
-                    </span>
-                    
-                  </span>
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/NOTES/" class="category-chain-item">NOTES</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Pwn/">#Pwn</a>
+      
+        <a href="/tags/%E5%AD%A6%E4%B9%A0%E6%9C%AD%E8%AE%B0/">#学习札记</a>
+      
+    </div>
+  
+</div>
+
+
               
-                  <span class="post-tags">
-                    <i class="iconfont icon-tags" title="标签"></i>
-                    
-                    <span class="span--tag">
-                      <a href="/tags/Pwn/" title="Pwn">
-                        <b>#</b> Pwn
-                      </a>
-                    </span>
-                    
-                    <span class="span--tag">
-                      <a href="/tags/%E5%AD%A6%E4%B9%A0%E6%9C%AD%E8%AE%B0/" title="学习札记">
-                        <b>#</b> 学习札记
-                      </a>
-                    </span>
-                    
-                  </span>
-              
-          </div>
-          <div class="post-foot-prev">
-            
-              <a href="/2020/09/08/CTF-0X00-BUUOJ-PWN/" target="_self">
-                <span>下一页</span>
-                <i class="iconfont icon-chevronright"></i>
-              </a>
-            
-          </div>
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【NOTES.0xFF】一些暂时没地方堆放的零碎知识点</div>
+      <div>http://blog.arttnba3.cn/2000/10/12/NOTE-0XFF-PIECES_KNOWLEDGE/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
         </div>
       
-    </div>
-    
-  <div id="btn-catalog" class="btn-catalog">
-    <i class="iconfont icon-catalog"></i>
-  </div>
-  <div class="post-catalog hidden" id="catalog">
-    <div class="title">目录</div>
-    <div class="catalog-content">
       
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00-%E4%B8%80%E5%88%87%E5%BC%80%E5%A7%8B%E4%B9%8B%E5%89%8D"><span class="toc-text">0x00.一切开始之前</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-%E9%80%9A%E8%BF%87%E4%BF%AE%E6%94%B9-PE-Header-%E5%AE%8C%E6%88%90%E6%81%B6%E6%84%8F-DLL-%E7%9A%84%E8%A3%85%E8%BD%BD"><span class="toc-text">0x01. 通过修改 PE Header 完成恶意 DLL 的装载</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81PE-Header-%E4%BF%AE%E6%94%B9%E6%80%9D%E8%B7%AF"><span class="toc-text">一、PE Header 修改思路</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#IMPORT-Directory-Table-%E4%BF%AE%E6%94%B9%E6%80%9D%E8%B7%AF"><span class="toc-text">IMPORT Directory Table 修改思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%81%E7%A7%BB%E4%BD%8D%E7%BD%AE%EF%BC%9ASECTION-reloc"><span class="toc-text">迁移位置：SECTION .reloc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E6%96%B0%E5%AF%BC%E5%85%A5%E8%A1%A8%E9%A1%B9"><span class="toc-text">添加新导入表项</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A9%BA%E9%97%B4%E5%B8%83%E5%B1%80"><span class="toc-text">空间布局</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9C%B0%E5%9D%80%E8%AE%A1%E7%AE%97"><span class="toc-text">地址计算</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#reloc-RVA-amp-RAW"><span class="toc-text">.reloc RVA &amp; RAW</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Name-RVA"><span class="toc-text">Name RVA</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#INT-RVA"><span class="toc-text">INT RVA</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#IAT-RVA"><span class="toc-text">IAT RVA</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#dummy-%E9%A1%B9-RVA"><span class="toc-text">dummy 项 RVA</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%A8%E5%85%A5%E5%90%8E%E7%A9%BA%E9%97%B4%E5%B8%83%E5%B1%80"><span class="toc-text">注入后空间布局</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SECTION-%E6%9D%83%E9%99%90%E4%BF%AE%E6%94%B9"><span class="toc-text">SECTION 权限修改</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9-IMAGE-OPTIONAL-HEADER"><span class="toc-text">修改 IMAGE_OPTIONAL_HEADER</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9-IMPORT-Table-%E7%9A%84-RVA-%E4%B8%8E-SIZE"><span class="toc-text">修改 IMPORT Table 的 RVA 与 SIZE</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9-BOUND-IMPORT-Table"><span class="toc-text">修改 BOUND IMPORT Table</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%B5%8B%E8%AF%95%E4%BF%AE%E6%94%B9%E5%90%8E%E5%8F%AF%E6%89%A7%E8%A1%8C%E6%96%87%E4%BB%B6"><span class="toc-text">二、测试修改后可执行文件</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-IDA-%E4%BF%AE%E5%A4%8D-switch-%E7%94%9F%E6%88%90%E8%B7%B3%E8%A1%A8%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="toc-text">0x02. IDA 修复 switch 生成跳表的方式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#PRE-%E4%BB%80%E4%B9%88%E6%98%AF%E8%B7%B3%E8%A1%A8%EF%BC%88jump-table%EF%BC%89%EF%BC%9F"><span class="toc-text">PRE.什么是跳表（jump table）？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8-IDA-%E4%BF%AE%E5%A4%8D%E8%B7%B3%E8%A1%A8"><span class="toc-text">使用 IDA 修复跳表</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-%E5%B8%B8%E8%A7%81%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E7%BA%A6%E5%AE%9A%E4%B8%8E%E4%BC%A0%E5%8F%82%E6%96%B9%E5%BC%8F"><span class="toc-text">0x03. 常见函数调用约定与传参方式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81x86"><span class="toc-text">一、x86</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#cdecl%EF%BC%88Linux%EF%BC%89"><span class="toc-text">__cdecl（Linux）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#stdcall%EF%BC%88WinAPI%EF%BC%89"><span class="toc-text">__stdcall（WinAPI）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastcall"><span class="toc-text">__fastcall</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#thiscall%EF%BC%88MS-C-%EF%BC%89"><span class="toc-text">thiscall（MS C++）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81x64"><span class="toc-text">二、x64</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#fastcall%EF%BC%88WinAPI%EF%BC%89"><span class="toc-text">__fastcall（WinAPI）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#thiscall%EF%BC%88MS-C-%EF%BC%89-1"><span class="toc-text">thiscall（MS C++）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastcall-%EF%BC%88System-V-AMD64-ABI%EF%BC%89"><span class="toc-text">__fastcall （System V AMD64 ABI）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04-Linux-%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E4%BC%A0%E5%8F%82%E6%96%B9%E5%BC%8F"><span class="toc-text">0x04. Linux 系统调用传参方式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#32-%E4%BD%8D"><span class="toc-text">32 位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#64%E4%BD%8D"><span class="toc-text">64位</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05-C-%E7%9A%84%E8%99%9A%E8%A1%A8"><span class="toc-text">0x05. C++ 的虚表</span></a></li></ol>
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2000年10月12日</div>
+        </div>
       
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
     </div>
+    <div class="license-icon iconfont"></div>
   </div>
 
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/09/08/CTF-0X00-BUUOJ-PWN/" title="【CTF.0x00】BUUCTF/BUUOJ-Pwn WP">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【CTF.0x00】BUUCTF/BUUOJ-Pwn WP</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2000/10/12/hello-world/" title="Hello World">
+                        <span class="hidden-mobile">Hello World</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
   
-<script src="/js/catalog.js"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
 
 
 
 
     
-      <div class="comments-container">
-        
 
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
 
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
 
   
-    <script async type="text/javascript" src="/plugins/valine.min.js" onload="loadValineSuc(this)"></script>
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
   
+</div>
 
-  <div id="vcomments"></div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
 
   <script>
-    function loadValineSuc() {
-      new Valine({
-        el: '#vcomments',
-        appId: 'ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz',
-        appKey: 'tuvJh3xYxPFcW2JB6K26RKP2',
-        placeholder: '说点什么呗...',
-        avatar: 'retro',
-        lang: 'zh-CN'
-      })
-    }
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
   </script>
 
-    <style>
-      .comments-container .v .vempty {
-        display: none!important;
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
       }
-    </style>
-
-
-
-
-      </div>
-    
-  </div>
-
-
-        
-<div class="footer">
-  <div class="social">
-    <ul>
+      var text = subtitle.getAttribute('data-typed-text');
       
-        <li>
-          <a title="github" target="_blank" rel="noopener" href="https://github.com/arttnba3">
-            <i class="iconfont icon-github"></i>
-          </a>
-        </li>
+        typing(text);
       
-        <li>
-          <a title="email" href="mailto:arttnba@gmail.com">
-            <i class="iconfont icon-envelope"></i>
-          </a>
-        </li>
-      
-        <li>
-          <a title="twitter" target="_blank" rel="noopener" href="https://twitter.com/arttnba3">
-            <i class="iconfont icon-twitter"></i>
-          </a>
-        </li>
-      
-        <li>
-          <a title="rss" href="/atom.xml">
-            <i class="iconfont icon-rss"></i>
-          </a>
-        </li>
-      
-    </ul>
-  </div>
+    })(window, document);
+  </script>
+
+
+
+
   
-    
-    <div class="footer-more">
-      
-        <a target="_blank" rel="noopener" href="https://github.com/arttnba3">Copyright © 2022 arttnba3</a>
-        
-    </div>
+    <script  src="/js/img-lazyload.js" ></script>
   
-    
-    <div class="footer-more">
-      
-        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
-        
-    </div>
+
+
+
+
   
-</div>
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
 
-      </div>
-
-      <div class="tools-bar">
-        <div class="back-to-top tools-bar-item hidden">
-  <a href="javascript: void(0)">
-    <i class="iconfont icon-chevronup"></i>
-  </a>
-</div>
-
-
-<script src="/js/backtotop.js"></script>
-
-
-
-        
-  <div class="search-icon tools-bar-item" id="search-icon">
-    <a href="javascript: void(0)">
-      <i class="iconfont icon-search"></i>
-    </a>
-  </div>
-
-  <div class="search-overlay hidden">
-    <div class="search-content" tabindex="0">
-      <div class="search-title">
-        <span class="search-icon-input">
-          <a href="javascript: void(0)">
-            <i class="iconfont icon-search"></i>
-          </a>
-        </span>
-        
-          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
-        
-        <span class="search-close-icon" id="search-close-icon">
-          <a href="javascript: void(0)">
-            <i class="iconfont icon-close"></i>
-          </a>
-        </span>
-      </div>
-      <div class="search-result" id="search-result"></div>
-    </div>
-  </div>
-
-  <script type="text/javascript">
-    var inputArea = document.querySelector("#search-input")
-    var searchOverlayArea = document.querySelector(".search-overlay")
-
-    inputArea.onclick = function() {
-      getSearchFile()
-      this.onclick = null
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
     }
+  });
+</script>
 
-    inputArea.onkeydown = function() {
-      if(event.keyCode == 13)
-        return false
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
     }
-
-    function openOrHideSearchContent() {
-      let isHidden = searchOverlayArea.classList.contains('hidden')
-      if (isHidden) {
-        searchOverlayArea.classList.remove('hidden')
-        document.body.classList.add('hidden')
-        // inputArea.focus()
-      } else {
-        searchOverlayArea.classList.add('hidden')
-        document.body.classList.remove('hidden')
-      }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
     }
-
-    function blurSearchContent(e) {
-      if (e.target === searchOverlayArea) {
-        openOrHideSearchContent()
-      }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
     }
+    window.anchors.add(res.join(', '));
+  });
+</script>
 
-    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
-    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
-    searchOverlayArea.addEventListener("click", blurSearchContent, false)
 
-    var searchFunc = function (path, search_id, content_id) {
-      'use strict';
-      var $input = document.getElementById(search_id);
-      var $resultContent = document.getElementById(content_id);
-      $resultContent.innerHTML = "<ul><span class='local-search-empty'>首次搜索，正在载入索引文件，请稍后……<span></ul>";
-      $.ajax({
-        // 0x01. load xml file
-        url: path,
-        dataType: "xml",
-        success: function (xmlResponse) {
-          // 0x02. parse xml file
-          var datas = $("entry", xmlResponse).map(function () {
-            return {
-              title: $("title", this).text(),
-              content: $("content", this).text(),
-              url: $("url", this).text()
-            };
-          }).get();
-          $resultContent.innerHTML = "";
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
 
-          $input.addEventListener('input', function () {
-            // 0x03. parse query to keywords list
-            var str = '<ul class=\"search-result-list\">';
-            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
-            $resultContent.innerHTML = "";
-            if (this.value.trim().length <= 0) {
-              return;
-            }
-            // 0x04. perform local searching
-            datas.forEach(function (data) {
-              var isMatch = true;
-              var content_index = [];
-              if (!data.title || data.title.trim() === '') {
-                data.title = "Untitled";
-              }
-              var orig_data_title = data.title.trim();
-              var data_title = orig_data_title.toLowerCase();
-              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
-              var data_content = orig_data_content.toLowerCase();
-              var data_url = data.url;
-              var index_title = -1;
-              var index_content = -1;
-              var first_occur = -1;
-              // only match artiles with not empty contents
-              if (data_content !== '') {
-                keywords.forEach(function (keyword, i) {
-                  index_title = data_title.indexOf(keyword);
-                  index_content = data_content.indexOf(keyword);
 
-                  if (index_title < 0 && index_content < 0) {
-                    isMatch = false;
-                  } else {
-                    if (index_content < 0) {
-                      index_content = 0;
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
                     }
-                    if (i == 0) {
-                      first_occur = index_content;
-                    }
-                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
-                  }
-                });
-              } else {
-                isMatch = false;
-              }
-              // 0x05. show search results
-              if (isMatch) {
-                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
-                var content = orig_data_content;
-                if (first_occur >= 0) {
-                  // cut out 100 characters
-                  var start = first_occur - 20;
-                  var end = first_occur + 80;
-
-                  if (start < 0) {
-                    start = 0;
-                  }
-
-                  if (start == 0) {
-                    end = 100;
-                  }
-
-                  if (end > content.length) {
-                    end = content.length;
-                  }
-
-                  var match_content = content.substr(start, end);
-
-                  // highlight all keywords
-                  keywords.forEach(function (keyword) {
-                    var regS = new RegExp(keyword, "gi");
-                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
                   });
-
-                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
-                }
-                str += "</li>";
+                }, '', false]
               }
-            });
-            str += "</ul>";
-            if (str.indexOf('<li>') === -1) {
-              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>没有找到内容，请尝试更换检索词。<span></ul>";
             }
-            $resultContent.innerHTML = str;
-          });
-        },
-        error: function(xhr, status, error) {
-          $resultContent.innerHTML = ""
-          if (xhr.status === 404) {
-            $resultContent.innerHTML = "<ul><span class='local-search-empty'>未找到search.xml文件，具体请参考：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
-          } else {
-            $resultContent.innerHTML = "<ul><span class='local-search-empty'>请求失败，尝试重新刷新页面或稍后重试。<span></ul>";
-          }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
         }
-      });
-      $(document).on('click', '#search-close-icon', function() {
-        $('#search-input').val('');
-        $('#search-result').html('');
-      });
-    }
+      </script>
+    
 
-    var getSearchFile = function() {
-        var path = "/search.xml";
-        searchFunc(path, 'search-input', 'search-result');
-    }
-  </script>
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 
 
-        
-  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
-    <a href="javascript: void(0)">
-      <i id="theme-icon" class="iconfont icon-moon"></i>
-    </a>
-  </div>
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
 
   
-<script src="/js/colorscheme.js"></script>
 
-
-
-
-
-        
-  
-    <div class="share-icon tools-bar-item">
-      <a href="javascript: void(0)" id="share-icon">
-        <i class="iconfont iconshare"></i>
-      </a>
-      <div class="share-content hidden">
-        
-          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + %E3%80%90NOTES.0xFF%E3%80%91%E4%B8%80%E4%BA%9B%E6%9A%82%E6%97%B6%E6%B2%A1%E5%9C%B0%E6%96%B9%E5%A0%86%E6%94%BE%E7%9A%84%E9%9B%B6%E7%A2%8E%E7%9F%A5%E8%AF%86%E7%82%B9 + '&url=' + http%3A%2F%2Fblog.arttnba3.cn%2F2000%2F10%2F12%2FNOTE-0XFF-PIECES_KNOWLEDGE%2F + '" target="_blank" title="Twitter">
-            <i class="iconfont icon-twitter"></i>
-          </a>
-        
-        
-          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://blog.arttnba3.cn/2000/10/12/NOTE-0XFF-PIECES_KNOWLEDGE/" target="_blank" title="Facebook">
-            <i class="iconfont icon-facebooksquare"></i>
-          </a>
-        
-      </div>
-    </div>
-  
-  
-<script src="/js/shares.js"></script>
-
-
-
-      </div>
-    </div>
-  </body>
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
 </html>

