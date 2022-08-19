@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2022/07/20/FUkehDzTocbtu4O.png">
 <meta property="article:published_time" content="2022-07-21T17:39:15.000Z">
-<meta property="article:modified_time" content="2022-08-18T17:41:47.091Z">
+<meta property="article:modified_time" content="2022-08-19T16:32:23.907Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="学习札记">
 <meta property="article:tag" content="Qemu">
@@ -319,7 +319,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2022年8月19日 凌晨
+                    本文最后更新于：2022年8月20日 凌晨
                   
                 
               </p>
@@ -330,7 +330,7 @@
                 <p>vnc，🐕都不用</p>
 <span id="more"></span>
 
-<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00.一切开始之前"></a>0x00.一切开始之前</h1><p>VNC 即 Virtual Network Computing，是基于RFB（Remote Frame Buffer）协议进行通信的远程桌面协议，与 telnet、ssh 等相比，VNC 最大的特点便是支持图形化了，用户可以看到远程机器的图形化界面，且能使用键盘与鼠标进行输入</p>
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00.一切开始之前"></a>0x00.一切开始之前</h1><p>VNC 即 Virtual Network Computing，是基于<strong>RFB（Remote Frame Buffer）</strong>协议进行通信的远程桌面协议，与 telnet、ssh 等相比，VNC 最大的特点便是支持图形化了，用户可以看到远程机器的图形化界面，且能使用键盘与鼠标进行输入</p>
 <p>Qemu 虚拟机同样支持通过 VNC只需要指定 <code>-vnc</code> 参数便能够建立 VNC Server，从而使得远程用户可以通过 VNC 连接到 Qemu 虚拟机上</p>
 <p>本篇主要是对 Qemu 中 VNC 实现的源码分析，同时也会夹杂着部分 Qemu 显示相关的分析，源码版本 Qemu 7.0.0</p>
 <h1 id="0x01-qemu-init-displays-显示设备初始化"><a href="#0x01-qemu-init-displays-显示设备初始化" class="headerlink" title="0x01. qemu_init_displays() - 显示设备初始化"></a>0x01. qemu_init_displays() - 显示设备初始化</h1><p>我们都知道 Qemu 的入口函数是 <code>softmmu/main.c</code> 中的 <code>qemu_main()</code>，在其中会调用到 <code>sotftmmuvl.c</code> 中的 <code>qemu_init()</code> 函数进行 Qemu 的初始化工作，包括一系列的参数解析、设备初始化等</p>
