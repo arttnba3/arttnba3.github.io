@@ -25,16 +25,16 @@
 <meta property="og:site_name" content="arttnba3&#39;s blog">
 <meta property="og:description" content="不如 VMWare👋">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://s2.loli.net/2022/07/22/jfIDUCx5ZtMsHAY.png">
+<meta property="og:image" content="https://s2.loli.net/2022/08/20/qg5Uni1hzxETecX.png">
 <meta property="article:published_time" content="2022-07-15T08:45:17.000Z">
-<meta property="article:modified_time" content="2022-08-18T17:40:15.111Z">
+<meta property="article:modified_time" content="2022-08-19T20:33:48.561Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="学习札记">
 <meta property="article:tag" content="Qemu">
 <meta property="article:tag" content="虚拟化">
 <meta property="article:tag" content="PCI">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://s2.loli.net/2022/07/22/jfIDUCx5ZtMsHAY.png">
+<meta name="twitter:image" content="https://s2.loli.net/2022/08/20/qg5Uni1hzxETecX.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
@@ -253,7 +253,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          41k 字
+          32k 字
         
       </span>
     
@@ -264,7 +264,7 @@
         
         
         
-          345 分钟
+          270 分钟
         
       </span>
     
@@ -319,7 +319,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2022年8月19日 凌晨
+                    本文最后更新于：2022年8月20日 凌晨
                   
                 
               </p>
@@ -415,125 +415,12 @@
 
 <p>之后还是直接用 vnc 进行连接即可（如果只需要在本地运行的话可以不用附加 <code>-vnc</code> 参数，而是加上 <code>-nographic</code> 参数）：</p>
 <p><img src="https://s2.loli.net/2022/07/12/yjcVlhtYOz4pQvC.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h1 id="0x03-简易-QEMU-设备编写"><a href="#0x03-简易-QEMU-设备编写" class="headerlink" title="0x03.简易 QEMU 设备编写"></a>0x03.简易 QEMU 设备编写</h1><p>虽然 Qemu 支持模拟多种设备，但是并不能涵盖现存所有的设备类型，同时有的时候出于一些特殊的目的我们也需要自定义一些设备，因此本节主要讲述如何在 Qemu 当中编写一个新的设备</p>
+<h1 id="0x03-简易-QEMU-设备编写"><a href="#0x03-简易-QEMU-设备编写" class="headerlink" title="0x03.简易 QEMU 设备编写"></a>0x03.简易 QEMU 设备编写</h1><p>虽然 Qemu 支持模拟多种设备，但是并不能涵盖现存所有的设备类型，同时有的时候出于一些特殊的目的我们也需要自定义一些设备，因此本节主要讲述如何在 Qemu 当中编写一个新的 PCI 类型的设备</p>
 <blockquote>
-<p>注：qemu 官方在 <code>hw/misc/edu.c</code> 中也提供了一个教学用的设备样例，red hat 则在 <code>hw/misc/pci-testdev.c</code> 中提供了一个测试设备，我们可以参考这两个设备来构建我们的设备</p>
+<p>注1：在开始之前你可能需要补充一些<a target="_blank" rel="noopener" href="https://arttnba3.cn/2022/08/20/HARDWARE-0X00-PCI_DEVICE/">PCI 设备的基础知识</a></p>
+<p>注2：qemu 官方在 <code>hw/misc/edu.c</code> 中也提供了一个教学用的设备样例，red hat 则在 <code>hw/misc/pci-testdev.c</code> 中提供了一个测试设备，我们可以参考这两个设备来构建我们的设备</p>
 </blockquote>
-<h2 id="一、PCI-basic-knowledge"><a href="#一、PCI-basic-knowledge" class="headerlink" title="一、PCI basic knowledge"></a>一、PCI basic knowledge</h2><p>在开始之前，我们首先来补充一些基础知识</p>
-<h3 id="I、总线-amp-amp-PCI-设备"><a href="#I、总线-amp-amp-PCI-设备" class="headerlink" title="I、总线 &amp;&amp; PCI 设备"></a>I、总线 &amp;&amp; PCI 设备</h3><p>现代计算机通常采用总线（bus）结构，即存在一根主要的公共通信干线，CPU 及各种设备都通过这跟总线进行通信；总线是可以扩展的，即可以存在多个不同类型的总线相连，不同的设备接入到不同类型的总线上</p>
-<p><img src="https://s2.loli.net/2022/07/21/fWTEztvhuXAqN8d.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<p>由于总线结构形似一棵树🌳，故有的时候我们也将这些设备、总线、CPU所形成的结构称之为<strong>设备树</strong>（Device Tree）</p>
-<p><img src="https://s2.loli.net/2022/07/21/7rT3aEytb2lumZP.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<p>PCI 即 <code>Peripheral Component Interconnect</code>，是一种连接电脑主板和外部设备的总线标准，其通过多根 PCI bus 完成 CPU 与 多个 PCI 设备间的连接，，在 X86 硬件体系结构中几乎所有的设备都以各种形式连接到 PCI 设备树上；PCIe（PCI express）是新一代的总线标准，它沿用既有的PCI编程概念及信号标准，并且构建了更加高速的串行通信系统标准</p>
-<p>在 Linux 下我们可以使用 <code>lspci</code> 指令查看插在当前机器的 PCI bus 上的 PCI 设备，使用 <code>-t</code> 参数查看树形结构，<code>-v</code> 参数可以查看详细信息：</p>
-<blockquote>
-<p>这里展示的结果有 virtio 设备是因为笔者是在阿里云学生机上使用的命令，这类机器一般其实都是用 Qemu 跑的虚拟机</p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">lspci</span><br>00:00.0 Host bridge: Intel Corporation 440FX - 82441FX PMC [Natoma] (rev 02)<br>00:01.0 ISA bridge: Intel Corporation 82371SB PIIX3 ISA [Natoma/Triton II]<br>00:01.1 IDE interface: Intel Corporation 82371SB PIIX3 IDE [Natoma/Triton II]<br>00:01.2 USB controller: Intel Corporation 82371SB PIIX3 USB [Natoma/Triton II] (rev 01)<br>00:01.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 03)<br>00:02.0 VGA compatible controller: Cirrus Logic GD 5446<br>00:03.0 Ethernet controller: Red Hat, Inc. Virtio network device<br>00:04.0 Communication controller: Red Hat, Inc. Virtio console<br>00:05.0 SCSI storage controller: Red Hat, Inc. Virtio block device<br>00:06.0 Unclassified device [00ff]: Red Hat, Inc. Virtio memory balloon<br><span class="hljs-meta prompt_">$ </span><span class="language-bash">lspci -t -v</span><br>-[0000:00]-+-00.0  Intel Corporation 440FX - 82441FX PMC [Natoma]<br>           +-01.0  Intel Corporation 82371SB PIIX3 ISA [Natoma/Triton II]<br>           +-01.1  Intel Corporation 82371SB PIIX3 IDE [Natoma/Triton II]<br>           +-01.2  Intel Corporation 82371SB PIIX3 USB [Natoma/Triton II]<br>           +-01.3  Intel Corporation 82371AB/EB/MB PIIX4 ACPI<br>           +-02.0  Cirrus Logic GD 5446<br>           +-03.0  Red Hat, Inc. Virtio network device<br>           +-04.0  Red Hat, Inc. Virtio console<br>           +-05.0  Red Hat, Inc. Virtio block device<br>           \-06.0  Red Hat, Inc. Virtio memory balloon<br></code></pre></td></tr></table></figure>
-
-<p>我们还可以使用 <code>lshw -businfo</code> 命令来获取设备信息：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo lshw -businfo</span><br>[sudo] password for arttnba3:<br>Bus info          Device       Class          Description<br>=========================================================<br>                               system         Alibaba Cloud ECS<br>                               bus            Motherboard<br>                               memory         96KiB BIOS<br>cpu@0                          processor      Intel(R) Xeon(R) Platinum 8163 CPU @ 2.50GHz<br>                               memory         2GiB System Memory<br>                               memory         2GiB DIMM RAM<br>pci@0000:00:00.0               bridge         440FX - 82441FX PMC [Natoma]<br>pci@0000:00:01.0               bridge         82371SB PIIX3 ISA [Natoma/Triton II]<br>pci@0000:00:01.1               storage        82371SB PIIX3 IDE [Natoma/Triton II]<br>pci@0000:00:01.2               bus            82371SB PIIX3 USB [Natoma/Triton II]<br>usb@1             usb1         bus            UHCI Host Controller<br>usb@1:1                        input          QEMU USB Tablet<br>pci@0000:00:01.3               bridge         82371AB/EB/MB PIIX4 ACPI<br>pci@0000:00:02.0               display        GD 5446<br>pci@0000:00:03.0               network        Virtio network device<br>virtio@0          eth0         network        Ethernet interface<br>pci@0000:00:04.0               communication  Virtio console<br>virtio@1                       generic        Virtual I/O device<br>pci@0000:00:05.0               storage        Virtio block device<br>virtio@2          /dev/vda     disk           42GB Virtual I/O device<br>virtio@2,1        /dev/vda1    volume         39GiB EXT4 volume<br>pci@0000:00:06.0               generic        Virtio memory balloon<br>virtio@3                       generic        Virtual I/O device<br>                               system         PnP device PNP0b00<br>                               input          PnP device PNP0303<br>                               input          PnP device PNP0f13<br>                               storage        PnP device PNP0700<br>                               communication  PnP device PNP0501<br>                  veth073b1a5  network        Ethernet interface<br>                  veth2c8670f  network        Ethernet interface<br>                  vethc0202a2  network        Ethernet interface<br>                  veth49e878e  network        Ethernet interface<br></code></pre></td></tr></table></figure>
-
-<h3 id="II、PCI-设备编号"><a href="#II、PCI-设备编号" class="headerlink" title="II、PCI 设备编号"></a>II、PCI 设备编号</h3><p>每个PCI 设备都有着三个编号：总线编号（Bus Number）、设备编号（Device Number）与功能编号（Function Number），作为设备的唯一标识；在此之上还有 PCI 域的概念，一个 PCI 域上最多可以连接 256 根 PCI 总线</p>
-<p>当我们使用 <code>lspci</code> 命令查看 PCI 设备信息时，在每个设备开头都可以看到形如 <code>xx:yy.z</code> 的十六进制编号，这个格式其实是 <code>总线编号:设备编号.功能编号</code>，当我们使用 <code>lspci -v </code>查看 PCI 设备信息时，在总线编号前面的 4 位数字便是 PCI 域的编号</p>
-<h3 id="III、PCI-设备配置空间"><a href="#III、PCI-设备配置空间" class="headerlink" title="III、PCI 设备配置空间"></a>III、PCI 设备配置空间</h3><p>每个 PCI 逻辑设备中都有着其自己的<strong>配置空间</strong>（configuration space），通常是设备地址空间的前 64 字节（新版的设备还扩展了 0x40~0xFF 这段配置空间），其中存放了一些设备的基本信息，如生厂商信息、IRQ中断号、mem 空间与 io 空间的起始地址与大小等</p>
-<p>Intel 芯片组中我们可以使用 IO 空间的 <code>CF8/CFC</code> 地址（端口）来访问 PCI 设备的配置寄存器：</p>
-<ul>
-<li><code>CF8</code>：<strong>CONFIG_ADDRESS</strong>，即 PCI 配置空间地址端口。</li>
-<li><code>CFH</code>：<strong>CONFIG_DATA</strong>，即 PCI 配置空间数据端口。</li>
-</ul>
-<p>当我们往 <code>CONFIG_ADDRESS</code> 端口填入对应的设备标识后，就可以从 <code>CONFIG_DATA</code> 端口上读写 PCI 配置空间的内存， <code>CONFIG_ADDRESS</code> 端口的格式如下：</p>
-<ul>
-<li><code>31</code> 位：Enable 位</li>
-<li><code>23:16</code> 位：总线编号</li>
-<li><code>15:11</code> 位：设备编号</li>
-<li><code>10:8</code> 位：功能编号</li>
-<li><code>7:2</code> 位：配置空间寄存器编号</li>
-<li><code>1:0</code> 位：恒为 <code>00</code></li>
-</ul>
-<blockquote>
-<p>除了通过端口访问外，我们也可以通过 MMIO 的方式访问一个 PCI 设备的地址空间</p>
-</blockquote>
-<p>现在我们来看 PCI 配置空间的结构，PCI 设备分为 <code>Bridge</code> 与 <code>Agent</code> 两类，故配置空间也分为相应的两类</p>
-<p>Agent 类型配置空间又被称为 <code>Type 00h</code>，格式如下图所示：</p>
-<p><img src="https://s2.loli.net/2022/07/21/CEpqkAM1D78XRLG.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<p>相应地，Bridge 类型配置空间被称为 <code>Type 01h</code>，与 Agent 类型配置空间大同小异：</p>
-<p><img src="https://s2.loli.net/2022/07/21/emyrRVo5W6X12aG.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<p>简单介绍几个比较重要的字段：</p>
-<ul>
-<li><p>设备标识相关：</p>
-<ul>
-<li><p><code>Vendor ID</code>：生产厂商的 ID，例如 Intel 设备通常为 <code>0x8086</code></p>
-</li>
-<li><p><code>Device ID</code>：具体设备的 ID，通常也是由厂家自行指定的</p>
-</li>
-<li><p><code>Class Code</code>：类代码，用于区分设备类型</p>
-</li>
-<li><p><code>Revision ID</code>：PCI 设备的版本号，可以看作 Device ID 的扩展</p>
-</li>
-</ul>
-</li>
-<li><p>设备状态相关：</p>
-<ul>
-<li><p><code>Status</code>：设备的状态字寄存器，各 bit 含义如下图所示：</p>
-<p><img src="https://s2.loli.net/2022/07/21/ZTplAr87OQ96cRU.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-</li>
-<li><p><code>Command</code>：设备的状态字寄存器，各 bit 含义如下图所示：</p>
-<p><img src="https://s2.loli.net/2022/07/21/rM3YhuaoPK25mNn.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-</li>
-</ul>
-</li>
-<li><p>设备配置相关：</p>
-<ul>
-<li><p><code>Base Address Registers</code>：决定了 PCI 设备空间映射到系统空间的具体位置，有两种映射方式：MMIO 与 PMIO，映射方式由最低位决定，不可更改</p>
-<ul>
-<li><p>MMIO 下的 BAR：</p>
-<p><img src="https://s2.loli.net/2022/07/21/CzV32oBP71at9Fg.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-</li>
-<li><p>PMIO 下的 BAR：</p>
-<p><img src="https://s2.loli.net/2022/07/21/w4ind36EF9pPLcy.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-</li>
-</ul>
-</li>
-<li><p><code>Interrupt Pin</code>：中断引脚，该寄存器表示设备所连接的引脚</p>
-</li>
-<li><p><code>Interrupt Line</code>：中断编号</p>
-</li>
-</ul>
-</li>
-</ul>
-<p>前面我们讲到 lspci 命令，我们可以使用 <code>-s</code> 来通过指定查看的具体 PCI 设备，通过 <code>-m</code> 查看部分信息，通过 <code>-nn</code> 查看比较详细的信息：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">lspci -vv -s 00:02.0 -m</span><br>Device: 00:02.0<br>Class:  VGA compatible controller<br>Vendor: Cirrus Logic<br>Device: GD 5446<br>SVendor:        Red Hat, Inc.<br>SDevice:        QEMU Virtual Machine<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">lspci -vv -s 00:02.0 -nn</span><br>00:02.0 VGA compatible controller [0300]: Cirrus Logic GD 5446 [1013:00b8] (prog-if 00 [VGA controller])<br>        Subsystem: Red Hat, Inc. QEMU Virtual Machine [1af4:1100]<br>        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B- DisINTx-<br>        Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast &gt;TAbort- &lt;TAbort- &lt;MAbort- &gt;SERR- &lt;PERR- INTx-<br>        Region 0: Memory at fc000000 (32-bit, prefetchable) [size=32M]<br>        Region 1: Memory at febd0000 (32-bit, non-prefetchable) [size=4K]<br>        Expansion ROM at 000c0000 [disabled] [size=128K]<br>        Kernel driver in use: cirrus<br>        Kernel modules: cirrusfb, cirrus<br></code></pre></td></tr></table></figure>
-
-<p>我们还可以直接使用 <code>-x</code> 参数来查看 PCI 设备的配置空间：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">lspci -s 00:02.0 -x</span><br>00:02.0 VGA compatible controller: Cirrus Logic GD 5446<br>00: 13 10 b8 00 03 01 00 00 00 00 00 03 00 00 00 00<br>10: 08 00 00 fc 00 00 bd fe 00 00 00 00 00 00 00 00<br>20: 00 00 00 00 00 00 00 00 00 00 00 00 f4 1a 00 11<br>30: 00 00 bc fe 00 00 00 00 00 00 00 00 00 00 00 00<br></code></pre></td></tr></table></figure>
-
-<p>在 Linux 当中我们也可以通过 procfs 或 sysfs 这样的文件系统来查看设备的相关配置信息，例如通过 <code>/proc/bus/pci/00/00.0</code> 文件我们同样可以查看 PCI 设备 <code>00:02.0</code> 的配置空间：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cat</span> /proc/bus/pci/00/02.0 | xxd</span><br>00000000: 1310 b800 0301 0000 0000 0003 0000 0000  ................<br>00000010: 0800 00fc 0000 bdfe 0000 0000 0000 0000  ................<br>00000020: 0000 0000 0000 0000 0000 0000 f41a 0011  ................<br>00000030: 0000 bcfe 0000 0000 0000 0000 0000 0000  ................<br></code></pre></td></tr></table></figure>
-
-<p>通过 <code>/sys/devices/pci0000:00/0000:00:02.0/resource</code> 获取到的信息中每行表示一个地址空间，其中第一行为 MMIO，第二行为 PMIO，三列信息分别为起始地址、终止地址、标志位 ，：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">cat</span> /sys/devices/pci0000\:00/0000\:00\:02.0/resource</span><br>0x00000000fc000000 0x00000000fdffffff 0x0000000000042208<br>0x00000000febd0000 0x00000000febd0fff 0x0000000000040200<br>0x0000000000000000 0x0000000000000000 0x0000000000000000<br>0x0000000000000000 0x0000000000000000 0x0000000000000000<br>0x0000000000000000 0x0000000000000000 0x0000000000000000<br>0x0000000000000000 0x0000000000000000 0x0000000000000000<br>0x00000000000c0000 0x00000000000dffff 0x0000000000000212<br>0x0000000000000000 0x0000000000000000 0x0000000000000000<br>0x0000000000000000 0x0000000000000000 0x0000000000000000<br>0x0000000000000000 0x0000000000000000 0x0000000000000000<br>0x0000000000000000 0x0000000000000000 0x0000000000000000<br>0x0000000000000000 0x0000000000000000 0x0000000000000000<br>0x0000000000000000 0x0000000000000000 0x0000000000000000<br></code></pre></td></tr></table></figure>
-
-<p>通过 <code>/sys/devices/pci0000:00/0000:00:02.0</code> 下的其他文件也可以访问该设备的一些其他资源信息（例如通过 <code>resource0</code> 可以直接访问 MMIO 空间，<code>resource1</code> 则为其 PMIO 空间）</p>
-<h3 id="IV、PCI-设备内存-amp-端口空间与访问方式"><a href="#IV、PCI-设备内存-amp-端口空间与访问方式" class="headerlink" title="IV、PCI 设备内存 &amp; 端口空间与访问方式"></a>IV、PCI 设备内存 &amp; 端口空间与访问方式</h3><p>前面我们讲了 PCI 设备与特性和配置相关的配置空间，现在我们来看与 PCI 设备与实际操作相关的内存映射空间与端口映射空间</p>
-<p>所有 IO 设备的内存与端口空间需要被映射到对应的地址空间&#x2F;端口空间中才能访问，这需要占用部分的内存地址空间与端口地址空间，即我们有两种映射外设资源的方式：</p>
-<ul>
-<li><strong>MMIO</strong>（Memory-mapped I&#x2F;O）：即内存映射 IO。这种方式将 IO 设备的内存与寄存器映射到指定的内存地址空间上，此时我们便可以通过常规的访问内存的方式来直接访问到设备的寄存器与内存</li>
-<li><strong>PMIO</strong>（Port-mapped I&#x2F;O）：即端口映射 IO。这种方式将 IO 设备的寄存器编码到指定的端口上，我们需要通过访问端口的方式来访问设备的寄存器与内存（例如在 x86 下通过 <code>in</code> 与 <code>out</code> 这一类的指令可以读写端口）。IO 设备通过专用的针脚或者专用的总线与 CPU 连接，这与内存地址空间相独立，因此又称作 isolated I&#x2F;O</li>
-</ul>
-<p>完成映射之后通过相应的内存&#x2F;端口访问到的便是 PCI 设备的内存&#x2F;端口地址空间</p>
-<blockquote>
-<p>例如实模式下的 <code>0xA0000 ~ 0xBFFFF</code> 这 128KB 地址空间通常被用作显存的映射，当我们在实模式下读写这块区域时通常便是直接读写显卡上的显存，而并非普通的内存</p>
-</blockquote>
-<p>通过 procfs 的 <code>/proc/iomem</code> 我们可以查看物理地址空间的情况，其中我们便能看到各种设备所占用的地址空间</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">cat</span> /proc/iomem</span><br>00000000-00000fff : Reserved<br>00001000-0009fbff : System RAM<br>0009fc00-0009ffff : Reserved<br>000a0000-000bffff : PCI Bus 0000:00<br>000c0000-000c91ff : Video ROM<br>000c9800-000ca1ff : Adapter ROM<br>000ca800-000ccbff : Adapter ROM<br>000f0000-000fffff : Reserved<br>  000f0000-000fffff : System ROM<br>00100000-7ffdffff : System RAM<br>  1f400000-20200e70 : Kernel code<br>  20200e71-2105843f : Kernel data<br>  2132b000-217fffff : Kernel bss<br>7ffe0000-7fffffff : Reserved<br>80000000-febfffff : PCI Bus 0000:00<br>  fc000000-fdffffff : 0000:00:02.0<br>    fc000000-fdffffff : cirrus<br>  feb80000-febbffff : 0000:00:03.0<br>  febd0000-febd0fff : 0000:00:02.0<br>    febd0000-febd0fff : cirrus<br>  febd1000-febd1fff : 0000:00:03.0<br>  febd2000-febd2fff : 0000:00:04.0<br>  febd3000-febd3fff : 0000:00:05.0<br>fec00000-fec003ff : IOAPIC 0<br>fee00000-fee00fff : Local APIC<br>feffc000-feffffff : Reserved<br>fffc0000-ffffffff : Reserved<br></code></pre></td></tr></table></figure>
-
-<p>通过 procfs 的 <code>/proc/ioports</code> 我们可以查看 IO 端口情况，其中便包括各种设备对应的 PMIO 端口：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">cat</span> /proc/ioports</span><br>0000-0cf7 : PCI Bus 0000:00<br>  0000-001f : dma1<br>  0020-0021 : pic1<br>  0040-0043 : timer0<br>  0050-0053 : timer1<br>  0060-0060 : keyboard<br>  0064-0064 : keyboard<br>  0070-0071 : rtc0<br>  0080-008f : dma page reg<br>  00a0-00a1 : pic2<br>  00c0-00df : dma2<br>  00f0-00ff : fpu<br>  0170-0177 : 0000:00:01.1<br>    0170-0177 : ata_piix<br>  01f0-01f7 : 0000:00:01.1<br>    01f0-01f7 : ata_piix<br>  0376-0376 : 0000:00:01.1<br>    0376-0376 : ata_piix<br>  03f2-03f2 : floppy<br>  03f4-03f5 : floppy<br>  03f6-03f6 : 0000:00:01.1<br>    03f6-03f6 : ata_piix<br>  03f7-03f7 : floppy<br>  03f8-03ff : serial<br>  0505-0505 : QEMU0001:00<br>  0510-051b : QEMU0002:00<br>    0510-051b : fw_cfg_io<br>  0600-063f : 0000:00:01.3<br>    0600-0603 : ACPI PM1a_EVT_BLK<br>    0604-0605 : ACPI PM1a_CNT_BLK<br>    0608-060b : ACPI PM_TMR<br>  0700-070f : 0000:00:01.3<br>    0700-0708 : piix4_smbus<br>0cf8-0cff : PCI conf1<br>0d00-adff : PCI Bus 0000:00<br>ae0f-aeff : PCI Bus 0000:00<br>af20-afdf : PCI Bus 0000:00<br>afe0-afe3 : ACPI GPE0_BLK<br>afe4-ffff : PCI Bus 0000:00<br>  c000-c03f : 0000:00:05.0<br>    c000-c03f : virtio-pci-legacy<br>  c040-c05f : 0000:00:01.2<br>    c040-c05f : uhci_hcd<br>  c060-c07f : 0000:00:03.0<br>    c060-c07f : virtio-pci-legacy<br>  c080-c09f : 0000:00:04.0<br>    c080-c09f : virtio-pci-legacy<br>  c0a0-c0bf : 0000:00:06.0<br>    c0a0-c0bf : virtio-pci-legacy<br>  c0c0-c0cf : 0000:00:01.1<br>    c0c0-c0cf : ata_piix<br></code></pre></td></tr></table></figure>
-
-
-
-<h2 id="二、Qemu-Object-Model"><a href="#二、Qemu-Object-Model" class="headerlink" title="二、Qemu Object Model"></a>二、Qemu Object Model</h2><p>虽然 Qemu 是使用 C 编写的，但是其代码也充满了 OOP 的思想，在 Qemu 当中有着一套叫做 <strong>Qemu Object Model</strong> 的东西来实现面向对象，主要由这四个组件构成：</p>
+<h2 id="一、Qemu-Object-Model"><a href="#一、Qemu-Object-Model" class="headerlink" title="一、Qemu Object Model"></a>一、Qemu Object Model</h2><p>虽然 Qemu 是使用 C 编写的，但是其代码也充满了 OOP 的思想，在 Qemu 当中有着一套叫做 <strong>Qemu Object Model</strong> 的东西来实现面向对象，主要由这四个组件构成：</p>
 <ul>
 <li><code>Type</code>：用来定义一个「类」的基本属性，例如类的名字、大小、构造函数等</li>
 <li><code>Class</code>：用来定义一个「类」的静态内容，例如类中存储的静态数据、方法函数指针等</li>
@@ -576,7 +463,7 @@
 <p>下面是一个🌰：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// create a QOM object</span><br>A3Object *a3obj = object_new(<span class="hljs-string">&quot;a3_type&quot;</span>);<br><span class="hljs-comment">// delete a QOM object</span><br>object_delete(a3obj);<br></code></pre></td></tr></table></figure>
 
-<h2 id="三、MemoryRegion-Qemu-中的一块内存区域"><a href="#三、MemoryRegion-Qemu-中的一块内存区域" class="headerlink" title="三、MemoryRegion - Qemu 中的一块内存区域"></a>三、MemoryRegion - Qemu 中的一块内存区域</h2><p>在 Qemu 当中使用 <code>MemoryRegion</code> 结构体类型来表示一块具体的 Guest 物理内存区域，该结构体定义于 <code>include/exec/memory.h</code> 当中：</p>
+<h2 id="二、MemoryRegion-Qemu-中的一块内存区域"><a href="#二、MemoryRegion-Qemu-中的一块内存区域" class="headerlink" title="二、MemoryRegion - Qemu 中的一块内存区域"></a>二、MemoryRegion - Qemu 中的一块内存区域</h2><p>在 Qemu 当中使用 <code>MemoryRegion</code> 结构体类型来表示一块具体的 Guest 物理内存区域，该结构体定义于 <code>include/exec/memory.h</code> 当中：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/** MemoryRegion:</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * 表示一块内存区域的一个结构体.</span><br><span class="hljs-comment"> */</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">MemoryRegion</span> &#123;</span><br>    Object parent_obj;<br><br>    <span class="hljs-comment">/* private: */</span><br><br>    <span class="hljs-comment">/* The following fields should fit in a cache line */</span><br>    <span class="hljs-type">bool</span> romd_mode;<br>    <span class="hljs-type">bool</span> ram;<br>    <span class="hljs-type">bool</span> subpage;<br>    <span class="hljs-type">bool</span> readonly; <span class="hljs-comment">/* For RAM regions */</span><br>    <span class="hljs-type">bool</span> nonvolatile;<br>    <span class="hljs-type">bool</span> rom_device;<br>    <span class="hljs-type">bool</span> flush_coalesced_mmio;<br>    <span class="hljs-type">bool</span> global_locking;<br>    <span class="hljs-type">uint8_t</span> dirty_log_mask;<br>    <span class="hljs-type">bool</span> is_iommu;<br>    RAMBlock *ram_block;<br>    Object *owner;<br><br>    <span class="hljs-type">const</span> MemoryRegionOps *ops;<br>    <span class="hljs-type">void</span> *opaque;<br>    MemoryRegion *container;	<span class="hljs-comment">// 指向父 MemoryRegion</span><br>    Int128 size;	<span class="hljs-comment">// 内存区域大小</span><br>    hwaddr addr;	<span class="hljs-comment">// 在父 MR 中的偏移量</span><br>    <span class="hljs-type">void</span> (*destructor)(MemoryRegion *mr);<br>    <span class="hljs-type">uint64_t</span> align;<br>    <span class="hljs-type">bool</span> terminates;<br>    <span class="hljs-type">bool</span> ram_device;<br>    <span class="hljs-type">bool</span> enabled;<br>    <span class="hljs-type">bool</span> warning_printed; <span class="hljs-comment">/* For reservations */</span><br>    <span class="hljs-type">uint8_t</span> vga_logging_count;<br>    MemoryRegion *alias;	<span class="hljs-comment">// 仅在 alias MR 中，指向实际的 MR</span><br>    hwaddr alias_offset;<br>    <span class="hljs-type">int32_t</span> priority;<br>    QTAILQ_HEAD(, MemoryRegion) subregions;<br>    QTAILQ_ENTRY(MemoryRegion) subregions_link;<br>    QTAILQ_HEAD(, CoalescedMemoryRange) coalesced;<br>    <span class="hljs-type">const</span> <span class="hljs-type">char</span> *name;<br>    <span class="hljs-type">unsigned</span> ioeventfd_nb;<br>    MemoryRegionIoeventfd *ioeventfds;<br>&#125;;<br></code></pre></td></tr></table></figure>
 
 <p>在 Qemu 当中有三种类型的 MemoryRegion：</p>
@@ -597,7 +484,7 @@
 <p>当我们的 Guest 要读写虚拟机上的内存时，在 Qemu 内部实际上会调用 <code>address_space_rw()</code>，对于一般的 RAM 内存而言则直接对 MR 对应的内存进行操作，对于 MMIO 而言则最终调用到对应的 <code>MR-&gt;ops-&gt;read()</code> 或 <code>MR-&gt;ops-&gt;write()</code></p>
 <p>关于 Qemu 内存管理更多的内容就暂且不在此展开了，不过现在我们知道的是在 Qemu 中使用 <code>MemoryRegion</code> 结构体来表示一段内存区域，<strong>那么我们同样可以通过在设备中添加 MemoryRegion 的方式来为设备添加内存，从而实现与设备间的 MMIO 通信</strong></p>
 <p>同样的，为了统一接口，在 Qemu 当中 <strong>PMIO 的实现同样是通过 MemoryRegion 来完成的</strong></p>
-<h2 id="四、Qemu-中-PCI-设备的编写"><a href="#四、Qemu-中-PCI-设备的编写" class="headerlink" title="四、Qemu 中 PCI 设备的编写"></a>四、Qemu 中 PCI 设备的编写</h2><p>在补充了这么多的 Qemu 相关的知识之后，现在我们可以开始在 Qemu 中编写 PCI 设备了，这里笔者将编写一个最简单的 Qemu 设备，并将源码放在 <code>hw/misc/a3dev.c</code> 中</p>
+<h2 id="三、Qemu-中-PCI-设备的编写"><a href="#三、Qemu-中-PCI-设备的编写" class="headerlink" title="三、Qemu 中 PCI 设备的编写"></a>三、Qemu 中 PCI 设备的编写</h2><p>在补充了这么多的 Qemu 相关的知识之后，现在我们可以开始在 Qemu 中编写 PCI 设备了，这里笔者将编写一个最简单的 Qemu 设备，并将源码放在 <code>hw/misc/a3dev.c</code> 中</p>
 <p>Qemu 当中 PCI 设备实例的基类是 <code>PCIDevice</code>，因此我们应当创建一个继承自 <code>PCIDevice</code> 的类来表示我们的设备实例，这里笔者仅声明了两个 <code>MemoryRegion</code> 用作 MMIO 与 PMIO，以及一个用作数据存储的 buffer：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> A3DEV_BUF_SIZE 0x100</span><br><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">A3PCIDevState</span> &#123;</span><br>    <span class="hljs-comment">/*&lt; private &gt;*/</span><br>    PCIDevice parent_obj;<br><br>    <span class="hljs-comment">/*&lt; public &gt;*/</span><br>    MemoryRegion mmio;<br>    MemoryRegion pmio;<br>    <span class="hljs-type">uint8_t</span> buf[A3DEV_BUF_SIZE];<br>&#125; A3PCIDevState;<br></code></pre></td></tr></table></figure>
 
