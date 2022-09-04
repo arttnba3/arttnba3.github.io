@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2022/08/05/GUxVBYWnbdzA6KD.png">
 <meta property="article:published_time" content="2022-08-28T20:39:22.000Z">
-<meta property="article:modified_time" content="2022-09-03T10:27:58.846Z">
+<meta property="article:modified_time" content="2022-09-04T16:44:45.982Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="学习札记">
 <meta property="article:tag" content="虚拟化">
@@ -317,7 +317,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2022年9月3日 晚上
+                    本文最后更新于：2022年9月5日 凌晨
                   
                 
               </p>
@@ -669,7 +669,7 @@
 <li><code>VM exits</code> 通过 VMM 指定的入口点移交控制权，VMM 对 VM 的退出原因进行响应后通过 <code>VM entry</code> 返回到 VM 中</li>
 <li>当 VMM 想要停止自身运行并退出 VMX 操作模式时，其通过 <code>VMXOFF</code> 指令来完成</li>
 </ul>
-<p><img src="https://s2.loli.net/2022/08/23/gamMtPGkQ29wfVK.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/09/05/FXCzMI3N4JafQRe.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>现在我们来深入 <code>VM entry</code> 与 <code>VM exit</code> 这两个行为的实现细节中，在其流程中他们分别进行了如下动作：</p>
 <ul>
 <li><strong>VM entry</strong>：从 Hypervisor 切换到 VM<ul>
