@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2022/09/30/qFnJDQsfcUSp61a.png">
 <meta property="article:published_time" content="2022-09-30T15:48:01.000Z">
-<meta property="article:modified_time" content="2022-09-30T16:19:09.167Z">
+<meta property="article:modified_time" content="2022-10-06T10:35:26.246Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="信息安全">
@@ -324,7 +324,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2022年10月1日 凌晨
+                    本文最后更新于：2022年10月6日 晚上
                   
                 
               </p>
@@ -345,7 +345,7 @@
 <li>kernel 部分的灵感来自于 CVE-2022-0847，也就是“dirty pipe”，笔者模仿内核的 pipe 结构自己写了一个简化版的 pipe，并留下了一个 UAF 漏洞</li>
 <li>QEMU 部分则主要是一个提供存储功能的“块设备”，漏洞则是非常明显的整数溢出导致的越界读写</li>
 </ul>
-<p>在笔者看来整体难度其实并不算太大（因为当笔者开始出这道题目的时候出题时间已经所剩无几了，那时候其实没想出啥好的点子XD），所以在其他出题人都在文档里写“难度中等”的时候只有笔者一个人写了“难度简单”，从最终的解题情况来看的话</p>
+<p>在笔者看来整体难度其实并不算太大（因为当笔者开始出这道题目的时候出题时间已经所剩无几了，那时候其实没想出啥好的点子XD），所以在其他出题人都在文档里写“难度中等”的时候只有笔者一个人写了“难度简单”，从最终的解题情况来看的话 <em>这一次整个 pwn 的出题好像都不咋能吸引大佬来做……</em></p>
 <p>本次题目源码已经全部开源：<a target="_blank" rel="noopener" href="https://github.com/arttnba3/ByteCTF2022_PWN-ByteRun">https://github.com/arttnba3/ByteCTF2022_PWN-ByteRun</a></p>
 <h1 id="0x01-题目分析"><a href="#0x01-题目分析" class="headerlink" title="0x01.题目分析"></a>0x01.题目分析</h1><p>u1s1，这一次编译出来的代码再反汇编之后确实比较难看，哪怕是笔者作为出题人尝试逆了一下也没能在短时间内看明白整个题目的运行逻辑（笑）</p>
 <h2 id="一、内核模块部分"><a href="#一、内核模块部分" class="headerlink" title="一、内核模块部分"></a>一、内核模块部分</h2><p>笔者一开始就想写一个功能上比较完整的设备驱动，于是包括与设备交互那一块的代码也集成在了内核模块中，不过在这里笔者设定了驱动存在着两种运行模式：流（stream）模式和块（block）模式，其中前者是与设备无关的管道功能部分，后者则是与设备交互的部分，但是后者的功能需要 root 权限才能开启，于是第一个任务就是内核提权；）</p>
