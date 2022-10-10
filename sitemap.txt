@@ -1,4 +1,5 @@
 http://blog.arttnba3.cn/about/index.html
+http://blog.arttnba3.cn/2021/02/21/OS-0X00-LINUX-KERNEL-PART-I/
 http://blog.arttnba3.cn/2022/09/30/CTF-0X07-BYTECTF2022_BYTERUN/
 http://blog.arttnba3.cn/2021/03/03/PWN-0X00-LINUX-KERNEL-PWN-PART-I/
 http://blog.arttnba3.cn/2000/10/12/hello-world/
@@ -13,7 +14,6 @@ http://blog.arttnba3.cn/2021/01/15/GLIBC-0X00-MALLOC-2.23-PART-I/
 http://blog.arttnba3.cn/2021/01/15/GLIBC-0X01-MALLOC-2.23-PART-II/
 http://blog.arttnba3.cn/2021/02/01/FUZZ-0X00-AFL-I/
 http://blog.arttnba3.cn/2021/02/21/OS-0X01-LINUX-KERNEL-PART-II/
-http://blog.arttnba3.cn/2021/02/21/OS-0X00-LINUX-KERNEL-PART-I/
 http://blog.arttnba3.cn/2021/05/10/PWN-0X01-GLIBC_HEAP-EXPLOIT/
 http://blog.arttnba3.cn/2021/09/27/NETWORK-0X00-COMPUTER_NETWORK_BASIS/
 http://blog.arttnba3.cn/2021/11/29/PWN-0X02-LINUX-KERNEL-PWN-PART-II/
