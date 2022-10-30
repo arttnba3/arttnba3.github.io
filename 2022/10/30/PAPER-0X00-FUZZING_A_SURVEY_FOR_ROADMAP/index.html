@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2022/10/26/MoW9IBHGRvk35bV.png">
 <meta property="article:published_time" content="2022-10-30T05:35:21.000Z">
-<meta property="article:modified_time" content="2022-10-30T05:44:14.045Z">
+<meta property="article:modified_time" content="2022-10-30T12:18:32.780Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="信息安全">
 <meta property="article:tag" content="FUZZ">
@@ -318,7 +318,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2022年10月30日 下午
+                    本文最后更新于：2022年10月30日 晚上
                   
                 
               </p>
@@ -392,7 +392,7 @@
 </ul>
 <p>最通用的执行状态便是<strong>代码覆盖率</strong>（code coverage，例如 CFGs（control flow graphs） 中的基本块（basic block、边（edges）），覆盖率的基本假设用法是：发现更多的执行状态（例如新的覆盖率）能提高发现漏洞的概率。因此 <em>覆盖率指导</em> （coverage-guided）的模糊测试的目标便是覆盖更多的代码</p>
 <blockquote>
-<p> 但执行状态并不限制于代码覆盖率，对目标导向程序（object-oriented programs）而言也可以是执行的合法性（legality），对协议实现（protocol implementations）可以是状态机（state machine），对并发实现（concurrency）可以是 alias coverage，对深度学习模型（deep learning models）可以是神经覆盖率（neuron coverage），对安卓智能电视则可以是执行日志（execution logs）</p>
+<p> 但执行状态并不限制于代码覆盖率，对面向对象程序（object-oriented programs）而言也可以是执行的合法性（legality），对协议实现（protocol implementations）可以是状态机（state machine），对并发实现（concurrency）可以是 alias coverage，对深度学习模型（deep learning models）可以是神经覆盖率（neuron coverage），对安卓智能电视则可以是执行日志（execution logs）</p>
 </blockquote>
 <p>Fuzzer 通常使用 <em>崩溃</em> （crashes）作为安全漏洞的指示器，因为 crashes 提供了直接的自动记录（OS 会自动发出信号告知程序崩溃），然而有的缺陷并不会显示出 crashes，因此 fuzzer 使用其他的指示器，例如 physical safety violation</p>
 <p>但 indicators 仅显示了可能的安全问题，还需要安全工具或人工确认这是一个 <em>漏洞</em> （vulnerability）</p>
