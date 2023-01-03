@@ -20,18 +20,18 @@
   
     <meta name="description" content="我是小小做题家">
 <meta property="og:type" content="article">
-<meta property="og:title" content="【PWN.0x02】Linux Kernel Pwn II：通用结构体与技巧">
+<meta property="og:title" content="【PWN.0x02】Linux Kernel Pwn II：常用结构体集合">
 <meta property="og:url" content="http://blog.arttnba3.cn/2021/11/29/PWN-0X02-LINUX-KERNEL-PWN-PART-II/index.html">
 <meta property="og:site_name" content="arttnba3&#39;s blog">
 <meta property="og:description" content="我是小小做题家">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/11/14/NwjgEMse8cTCdLr.png">
 <meta property="article:published_time" content="2021-11-29T05:51:25.000Z">
-<meta property="article:modified_time" content="2022-08-18T17:47:30.820Z">
+<meta property="article:modified_time" content="2023-01-03T19:57:42.462Z">
 <meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
-<meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="学习札记">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://i.loli.net/2021/11/14/NwjgEMse8cTCdLr.png">
@@ -40,7 +40,7 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>【PWN.0x02】Linux Kernel Pwn II：通用结构体与技巧 - arttnba3&#39;s blog</title>
+  <title>【PWN.0x02】Linux Kernel Pwn II：常用结构体集合 - arttnba3&#39;s blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -230,7 +230,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="【PWN.0x02】Linux Kernel Pwn II：通用结构体与技巧"></span>
+            <span id="subtitle" data-typed-text="【PWN.0x02】Linux Kernel Pwn II：常用结构体集合"></span>
           
         </div>
 
@@ -314,12 +314,12 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">【PWN.0x02】Linux Kernel Pwn II：通用结构体与技巧</h1>
+            <h1 style="display: none">【PWN.0x02】Linux Kernel Pwn II：常用结构体集合</h1>
             
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2022年8月19日 凌晨
+                    本文最后更新于：2023年1月4日 凌晨
                   
                 
               </p>
@@ -419,7 +419,7 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* Maximum number of LDT entries supported. */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> LDT_ENTRIES    8192</span><br><span class="hljs-comment">/* The size of each LDT entry. */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> LDT_ENTRY_SIZE    8</span><br></code></pre></td></tr></table></figure>
 
 <p> 那么这个数据量相对较大，拷贝需要用到一定的时间，而在拷贝结束后有一句 <code>new_ldt-&gt;entries[ldt_info.entry_number] = ldt</code>，其中 ldt 为我们传入的数据，我们不难想到的是<strong>可以通过条件竞争的方式在 memcpy 过程中将 new_ldt-&gt;entries 更改为我们的目标地址从而完成任意地址写</strong>，即 double fetch </p>
-<h1 id="0x04-pt-regs-与系统调用相关"><a href="#0x04-pt-regs-与系统调用相关" class="headerlink" title="0x04.pt_regs 与系统调用相关"></a>0x04.pt_regs 与系统调用相关</h1><p>严格意义上而言，<code>pt_regs</code> 并非是通过 slub 分配而来的一个结构体，而是<strong>固定位于内核栈底的一个结构体</strong>，由于其上的数据对我们而言是部分可控的，因此该结构体在内核利用当中也能发挥相当的作用</p>
+<h1 id="0x04-pt-regs-与系统调用相关（out-of-date）"><a href="#0x04-pt-regs-与系统调用相关（out-of-date）" class="headerlink" title="0x04.pt_regs 与系统调用相关（out-of-date）"></a>0x04.pt_regs 与系统调用相关（out-of-date）</h1><p>严格意义上而言，<code>pt_regs</code> 并非是通过 slub 分配而来的一个结构体，而是<strong>固定位于内核栈底的一个结构体</strong>，由于其上的数据对我们而言是部分可控的，因此该结构体在内核利用当中也能发挥相当的作用</p>
 <h2 id="系统调用部分过程-与-pt-regs-结构体"><a href="#系统调用部分过程-与-pt-regs-结构体" class="headerlink" title="系统调用部分过程 与 pt_regs 结构体"></a>系统调用部分过程 与 pt_regs 结构体</h2><p>系统调用的本质是什么？或许不少人都能够答得上来是由我们在用户态布置好相应的参数后执行 <code>syscall</code> 这一汇编指令，通过门结构进入到内核中的 <code>entry_SYSCALL_64</code>这一函数，随后通过系统调用表跳转到对应的函数</p>
 <p>现在让我们将目光放到 <code>entry_SYSCALL_64</code> 这一用汇编写的函数内部，观察，我们不难发现其有着<a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/latest/source/arch/x86/entry/entry_64.S#L107">这样一条指令</a>：</p>
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">PUSH_AND_CLEAR_REGS <span class="hljs-attribute">rax</span>=$-ENOSYSCopy<br></code></pre></td></tr></table></figure>
@@ -734,11 +734,11 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
+        <a href="/tags/Pwn/">#Pwn</a>
+      
         <a href="/tags/Linux/">#Linux</a>
       
         <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
-      
-        <a href="/tags/Pwn/">#Pwn</a>
       
         <a href="/tags/%E5%AD%A6%E4%B9%A0%E6%9C%AD%E8%AE%B0/">#学习札记</a>
       
@@ -752,7 +752,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>【PWN.0x02】Linux Kernel Pwn II：通用结构体与技巧</div>
+      <div>【PWN.0x02】Linux Kernel Pwn II：常用结构体集合</div>
       <div>http://blog.arttnba3.cn/2021/11/29/PWN-0X02-LINUX-KERNEL-PWN-PART-II/</div>
     </div>
     <div class="license-meta">
