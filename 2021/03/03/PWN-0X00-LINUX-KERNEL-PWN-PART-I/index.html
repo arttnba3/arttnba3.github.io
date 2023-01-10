@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/03/03/JXPaRGtvIKU3rzk.png">
 <meta property="article:published_time" content="2021-03-03T10:36:24.000Z">
-<meta property="article:modified_time" content="2023-01-10T03:50:50.449Z">
+<meta property="article:modified_time" content="2023-01-10T13:13:49.913Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
@@ -265,7 +265,7 @@
         
         
         
-          1022 分钟
+          1027 分钟
         
       </span>
     
@@ -320,7 +320,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年1月10日 中午
+                    本文最后更新于：2023年1月10日 晚上
                   
                 
               </p>
@@ -971,16 +971,31 @@
 <p>笔者尝试反弹一个 shell 到本地然后连上去，不过失败了，原因暂且不明…（目前怀疑可能是 qemu 环境的原因，如果是在真实环境应该是能够成功的</p>
 </blockquote>
 <h2 id="FUSE-race"><a href="#FUSE-race" class="headerlink" title="FUSE race"></a>FUSE race</h2><blockquote>
-<p>参考<a target="_blank" rel="noopener" href="https://www.willsroot.io/2022/01/cve-2022-0185.html">CVE-2022-0185</a></p>
+<p>FUSE 的基本信息参考 <a target="_blank" rel="noopener" href="https://www.usenix.org/system/files/conference/fast17/fast17-vangoor.pdf">To FUSE or Not to FUSE: Performance of User-Space File Systems</a>，基于 FUSE 的利用参考<a target="_blank" rel="noopener" href="https://www.willsroot.io/2022/01/cve-2022-0185.html">CVE-2022-0185</a></p>
+<blockquote>
+<p>注：最好先了解 VFS 相关的一些基本知识</p>
+</blockquote>
 </blockquote>
 <h3 id="FUSE-简介"><a href="#FUSE-简介" class="headerlink" title="FUSE 简介"></a>FUSE 简介</h3><p>前面讲到，自 Linux kernel 5.11 版本起，非特权用户被禁止使用 userfaultfd 系统调用，但是<strong>我们仍能通过 FUSE 达成同样的效果</strong></p>
 <p>我们先来介绍 FUSE —— <em>Filesystem in Userspace</em> ，即<strong>用户空间文件系统</strong>，该功能<strong>允许非特权用户在用户空间实现一个用户态文件系统</strong>，开发者只需要实现对应的文件操作接口就可以在用户空间实现一个文件系统，而不需要重新编译内核，这给开发者提供了相当的便利</p>
-<p>FUSE 主要由两部分组成：</p>
+<p>FUSE 自 Linux 2.6.14 版本引入，主要由两部分组成：</p>
 <ul>
-<li>FUSE 内核模块，负责与 kernel 的 VFS 进行交互，并向用户空间暴露 <code>/dev/fuse</code> 接口</li>
-<li><a target="_blank" rel="noopener" href="https://github.com/libfuse/libfuse">用户空间的 libfuse 库</a></li>
+<li>FUSE 内核模块，负责与 kernel 的 VFS 进行交互，并向用户空间实现的文件系统进程暴露 <code>/dev/fuse</code> 块设备接口</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/libfuse/libfuse">用户空间的 libfuse 库</a> 负责向用户程序提供封装好的接口，开发者基于该库进行用户空间文件系统的开发：由一个 FUSE daemon 守护进程负责与内核模块进行交互并进行文件系统的具体操作</li>
 </ul>
 <p><img src="https://s2.loli.net/2022/04/06/zDwY7GMZQkE2c9m.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>FUSE 的基本运行原理如下：</p>
+<ul>
+<li>FUSE daemon 守护进程通过 libfuse 库的 <code>fuse_main()</code> 注册文件系统与对应的处理函数，并挂载到对应的目录下（例如 <code>/mnt/fuse</code>）</li>
+<li>用户进程访问挂载点下的文件（例如 <code>/mnt/fuse/file</code>），来到内核中的 VFS 对应 inode 的 <code>inode_operations</code> 中的处理函数，交由 FUSE 内核模块进行处理</li>
+<li>FUSE 内核模块将请求交由用户态对应的 FUSE daemon 守护进程进行处理</li>
+<li>在 FUSE daemon 调用文件系统创建时注册的对应的处理函数，这一步可能会需要访问实际的文件系统（如 <code>ext4</code>，看文件系统具体定义，你也可以写成一个纯内存的文件系统（笑））</li>
+<li>FUSE daemon 完成处理，返回结果至 FUSE 内核模块，再经由 VFS 返回给用户进程</li>
+</ul>
+<p><img src="https://s2.loli.net/2023/01/10/9q3VSGepCnKzbuB.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>FUSE 内部还有更为复杂的结构，如五个处理队列等，但这暂时不是我们本篇需要关注的，我们主要关注如何用 FUSE 来完成利用就行（笑）</p>
+<p><img src="https://s2.loli.net/2023/01/10/Mq4UcEBXPTfr7vA.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h3 id="FUSE-基本用法"><a href="#FUSE-基本用法" class="headerlink" title="FUSE 基本用法"></a>FUSE 基本用法</h3><p>借助 libfuse 库，FUSE 的用法其实还是比较简单的，</p>
 <h1 id="0x07-内核堆喷-heap-spraying"><a href="#0x07-内核堆喷-heap-spraying" class="headerlink" title="0x07.内核堆喷(heap spraying)"></a>0x07.内核堆喷(heap spraying)</h1><!--例题：SECCON 2020 Online CTF - kstart : userfaultfd + setxattr-->
 
 <p><strong>堆喷射</strong>（heap spraying）指的是一种辅助攻击手法：「<strong>通过大量的分配相同的结构体来达成某种特定的内存布局</strong>，从而帮助攻击者完成后续的利用过程」，比如说你有一个 UAF，但是该 object 不属于当前 freelist ，释放后会回到 node 上，这时你可以通过堆喷射来确保拿到该 object；又或者说当你有一个堆溢出，你可以预先喷射大量特定结构体，从而保证对其中某个结构体的溢出（例如CVE-2021-22255）</p>
