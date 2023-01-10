@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/03/03/JXPaRGtvIKU3rzk.png">
 <meta property="article:published_time" content="2021-03-03T10:36:24.000Z">
-<meta property="article:modified_time" content="2022-09-07T13:05:31.526Z">
+<meta property="article:modified_time" content="2023-01-10T03:50:50.449Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
@@ -254,7 +254,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          122k 字
+          123k 字
         
       </span>
     
@@ -265,7 +265,7 @@
         
         
         
-          1015 分钟
+          1022 分钟
         
       </span>
     
@@ -320,7 +320,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2022年9月7日 晚上
+                    本文最后更新于：2023年1月10日 中午
                   
                 
               </p>
@@ -841,13 +841,34 @@
 <p>当然，不到万不得已基本上不会用这种累死人的方法</p>
 </blockquote>
 </blockquote>
-<h2 id="userfaultfd"><a href="#userfaultfd" class="headerlink" title="userfaultfd"></a>userfaultfd</h2><p>userfaultfd 本身只是一个常规的与处理缺页异常相关的系统调用，但是<strong>通过这个机制我们可以控制进程执行流程的先后顺序，从而使得对条件竞争的利用成功率大幅提高</strong></p>
-<p>考虑在内核模块当中有一个菜单堆的情况，其中的操作都没有加锁，存在条件竞争的可能，考虑如下竞争情况：</p>
+<h2 id="userfaultfd（may-obsolete）"><a href="#userfaultfd（may-obsolete）" class="headerlink" title="userfaultfd（may obsolete）"></a>userfaultfd（may obsolete）</h2><h3 id="userfaultfd-与条件竞争"><a href="#userfaultfd-与条件竞争" class="headerlink" title="userfaultfd 与条件竞争"></a>userfaultfd 与条件竞争</h3><p>严格意义而言 userfaultfd 并非是一种利用手法，<strong>而是 Linux 的一个系统调用</strong>，简单来说，通过 userfaultfd 这种机制，<strong>用户可以通过自定义的 page fault handler 在用户态处理缺页异常</strong></p>
+<p>下面的这张图很好地体现了 userfaultfd 的整个流程：</p>
+<p><img src="https://i.loli.net/2021/09/08/i4C7oOvHdG2RqUm.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>要使用 userfaultfd 系统调用，我们首先要注册一个 userfaultfd，通过 ioctl 监视一块内存区域，同时还需要专门启动一个用以进行轮询的线程 <code>uffd monitor</code>，该线程会通过 <code>poll()</code> 函数不断轮询<strong>直到出现缺页异常</strong></p>
+<ul>
+<li><p>当有一个线程在这块内存区域内触发缺页异常时（比如说第一次访问一个匿名页），该线程（称之为 faulting 线程）进入到内核中处理缺页异常</p>
+</li>
+<li><p>内核会调用 <code>handle_userfault()</code> 交由 userfaultfd 处理</p>
+</li>
+<li><p>随后 faulting 线程进入堵塞状态，同时将一个 <code>uffd_msg</code> 发送给 monitor 线程，等待其处理结束</p>
+</li>
+<li><p>monitor 线程调用通过 ioctl 处理缺页异常，有如下选项：</p>
+<ul>
+<li><code>UFFDIO_COPY</code>：将用户自定义数据拷贝到 faulting page 上</li>
+<li><code>UFFDIO_ZEROPAGE</code> ：将 faulting page 置0</li>
+<li><code>UFFDIO_WAKE</code>：用于配合上面两项中 <code>UFFDIO_COPY_MODE_DONTWAKE</code> 和 <code>UFFDIO_ZEROPAGE_MODE_DONTWAKE</code> 模式实现批量填充</li>
+</ul>
+</li>
+<li><p>在处理结束后 monitor 线程发送信号唤醒 faulting 线程继续工作</p>
+</li>
+</ul>
+<p>以上便是 userfaultfd 这个机制的整个流程，该机制最初被设计来用以进行虚拟机&#x2F;进程的迁移等用途，但是<strong>通过这个机制我们可以控制进程执行流程的先后顺序，从而使得对条件竞争的利用成功率大幅提高</strong></p>
+<p>考虑在内核模块当中有一个菜单堆的情况，其中的操作都没有加锁，那么便存在条件竞争的可能，考虑如下竞争情况：</p>
 <ul>
 <li>线程1不断地分配与编辑堆块</li>
 <li>线程2不断地释放堆块</li>
 </ul>
-<p>此时线程1便<strong>有可能编辑到被释放的堆块</strong>，若是此时恰好我们又将这个堆块申请到了合适的位置（比如说 tty_operations），那么我们便可以控制程序执行流（也可以是编辑释放后堆块的 fd，然后实现任意地址写）</p>
+<p>此时线程1便<strong>有可能编辑到被释放的堆块</strong>，若是此时恰好我们又将这个堆块申请到了合适的位置（比如说 tty_operations），那么我们便可以完成对该堆块的重写，从而进行下一步利用</p>
 <p>但是毫无疑问的是，若是直接开两个线程进行竞争，命中的几率是比较低的，我们也很难判断是否命中</p>
 <p>但假如线程1使用诸如 <code>copy_from_user</code> 等方法从用户空间向内核空间拷贝数据，那么我们便可以先用 mmap 分一块匿名内存，为其注册 userfaultfd，之后<strong>线程1在内核中触发缺页异常时便会陷入阻塞，此时我们便可以开另一个线程将这块内存释放掉，然后再分配到我们想要的地方</strong>（比如说 tty_operations），此时再让线程1继续执行，便能向我们想要读写的目标读写特定数据了，<strong>这使得条件竞争的命中率大幅提高</strong></p>
 <h3 id="userfaultfd-的具体用法"><a href="#userfaultfd-的具体用法" class="headerlink" title="userfaultfd 的具体用法"></a>userfaultfd 的具体用法</h3><blockquote>
@@ -950,15 +971,23 @@
 <p>笔者尝试反弹一个 shell 到本地然后连上去，不过失败了，原因暂且不明…（目前怀疑可能是 qemu 环境的原因，如果是在真实环境应该是能够成功的</p>
 </blockquote>
 <h2 id="FUSE-race"><a href="#FUSE-race" class="headerlink" title="FUSE race"></a>FUSE race</h2><blockquote>
-<p>参考<a target="_blank" rel="noopener" href="https://www.willsroot.io/2022/01/cve-2022-0185.html">这篇文章</a></p>
+<p>参考<a target="_blank" rel="noopener" href="https://www.willsroot.io/2022/01/cve-2022-0185.html">CVE-2022-0185</a></p>
 </blockquote>
-<p>前面讲到，自 Linux kernel 5.11 版本起，非特权用户被禁止使用 userfaultfd 系统调用，但是<strong>我们仍能通过 FUSE 达成同样的效果</strong></p>
-<p>我们先来介绍 FUSE —— <em>Filesystem in Userspace</em> ，即<strong>用户空间文件系统</strong>，该功能<strong>允许用户在用户空间实现一个用户态文件系统</strong>，开发者只需要实现对应的文件操作接口就可以在用户空间实现一个文件系统，而不需要重新编译内核，这给开发者提供了相当的便利</p>
+<h3 id="FUSE-简介"><a href="#FUSE-简介" class="headerlink" title="FUSE 简介"></a>FUSE 简介</h3><p>前面讲到，自 Linux kernel 5.11 版本起，非特权用户被禁止使用 userfaultfd 系统调用，但是<strong>我们仍能通过 FUSE 达成同样的效果</strong></p>
+<p>我们先来介绍 FUSE —— <em>Filesystem in Userspace</em> ，即<strong>用户空间文件系统</strong>，该功能<strong>允许非特权用户在用户空间实现一个用户态文件系统</strong>，开发者只需要实现对应的文件操作接口就可以在用户空间实现一个文件系统，而不需要重新编译内核，这给开发者提供了相当的便利</p>
+<p>FUSE 主要由两部分组成：</p>
+<ul>
+<li>FUSE 内核模块，负责与 kernel 的 VFS 进行交互，并向用户空间暴露 <code>/dev/fuse</code> 接口</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/libfuse/libfuse">用户空间的 libfuse 库</a></li>
+</ul>
 <p><img src="https://s2.loli.net/2022/04/06/zDwY7GMZQkE2c9m.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h1 id="0x07-内核堆喷-heap-spraying"><a href="#0x07-内核堆喷-heap-spraying" class="headerlink" title="0x07.内核堆喷(heap spraying)"></a>0x07.内核堆喷(heap spraying)</h1><!--例题：SECCON 2020 Online CTF - kstart : userfaultfd + setxattr-->
 
 <p><strong>堆喷射</strong>（heap spraying）指的是一种辅助攻击手法：「<strong>通过大量的分配相同的结构体来达成某种特定的内存布局</strong>，从而帮助攻击者完成后续的利用过程」，比如说你有一个 UAF，但是该 object 不属于当前 freelist ，释放后会回到 node 上，这时你可以通过堆喷射来确保拿到该 object；又或者说当你有一个堆溢出，你可以预先喷射大量特定结构体，从而保证对其中某个结构体的溢出（例如CVE-2021-22255）</p>
 <p>作为一种辅助的攻击手法，堆喷射可以被应用在多种场景下</p>
+<blockquote>
+<p>其实在前面的 InCTF2021-Kqueue 中我们便已经使用了这种手法：）</p>
+</blockquote>
 <h2 id="例题：强网杯2021线上赛-notebook-1"><a href="#例题：强网杯2021线上赛-notebook-1" class="headerlink" title="例题：强网杯2021线上赛 - notebook"></a><em>例题：强网杯2021线上赛 - notebook</em></h2><h3 id="简单分析"><a href="#简单分析" class="headerlink" title="简单分析"></a>简单分析</h3><p>首先看一下启动脚本（<del>写得很 tmd 乱，早该锤锤出题人了</del>）</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/sh</span><br>stty intr ^]<br>exec timeout 300 qemu-system-x86_64 -m 64M -kernel bzImage -initrd rootfs.cpio -append &quot;loglevel=3 console=ttyS0 oops=panic panic=1 kaslr&quot; -nographic -net user -net nic -device e1000 -smp cores=2,threads=2 -cpu kvm64,+smep,+smap -monitor /dev/null 2&gt;/dev/null -s<br></code></pre></td></tr></table></figure>
 
@@ -1054,7 +1083,7 @@
 <p>运行即可提权到 root</p>
 <p><img src="https://i.loli.net/2021/09/10/MKc5AXx9YwQzneU.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h3 id="解法三：userfaultfd-kernel-UAF-hijack-modprobe-path"><a href="#解法三：userfaultfd-kernel-UAF-hijack-modprobe-path" class="headerlink" title="解法三：userfaultfd + kernel UAF + hijack modprobe_path"></a>解法三：userfaultfd + kernel UAF + hijack modprobe_path</h3><h1 id="0x08-Kernel-tricks"><a href="#0x08-Kernel-tricks" class="headerlink" title="0x08. Kernel tricks"></a>0x08. Kernel tricks</h1><p>在学习了以上内核基本利用技巧之后，我们可以很容易地发现 kernel pwn 中的一些通用 tricks 与通用解法</p>
-<h2 id="pt-regs-构造通用-kernel-ROP解法"><a href="#pt-regs-构造通用-kernel-ROP解法" class="headerlink" title="pt_regs 构造通用 kernel ROP解法"></a><em>pt_regs 构造通用 kernel ROP解法</em></h2><h3 id="pre-前置条件"><a href="#pre-前置条件" class="headerlink" title="pre.前置条件"></a>pre.前置条件</h3><p>可以控制内核执行流（劫持至少一个指针），（可选）已经泄露内核基址</p>
+<h2 id="pt-regs-构造通用-kernel-ROP解法-（may-obsolete）"><a href="#pt-regs-构造通用-kernel-ROP解法-（may-obsolete）" class="headerlink" title="_pt_regs 构造通用 kernel ROP解法_（may obsolete）"></a>_pt_regs 构造通用 kernel ROP解法_（may obsolete）</h2><h3 id="pre-前置条件"><a href="#pre-前置条件" class="headerlink" title="pre.前置条件"></a>pre.前置条件</h3><p>可以控制内核执行流（劫持至少一个指针），（可选）已经泄露内核基址</p>
 <h3 id="系统调用-与-pt-regs-结构体"><a href="#系统调用-与-pt-regs-结构体" class="headerlink" title="系统调用 与 pt_regs 结构体"></a>系统调用 与 pt_regs 结构体</h3><p>系统调用的本质是什么？或许不少人都能够答得上来是由我们在用户态布置好相应的参数后执行 <code>syscall</code> 这一汇编指令，通过门结构进入到内核中的 <code>entry_SYSCALL_64</code>这一函数，随后通过系统调用表跳转到对应的函数</p>
 <p>现在让我们将目光放到 <code>entry_SYSCALL_64</code> 这一用汇编写的函数内部，观察，我们不难发现其有着<a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/latest/source/arch/x86/entry/entry_64.S#L107">这样一条指令</a>：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs assembly">PUSH_AND_CLEAR_REGS rax=$-ENOSYS<br></code></pre></td></tr></table></figure>
@@ -1120,7 +1149,7 @@
 
 <p>传远程，运行，成功提权</p>
 <p><img src="https://i.loli.net/2021/11/20/4Mtasj1QRYUAhcI.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h2 id="setxattr-userfaultfd-堆占位技术"><a href="#setxattr-userfaultfd-堆占位技术" class="headerlink" title="setxattr + userfaultfd 堆占位技术"></a>setxattr + userfaultfd 堆占位技术</h2><p>setxattr 是一个十分独特的系统调用族，抛开其本身的功能，在 kernel 的利用当中他可以为我们提供<strong>近乎任意大小的内核空间 object 分配</strong></p>
+<h2 id="setxattr-userfaultfd-堆占位技术（may-obsolete）"><a href="#setxattr-userfaultfd-堆占位技术（may-obsolete）" class="headerlink" title="setxattr + userfaultfd 堆占位技术（may obsolete）"></a>setxattr + userfaultfd 堆占位技术（may obsolete）</h2><p>setxattr 是一个十分独特的系统调用族，抛开其本身的功能，在 kernel 的利用当中他可以为我们提供<strong>近乎任意大小的内核空间 object 分配</strong></p>
 <p>观察 setxattr 源码，发现如下调用链：</p>
 <figure class="highlight isbl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs isbl"><span class="hljs-function"><span class="hljs-title">SYS_setxattr</span>()</span><br>    <span class="hljs-function"><span class="hljs-title">path_setxattr</span>()</span><br>        <span class="hljs-function"><span class="hljs-title">setxattr</span>()</span><br></code></pre></td></tr></table></figure>
 
