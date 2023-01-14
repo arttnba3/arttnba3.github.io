@@ -27,11 +27,11 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/05/08/fqdbRMhuKCrIozk.png">
 <meta property="article:published_time" content="2021-02-21T14:02:14.000Z">
-<meta property="article:modified_time" content="2022-08-18T17:51:11.956Z">
+<meta property="article:modified_time" content="2023-01-14T07:43:34.978Z">
 <meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="Operating System">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
-<meta property="article:tag" content="Operating System">
 <meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="学习札记">
 <meta name="twitter:card" content="summary_large_image">
@@ -254,7 +254,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          41k 字
+          42k 字
         
       </span>
     
@@ -265,7 +265,7 @@
         
         
         
-          343 分钟
+          349 分钟
         
       </span>
     
@@ -320,7 +320,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2022年8月19日 凌晨
+                    本文最后更新于：2023年1月14日 下午
                   
                 
               </p>
@@ -363,10 +363,12 @@
 <p>一般来说不需要有什么改动，直接保存退出即可，你也可以根据你的需求手动更改一些编译选项</p>
 <p>通常保存的路径在当前目录下的 <code>.config</code> 文件中，如果你在生成配置文件后才想起来忘了改某个选项也可以直接编辑这个文件</p>
 <h3 id="III-开始编译"><a href="#III-开始编译" class="headerlink" title="III.开始编译"></a>III.开始编译</h3><p>运行如下命令开始编译，生成内核镜像</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">make bzImage</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">make -j$(<span class="hljs-built_in">nproc</span>) bzImage</span><br></code></pre></td></tr></table></figure>
 
 <blockquote>
-<p>可以使用make bzImage -j4加速编译</p>
+<blockquote>
+<p>直接 <code>make -j$(nproc)</code> 也行，但是会额外编译出很多你可能不一定需要的东西</p>
+</blockquote>
 <p>笔者机器比较烂，大概要等一顿饭的时间…</p>
 <p>以及编译内核会比较需要空间，一定要保证磁盘剩余空间充足</p>
 </blockquote>
@@ -440,9 +442,9 @@
 <h4 id="II-编译busybox源码"><a href="#II-编译busybox源码" class="headerlink" title="II.编译busybox源码"></a>II.编译busybox源码</h4><p>进入配置界面</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">make menuconfig</span><br></code></pre></td></tr></table></figure>
 
-<p>勾选Settings —&gt; Build static binary file (no shared lib)</p>
+<p>勾选 <code>Settings</code> —&gt; <code>Build static binary file (no shared lib)</code></p>
 <blockquote>
-<p> 若是不勾选则需要单独配置lib，比较麻烦</p>
+<p> 若是不勾选则需要单独配置 libc，比较麻烦</p>
 </blockquote>
 <p>接下来就是编译了，速度会比编译内核快很多</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">make install</span><br></code></pre></td></tr></table></figure>
@@ -451,14 +453,14 @@
 <h2 id="二、建立文件系统"><a href="#二、建立文件系统" class="headerlink" title="二、建立文件系统"></a>二、建立文件系统</h2><h4 id="I-初始化文件系统"><a href="#I-初始化文件系统" class="headerlink" title="I.初始化文件系统"></a>I.初始化文件系统</h4><p>一些简单的初始化操作…</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cd</span> _install</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">mkdir</span> -pv &#123;bin,sbin,etc,proc,sys,home,lib64,lib/x86_64-linux-gnu,usr/&#123;bin,sbin&#125;&#125;</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">touch</span> etc/inittab</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">mkdir</span> etc/init.d</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">touch</span> etc/init.d/rcS</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">chmod</span> +x ./etc/init.d/rcS</span><br></code></pre></td></tr></table></figure>
 
-<h4 id="II-配置初始化脚本"><a href="#II-配置初始化脚本" class="headerlink" title="II.配置初始化脚本"></a>II.配置初始化脚本</h4><p>首先配置<code>etc/inttab</code>，写入如下内容：</p>
+<h4 id="II-配置初始化脚本"><a href="#II-配置初始化脚本" class="headerlink" title="II.配置初始化脚本"></a>II.配置初始化脚本</h4><p>首先配置 <code>etc/inttab</code> ，写入如下内容：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell">::sysinit:/etc/init.d/rcS<br>::askfirst:/bin/ash<br>::ctrlaltdel:/sbin/reboot<br>::shutdown:/sbin/swapoff -a<br>::shutdown:/bin/umount -a -r<br>::restart:/sbin/init<br></code></pre></td></tr></table></figure>
 
 <p>在上面的文件中指定了系统初始化脚本，因此接下来配置<code>etc/init.d/rcS</code>，写入如下内容：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/sh</span><br>mount -t proc none /proc<br>mount -t sys none /sys<br>/bin/mount -n -t sysfs none /sys<br>/bin/mount -t ramfs none /dev<br>/sbin/mdev -s<br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/sh</span><br>mount -t proc none /proc<br>mount -t sysfs none /sys<br>mount -t devtmpfs devtmpfs /dev<br>mount -t tmpfs tmpfs /tmp<br>mkdir /dev/pts<br>mount -t devpts devpts /dev/pts<br><br>echo -e &quot;\nBoot took $(cut -d&#x27; &#x27; -f1 /proc/uptime) seconds\n&quot;<br>setsid cttyhack setuidgid 1000 sh<br><br>poweroff -d 0  -f<br><br></code></pre></td></tr></table></figure>
 
 <p>主要是配置各种目录的挂载</p>
-<p>也可以在根目录下创建<code>init</code>文件，写入如下内容：</p>
+<p>也可以在根目录下创建 <code>init</code> 文件，写入如下内容：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/sh</span><br><br>mount -t proc none /proc<br>mount -t sysfs none /sys<br>mount -t devtmpfs devtmpfs /dev<br><br>exec 0&lt;/dev/console<br>exec 1&gt;/dev/console<br>exec 2&gt;/dev/console<br><br>echo -e &quot;\nBoot took $(cut -d&#x27; &#x27; -f1 /proc/uptime) seconds\n&quot;<br>setsid cttyhack setuidgid 1000 sh<br><br>umount /proc<br>umount /sys<br>poweroff -d 0  -f<br></code></pre></td></tr></table></figure>
 
 <p>别忘了添加可执行权限：</p>
@@ -471,7 +473,7 @@
 <blockquote>
 <p>为了方便笔者这里就先不弄了，直接快进到下一步，以后有时间再补充（咕咕咕</p>
 </blockquote>
-<h2 id="三、打包文件系统为镜像文件"><a href="#三、打包文件系统为镜像文件" class="headerlink" title="三、打包文件系统为镜像文件"></a>三、打包文件系统为镜像文件</h2><p>使用如下命令打包文件系统</p>
+<h2 id="三、打包文件系统为镜像文件"><a href="#三、打包文件系统为镜像文件" class="headerlink" title="三、打包文件系统为镜像文件"></a>三、打包文件系统为镜像文件</h2><h4 id="I-打包为-cpio-文件"><a href="#I-打包为-cpio-文件" class="headerlink" title="I. 打包为 cpio 文件"></a>I. 打包为 cpio 文件</h4><p>使用如下命令打包文件系统为 cpio 格式</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">find . | cpio -o --format=newc &gt; ../../rootfs.cpio</span><br></code></pre></td></tr></table></figure>
 
 <p>也可以这么写</p>
@@ -480,6 +482,17 @@
 <blockquote>
 <p>这里的位置是笔者随便选的，也可以将之放到自己喜欢的位置</p>
 </blockquote>
+<h4 id="II-打包为-ext4-镜像"><a href="#II-打包为-ext4-镜像" class="headerlink" title="II. 打包为 ext4 镜像"></a>II. 打包为 ext4 镜像</h4><p>这里也可以将文件系统打包为 ext4 镜像格式，首先创建空白 ext4 镜像文件，这里 <code>bs</code> 表示块大小，<code>count</code> 表示块的数量：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">dd</span> <span class="hljs-keyword">if</span>=/dev/zero of=rootfs.img bs=1M count=32</span><br></code></pre></td></tr></table></figure>
+
+<p>之后将其格式化为 ext4 格式：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">mkfs.ext4 rootfs.img</span> <br></code></pre></td></tr></table></figure>
+
+<p>挂载镜像，将文件拷贝进去即可：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">mkdir</span> tmp</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo mount rootfs.img ./tmp/</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">cp</span> -rfp _install/* ./tmp/</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo umount ./tmp</span><br></code></pre></td></tr></table></figure>
+
+
+
 <h2 id="四、向文件系统中添加文件"><a href="#四、向文件系统中添加文件" class="headerlink" title="四、向文件系统中添加文件"></a>四、向文件系统中添加文件</h2><p>若是我们后续需要向文件系统中补充一些其他的文件，可以选择在原先的<code>_install</code>文件夹中添加（不过这样的话若是配置多个文件系统则会变得很混乱），也可以解压文件系统镜像后添加文件再重新进行打包</p>
 <h4 id="I-解压磁盘镜像"><a href="#I-解压磁盘镜像" class="headerlink" title="I.解压磁盘镜像"></a>I.解压磁盘镜像</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">cpio -idv &lt; ./rootfs.cpio</span><br></code></pre></td></tr></table></figure>
 
@@ -489,12 +502,12 @@
 
 <h1 id="0x03-使用qemu运行内核"><a href="#0x03-使用qemu运行内核" class="headerlink" title="0x03.使用qemu运行内核"></a>0x03.使用qemu运行内核</h1><p>终于到了最激动人心的时候了：<strong>我们即将要将这个Linux内核跑起来——用我们自己配置的文件系统与内核</strong></p>
 <p>安全起见，我们并不直接在真机上运行这个内核，而是使用qemu在虚拟机里运行</p>
-<h3 id="配置启动脚本"><a href="#配置启动脚本" class="headerlink" title="配置启动脚本"></a>配置启动脚本</h3><p>首先将先前的<code>bzImage</code>和<code>rootfs.cpio</code>放到同一个目录下</p>
+<h3 id="配置启动脚本"><a href="#配置启动脚本" class="headerlink" title="配置启动脚本"></a>配置启动脚本</h3><h4 id="I-使用-cpio-文件作为文件系统"><a href="#I-使用-cpio-文件作为文件系统" class="headerlink" title="I. 使用 cpio 文件作为文件系统"></a>I. 使用 cpio 文件作为文件系统</h4><p>首先将先前的<code>bzImage</code>和<code>rootfs.cpio</code>放到同一个目录下</p>
 <p>接下来编写启动脚本</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">touch</span> boot.sh</span><br></code></pre></td></tr></table></figure>
 
 <p>写入如下内容：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/sh</span><br>qemu-system-x86_64 \<br>    -m 128M \<br>    -kernel ./bzImage \<br>    -initrd  ./rootfs.cpio \<br>    -monitor /dev/null \<br>    -append &quot;root=/dev/ram rdinit=/sbin/init console=ttyS0 oops=panic panic=1 loglevel=3 quiet nokaslr&quot; \<br>    -cpu kvm64,+smep \<br>    -smp cores=2,threads=1 \<br>    -netdev user,id=t0, -device e1000,netdev=t0,id=nic0 \<br>    -nographic \<br>    -s<br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/sh</span><br>qemu-system-x86_64 \<br>    -m 128M \<br>    -kernel ./bzImage \<br>    -initrd  ./rootfs.cpio \<br>    -monitor /dev/null \<br>    -append &quot;root=/dev/ram rdinit=/sbin/init console=ttyS0 oops=panic panic=1 loglevel=3 quiet kaslr&quot; \<br>    -cpu kvm64,+smep \<br>    -smp cores=2,threads=1 \<br>    -nographic \<br>    -s<br></code></pre></td></tr></table></figure>
 
 <p>部分参数说明如下：</p>
 <ul>
@@ -503,7 +516,7 @@
 <li><code>-initrd</code>：磁盘镜像路径</li>
 <li><code>-append</code>：附加参数选项<ul>
 <li><code>nokalsr</code>：关闭内核地址随机化，方便我们进行调试</li>
-<li><code>rdinit</code>：指定初始启动进程，<code>/sbin/init</code>进程会默认以<code>/etc/init.d/rcS</code>作为启动脚本</li>
+<li><code>rdinit</code>：指定初始启动进程，<code>/sbin/init</code>进程会默认以 <code>/etc/init.d/rcS</code> 作为启动脚本</li>
 <li><code>loglevel=3 </code> &amp; <code>quiet</code>：不输出log</li>
 <li><code>console=ttyS0</code>：指定终端为<code>/dev/ttyS0</code>，这样一启动就能进入终端界面</li>
 </ul>
@@ -520,6 +533,10 @@
 
 <p>暂且没查到原因…</p>
 </blockquote>
+<h4 id="II-使用-ext4-镜像作为文件系统"><a href="#II-使用-ext4-镜像作为文件系统" class="headerlink" title="II. 使用 ext4 镜像作为文件系统"></a>II. 使用 ext4 镜像作为文件系统</h4><p>编写如下启动脚本即可，实际上只是将 <code>-initrd</code> 换成了 <code>-hda</code>，这里也可以写成 <code>-drive file=./rootfs.img,format=raw</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-meta">#!/bin/bash</span><br>qemu-system-x86_64 \<br>    -m 256M \<br>    -cpu kvm64,+smep,+smap \<br>    -smp cores=2,threads=2 \<br>    -kernel bzImage \<br>    -hda ./rootfs.img \<br>    -nographic \<br>    -monitor /dev/null \<br>    -snapshot \<br>    -append <span class="hljs-string">&quot;console=ttyS0 root=/dev/sda rw rdinit=/sbin/init kaslr pti=on quiet oops=panic panic=1&quot;</span> \<br>    -no-reboot \<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://s2.loli.net/2023/01/14/LTqV7wCukEOgKvx.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h1 id="0x04-编写可装载内核模块（LKMs）"><a href="#0x04-编写可装载内核模块（LKMs）" class="headerlink" title="0x04.编写可装载内核模块（LKMs）"></a>0x04.编写可装载内核模块（LKMs）</h1><blockquote>
 <p>写这一部分把我的虚拟机搞崩了好几次…Or2</p>
 </blockquote>
@@ -865,7 +882,7 @@
 <blockquote>
 <p>boot.sh</p>
 </blockquote>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-meta">#!/bin/sh</span><br>qemu-system-x86_64 \<br>    -m 128M \<br>    -kernel ./bzImage \<br>    -initrd  ./rootfs.cpio \<br>    -append <span class="hljs-string">&quot;root=/dev/ram console=ttyS0 oops=panic panic=1 loglevel=3 quiet nokaslr&quot;</span> \<br>    -cpu kvm64,+smep,+smap \<br>    -smp cores=2,threads=2 \<br>    -netdev user,<span class="hljs-built_in">id</span>=t0, -device e1000,netdev=t0,<span class="hljs-built_in">id</span>=nic0 \<br>    -nographic \<br>    -monitor /dev/null<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-meta">#!/bin/sh</span><br>qemu-system-x86_64 \<br>    -m 128M \<br>    -kernel ./bzImage \<br>    -initrd  ./rootfs.cpio \<br>    -append <span class="hljs-string">&quot;root=/dev/ram console=ttyS0 oops=panic panic=1 loglevel=3 quiet kaslr&quot;</span> \<br>    -cpu kvm64,+smep,+smap \<br>    -smp cores=2,threads=2 \<br>    -nographic \<br>    -monitor /dev/null \<br>    -no-reboot<br></code></pre></td></tr></table></figure>
 </blockquote>
 
                 
@@ -900,11 +917,11 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
+        <a href="/tags/Operating-System/">#Operating System</a>
+      
         <a href="/tags/Linux/">#Linux</a>
       
         <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
-      
-        <a href="/tags/Operating-System/">#Operating System</a>
       
         <a href="/tags/Pwn/">#Pwn</a>
       
