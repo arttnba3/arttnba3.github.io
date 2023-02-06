@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/11/14/NwjgEMse8cTCdLr.png">
 <meta property="article:published_time" content="2021-11-29T05:51:25.000Z">
-<meta property="article:modified_time" content="2023-02-05T17:26:00.153Z">
+<meta property="article:modified_time" content="2023-02-06T16:15:44.487Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
@@ -264,7 +264,7 @@
         
         
         
-          597 分钟
+          598 分钟
         
       </span>
     
@@ -319,7 +319,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年2月6日 凌晨
+                    本文最后更新于：2023年2月7日 凌晨
                   
                 
               </p>
@@ -331,7 +331,11 @@
 <span id="more"></span>
 
 <h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00.一切开始之前"></a>0x00.一切开始之前</h1><p>本篇博客中出现的源代码大部分选自 Linux v5.15，少部分选自更新的一些版本，不过大部分情况下本篇博文中的大部分结构体都不会随着版本更新而发生改动</p>
-<h2 id="✳总览"><a href="#✳总览" class="headerlink" title="✳总览"></a>✳总览</h2><p>笔者对这些结构体、系统调用的利用做一个简单的总结（可能不全，不定期更新，主要是笔者认为可能比较有用的）：</p>
+<p>本篇中提到的结构体对应的利用模板集合都可以在 <a href="/download/kernelpwn.h" title="点击此处进行下载">kernelpwn.h</a> 中找到：)</p>
+<h2 id="✳总览"><a href="#✳总览" class="headerlink" title="✳总览"></a>✳总览</h2><p>笔者现对这些结构体、系统调用的利用做一个简单的总结：</p>
+<blockquote>
+<p>可能不全，不定期更新，主要是笔者认为可能比较有用的</p>
+</blockquote>
 <h3 id="①-可用作堆喷的系统调用-amp-结构体"><a href="#①-可用作堆喷的系统调用-amp-结构体" class="headerlink" title="① 可用作堆喷的系统调用 &amp; 结构体"></a>① 可用作堆喷的系统调用 &amp; 结构体</h3><p>我们可以利用这些系统调用及相关的结构体进行大小可变的灵活的堆喷：</p>
 <ul>
 <li>System V 消息队列相关系统调用，涉及 <code>msg_msg</code> 、<code>msg_msgseg</code>，分配 flag <code>GFP_KERNEL_ACCOUNT</code></li>
@@ -344,6 +348,7 @@
 <ul>
 <li><code>modify_ldt()</code> 系统调用，涉及 <code>ldt_struct</code>，大小 32，分配 flag <code>GFP_KERNEL</code></li>
 <li>System V 消息队列相关系统调用，涉及 <code>msg_msg</code> 、<code>msg_msgseg</code>，大小可变，分配 flag <code>GFP_KERNEL_ACCOUNT</code></li>
+<li>密钥管理相关系统调用，涉及 <code>key</code>，分配 flag <code>GFP_KERNEL</code></li>
 </ul>
 <h3 id="③-包含有内核数据的结构体"><a href="#③-包含有内核数据的结构体" class="headerlink" title="③ 包含有内核数据的结构体"></a>③ 包含有内核数据的结构体</h3><p>这些结构体中包含有内核相关的数据（例如函数指针、堆上地址等），我们可以通过一些方法读取这些结构体完成数据泄露</p>
 <ul>
