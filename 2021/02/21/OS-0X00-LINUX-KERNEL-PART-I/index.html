@@ -27,12 +27,12 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/02/22/eX5h7aRdOrCkb9j.png">
 <meta property="article:published_time" content="2021-02-21T13:02:14.000Z">
-<meta property="article:modified_time" content="2022-10-09T13:57:48.816Z">
+<meta property="article:modified_time" content="2023-02-07T05:55:30.293Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
-<meta property="article:tag" content="Operating System">
 <meta property="article:tag" content="Pwn">
+<meta property="article:tag" content="Operating System">
 <meta property="article:tag" content="学习札记">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://i.loli.net/2021/02/22/eX5h7aRdOrCkb9j.png">
@@ -254,7 +254,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          18k 字
+          19k 字
         
       </span>
     
@@ -265,7 +265,7 @@
         
         
         
-          154 分钟
+          155 分钟
         
       </span>
     
@@ -320,7 +320,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2022年10月9日 晚上
+                    本文最后更新于：2023年2月7日 下午
                   
                 
               </p>
@@ -771,6 +771,8 @@
 <h4 id="Random-freelist"><a href="#Random-freelist" class="headerlink" title="Random freelist"></a>Random freelist</h4><p>这种保护主要发生在 slub allocator 向 buddy system 申请到页框之后的处理过程中，对于未开启这种保护的一张完整的 slub，其上的 object 的连接顺序是线性连续的，但在开启了这种保护之后其上的 object 之间的连接顺序是随机的，这让攻击者无法直接预测下一个分配的 object 的地址</p>
 <p>需要注意的是这种保护发生在<strong>slub allocator 刚从 buddy system 拿到新 slub 的时候，运行时 freelist 的构成仍遵循 LIFO</strong></p>
 <p><img src="https://s2.loli.net/2022/03/11/wQzINfhXV3gpGxJ.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h4 id="CONFIG-INIT-ON-ALLOC-DEFAULT-ON"><a href="#CONFIG-INIT-ON-ALLOC-DEFAULT-ON" class="headerlink" title="CONFIG_INIT_ON_ALLOC_DEFAULT_ON"></a>CONFIG_INIT_ON_ALLOC_DEFAULT_ON</h4><p>当编译内核时开启了这个选项时，在内核进行“堆内存”分配时（包括 buddy system 和 slab allocator），<strong>会将被分配的内存上的内容进行清零</strong>，从而防止了利用未初始化内存进行数据泄露的情况</p>
+<p>据悉性能损耗在 <code>1%~7%</code> 之间</p>
 
                 
               </div>
@@ -808,9 +810,9 @@
       
         <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
       
-        <a href="/tags/Operating-System/">#Operating System</a>
-      
         <a href="/tags/Pwn/">#Pwn</a>
+      
+        <a href="/tags/Operating-System/">#Operating System</a>
       
         <a href="/tags/%E5%AD%A6%E4%B9%A0%E6%9C%AD%E8%AE%B0/">#学习札记</a>
       
