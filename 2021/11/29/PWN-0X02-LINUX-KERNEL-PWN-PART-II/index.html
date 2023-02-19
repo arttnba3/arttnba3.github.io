@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/11/14/NwjgEMse8cTCdLr.png">
 <meta property="article:published_time" content="2021-11-29T05:51:25.000Z">
-<meta property="article:modified_time" content="2023-02-07T19:02:04.811Z">
+<meta property="article:modified_time" content="2023-02-14T08:21:25.062Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
@@ -319,7 +319,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年2月8日 凌晨
+                    本文最后更新于：2023年2月14日 下午
                   
                 
               </p>
@@ -331,7 +331,7 @@
 <span id="more"></span>
 
 <h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00.一切开始之前"></a>0x00.一切开始之前</h1><p>本篇博客中出现的源代码大部分选自 Linux v5.15，少部分选自更新的一些版本，不过大部分情况下本篇博文中的大部分结构体都不会随着版本更新而发生改动</p>
-<p>本篇中提到的结构体对应的利用模板集合都可以在 <a href="/download/kernelpwn.h" title="点击此处进行下载">kernelpwn.h</a> 中找到：)</p>
+<p>本篇中提到的结构体对应的利用模板集合都可以在 <a target="_blank" rel="noopener" href="https://arttnba3.cn/2021/03/03/PWN-0X00-LINUX-KERNEL-PWN-PART-I/#%E7%AC%94%E8%80%85%E8%87%AA%E7%94%A8%E6%A8%A1%E6%9D%BF">笔者自用 kernel pwn 模板</a> 中找到：)</p>
 <h2 id="✳总览"><a href="#✳总览" class="headerlink" title="✳总览"></a>✳总览</h2><p>笔者现对这些结构体、系统调用的利用做一个简单的总结：</p>
 <blockquote>
 <p>可能不全，不定期更新，主要是笔者认为可能比较有用的</p>
@@ -374,7 +374,10 @@
 <p> 即 <strong>slab 分配器分配的 object 的大小最小为 32，slob 和 slub 的最小 object 大小为 8</strong></p>
 <h2 id="✳GFP-KERNEL-amp-GFP-KERNEL-ACCOUNT-的隔离"><a href="#✳GFP-KERNEL-amp-GFP-KERNEL-ACCOUNT-的隔离" class="headerlink" title="✳GFP_KERNEL &amp; GFP_KERNEL_ACCOUNT 的隔离"></a>✳GFP_KERNEL &amp; GFP_KERNEL_ACCOUNT 的隔离</h2><p><code>GFP_KERNEL</code> 与 <code>GFP_KERNEL_ACCOUNT</code>  是内核中最为常见与通用的分配 flag，常规情况下他们的分配都来自同一个 <code>kmem_cache</code> ——即通用的 <code>kmalloc-xx</code> </p>
 <p>这两种 flag 的区别主要在于 <code>GFP_KERNEL_ACCOUNT</code> 比 <code>GFP_KERNEL</code> 多了一个属性——<strong>表示该对象与来自用户空间的数据相关联</strong>，因此我们可以看到诸如 <code>msg_msg</code> 、<code>pipe_buffer</code>、<code>sk_buff的数据包</code> 的分配使用的都是 <code>GFP_KERNEL_ACCOUNT</code> ，而 <code>ldt_struct</code> 、<code>packet_socket</code> 等与用户空间数据没有直接关联的结构体则使用 <code>GFP_KERNEL</code></p>
-<p>自内核版本 5.14 起，在 <a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/commit/494c1dfe855ec1f70f89552fce5eadf4a1717552">这个 commit</a> 当中引入了新的隔离机制——对于开启了 <code>CONFIG_MEMCG_KMEM</code> 编译选项的 kernel 而言（通常都是默认开启），其会为使用 <code>GFP_KERNEL_ACCOUNT</code> 进行分配的通用对象<strong>创建一组独立的 <code>kmem_cache</code> ——名为 <code>kmalloc-cg-*</code></strong> ，从而导致使用这两种 flag 的 object 之间的隔离：</p>
+<p>在5.9 版本之前<code>GFP_KERNEL</code> 与 <code>GFP_KERNEL_ACCOUNT</code> 存在隔离机制，在 <a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/commit/10befea91b61c4e2c2d1df06a2e978d182fcf792">这个 commit</a> 中取消了隔离机制，自内核版本 5.14 起，在 <a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/commit/494c1dfe855ec1f70f89552fce5eadf4a1717552">这个 commit</a> 当中又重新引入：</p>
+<ul>
+<li>对于开启了 <code>CONFIG_MEMCG_KMEM</code> 编译选项的 kernel 而言（通常都是默认开启），其会为使用 <code>GFP_KERNEL_ACCOUNT</code> 进行分配的通用对象<strong>创建一组独立的 <code>kmem_cache</code> ——名为 <code>kmalloc-cg-*</code></strong> ，从而导致使用这两种 flag 的 object 之间的隔离：</li>
+</ul>
 <p><img src="https://s2.loli.net/2023/01/10/bLIr8nOUw4PjStx.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h1 id="0x01-tty-设备结构体（may-obsolete）"><a href="#0x01-tty-设备结构体（may-obsolete）" class="headerlink" title="0x01.tty 设备结构体（may obsolete）"></a>0x01.tty 设备结构体（may obsolete）</h1><p>tty 设备可以说是 kernel pwn 入门当中 <em>最经典</em> 的利用目标，尤其是 <code>/dev/ptmx</code> ，相信大家已经对其再熟悉不过了，不过这里笔者还是简单介绍一下这个“万能”的 tty 设备及其相关内核结构体</p>
 <h2 id="tty-struct（kmalloc-1k-GFP-KERNEL-ACCOUNT）"><a href="#tty-struct（kmalloc-1k-GFP-KERNEL-ACCOUNT）" class="headerlink" title="tty_struct（kmalloc-1k | GFP_KERNEL_ACCOUNT）"></a>tty_struct（kmalloc-1k | GFP_KERNEL_ACCOUNT）</h2><p>该结构体定义于 <code>include/linux/tty.h</code> 中，如下：</p>
