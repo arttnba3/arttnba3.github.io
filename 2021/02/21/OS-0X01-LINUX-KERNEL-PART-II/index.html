@@ -27,12 +27,12 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/05/08/fqdbRMhuKCrIozk.png">
 <meta property="article:published_time" content="2021-02-21T14:02:14.000Z">
-<meta property="article:modified_time" content="2023-01-14T07:43:34.978Z">
+<meta property="article:modified_time" content="2023-02-09T14:48:43.877Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
-<meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="Operating System">
+<meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="学习札记">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://i.loli.net/2021/05/08/fqdbRMhuKCrIozk.png">
@@ -265,7 +265,7 @@
         
         
         
-          349 分钟
+          350 分钟
         
       </span>
     
@@ -320,7 +320,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年1月14日 下午
+                    本文最后更新于：2023年2月9日 晚上
                   
                 
               </p>
@@ -456,10 +456,9 @@
 <h4 id="II-配置初始化脚本"><a href="#II-配置初始化脚本" class="headerlink" title="II.配置初始化脚本"></a>II.配置初始化脚本</h4><p>首先配置 <code>etc/inttab</code> ，写入如下内容：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell">::sysinit:/etc/init.d/rcS<br>::askfirst:/bin/ash<br>::ctrlaltdel:/sbin/reboot<br>::shutdown:/sbin/swapoff -a<br>::shutdown:/bin/umount -a -r<br>::restart:/sbin/init<br></code></pre></td></tr></table></figure>
 
-<p>在上面的文件中指定了系统初始化脚本，因此接下来配置<code>etc/init.d/rcS</code>，写入如下内容：</p>
+<p>在上面的文件中指定了系统初始化脚本，因此接下来配置 <code>etc/init.d/rcS</code>，写入如下内容，主要是挂载各种文件系统：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/sh</span><br>mount -t proc none /proc<br>mount -t sysfs none /sys<br>mount -t devtmpfs devtmpfs /dev<br>mount -t tmpfs tmpfs /tmp<br>mkdir /dev/pts<br>mount -t devpts devpts /dev/pts<br><br>echo -e &quot;\nBoot took $(cut -d&#x27; &#x27; -f1 /proc/uptime) seconds\n&quot;<br>setsid cttyhack setuidgid 1000 sh<br><br>poweroff -d 0  -f<br><br></code></pre></td></tr></table></figure>
 
-<p>主要是配置各种目录的挂载</p>
 <p>也可以在根目录下创建 <code>init</code> 文件，写入如下内容：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/sh</span><br><br>mount -t proc none /proc<br>mount -t sysfs none /sys<br>mount -t devtmpfs devtmpfs /dev<br><br>exec 0&lt;/dev/console<br>exec 1&gt;/dev/console<br>exec 2&gt;/dev/console<br><br>echo -e &quot;\nBoot took $(cut -d&#x27; &#x27; -f1 /proc/uptime) seconds\n&quot;<br>setsid cttyhack setuidgid 1000 sh<br><br>umount /proc<br>umount /sys<br>poweroff -d 0  -f<br></code></pre></td></tr></table></figure>
 
@@ -494,11 +493,16 @@
 
 
 <h2 id="四、向文件系统中添加文件"><a href="#四、向文件系统中添加文件" class="headerlink" title="四、向文件系统中添加文件"></a>四、向文件系统中添加文件</h2><p>若是我们后续需要向文件系统中补充一些其他的文件，可以选择在原先的<code>_install</code>文件夹中添加（不过这样的话若是配置多个文件系统则会变得很混乱），也可以解压文件系统镜像后添加文件再重新进行打包</p>
-<h4 id="I-解压磁盘镜像"><a href="#I-解压磁盘镜像" class="headerlink" title="I.解压磁盘镜像"></a>I.解压磁盘镜像</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">cpio -idv &lt; ./rootfs.cpio</span><br></code></pre></td></tr></table></figure>
+<h3 id="cpio-文件"><a href="#cpio-文件" class="headerlink" title="cpio 文件"></a>cpio 文件</h3><h4 id="I-解压磁盘镜像"><a href="#I-解压磁盘镜像" class="headerlink" title="I.解压磁盘镜像"></a>I.解压磁盘镜像</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">cpio -idv &lt; ./rootfs.cpio</span><br></code></pre></td></tr></table></figure>
 
 <p>该命令会将磁盘镜像中的所有文件解压到当前目录下</p>
 <h4 id="II-重打包磁盘镜像"><a href="#II-重打包磁盘镜像" class="headerlink" title="II.重打包磁盘镜像"></a>II.重打包磁盘镜像</h4><p>和打包磁盘镜像的命令一样</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">find . | cpio -o --format=newc &gt; ../new_rootfs.cpio</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="ext4-镜像"><a href="#ext4-镜像" class="headerlink" title="ext4 镜像"></a>ext4 镜像</h3><p>直接 mount 后再 umount jike：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo mount rootfs.img ./tmp/</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-comment"># do something</span></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo umount ./tmp</span><br></code></pre></td></tr></table></figure>
+
+
 
 <h1 id="0x03-使用qemu运行内核"><a href="#0x03-使用qemu运行内核" class="headerlink" title="0x03.使用qemu运行内核"></a>0x03.使用qemu运行内核</h1><p>终于到了最激动人心的时候了：<strong>我们即将要将这个Linux内核跑起来——用我们自己配置的文件系统与内核</strong></p>
 <p>安全起见，我们并不直接在真机上运行这个内核，而是使用qemu在虚拟机里运行</p>
@@ -921,9 +925,9 @@
       
         <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
       
-        <a href="/tags/Pwn/">#Pwn</a>
-      
         <a href="/tags/Operating-System/">#Operating System</a>
+      
+        <a href="/tags/Pwn/">#Pwn</a>
       
         <a href="/tags/%E5%AD%A6%E4%B9%A0%E6%9C%AD%E8%AE%B0/">#学习札记</a>
       

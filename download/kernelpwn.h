@@ -37,6 +37,7 @@
 #include <poll.h>
 #include <sched.h>
 #include <linux/keyctl.h>
+#include <linux/userfaultfd.h>
 
 /**
  * I - fundamental functions
@@ -576,11 +577,7 @@ size_t ldtSeekingMemory(void *(*ldt_momdifier)(void*, size_t),
 
 /**
  * VIII - userfaultfd related code
- * note that there's no userfaultfd wrapper in musl lib
  */
-#ifndef MUSL_COOMPILE
-
-#include <linux/userfaultfd.h>
 
 char temp_page_for_stuck[0x1000];
 
@@ -668,18 +665,19 @@ void registerUserFaultFdForThreadStucking(pthread_t *monitor_thread,
     registerUserFaultFd(monitor_thread, buf, len, uffdHandlerForStuckingThread);
 }
 
-#endif
-
-
 
 /**
  * IX - file and tty related structures 
  */
 
+struct file;
 struct file_operations;
 struct tty_struct;
 struct tty_driver;
 struct serial_icounter_struct;
+struct ktermios;
+struct termiox;
+struct seq_file;
 
 struct tty_operations {
     struct tty_struct * (*lookup)(struct tty_driver *driver,
