@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/02/22/eX5h7aRdOrCkb9j.png">
 <meta property="article:published_time" content="2021-02-21T13:02:14.000Z">
-<meta property="article:modified_time" content="2023-02-07T05:55:30.293Z">
+<meta property="article:modified_time" content="2023-02-20T17:18:07.285Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
@@ -320,7 +320,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年2月7日 下午
+                    本文最后更新于：2023年2月21日 凌晨
                   
                 
               </p>
@@ -718,7 +718,6 @@
 </ul>
 <p>举个🌰，<code>cred_jar</code> 是专门用以分配 <code>cred</code> 结构体的 <code>kmem_cache</code>，在 Linux 4.4 之前的版本中，其为 <code>kmalloc-192</code> 的 alias，即 cred 结构体与其他的 192 大小的 object 都会从同一个 <code>kmem_cache</code>——<code>kmalloc-192</code> 中分配</p>
 <p>对于初始化时设置了 <code>SLAB_ACCOUNT</code> 这一 flag 的 <code>kmem_cache</code> 而言，则会新建一个新的 <code>kmem_cache</code> 而非为原有的建立 alias，🌰如在新版的内核当中 <code>cred_jar</code> 与 <code>kmalloc-192</code> 便是两个独立的 <code>kmem_cache</code>，<strong>彼此之间互不干扰</strong></p>
-<p><strong>对于包含有用户空间数据的独立 kmem_cache 而言，其永远不会与现有的 kmem_cache 发生合并</strong></p>
 <h1 id="0x08-保护机制"><a href="#0x08-保护机制" class="headerlink" title="0x08.保护机制"></a>0x08.保护机制</h1><p>与一般的程序相同，Linux Kernel同样有着各种各样的保护机制：</p>
 <h2 id="一、通用保护机制"><a href="#一、通用保护机制" class="headerlink" title="一、通用保护机制"></a>一、通用保护机制</h2><h4 id="KASLR"><a href="#KASLR" class="headerlink" title="KASLR"></a>KASLR</h4><p>KASLR即<code>内核空间地址随机化</code>（kernel address space layout randomize），与用户态程序的ASLR相类似——在内核镜像映射到实际的地址空间时加上一个偏移值，但是内核内部的相对偏移其实还是不变的</p>
 <p>在未开启KASLR保护机制时，内核代码段的基址为 <code>0xffffffff81000000</code> ，direct mapping area 的基址为 <code>0xffff888000000000</code></p>
