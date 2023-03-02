@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/07/22/ZdT69sECcyPrW4f.png">
 <meta property="article:published_time" content="2021-07-07T00:53:52.000Z">
-<meta property="article:modified_time" content="2022-04-01T07:28:48.000Z">
+<meta property="article:modified_time" content="2023-03-02T18:52:42.434Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="ROOTKIT">
 <meta property="article:tag" content="Linux">
@@ -263,7 +263,7 @@
         
         
         
-          185 分钟
+          184 分钟
         
       </span>
     
@@ -318,7 +318,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2022年4月1日 下午
+                    本文最后更新于：2023年3月3日 凌晨
                   
                 
               </p>
@@ -333,7 +333,7 @@
 <h1 id="0x00-概述"><a href="#0x00-概述" class="headerlink" title="0x00.概述"></a>0x00.概述</h1><p>「Rootkit」即「root kit」，直译为中文便是「根权限工具包」的意思，在今天的语境下更多指的是一种被作为驱动程序、加载到操作系统内核中的恶意软件，这一类恶意软件的主要用途便是「驻留在计算机上提供 root 后门」——当攻击者再次拿到某个服务器的 shell 时可以通过 rootkit 快速提权到 root</p>
 <p>Linux 下的 rootkit 主要以「可装载内核模块」（LKM）的形式存在，作为内核的一部分<strong>直接以 ring0 权限向入侵者提供服务</strong>；当攻击者拿到某台计算机的 shell 并通过相应的漏洞提权到 root 之后便可以在计算机中留下 rootkit，以<strong>为攻击者后续入侵行为提供驻留的 root 后门</strong></p>
 <p>但是作为内核的一部分，<strong>LKM 编程在一定意义上便是内核编程，与内核版本密切相关，只有使用相应版本内核源码进行编译的 LKM 才可以装载到对应版本的 kernel 上</strong>，这使得 Linux rootkit 显得有些鸡肋（例如服务器管理员某天升级内核版本你就被扬了），且不似蠕虫病毒那般可以在服务期间肆意传播，但不可否认的是 LMK 仍是当前 Linux 下较为主流的 rootkit 技术之一</p>
-<p>本篇博客仅为最基础的 rootkit 编写入门指南，若是需要成熟可用的 rootkit 可以参见 <a target="_blank" rel="noopener" href="https://github.com/f0rb1dd3n/Reptile">f0rb1dd3n&#x2F;Reptile: LKM Linux rootkit (github.com)</a></p>
+<p>本篇博客仅为最基础的 rootkit 编写入门指南，不建议大家做一些违法犯罪的事情：）</p>
 <p>本篇引用的内核源码来自于 Linux 内核版本 <code>5.11</code></p>
 <blockquote>
 <p>Linux 下尝试装载不同版本的 LKM 会显示如下错误信息：</p>
