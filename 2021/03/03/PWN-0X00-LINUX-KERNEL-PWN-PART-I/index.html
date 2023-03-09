@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/03/03/JXPaRGtvIKU3rzk.png">
 <meta property="article:published_time" content="2021-03-03T10:36:24.000Z">
-<meta property="article:modified_time" content="2023-02-20T16:18:34.616Z">
+<meta property="article:modified_time" content="2023-03-05T13:47:18.568Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
@@ -265,7 +265,7 @@
         
         
         
-          1233 分钟
+          1235 分钟
         
       </span>
     
@@ -320,7 +320,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年2月21日 凌晨
+                    本文最后更新于：2023年3月5日 晚上
                   
                 
               </p>
@@ -340,6 +340,9 @@
 <blockquote>
 <p>但如果你有一个 kernel 0day 你便可以通杀大部分比赛的 kernel pwn 题  ：)</p>
 </blockquote>
+</blockquote>
+<blockquote>
+<p>本篇博客虽然最初写于 2021 年，但偶尔也会根据内核的一些发展变迁进行小部分变动：）</p>
 </blockquote>
 <h2 id="文件远程传输方式"><a href="#文件远程传输方式" class="headerlink" title="文件远程传输方式"></a>文件远程传输方式</h2><p>通常情况下，在CTF中一个用作 exploit 的静态编译的可执行文件的体积通常可以达到数百KB甚至几M往上，我们没法很方便地将其直接上传到服务器</p>
 <p>目前来说比较通用的办法便是将 exploit 进行 base64 编码后传输，可参考笔者所给出的如下脚本：</p>
@@ -372,8 +375,11 @@
 </blockquote>
 <p>这里需要注意的是 musl 库缺少很多的东西，所以该模板仅适用于 glibc，如果要用 musl 编译的话需要大家自行修改：(</p>
 <h1 id="0x01-Kernel-ROP-basic"><a href="#0x01-Kernel-ROP-basic" class="headerlink" title="0x01.Kernel ROP - basic"></a>0x01.Kernel ROP - basic</h1><p>ROP即<code>返回导向编程</code>（Return-oriented programming），应当是大家比较熟悉的一种攻击方式——通过复用代码片段的方式控制程序执行流</p>
-<p>✳ <strong>内核态的 ROP 与用户态的 ROP 一般无二，只不过利用的 gadget 变成了内核中的 gadget，所需要构造执行的 ropchain 由</strong><code>system(&quot;/bin/sh&quot;)</code><strong>变为了</strong><code>commit_creds(prepare_kernel_cred(NULL))</code></p>
-<p>当成功执行 <code>commit_creds(prepare_kernel_cred(NULL))</code> 之后，当前线程的 cred 结构体便变为 init 进程的 cred 的拷贝，我们也就获得了 root 权限，此时在用户态起一个 shell 便能获得 root shell</p>
+<p>✳ <strong>内核态的 ROP 与用户态的 ROP 一般无二，只不过利用的 gadget 变成了内核中的 gadget，所需要构造执行的 ropchain 由</strong><code>system(&quot;/bin/sh&quot;)</code><strong>变为了</strong> <code>commit_creds(prepare_kernel_cred(&amp;init_task)) 或 commit_creds(&amp;init_cred)</code></p>
+<p>当成功执行如上函数之后，当前线程的 cred 结构体便变为 init 进程的 cred 的拷贝，我们也就获得了 root 权限，此时在用户态起一个 shell 便能获得 root shell</p>
+<ul>
+<li>需要注意的是 <strong>旧版本内核上所用的提权方法 <code>commit_creds(prepare_kernel_cred(NULL))</code> 已经不再能被使用，在高版本的内核当中 <code>prepare_kernel_cred(NULL)</code> 将不再返回一个 root cred</strong>，这也令 ROP chain 的构造变为更加困难 ：(</li>
+</ul>
 <h2 id="状态保存"><a href="#状态保存" class="headerlink" title="状态保存"></a>状态保存</h2><p>通常情况下，我们的exploit需要进入到内核当中完成提权，而我们最终仍然需要<strong>着陆回用户态</strong>以获得一个root权限的shell，因此在我们的exploit进入内核态之前我们需要<strong>手动模拟用户态进入内核态的准备工作</strong>——<strong>保存各寄存器的值到内核栈上</strong>，以便于后续着陆回用户态</p>
 <p>通常情况下使用如下函数保存各寄存器值到我们自己定义的变量中，以便于构造 rop 链：</p>
 <blockquote>
