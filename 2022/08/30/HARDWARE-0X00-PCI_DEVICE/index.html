@@ -1,0 +1,1040 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="👴等会把你总线都给扬了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【HARDWARE.0x00】PCI 设备简易食用手册">
+<meta property="og:url" content="http://blog.arttnba3.cn/2022/08/30/HARDWARE-0X00-PCI_DEVICE/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="👴等会把你总线都给扬了">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2022/07/21/7rT3aEytb2lumZP.png">
+<meta property="article:published_time" content="2022-08-29T20:13:17.000Z">
+<meta property="article:modified_time" content="2023-04-12T17:18:59.303Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="学习札记">
+<meta property="article:tag" content="PCI">
+<meta property="article:tag" content="计算机组成原理">
+<meta property="article:tag" content="Linux Driver">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2022/07/21/7rT3aEytb2lumZP.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【HARDWARE.0x00】PCI 设备简易食用手册 - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.arttnba3.cn","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://s2.loli.net/2022/07/14/d1uhrIAYl682WSj.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【HARDWARE.0x00】PCI 设备简易食用手册"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-08-30 04:13" pubdate>
+          2022年8月30日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          22k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          186 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【HARDWARE.0x00】PCI 设备简易食用手册</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2023年4月13日 凌晨
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>👴等会把你总线都给扬了</p>
+<span id="more"></span>
+<h1>0x00.一切开始之前</h1>
+<p>因为笔者最近不懂为什么开始写 PCI 设备驱动了，但笔者是 <em>网络空间安全专业</em> 的本科生，此前基本上没有接触过与硬件相关联的知识（<s>因为计组和微原课讲的就是个🐓⑧</s>），所以开了这篇新的博客简要记载一些与 PCI 设备相关的基础知识、基本 Linux PCI 驱动的编写等</p>
+<blockquote>
+<p>为了写这篇博客，笔者翻了笔者大二上学期的计算机组成原理的课本，还翻了大二下学期的微机原理的课本，发现<strong>这两门课根本就是什么都没讲…<strong>因为也弄不到微院那边相关的教材，所以本篇博客</strong>并没有一个系统性的指导</strong>来辅助写作，都是各种东拼西凑＋笔者自己的理解，<strong>很多东西因为笔者自身水平低下的缘故只能一笔带过</strong>，因此可能会显得不够专业，希望读者见谅XD</p>
+<blockquote>
+<p>如果需要更为专业的参考资料请直接参考 <a target="_blank" rel="noopener" href="https://www.mindshare.com/Books/Titles/PCI_Express_Technology_3.0">《PCI_Express_Technology》</a></p>
+</blockquote>
+<blockquote>
+<p>以及笔者非常深刻的意识到在硬件这一块的知识笔者相比于那些专门搞硬件的人而言**确实差了很多…**只能说继续努力吧XD</p>
+</blockquote>
+</blockquote>
+<h1>0x01. PCI basic knowledge</h1>
+<h2 id="一、总线结构简述">一、总线结构简述</h2>
+<p>我们都知道计算机的五个基本组件为：<strong>输入，输出，存储器，运算器（或数据通路），控制器</strong>。那么这几大组件之间怎么通信呢？答案是依靠<strong>系统总线</strong></p>
+<p><strong>总线</strong>（bus）是一种将多个功能单元进行连接并允许功能单元之间进行数据交换的一种数据通路，在现代计算机中通常采用总线结构，即存在一根主要的公共通信干线，CPU 及各种设备都通过这跟总线进行通信</p>
+<p>总线按功能可以分为以下三种类型：</p>
+<ul>
+<li><strong>片内总线</strong>：芯片内的总线，位于 CPU 内部，用以在寄存器与寄存器、寄存器与 ALU 之间进行数据交换</li>
+<li><strong>系统总线</strong>：计算机系统内各功能单元（CPU、主存、I/O）之间的公共通信干线，也称之为 <em>内总线</em></li>
+<li><strong>通信总线</strong>：用于计算机系统之间或是计算机系统与其他系统（例如远程通信设备）之间进行通信的总线，也称之为 <em>外总线</em></li>
+</ul>
+<p>总线是可以扩展的，即可以存在多个不同类型的总线相连，不同的设备接入到不同类型的总线上</p>
+<p><img src="https://s2.loli.net/2022/07/21/fWTEztvhuXAqN8d.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h2 id="二、PCI-概念简述">二、PCI 概念简述</h2>
+<p>PCI 即 <code>Peripheral Component Interconnect</code>，是一种<strong>连接电脑主板和外部设备的总线标准</strong>，其通过多根 PCI bus 完成 CPU 与 多个 PCI 设备间的连接，，在 X86 硬件体系结构中几乎所有的设备都以各种形式连接到 PCI 设备树上</p>
+<p><code>PCI express</code> 是新一代的总线标准，它沿用既有的PCI编程概念及信号标准，并且构建了更加高速的串行通信系统标准</p>
+<p>我们首先明确 PCI 标准中的三个基本组件：</p>
+<ul>
+<li><strong>PCI 设备</strong>（device）：符合 PCI 总线标准的设备都可以称之为 PCI 设备，在一个 PCI 总线上可以包含多个 PCI 设备</li>
+<li><strong>PCI 总线</strong>（bus）：用以连接多个 PCI 设备与多个 PCI 桥的通信干道</li>
+<li><strong>PCI 桥</strong>（bridge）：总线之间的<strong>连接枢纽</strong>，主要有以下三种：
+<ul>
+<li>HOST/PCI 桥：也称为 PCI 主桥或者 PCI 总线控制器，用以连接 CPU 与 PCI 根总线，<strong>隔离设备地址空间与存储器地址空间</strong>，现代 PC 通常还会在其中集成内存控制器，称之为<strong>北桥芯片组</strong>（North Bridge Chipset）</li>
+<li>PCI/ISA 桥：用于连接旧的 ISA 总线，通常还会集成中断控制器（如 i8359A），称之为<strong>南桥芯片组</strong>（South Bridge Chipset）</li>
+<li>PCI-to-PCI 桥：用于连接 PCI 主总线（Primary Bus）与次总线（Secondary Bus）</li>
+</ul>
+</li>
+</ul>
+<p>PCI采用树形拓扑结构，一个典型的 PCI 架构如下图所示，由一个 <code>PCI Host Bus</code> 负责总的通信， 在 Host Bus 下挂载着一个或多个 <code>PCI Root Bridge</code>，一个 <code>PCI Root Bridge</code> 管理一个 <code>PCI Local Bus</code> 空间，挂载着一颗 PCI 总线树：</p>
+<p><img src="https://s2.loli.net/2022/08/30/LI1ayCdsB2qNWb4.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>由此，一个多层 PCI 总线结构如下图所示：</p>
+<p><img src="https://s2.loli.net/2022/07/21/7rT3aEytb2lumZP.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>我们来看一个现实中的经典例子，以下图的 <code>Intel 440FX</code> 芯片组为例，PCI Host Bridge 分隔开了存储器域与 PCI 设备域，<strong>其分别使用独立的地址空间</strong>：</p>
+<p><img src="https://s2.loli.net/2022/07/14/d1uhrIAYl682WSj.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>在 Linux 下我们可以使用 <code>lspci</code> 指令查看插在当前机器的 PCI bus 上的 PCI 设备，使用 <code>-t</code> 参数查看树形结构，<code>-v</code> 参数可以查看详细信息：</p>
+<blockquote>
+<p>这里展示的结果有 virtio 设备是因为笔者是在阿里云学生机上使用的命令，这类机器一般其实都是用 Qemu 跑的虚拟机</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">lspci</span><br>00:00.0 Host bridge: Intel Corporation 440FX - 82441FX PMC [Natoma] (rev 02)<br>00:01.0 ISA bridge: Intel Corporation 82371SB PIIX3 ISA [Natoma/Triton II]<br>00:01.1 IDE interface: Intel Corporation 82371SB PIIX3 IDE [Natoma/Triton II]<br>00:01.2 USB controller: Intel Corporation 82371SB PIIX3 USB [Natoma/Triton II] (rev 01)<br>00:01.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 03)<br>00:02.0 VGA compatible controller: Cirrus Logic GD 5446<br>00:03.0 Ethernet controller: Red Hat, Inc. Virtio network device<br>00:04.0 Communication controller: Red Hat, Inc. Virtio console<br>00:05.0 SCSI storage controller: Red Hat, Inc. Virtio block device<br>00:06.0 Unclassified device [00ff]: Red Hat, Inc. Virtio memory balloon<br><span class="hljs-meta prompt_">$ </span><span class="language-bash">lspci -t -v</span><br>-[0000:00]-+-00.0  Intel Corporation 440FX - 82441FX PMC [Natoma]<br>           +-01.0  Intel Corporation 82371SB PIIX3 ISA [Natoma/Triton II]<br>           +-01.1  Intel Corporation 82371SB PIIX3 IDE [Natoma/Triton II]<br>           +-01.2  Intel Corporation 82371SB PIIX3 USB [Natoma/Triton II]<br>           +-01.3  Intel Corporation 82371AB/EB/MB PIIX4 ACPI<br>           +-02.0  Cirrus Logic GD 5446<br>           +-03.0  Red Hat, Inc. Virtio network device<br>           +-04.0  Red Hat, Inc. Virtio console<br>           +-05.0  Red Hat, Inc. Virtio block device<br>           \-06.0  Red Hat, Inc. Virtio memory balloon<br></code></pre></td></tr></table></figure>
+<p>我们还可以使用 <code>lshw -businfo</code> 命令来获取设备信息：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo lshw -businfo</span><br>[sudo] password for arttnba3:<br>Bus info          Device       Class          Description<br>=========================================================<br>                               system         Alibaba Cloud ECS<br>                               bus            Motherboard<br>                               memory         96KiB BIOS<br>cpu@0                          processor      Intel(R) Xeon(R) Platinum 8163 CPU @ 2.50GHz<br>                               memory         2GiB System Memory<br>                               memory         2GiB DIMM RAM<br>pci@0000:00:00.0               bridge         440FX - 82441FX PMC [Natoma]<br>pci@0000:00:01.0               bridge         82371SB PIIX3 ISA [Natoma/Triton II]<br>pci@0000:00:01.1               storage        82371SB PIIX3 IDE [Natoma/Triton II]<br>pci@0000:00:01.2               bus            82371SB PIIX3 USB [Natoma/Triton II]<br>usb@1             usb1         bus            UHCI Host Controller<br>usb@1:1                        input          QEMU USB Tablet<br>pci@0000:00:01.3               bridge         82371AB/EB/MB PIIX4 ACPI<br>pci@0000:00:02.0               display        GD 5446<br>pci@0000:00:03.0               network        Virtio network device<br>virtio@0          eth0         network        Ethernet interface<br>pci@0000:00:04.0               communication  Virtio console<br>virtio@1                       generic        Virtual I/O device<br>pci@0000:00:05.0               storage        Virtio block device<br>virtio@2          /dev/vda     disk           42GB Virtual I/O device<br>virtio@2,1        /dev/vda1    volume         39GiB EXT4 volume<br>pci@0000:00:06.0               generic        Virtio memory balloon<br>virtio@3                       generic        Virtual I/O device<br>                               system         PnP device PNP0b00<br>                               input          PnP device PNP0303<br>                               input          PnP device PNP0f13<br>                               storage        PnP device PNP0700<br>                               communication  PnP device PNP0501<br>                  veth073b1a5  network        Ethernet interface<br>                  veth2c8670f  network        Ethernet interface<br>                  vethc0202a2  network        Ethernet interface<br>                  veth49e878e  network        Ethernet interface<br></code></pre></td></tr></table></figure>
+<p>PCI 设备是在内核启动初始化阶段进行枚举的，这个时候可能有的设备还没准备好，从而没被枚举到，这种情况下我们可以使用如下命令重新进行设备枚举：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;1&quot;</span> &gt; /sys/bus/pci/rescan</span><br></code></pre></td></tr></table></figure>
+<h2 id="三、PCI-设备编号">三、PCI 设备编号</h2>
+<p>每个PCI 设备都有着三个编号：<strong>总线编号（Bus Number）、设备编号（Device Number）与功能编号（Function Number）</strong>，作为设备的唯一标识；在此之上还有 <strong>PCI 域</strong>的概念，一个 PCI 域上最多可以连接 256 根 PCI 总线</p>
+<p>当我们使用 <code>lspci</code> 命令查看 PCI 设备信息时，在每个设备开头都可以看到形如 <code>xx:yy.z</code> 的十六进制编号，这个格式其实是 <code>总线编号:设备编号.功能编号</code>，当我们使用 <code>lspci -v </code>查看 PCI 设备信息时，在总线编号前面的 4 位数字便是 PCI 域的编号</p>
+<h2 id="四、PCI-设备配置空间">四、PCI 设备配置空间</h2>
+<p>每个 PCI 逻辑设备中都有着其自己的<strong>配置空间</strong>（configuration space），通常是设备地址空间的前 64 字节（新版的设备还扩展了 0x40~0xFF 这段配置空间），其中存放了一些设备的基本信息，如生厂商信息、IRQ中断号、mem 空间与 io 空间的起始地址与大小等</p>
+<p>Intel 芯片组中我们可以使用 IO 空间的 <code>CF8/CFC</code> 地址（端口）来访问 PCI 设备的配置寄存器：</p>
+<ul>
+<li><code>CF8</code>：<strong>CONFIG_ADDRESS</strong>，即 PCI 配置空间地址端口。</li>
+<li><code>CFH</code>：<strong>CONFIG_DATA</strong>，即 PCI 配置空间数据端口。</li>
+</ul>
+<p>当我们往 <code>CONFIG_ADDRESS</code> 端口填入对应的设备标识后，就可以从 <code>CONFIG_DATA</code> 端口上读写 PCI 配置空间的内存， <code>CONFIG_ADDRESS</code> 端口的格式如下：</p>
+<ul>
+<li><code>31</code> 位：Enable 位</li>
+<li><code>23:16</code> 位：总线编号</li>
+<li><code>15:11</code> 位：设备编号</li>
+<li><code>10:8</code> 位：功能编号</li>
+<li><code>7:2</code> 位：配置空间寄存器编号</li>
+<li><code>1:0</code> 位：恒为 <code>00</code></li>
+</ul>
+<blockquote>
+<p>除了通过端口访问外，我们也可以通过 MMIO 的方式访问一个 PCI 设备的地址空间</p>
+</blockquote>
+<p>现在我们来看 PCI 配置空间的结构，PCI 设备分为 <code>Bridge</code> 与 <code>Agent</code> 两类，故配置空间也分为相应的两类</p>
+<p>Agent 类型配置空间又被称为 <code>Type 00h</code>，格式如下图所示：</p>
+<p><img src="https://s2.loli.net/2022/07/21/CEpqkAM1D78XRLG.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>相应地，Bridge 类型配置空间被称为 <code>Type 01h</code>，与 Agent 类型配置空间大同小异：</p>
+<p><img src="https://s2.loli.net/2022/07/21/emyrRVo5W6X12aG.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>简单介绍几个比较重要的字段：</p>
+<ul>
+<li>
+<p>设备标识相关：</p>
+<ul>
+<li>
+<p><code>Vendor ID</code>：生产厂商的 ID，例如 Intel 设备通常为 <code>0x8086</code></p>
+</li>
+<li>
+<p><code>Device ID</code>：具体设备的 ID，通常也是由厂家自行指定的</p>
+</li>
+<li>
+<p><code>Class Code</code>：类代码，用于区分设备类型</p>
+</li>
+<li>
+<p><code>Revision ID</code>：PCI 设备的版本号，可以看作 Device ID 的扩展</p>
+</li>
+</ul>
+</li>
+<li>
+<p>设备状态相关：</p>
+<ul>
+<li>
+<p><code>Status</code>：设备的状态字寄存器，各 bit 含义如下图所示：</p>
+<p><img src="https://s2.loli.net/2022/07/21/ZTplAr87OQ96cRU.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+</li>
+<li>
+<p><code>Command</code>：设备的状态字寄存器，各 bit 含义如下图所示：</p>
+<p><img src="https://s2.loli.net/2022/07/21/rM3YhuaoPK25mNn.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+</li>
+</ul>
+</li>
+<li>
+<p>设备配置相关：</p>
+<ul>
+<li>
+<p><code>Base Address Registers</code>：决定了 PCI 设备空间映射到系统空间的具体位置，有两种映射方式：MMIO 与 PMIO，映射方式由最低位决定，不可更改</p>
+</li>
+<li>
+<p><code>Interrupt Pin</code>：中断引脚，该寄存器表示设备所连接的引脚</p>
+</li>
+<li>
+<p><code>Interrupt Line</code>：中断编号</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>前面我们讲到 lspci 命令，我们可以使用 <code>-s</code> 来通过指定查看的具体 PCI 设备，通过 <code>-m</code> 查看部分信息，通过 <code>-nn</code> 查看比较详细的信息：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">lspci -vv -s 00:02.0 -m</span><br>Device: 00:02.0<br>Class:  VGA compatible controller<br>Vendor: Cirrus Logic<br>Device: GD 5446<br>SVendor:        Red Hat, Inc.<br>SDevice:        QEMU Virtual Machine<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">lspci -vv -s 00:02.0 -nn</span><br>00:02.0 VGA compatible controller [0300]: Cirrus Logic GD 5446 [1013:00b8] (prog-if 00 [VGA controller])<br>        Subsystem: Red Hat, Inc. QEMU Virtual Machine [1af4:1100]<br>        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B- DisINTx-<br>        Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast &gt;TAbort- &lt;TAbort- &lt;MAbort- &gt;SERR- &lt;PERR- INTx-<br>        Region 0: Memory at fc000000 (32-bit, prefetchable) [size=32M]<br>        Region 1: Memory at febd0000 (32-bit, non-prefetchable) [size=4K]<br>        Expansion ROM at 000c0000 [disabled] [size=128K]<br>        Kernel driver in use: cirrus<br>        Kernel modules: cirrusfb, cirrus<br></code></pre></td></tr></table></figure>
+<p>我们还可以直接使用 <code>-x</code> 参数来查看 PCI 设备的配置空间：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">lspci -s 00:02.0 -x</span><br>00:02.0 VGA compatible controller: Cirrus Logic GD 5446<br>00: 13 10 b8 00 03 01 00 00 00 00 00 03 00 00 00 00<br>10: 08 00 00 fc 00 00 bd fe 00 00 00 00 00 00 00 00<br>20: 00 00 00 00 00 00 00 00 00 00 00 00 f4 1a 00 11<br>30: 00 00 bc fe 00 00 00 00 00 00 00 00 00 00 00 00<br></code></pre></td></tr></table></figure>
+<p>在 Linux 当中我们也可以通过 procfs 或 sysfs 这样的文件系统来查看设备的相关配置信息，例如通过 <code>/proc/bus/pci/00/00.0</code> 文件我们同样可以查看 PCI 设备 <code>00:02.0</code> 的配置空间：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cat</span> /proc/bus/pci/00/02.0 | xxd</span><br>00000000: 1310 b800 0301 0000 0000 0003 0000 0000  ................<br>00000010: 0800 00fc 0000 bdfe 0000 0000 0000 0000  ................<br>00000020: 0000 0000 0000 0000 0000 0000 f41a 0011  ................<br>00000030: 0000 bcfe 0000 0000 0000 0000 0000 0000  ................<br></code></pre></td></tr></table></figure>
+<p>通过 <code>/sys/devices/pci0000:00/0000:00:02.0/resource</code> 获取到的信息中每行表示一个地址空间，其中第一行为 MMIO，第二行为 PMIO，三列信息分别为起始地址、终止地址、标志位 ，：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">cat</span> /sys/devices/pci0000\:00/0000\:00\:02.0/resource</span><br>0x00000000fc000000 0x00000000fdffffff 0x0000000000042208<br>0x00000000febd0000 0x00000000febd0fff 0x0000000000040200<br>0x0000000000000000 0x0000000000000000 0x0000000000000000<br>0x0000000000000000 0x0000000000000000 0x0000000000000000<br>0x0000000000000000 0x0000000000000000 0x0000000000000000<br>0x0000000000000000 0x0000000000000000 0x0000000000000000<br>0x00000000000c0000 0x00000000000dffff 0x0000000000000212<br>0x0000000000000000 0x0000000000000000 0x0000000000000000<br>0x0000000000000000 0x0000000000000000 0x0000000000000000<br>0x0000000000000000 0x0000000000000000 0x0000000000000000<br>0x0000000000000000 0x0000000000000000 0x0000000000000000<br>0x0000000000000000 0x0000000000000000 0x0000000000000000<br>0x0000000000000000 0x0000000000000000 0x0000000000000000<br></code></pre></td></tr></table></figure>
+<p>通过 <code>/sys/devices/pci0000:00/0000:00:02.0</code> 下的其他文件也可以访问该设备的一些其他资源信息（例如通过 <code>resource0</code> 可以直接访问 MMIO 空间，<code>resource1</code> 则为其 PMIO 空间）</p>
+<h2 id="五、PCI-Base-Address-register">五、PCI Base Address register</h2>
+<h3 id="I-基本概念">I.基本概念</h3>
+<p><strong>Base Address register</strong>（BAR）是 PCI 设备配置空间中非常重要的一部分，该组寄存器（也称之为 BAR空间）用以定义 PCI <strong>需要的配置空间大小</strong>以及配置 PCI 设备<strong>占用的地址空间</strong></p>
+<p>我们都知道与设备通信有两种方式：MMIO 与 Port IO，相应地 BAR 的格式也有如下两种：</p>
+<ul>
+<li>
+<p><strong>MMIO</strong></p>
+<p><img src="https://s2.loli.net/2022/07/21/CzV32oBP71at9Fg.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+</li>
+<li>
+<p><strong>PMIO</strong></p>
+<p><img src="https://s2.loli.net/2022/07/21/w4ind36EF9pPLcy.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+</li>
+</ul>
+<h3 id="II-BAR-的初始化">II. BAR 的初始化</h3>
+<p>当 PCI 设备复位后，其会在 BAR 中存放该设备所需使用的资源类型与大小，当操作系统对 PCI 总线进行配置时，首先会获取到 PCI 设备的 BAR 中的初始信息，之后根据该初始信息分配合理的 <strong>PCI 总线域地址</strong>，将其<strong>写回到 BAR 当中</strong></p>
+<p>通过 BAR 进行资源分配的具体过程如下：</p>
+<ul>
+<li>当 PCI 复位时，其会向 BAR 中写入资源信息，<strong>通过将低位的 bit 设置为 read only 的 0 来标识最小地址空间大小</strong></li>
+<li>系统软件（例如 BIOS）通过向 BAR 写一个<strong>所有 bit 都为 1 的值</strong>来确定从哪个 bit 开始是可写的，从而获取到该 BAR 对应所需的<strong>最小地址空间</strong>，同时通过最低位来获取到 BAR 的类型，并对应为这些 BAR 空间分配地址，<strong>并将分配的地址写回 BAR 空间中</strong></li>
+</ul>
+<blockquote>
+<p>比如说低 20 bit 都不可写，那就是说这个 bar 所需要的地址空间最小为 1MB，最后从地址总线上分配一个1MB 对齐的地址写回 bar 里</p>
+</blockquote>
+<h3 id="III-处理器域与-PCI-域间访问">III. 处理器域与 PCI 域间访问</h3>
+<p>需要注意的一点是，<strong>处理器使用存储器域的地址，而 BAR 寄存器存放 PCI 总线域的地址</strong>，因此处理器不能直接通过 <code>BAR + offset</code> 的方式访问 PCI 设备的 BAR 空间，而应当要<strong>将 PCI 总线域的地址转换为存储器域的地址</strong></p>
+<p>由此，PCI BAR 中地址在存储器域中皆有着相应的映像，当处理器访问 PCI 设备的地址空间时，首先访问该设备在存储器域中的地址空间，之后通过 HOST 主桥将存储器域上地址空间转换为 PCI 总线域的地址空间，最后通过 PCI 总线将数据发送到指定的设备中</p>
+<p>反之亦然，当 PCI 设备需要访问存储器域的地址空间时（DMA 操作），首先需要访问该存储器地址空间所对应的 PCI 总线空间，之后通过 HOST 主桥将其转换为存储器地址空间，再由 DDR 控制器完成对存储器的读写</p>
+<h2 id="六、PCI-设备内存-端口空间与访问方式">六、PCI 设备内存 &amp; 端口空间与访问方式</h2>
+<p>前面我们讲了 PCI 设备与特性和配置相关的配置空间，现在我们来看与 PCI 设备与实际操作相关的内存映射空间与端口映射空间</p>
+<p>所有 IO 设备的内存与端口空间需要被映射到对应的地址空间/端口空间中才能访问，这需要占用部分的内存地址空间与端口地址空间，即我们有两种映射外设资源的方式：</p>
+<ul>
+<li><strong>MMIO</strong>（Memory-mapped I/O）：即内存映射 IO。这种方式将 IO 设备的内存与寄存器映射到指定的内存地址空间上，此时我们便可以通过常规的访问内存的方式来直接访问到设备的寄存器与内存</li>
+<li><strong>PMIO</strong>（Port-mapped I/O）：即端口映射 IO。这种方式将 IO 设备的寄存器编码到指定的端口上，我们需要通过访问端口的方式来访问设备的寄存器与内存（例如在 x86 下通过 <code>in</code> 与 <code>out</code> 这一类的指令可以读写端口）。IO 设备通过专用的针脚或者专用的总线与 CPU 连接，这与内存地址空间相独立，因此又称作 isolated I/O</li>
+</ul>
+<p>完成映射之后通过相应的内存/端口访问到的便是 PCI 设备的内存/端口地址空间</p>
+<blockquote>
+<p>例如实模式下的 <code>0xA0000 ~ 0xBFFFF</code> 这 128KB 地址空间通常被用作显存的映射，当我们在实模式下读写这块区域时通常便是直接读写显卡上的显存，而并非普通的内存</p>
+</blockquote>
+<p>通过 procfs 的 <code>/proc/iomem</code> 我们可以查看物理地址空间的情况，其中我们便能看到各种设备所占用的地址空间</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">cat</span> /proc/iomem</span><br>00000000-00000fff : Reserved<br>00001000-0009fbff : System RAM<br>0009fc00-0009ffff : Reserved<br>000a0000-000bffff : PCI Bus 0000:00<br>000c0000-000c91ff : Video ROM<br>000c9800-000ca1ff : Adapter ROM<br>000ca800-000ccbff : Adapter ROM<br>000f0000-000fffff : Reserved<br>  000f0000-000fffff : System ROM<br>00100000-7ffdffff : System RAM<br>  1f400000-20200e70 : Kernel code<br>  20200e71-2105843f : Kernel data<br>  2132b000-217fffff : Kernel bss<br>7ffe0000-7fffffff : Reserved<br>80000000-febfffff : PCI Bus 0000:00<br>  fc000000-fdffffff : 0000:00:02.0<br>    fc000000-fdffffff : cirrus<br>  feb80000-febbffff : 0000:00:03.0<br>  febd0000-febd0fff : 0000:00:02.0<br>    febd0000-febd0fff : cirrus<br>  febd1000-febd1fff : 0000:00:03.0<br>  febd2000-febd2fff : 0000:00:04.0<br>  febd3000-febd3fff : 0000:00:05.0<br>fec00000-fec003ff : IOAPIC 0<br>fee00000-fee00fff : Local APIC<br>feffc000-feffffff : Reserved<br>fffc0000-ffffffff : Reserved<br></code></pre></td></tr></table></figure>
+<p>通过 procfs 的 <code>/proc/ioports</code> 我们可以查看 IO 端口情况，其中便包括各种设备对应的 PMIO 端口：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">cat</span> /proc/ioports</span><br>0000-0cf7 : PCI Bus 0000:00<br>  0000-001f : dma1<br>  0020-0021 : pic1<br>  0040-0043 : timer0<br>  0050-0053 : timer1<br>  0060-0060 : keyboard<br>  0064-0064 : keyboard<br>  0070-0071 : rtc0<br>  0080-008f : dma page reg<br>  00a0-00a1 : pic2<br>  00c0-00df : dma2<br>  00f0-00ff : fpu<br>  0170-0177 : 0000:00:01.1<br>    0170-0177 : ata_piix<br>  01f0-01f7 : 0000:00:01.1<br>    01f0-01f7 : ata_piix<br>  0376-0376 : 0000:00:01.1<br>    0376-0376 : ata_piix<br>  03f2-03f2 : floppy<br>  03f4-03f5 : floppy<br>  03f6-03f6 : 0000:00:01.1<br>    03f6-03f6 : ata_piix<br>  03f7-03f7 : floppy<br>  03f8-03ff : serial<br>  0505-0505 : QEMU0001:00<br>  0510-051b : QEMU0002:00<br>    0510-051b : fw_cfg_io<br>  0600-063f : 0000:00:01.3<br>    0600-0603 : ACPI PM1a_EVT_BLK<br>    0604-0605 : ACPI PM1a_CNT_BLK<br>    0608-060b : ACPI PM_TMR<br>  0700-070f : 0000:00:01.3<br>    0700-0708 : piix4_smbus<br>0cf8-0cff : PCI conf1<br>0d00-adff : PCI Bus 0000:00<br>ae0f-aeff : PCI Bus 0000:00<br>af20-afdf : PCI Bus 0000:00<br>afe0-afe3 : ACPI GPE0_BLK<br>afe4-ffff : PCI Bus 0000:00<br>  c000-c03f : 0000:00:05.0<br>    c000-c03f : virtio-pci-legacy<br>  c040-c05f : 0000:00:01.2<br>    c040-c05f : uhci_hcd<br>  c060-c07f : 0000:00:03.0<br>    c060-c07f : virtio-pci-legacy<br>  c080-c09f : 0000:00:04.0<br>    c080-c09f : virtio-pci-legacy<br>  c0a0-c0bf : 0000:00:06.0<br>    c0a0-c0bf : virtio-pci-legacy<br>  c0c0-c0cf : 0000:00:01.1<br>    c0c0-c0cf : ata_piix<br></code></pre></td></tr></table></figure>
+<h2 id="七、PCI-中断机制">七、PCI 中断机制</h2>
+<p>PCI 设备有两种打中断的方法：传统的 INTx 中断与 MSI 中断，出于兼容的需要 PCIe 完全继承了这个特性</p>
+<h3 id="I-INTx-中断">I. INTx 中断</h3>
+<p>INTx 类型的中断即传统的<strong>通过中断引脚来产生的中断</strong>，PCI 总线使用 <code>INTA#</code> 、<code>INTB#</code> 、<code>INTC#</code> 、<code>INTD#</code>  信号（低电平有效）向处理器发出中断请求，不过多数设备仅使用 <code>INTA#</code> 信号</p>
+<p>下图为一个产生  <code>INTA#</code> 中断信号的流程：</p>
+<ul>
+<li>设备向南桥上的中断控制器打一个  <code>INTA#</code> ，中断控制器转为 <code>INTR</code> 信号后通过 APIC bus 打向处理器</li>
+<li>接受中断信号的处理器（未设置则默认都打到 CPU0）通过中断向量表执行对应的处理程序</li>
+</ul>
+<p><img src="https://s2.loli.net/2022/08/31/32jbJDlOpRKSIqy.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>在 PCI 总线中，设备的 <code>INTx 引脚</code>最终要连接到中断控制器的 <code>IRQ 引脚</code> ，下图是一个三 PCI 插槽与中断控制器引脚进行连接的例子：</p>
+<p><img src="https://s2.loli.net/2022/08/31/ZyIur4L7U5oCjJO.png" srcset="/img/loading.gif" lazyload alt="知乎偷的图"></p>
+<p>还记得我们前文所讲的 PCI 配置空间中的 <code>Interrupt Pin</code> 与 <code>Interrupt Line</code> 域吗？现在我们可以进一步明确其具体用途了：</p>
+<ul>
+<li><code>Interrupt Pin</code>：记录设备应该使用哪一个 INTx 中断信号</li>
+<li><code>Interrupt Line</code>：记录设备连接的引脚</li>
+</ul>
+<p><img src="https://s2.loli.net/2022/08/31/jbtsuypMvza9Nex.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h3 id="II-MSI-MSI-X-中断">II. MSI/MSI-X 中断</h3>
+<p><strong>Message Signaled Interrupt</strong> 是一种更为现代化与普遍的 PCI 中断机制，<strong>MSI-eXtend</strong> 则为其升级版，该机制的引入是为了消除 INTx 的边带信号，目前绝大多数 PCIe 设备已不再使用传统的 INTx 中断，而是使用 MSI/MSI-X 提交中断请求</p>
+<p>在 PCIe 设备中有着两个 Capability 结构，分别对应 MSI 与 MSI-X，通常一个 PCIe 设备仅会包含其中一个。对于 MSI 而言其 Capability ID 为 5，一共有四种结构，分别对应 32 位与 64 位的 Message 结构，以及对应的带上中断 Masking 的结构</p>
+<p><img src="https://s2.loli.net/2022/08/31/v657FsLHc9Kx2Aq.png" srcset="/img/loading.gif" lazyload alt="知乎偷的图"></p>
+<p>MSI/MSI-X 本质上是通过<strong>向特定的内存区域进行写入</strong>来达到中断触发的效果，当 PCI 设备提交请求时，其向 <code>MSI/MSI-x Capability</code> 结构中的 <code>Message Address</code> 地址（PCI总线域）写入 <code>Message Data</code> 数据，从而产生一个存储器写 TLP，由此向处理器提交存储器写请求</p>
+<p>MSI 仅支持 32 个连续的中断向量，而 MSI-X 支持 2048 个非连续的中断向量，但 MSI-X 的中断向量信息并不像 MSI 那样直接存放在配置空间，而是存放在 MMIO 空间中，通过BIR（Base address Indicator Register）与 BAR 来确定其在 MMIO 中的具体位置</p>
+<p><img src="https://s2.loli.net/2022/08/31/QpYXgx5eKczydkE.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/08/31/EXghx6vUV8S1tdN.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>其结构如下图所示：</p>
+<p><img src="https://s2.loli.net/2022/08/31/a1IuvYtj72lS63K.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h2 id="八、Transaction-Layer-Package">八、Transaction Layer Package</h2>
+<p>上一节我们提到了一个词叫 <code>TLP</code>，这一节我们简要介绍一下这是一个什么东西</p>
+<p>我们首先需要介绍 PCI 设备底层的通信结构，类似于计网的 OSI 七层模型，PCI 总线也可以由下到上划分为 <strong>物理层（Physical Layer）、数据链路层（Data Link Layer）、事务层（Transaction Layer）</strong>，TLP 即 <strong>Transaction Layer Package</strong>：在事务层进行传输的数据包</p>
+<p><img src="https://s2.loli.net/2022/08/31/QVYRUoA4JWbyFZD.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h1>0x02. Linux PCI 驱动编写（🕊）</h1>
+<p>有的时候你可能自己手工糊了一个 PCI 设备（？），万分欢喜地想要直接往自家💻的 PCI 插槽上一插就开用了，但是突然发现<strong>并没有一种万能的 PCI 驱动能够直接适配你自己造的 PCI 设备</strong>，那这个时候我们只好自己动手写一个驱动了：）</p>
+<h2 id="〇、QEMU-PCI-设备模拟">〇、QEMU PCI 设备模拟</h2>
+<p>因为笔者确实没有条件手搓一个 PCI 设备，所以这里只好用 QEMU 来模拟一个，笔者这里实现了一个通过 DMA 提供简单的数据异或功能的 PCI 设备</p>
+<blockquote>
+<p>关于最基础的 QEMU 设备编写、QOM 等，参见<a target="_blank" rel="noopener" href="https://arttnba3.cn/2022/07/15/VIRTUALIZATION-0X00-QEMU-PART-I/#0x03-%E7%AE%80%E6%98%93-QEMU-%E8%AE%BE%E5%A4%87%E7%BC%96%E5%86%99">这里</a></p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* </span><br><span class="hljs-comment"> * arttnba3 PCI test device</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * Copyright (c) 2022 arttnba3</span><br><span class="hljs-comment"> * Author: arttnba3 &lt;arttnba@gmail.com&gt;</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * This programme is just a simple pci device,</span><br><span class="hljs-comment"> * which is cerated for my own learning about qemu.</span><br><span class="hljs-comment"> * You can modify and use it freely.</span><br><span class="hljs-comment"> */</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;qemu/osdep.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;hw/pci/pci.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;hw/qdev-properties.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;qemu/event_notifier.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;qemu/module.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;sysemu/kvm.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;qom/object.h&quot;</span></span><br><br><span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    A3DEV_STATUS_INIT = <span class="hljs-number">0</span>,<br>    A3DEV_STATUS_READY,<br>    A3DEV_STATUS_RUNNING,<br>    A3DEV_STATUS_STOPPING,<br><br>    A3DEV_STATUS_TYPES,<br>&#125;;<br><br><span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    A3DEV_REGS_STATUS = <span class="hljs-number">0</span>,<br>    A3DEV_REGS_INSN,<br><br>    A3DEV_REGS_TYPES,<br>&#125;;<br><br><span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    A3DEV_INSN_START = <span class="hljs-number">0</span>,<br>    A3DEV_INSN_STOP,<br><br>    A3DEV_INSN_TYPES,<br>&#125;;<br><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">A3EncBufferInfo</span> &#123;</span><br>    <span class="hljs-comment">/*&lt; public &gt;*/</span><br>    <span class="hljs-type">dma_addr_t</span> addr;<br>    <span class="hljs-type">uint8_t</span> val;<br>    <span class="hljs-type">uint32_t</span> len;<br>&#125; A3EncBufferInfo;<br><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">A3PCIDevState</span> &#123;</span><br>    <span class="hljs-comment">/*&lt; private &gt;*/</span><br>    PCIDevice parent_obj;<br><br>    <span class="hljs-comment">/*&lt; public &gt;*/</span><br>    MemoryRegion mmio;<br>    MemoryRegion pmio;<br>    <span class="hljs-type">uint64_t</span> regs[A3DEV_REGS_TYPES];<br>    A3EncBufferInfo enc_buf;<br><br>    QemuThread thread;<br>    QemuMutex lock;<br>&#125; A3PCIDevState;<br><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">A3PCIDevClass</span> &#123;</span><br>    <span class="hljs-comment">/*&lt; private &gt;*/</span><br>    PCIDeviceClass parent;<br>&#125; A3PCIDevClass;<br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> TYPE_A3DEV_PCI <span class="hljs-string">&quot;a3dev-pci&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> A3DEV_PCI(obj) \</span><br><span class="hljs-meta">    OBJECT_CHECK(A3PCIDevState, (obj), TYPE_A3DEV_PCI)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> A3DEV_PCI_GET_CLASS(obj) \</span><br><span class="hljs-meta">    OBJECT_GET_CLASS(A3PCIDevClass, obj, TYPE_A3DEV_PCI)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> A3DEV_PCI_CLASS(klass) \</span><br><span class="hljs-meta">    OBJECT_CLASS_CHECK(A3PCIDevClass, klass, TYPE_A3DEV_PCI)</span><br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> *<span class="hljs-title function_">a3dev_worker_thread</span><span class="hljs-params">(<span class="hljs-type">void</span> *arg)</span><br>&#123;<br>    A3PCIDevState *ds = A3DEV_PCI(arg);<br>    <span class="hljs-type">uint8_t</span> cb;<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">uint32_t</span> wlen = <span class="hljs-number">0</span>; wlen &lt; ds-&gt;enc_buf.len; wlen++) &#123;<br>        <span class="hljs-keyword">if</span> (ds-&gt;regs[A3DEV_REGS_STATUS] != A3DEV_STATUS_STOPPING) &#123;<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br>        pci_dma_read(&amp;ds-&gt;parent_obj, ds-&gt;enc_buf.addr, &amp;cb, <span class="hljs-number">1</span>);<br>        cb ^= ds-&gt;enc_buf.val;<br>        pci_dma_write(&amp;ds-&gt;parent_obj, ds-&gt;enc_buf.addr, &amp;cb, <span class="hljs-number">1</span>);<br>    &#125;<br><br>    ds-&gt;regs[A3DEV_REGS_STATUS] = A3DEV_STATUS_READY;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">uint64_t</span><br><span class="hljs-title function_">a3dev_mmio_read</span><span class="hljs-params">(<span class="hljs-type">void</span> *opaque, hwaddr addr, <span class="hljs-type">unsigned</span> size)</span><br>&#123;<br>    A3PCIDevState *ds = A3DEV_PCI(opaque);<br><br>    <span class="hljs-keyword">return</span> *(<span class="hljs-type">uint64_t</span>*)(((<span class="hljs-type">uint8_t</span>*) &amp;ds-&gt;enc_buf) + addr);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span><br><span class="hljs-title function_">a3dev_mmio_write</span><span class="hljs-params">(<span class="hljs-type">void</span> *opaque, hwaddr addr, <span class="hljs-type">uint64_t</span> val, <span class="hljs-type">unsigned</span> size)</span><br>&#123;<br>    A3PCIDevState *ds = A3DEV_PCI(opaque);<br><br>    <span class="hljs-keyword">if</span> (ds-&gt;regs[A3DEV_REGS_STATUS] != A3DEV_STATUS_READY) &#123;<br>        <span class="hljs-keyword">return</span> ;<br>    &#125;<br><br>    <span class="hljs-keyword">switch</span> (size) &#123;<br>    <span class="hljs-keyword">case</span> <span class="hljs-number">1</span>:<br>        *(<span class="hljs-type">uint8_t</span>*)(((<span class="hljs-type">uint8_t</span>*) &amp;ds-&gt;enc_buf ) + addr) = val;<br>        <span class="hljs-keyword">break</span>;<br>    <span class="hljs-keyword">case</span> <span class="hljs-number">2</span>:<br>        *(<span class="hljs-type">uint16_t</span>*)(((<span class="hljs-type">uint8_t</span>*) &amp;ds-&gt;enc_buf ) + addr) = val;<br>        <span class="hljs-keyword">break</span>;<br>    <span class="hljs-keyword">case</span> <span class="hljs-number">4</span>:<br>        *(<span class="hljs-type">uint32_t</span>*)(((<span class="hljs-type">uint8_t</span>*) &amp;ds-&gt;enc_buf ) + addr) = val;<br>        <span class="hljs-keyword">break</span>;<br>    <span class="hljs-keyword">case</span> <span class="hljs-number">8</span>:<br>        *(<span class="hljs-type">uint64_t</span>*)(((<span class="hljs-type">uint8_t</span>*) &amp;ds-&gt;enc_buf ) + addr) = val;<br>        <span class="hljs-keyword">break</span>;<br>    <span class="hljs-keyword">default</span>:<br>        <span class="hljs-keyword">break</span>;<br>    &#125;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">uint64_t</span><br><span class="hljs-title function_">a3dev_pmio_read</span><span class="hljs-params">(<span class="hljs-type">void</span> *opaque, hwaddr addr, <span class="hljs-type">unsigned</span> size)</span><br>&#123;<br>    A3PCIDevState *ds = A3DEV_PCI(opaque);<br><br>    <span class="hljs-keyword">switch</span> (addr) &#123;<br>        <span class="hljs-keyword">case</span> A3DEV_REGS_STATUS:<br>            <span class="hljs-keyword">return</span> ds-&gt;regs[A3DEV_REGS_STATUS];<br>        <span class="hljs-keyword">default</span>:<br>            <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>    &#125;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span><br><span class="hljs-title function_">a3dev_pmio_write</span><span class="hljs-params">(<span class="hljs-type">void</span> *opaque, hwaddr addr, <span class="hljs-type">uint64_t</span> val, <span class="hljs-type">unsigned</span> size)</span><br>&#123;<br>    A3PCIDevState *ds = A3DEV_PCI(opaque);<br><br>    qemu_mutex_lock(&amp;ds-&gt;lock);<br><br>    <span class="hljs-keyword">switch</span> (addr) &#123;<br>        <span class="hljs-keyword">case</span> A3DEV_REGS_INSN:<br>            <span class="hljs-keyword">switch</span> (val) &#123;<br>            <span class="hljs-keyword">case</span> A3DEV_INSN_START:<br>                <span class="hljs-keyword">if</span> (ds-&gt;regs[A3DEV_REGS_STATUS] != A3DEV_STATUS_READY) &#123;<br>                    <span class="hljs-keyword">break</span>;<br>                &#125;<br>                ds-&gt;regs[A3DEV_REGS_STATUS] = A3DEV_STATUS_RUNNING;<br>                qemu_thread_create(&amp;ds-&gt;thread, <span class="hljs-string">&quot;a3dev-worker-thread&quot;</span>, <br>                                    a3dev_worker_thread, ds, <br>                                    QEMU_THREAD_DETACHED);<br>                <span class="hljs-keyword">break</span>;<br>            <span class="hljs-keyword">case</span> A3DEV_INSN_STOP:<br>                <span class="hljs-keyword">if</span> (ds-&gt;regs[A3DEV_REGS_STATUS] != A3DEV_STATUS_RUNNING) &#123;<br>                    <span class="hljs-keyword">break</span>;<br>                &#125;<br>                ds-&gt;regs[A3DEV_REGS_STATUS] = A3DEV_STATUS_STOPPING;<br>                <span class="hljs-keyword">break</span>;<br>            <span class="hljs-keyword">default</span>:<br>                <span class="hljs-keyword">break</span>;<br>            &#125;<br>            <span class="hljs-keyword">break</span>;<br>        <span class="hljs-keyword">default</span>:<br>            <span class="hljs-keyword">break</span>;<br>    &#125;<br><br>    qemu_mutex_unlock(&amp;ds-&gt;lock);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">const</span> MemoryRegionOps a3dev_mmio_ops = &#123;<br>    .read = a3dev_mmio_read,<br>    .write = a3dev_mmio_write,<br>    .endianness = DEVICE_LITTLE_ENDIAN,<br>    .valid = &#123;<br>        .max_access_size = <span class="hljs-number">4</span>,<br>        .min_access_size = <span class="hljs-number">1</span>,<br>        .unaligned = <span class="hljs-literal">true</span>,<br>    &#125;,<br>    .impl = &#123;<br>        .unaligned = <span class="hljs-literal">true</span>,<br>    &#125;,<br>&#125;;<br><br><span class="hljs-type">static</span> <span class="hljs-type">const</span> MemoryRegionOps a3dev_pmio_ops = &#123;<br>    .read = a3dev_pmio_read,<br>    .write = a3dev_pmio_write,<br>    .endianness = DEVICE_LITTLE_ENDIAN,<br>    .valid = &#123;<br>        .max_access_size = <span class="hljs-number">4</span>,<br>        .min_access_size = <span class="hljs-number">1</span>,<br>        .unaligned = <span class="hljs-literal">true</span>,<br>    &#125;,<br>    .impl = &#123;<br>        .unaligned = <span class="hljs-literal">true</span>,<br>    &#125;,<br>&#125;;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">a3dev_pci_realize</span><span class="hljs-params">(PCIDevice *pci_dev, Error **errp)</span><br>&#123;<br>    A3PCIDevState *ds = A3DEV_PCI(pci_dev);<br><br>    ds-&gt;regs[A3DEV_REGS_STATUS] = A3DEV_STATUS_INIT;<br><br>    memory_region_init_io(&amp;ds-&gt;mmio, OBJECT(ds), &amp;a3dev_mmio_ops,<br>                        pci_dev, <span class="hljs-string">&quot;a3dev-mmio&quot;</span>, <span class="hljs-keyword">sizeof</span>(ds-&gt;enc_buf));<br>    pci_register_bar(pci_dev, <span class="hljs-number">0</span>, PCI_BASE_ADDRESS_SPACE_MEMORY, &amp;ds-&gt;mmio);<br>    memory_region_init_io(&amp;ds-&gt;pmio, OBJECT(ds), &amp;a3dev_pmio_ops,<br>                        pci_dev, <span class="hljs-string">&quot;a3dev-pmio&quot;</span>, A3DEV_REGS_TYPES);<br>    pci_register_bar(pci_dev, <span class="hljs-number">1</span>, PCI_BASE_ADDRESS_SPACE_IO, &amp;ds-&gt;pmio);<br><br>    <span class="hljs-built_in">memset</span>(&amp;ds-&gt;enc_buf, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(ds-&gt;enc_buf));<br>    qemu_mutex_init(&amp;ds-&gt;lock);<br><br>    ds-&gt;regs[A3DEV_REGS_STATUS] = A3DEV_STATUS_READY;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">a3dev_instance_init</span><span class="hljs-params">(Object *obj)</span><br>&#123;<br>    <span class="hljs-comment">// do something</span><br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">a3dev_class_init</span><span class="hljs-params">(ObjectClass *oc, <span class="hljs-type">void</span> *data)</span><br>&#123;<br>    DeviceClass *dc = DEVICE_CLASS(oc);<br>    PCIDeviceClass *pci = PCI_DEVICE_CLASS(oc);<br><br>    pci-&gt;realize = a3dev_pci_realize;<br>    pci-&gt;vendor_id = PCI_VENDOR_ID_QEMU;<br>    pci-&gt;device_id = <span class="hljs-number">0x1919</span>;<br>    pci-&gt;revision = <span class="hljs-number">0x81</span>;<br>    pci-&gt;class_id = PCI_CLASS_OTHERS;<br><br>    dc-&gt;desc = <span class="hljs-string">&quot;arttnba3 test PCI device&quot;</span>;<br>    set_bit(DEVICE_CATEGORY_MISC, dc-&gt;categories);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">const</span> TypeInfo a3dev_type_info = &#123;<br>    .name = TYPE_A3DEV_PCI,<br>    .parent = TYPE_PCI_DEVICE,<br>    .instance_init = a3dev_instance_init,<br>    .instance_size = <span class="hljs-keyword">sizeof</span>(A3PCIDevState),<br>    .class_size = <span class="hljs-keyword">sizeof</span>(A3PCIDevClass),<br>    .class_init = a3dev_class_init,<br>    .interfaces = (InterfaceInfo[]) &#123;<br>        &#123; INTERFACE_CONVENTIONAL_PCI_DEVICE &#125;,<br>        &#123; &#125;,<br>    &#125;,<br>&#125;;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">a3dev_register_types</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span> &#123;<br>    type_register_static(&amp;a3dev_type_info);<br>&#125;<br><br>type_init(a3dev_register_types);<br></code></pre></td></tr></table></figure>
+<h2 id="一、kernel-识别-PCI-设备的方式">一、kernel 识别 PCI 设备的方式</h2>
+<h3 id="I-基本结构">I.基本结构</h3>
+<p>我们首先来看 Linux kernel 中的通用设备驱动模型，主要由三部分组成：<strong>总线（bus）、设备（device）、驱动（driver）</strong>，具体的总线类型都是基于这一套机制去实现的</p>
+<p><img src="https://s2.loli.net/2022/09/01/ypQ8KYmIzbZkaUd.png" srcset="/img/loading.gif" lazyload alt="偷的图"></p>
+<p>对于 PCI 而言，总线中的各个组件在 Linux kernel 中对应的结构体如下图所示：</p>
+<p><img src="https://s2.loli.net/2022/09/01/JtUKnCN7d1BWpxz.png" srcset="/img/loading.gif" lazyload alt="偷的图"></p>
+<p>下面是一张更加详细的展开图：</p>
+<p><img src="https://s2.loli.net/2022/09/01/y5if1YWOesXJbT3.png" srcset="/img/loading.gif" lazyload alt="偷的图"></p>
+<p>上面的图只画出了 PCI 的总线（<code>struct pci_bus</code>）与 PCI 设备（<code>struct pci_dev</code>），还少了一个驱动结构，在内核中 PCI 驱动对应的实际上是 <code>pci_driver</code> 结构体：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">pci_driver</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span>	<span class="hljs-title">node</span>;</span><br>	<span class="hljs-type">const</span> <span class="hljs-type">char</span>		*name;<br>	<span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">pci_device_id</span> *<span class="hljs-title">id_table</span>;</span>	<span class="hljs-comment">/* Must be non-NULL for probe to be called */</span><br>	<span class="hljs-type">int</span>  (*probe)(<span class="hljs-keyword">struct</span> pci_dev *dev, <span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> pci_device_id *id);	<span class="hljs-comment">/* New device inserted */</span><br>	<span class="hljs-type">void</span> (*remove)(<span class="hljs-keyword">struct</span> pci_dev *dev);	<span class="hljs-comment">/* Device removed (NULL if not a hot-plug capable driver) */</span><br>	<span class="hljs-type">int</span>  (*suspend)(<span class="hljs-keyword">struct</span> pci_dev *dev, <span class="hljs-type">pm_message_t</span> state);	<span class="hljs-comment">/* Device suspended */</span><br>	<span class="hljs-type">int</span>  (*resume)(<span class="hljs-keyword">struct</span> pci_dev *dev);	<span class="hljs-comment">/* Device woken up */</span><br>	<span class="hljs-type">void</span> (*shutdown)(<span class="hljs-keyword">struct</span> pci_dev *dev);<br>	<span class="hljs-type">int</span>  (*sriov_configure)(<span class="hljs-keyword">struct</span> pci_dev *dev, <span class="hljs-type">int</span> num_vfs); <span class="hljs-comment">/* On PF */</span><br>	<span class="hljs-type">int</span>  (*sriov_set_msix_vec_count)(<span class="hljs-keyword">struct</span> pci_dev *vf, <span class="hljs-type">int</span> msix_vec_count); <span class="hljs-comment">/* On PF */</span><br>	u32  (*sriov_get_vf_total_msix)(<span class="hljs-keyword">struct</span> pci_dev *pf);<br>	<span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">pci_error_handlers</span> *<span class="hljs-title">err_handler</span>;</span><br>	<span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">attribute_group</span> **<span class="hljs-title">groups</span>;</span><br>	<span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">attribute_group</span> **<span class="hljs-title">dev_groups</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">device_driver</span>	<span class="hljs-title">driver</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">pci_dynids</span>	<span class="hljs-title">dynids</span>;</span><br>	<span class="hljs-type">bool</span> driver_managed_dma;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<h3 id="II-识别过程">II.识别过程</h3>
+<p>讲完了基本结构，现在我们可以来看内核是怎么去识别 PCI 设备的了，在内核启动后各架构的初始化函数最终都会调用到 <code>start_kernel()</code>，于是存在如下调用链：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-built_in">start_kernel</span>()<br>	<span class="hljs-built_in">arch_call_rest_init</span>()<br>		<span class="hljs-built_in">rest_init</span>()		<span class="hljs-comment">// 启动三个进程 idle（0）、kernel_init（1）、kthreadd（2）</span><br>			<span class="hljs-built_in">kernel_init</span>()<br>				<span class="hljs-built_in">kernel_init_freeable</span>()<br>					<span class="hljs-built_in">do_basic_setup</span>()<br>						<span class="hljs-built_in">driver_init</span>()<br>							<span class="hljs-built_in">devtmpfs_init</span>()	<span class="hljs-comment">// 建立 devtmpfs，之后会被用户态init挂到/dev下面</span><br>							<span class="hljs-built_in">buses_init</span>()	<span class="hljs-comment">// 在 sysfs 根下建立 bus 目录</span><br></code></pre></td></tr></table></figure>
+<p>之后就是到各个模块的 init 函数，按照编译链接顺序，我们所关心的 PCI 相关函数的执行顺序应当如下：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-function"><span class="hljs-title">pcibus_class_init</span><span class="hljs-params">()</span></span>	<span class="hljs-comment">// 注册 pci_bus class，创建 sysfs 下的 class/pci_bus 目录</span><br>↓<br><span class="hljs-function"><span class="hljs-title">pci_driver_init</span><span class="hljs-params">()</span></span>	<span class="hljs-comment">// 注册 pci_bus_type，创建 sysfs 下的 bus/pci 目录</span><br>↓<br><span class="hljs-function"><span class="hljs-title">acpi_pci_init</span><span class="hljs-params">()</span></span>		<span class="hljs-comment">// 注册 acpi_pci_bus，并设置电源管理的相应操作</span><br>↓<br><span class="hljs-function"><span class="hljs-title">acpi_init</span><span class="hljs-params">()</span></span>			<span class="hljs-comment">// pcie 初始化入口，进行设备识别与模型建立</span><br></code></pre></td></tr></table></figure>
+<p>这里我们挑其中关键的几个来看，首先是 <code>acpi_init()</code>，存在如下调用路径：</p>
+<blockquote>
+<p>前置知识：ACPI 规范</p>
+</blockquote>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-built_in">acpi_init</span>()<br>	<span class="hljs-built_in">pci_mmcfg_late_init</span>() <span class="hljs-comment">// 扫描 MCFG 表，获取所有设备PCI配置空间的基地址</span><br>	<span class="hljs-built_in">acpi_scan_init</span>()<br>		<span class="hljs-built_in">acpi_pci_root_init</span>()<br>			<span class="hljs-built_in">acpi_scan_add_handler_with_hotplug</span>()	<span class="hljs-comment">// 添加 handler：pci_root_handler</span><br>		<span class="hljs-built_in">acpi_bus_scan</span>()		<span class="hljs-comment">// 设备扫描，创建 ACPI 设备节点对象</span><br>			<span class="hljs-built_in">acpi_bus_attach</span>()	<span class="hljs-comment">// 处理单个节点并调用 acpi_bus_attach() 处理子节点（DFS）</span><br>				<span class="hljs-built_in">acpi_scan_attach_handler</span>()	<span class="hljs-comment">// 查找匹配的 handler 并调用 attach 指针</span><br>					handler-&gt;<span class="hljs-built_in">attach</span>(device, devid)<br></code></pre></td></tr></table></figure>
+<p>那么现在我们来看对应的 handler，为在 <code>acpi_scan_add_handler_with_hotplug()</code> 中注册的 <code>pci_root_handler</code> ，该变量定义于 <code>/drivers/acpi/pci_host.c</code> 中：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">acpi_scan_handler</span> <span class="hljs-title">pci_root_handler</span> =</span> &#123;<br>	.ids = root_device_ids,<br>	.attach = acpi_pci_root_add,<br>	.detach = acpi_pci_root_remove,<br>	.hotplug = &#123;<br>		.enabled = <span class="hljs-literal">true</span>,<br>		.scan_dependent = acpi_pci_root_scan_dependent,<br>	&#125;,<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>于是最后调用到 <code>acpi_pci_root_add()</code>，为设备节点创建对应的内核结构体</p>
+<blockquote>
+<p>这个函数中间其实还有一些过程，<s>但是👴摸了</s></p>
+</blockquote>
+<p>接下来我们来看 <code>pci_driver_init()</code>，该函数在内核驱动模型中注册了 PCI 总线，并定义了相关的操作函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> __init <span class="hljs-title function_">pci_driver_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>	<span class="hljs-type">int</span> ret;<br><br>	ret = bus_register(&amp;pci_bus_type);<br>	<span class="hljs-keyword">if</span> (ret)<br>		<span class="hljs-keyword">return</span> ret;<br><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_PCIEPORTBUS</span><br>	ret = bus_register(&amp;pcie_port_bus_type);<br>	<span class="hljs-keyword">if</span> (ret)<br>		<span class="hljs-keyword">return</span> ret;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>	dma_debug_add_bus(&amp;pci_bus_type);<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br>postcore_initcall(pci_driver_init);<br></code></pre></td></tr></table></figure>
+<p>该函数中调用了 <code>bus_register()</code> 来注册 PCI 总线，对应到符合内核设备驱动模型的总线类型的变量为 <code>pci_bus_type</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">bus_type</span> <span class="hljs-title">pci_bus_type</span> =</span> &#123;<br>	.name		= <span class="hljs-string">&quot;pci&quot;</span>,<br>	.match		= pci_bus_match,<br>	.uevent		= pci_uevent,<br>	.probe		= pci_device_probe,<br>	.remove		= pci_device_remove,<br>	.shutdown	= pci_device_shutdown,<br>	.dev_groups	= pci_dev_groups,<br>	.bus_groups	= pci_bus_groups,<br>	.drv_groups	= pci_drv_groups,<br>	.pm		= PCI_PM_OPS_PTR,<br>	.num_vf		= pci_bus_num_vf,<br>	.dma_configure	= pci_dma_configure,<br>	.dma_cleanup	= pci_dma_cleanup,<br>&#125;;<br>EXPORT_SYMBOL(pci_bus_type);<br></code></pre></td></tr></table></figure>
+<h2 id="二、设备驱动框架">二、设备驱动框架</h2>
+<h2 id="三、PCI-probe-设备识别">三、PCI probe - 设备识别</h2>
+<h2 id="四、PCI-remove-设备移除">四、PCI remove - 设备移除</h2>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/HARDWARE/" class="category-chain-item">HARDWARE</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%AD%A6%E4%B9%A0%E6%9C%AD%E8%AE%B0/">#学习札记</a>
+      
+        <a href="/tags/PCI/">#PCI</a>
+      
+        <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/">#计算机组成原理</a>
+      
+        <a href="/tags/Linux-Driver/">#Linux Driver</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【HARDWARE.0x00】PCI 设备简易食用手册</div>
+      <div>http://blog.arttnba3.cn/2022/08/30/HARDWARE-0X00-PCI_DEVICE/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年8月30日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/09/30/CTF-0X07-BYTECTF2022_BYTERUN/" title="【CTF.0x07】ByteCTF2022 byte_run 出题手记">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【CTF.0x07】ByteCTF2022 byte_run 出题手记</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/08/29/VURTUALIZATION-0X02-BASIC_KNOWLEDGE/" title="【VIRT.0x02】系统虚拟化导论">
+                        <span class="hidden-mobile">【VIRT.0x02】系统虚拟化导论</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
