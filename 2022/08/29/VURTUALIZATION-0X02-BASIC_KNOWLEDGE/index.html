@@ -262,7 +262,7 @@
         
         
         
-          196 分钟
+          195 分钟
         
       </span>
     
@@ -327,9 +327,11 @@
                 
                 <p>虚拟化方向YLG速成入门指北</p>
 <span id="more"></span>
-
-<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00.一切开始之前"></a>0x00.一切开始之前</h1><p>因为笔者最近不知道为什么开始做 X86 虚拟化这一块的工作了（大雾），而虚拟化的知识点比较杂也比较乱，所以特地开这一篇博客简单记录一下虚拟化的一些基本概念</p>
-<h1 id="0x01-Virtualization-Basis"><a href="#0x01-Virtualization-Basis" class="headerlink" title="0x01. Virtualization Basis"></a>0x01. Virtualization Basis</h1><h2 id="一、虚拟化的基本概念"><a href="#一、虚拟化的基本概念" class="headerlink" title="一、虚拟化的基本概念"></a>一、虚拟化的基本概念</h2><p>什么是虚拟化？狭义地说，大家在日常生活中说到的虚拟化主要指的还是 <em>虚拟机</em> （Virtual Machine），即<strong>通过虚拟化技术将一台计算机虚拟为多台逻辑计算机</strong>——这其实是虚拟化技术中的一个抽象粒度为单个计算机的分支：<code>系统虚拟化</code></p>
+<h1>0x00.一切开始之前</h1>
+<p>因为笔者最近不知道为什么开始做 X86 虚拟化这一块的工作了（大雾），而虚拟化的知识点比较杂也比较乱，所以特地开这一篇博客简单记录一下虚拟化的一些基本概念</p>
+<h1>0x01. Virtualization Basis</h1>
+<h2 id="一、虚拟化的基本概念">一、虚拟化的基本概念</h2>
+<p>什么是虚拟化？狭义地说，大家在日常生活中说到的虚拟化主要指的还是 <em>虚拟机</em> （Virtual Machine），即<strong>通过虚拟化技术将一台计算机虚拟为多台逻辑计算机</strong>——这其实是虚拟化技术中的一个抽象粒度为单个计算机的分支：<code>系统虚拟化</code></p>
 <p>在计算机科学当中，<strong>虚拟化</strong>（Virtualization）指的其实是一种「<strong>将计算机的各种实体资源进行逻辑抽象，从而呈现出不同的虚拟资源</strong>」的资源管理技术。利用虚拟化技术，我们可以打破实体结构间不可切割的特性——一份实体资源可以对用户呈现为多份虚拟资源，多份实体资源也可以呈现为一份物理资源。</p>
 <p>通过虚拟化技术，我们可以实现资源的动态分配、灵活调度、跨域共享等，从而提高资源的利用率。</p>
 <p><img src="https://s2.loli.net/2022/08/09/Tj6qGVH82suwhMy.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
@@ -368,7 +370,8 @@
 <li><strong>IO虚拟化</strong>：针对 IO 资源进行虚拟化</li>
 <li><strong>存储虚拟化</strong>：针对磁盘存储资源虚拟化</li>
 </ul>
-<h2 id="二、虚拟化与云计算"><a href="#二、虚拟化与云计算" class="headerlink" title="二、虚拟化与云计算"></a>二、虚拟化与云计算</h2><p>说到虚拟化就不得不提云计算这一“新兴事物”（其实在笔者写下这句话的时候云计算技术已经发展多年了hhh），似乎每次提到云计算总是离不开虚拟化这个词，那先来和笔者一起看一下「什么是云计算吧」（笑）</p>
+<h2 id="二、虚拟化与云计算">二、虚拟化与云计算</h2>
+<p>说到虚拟化就不得不提云计算这一“新兴事物”（其实在笔者写下这句话的时候云计算技术已经发展多年了hhh），似乎每次提到云计算总是离不开虚拟化这个词，那先来和笔者一起看一下「什么是云计算吧」（笑）</p>
 <ul>
 <li>「<strong>云计算</strong>」（Cloud computing）即<strong>通过网络向用户按需提供可动态伸缩的计算服务与 IT 资源</strong>，云服务厂商将多份实体资源以一定形式进行整合后，将其称之为「<strong>云</strong>」，通过互联网按需向用户提供其所需的资源</li>
 </ul>
@@ -383,17 +386,20 @@
 </blockquote>
 <p>根据提供的资源服务的类型不同，我们将云服务分为以下三种类型：</p>
 <ul>
-<li><p><strong>Infrastructure-as-a-Service</strong>（IaaS）：云厂商向用户提供<strong>完整的基础设施</strong>，即提供<strong>云硬件环境</strong>，包括计算（CPU）、存储（硬盘）、网络等，用户需要自行在云硬件环境上搭建自己需要的服务</p>
+<li>
+<p><strong>Infrastructure-as-a-Service</strong>（IaaS）：云厂商向用户提供<strong>完整的基础设施</strong>，即提供<strong>云硬件环境</strong>，包括计算（CPU）、存储（硬盘）、网络等，用户需要自行在云硬件环境上搭建自己需要的服务</p>
 <blockquote>
 <p>通俗点说就是卖服务器（笑）</p>
 </blockquote>
 </li>
-<li><p><strong>Platform-as-a-Service</strong>（PaaS）：云厂商向用户提供<strong>软件部署平台</strong>，即提供服务器平台或者开发环境，用户可以直接在云平台上进行开发部署等工作，<strong>而无需管理底层的基础设施</strong></p>
+<li>
+<p><strong>Platform-as-a-Service</strong>（PaaS）：云厂商向用户提供<strong>软件部署平台</strong>，即提供服务器平台或者开发环境，用户可以直接在云平台上进行开发部署等工作，<strong>而无需管理底层的基础设施</strong></p>
 <blockquote>
 <p>比如说微软的 Azure 和 Redhat 的 OpenShift</p>
 </blockquote>
 </li>
-<li><p><strong>Software-as-a-Service</strong>（SaaS）：云厂商向用户提供<strong>具体的软件服务</strong>，用户可以通过网络直接使用厂商提供的服务</p>
+<li>
+<p><strong>Software-as-a-Service</strong>（SaaS）：云厂商向用户提供<strong>具体的软件服务</strong>，用户可以通过网络直接使用厂商提供的服务</p>
 <blockquote>
 <p>比如说腾讯的共享文档就是一个典型的 SaaS</p>
 </blockquote>
@@ -408,20 +414,22 @@
 </ul>
 <p><img src="https://s2.loli.net/2022/08/07/SrJDGa6shAWq4ul.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <blockquote>
-<p>现在网上各种关于云计算的文章包括像百度百科这样的，<strong>几乎没有一个能准确给这个概念下一个最基本的定义的</strong>，全篇都是各种假大空的套话，看着让人血压升高……</p>
+<p>现在网上各种关于云计算的文章包括像百度百科这样的，<strong>几乎没有一个能准确给这个概念下一个最基本的定义的</strong>，全篇都是各种假大空的套话，看着让人血压升高…</p>
 <blockquote>
-<p><del>👴觉得百度百科就是个🐓⑧</del></p>
+<p><s>👴觉得百度百科就是个🐓⑧</s></p>
 </blockquote>
 <p>云计算本质上其实就是一个通过互联网向用户按需提供可动态伸缩的 IT 资源，<strong>至于用户拿到这个计算资源后要做什么笔者并不关心</strong>（笑）</p>
 </blockquote>
-<h1 id="0x02-系统虚拟化概述"><a href="#0x02-系统虚拟化概述" class="headerlink" title="0x02. 系统虚拟化概述"></a>0x02. 系统虚拟化概述</h1><h2 id="一、基本模型"><a href="#一、基本模型" class="headerlink" title="一、基本模型"></a>一、基本模型</h2><p>对于一台计算机，我们可以简单地抽象成下图所示的三层模型，从下往上分别是<strong>物理硬件层、操作系统层、应用程序层</strong>：</p>
+<h1>0x02. 系统虚拟化概述</h1>
+<h2 id="一、基本模型">一、基本模型</h2>
+<p>对于一台计算机，我们可以简单地抽象成下图所示的三层模型，从下往上分别是<strong>物理硬件层、操作系统层、应用程序层</strong>：</p>
 <p><img src="https://s2.loli.net/2022/08/02/5jwhR2HnDTCp3q8.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>我们首先给「虚拟机」下一个定义：</p>
 <ul>
 <li><strong>虚拟机</strong>（Virtual Machine）是计算机的虚拟化实例，拥有自己的虚拟硬件（如 CPU、内存、设备等），可执行与计算机几乎完全相同的功能，包括运行应用和操作系统</li>
 </ul>
 <p>即我们可以把一个虚拟机实例看作是一台具有如上图所示层次的<strong>逻辑的计算机</strong></p>
-<p>但虚拟机的运行是需要有物理环境所支撑的，同时虚拟机实例也是不可能凭空出现&#x2F;凭空消失的，因此接下来我们引入一个新的概念——<strong>VMM</strong>，即 <code>Virtual Machine Monitor</code>，又称 <code>Hypervisor</code>，这是一个介于 VM 与硬件中间的软件层，<strong>其负责 VM 的创建、销毁等工作，并为 VM 提供了运行环境</strong>：「虚拟硬件抽象层」</p>
+<p>但虚拟机的运行是需要有物理环境所支撑的，同时虚拟机实例也是不可能凭空出现/凭空消失的，因此接下来我们引入一个新的概念——<strong>VMM</strong>，即 <code>Virtual Machine Monitor</code>，又称 <code>Hypervisor</code>，这是一个介于 VM 与硬件中间的软件层，<strong>其负责 VM 的创建、销毁等工作，并为 VM 提供了运行环境</strong>：「虚拟硬件抽象层」</p>
 <p><img src="https://s2.loli.net/2022/08/05/C4czg3kVIKAJb5L.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>1974年，Gerald J. Popek 与 Robert P. Goldberg 发表了合作论文<a target="_blank" rel="noopener" href="https://dl.acm.org/doi/pdf/10.1145/361011.361073">《Formal Requirements for Virtualizable Third Generation Architectures》</a>，在论文中提出了满足虚拟化系统结构的 VMM 的三个充分条件，称之为<code>Popek and Goldberg virtualization requirements</code>：</p>
 <ul>
@@ -431,10 +439,12 @@
 </ul>
 <p>由此，论文中提出了两种 Hypervisor 方案，这也成为了现在最主流的两种方案：</p>
 <ul>
-<li><p><code>Type I</code> ：<strong>Hypervisor 直接运行在硬件上，即以 Hypervisor 作为 Host OS 直接管控硬件资源</strong>。例如 <code>VMware ESXI</code> 便是采用此种架构的 Hypervisor</p>
+<li>
+<p><code>Type I</code> ：<strong>Hypervisor 直接运行在硬件上，即以 Hypervisor 作为 Host OS 直接管控硬件资源</strong>。例如 <code>VMware ESXI</code> 便是采用此种架构的 Hypervisor</p>
 <p><img src="https://s2.loli.net/2022/08/03/Mn2cKxtpXdibHRG.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 </li>
-<li><p><code>Type II</code>：<strong>Hypervisor 运行在传统的操作系统上，与其他应用程序并行运行</strong>。例如 <code>Qemu</code> 与 <code>VMware Player</code> 便是采用此种架构的 Hypervisor</p>
+<li>
+<p><code>Type II</code>：<strong>Hypervisor 运行在传统的操作系统上，与其他应用程序并行运行</strong>。例如 <code>Qemu</code> 与 <code>VMware Player</code> 便是采用此种架构的 Hypervisor</p>
 <p><img src="https://s2.loli.net/2022/08/03/FNComsjbSdTheL6.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 </li>
 </ul>
@@ -443,7 +453,7 @@
 <ul>
 <li>VMM 运行在最高特权级上，Guest VM 运行在低特权级上，当 Guest VM 执行到敏感指令时，其便会陷入位于最高特权级的 VMM，此时便能由 VMM 模拟敏感指令的行为</li>
 </ul>
-<p>——这就是系统虚拟化最典中典的模型<strong>「Trap &amp; Emulate」</strong>：</p>
+<p>——这就是系统虚拟化最典中典的模型**「Trap &amp; Emulate」**：</p>
 <ul>
 <li>我们将操作系统分为两个运行模式：「用户模式（user mode）」与「特权模式（privileged mode）」，在用户模式下只能直接执行非特权指令，当执行到特权指令时便会触发异常，从而陷入特权模式对应的处理代码中</li>
 <li>Guest VM 运行在用户模式下，从而使得普通指令可以直接放在 CPU 上执行，当 Guest VM 执行到<strong>敏感指令</strong>时，便会<strong>触发异常，此时由 VMM 介入并模拟其应有的行为</strong></li>
@@ -454,11 +464,12 @@
 <ul>
 <li>CPU 虚拟化</li>
 <li>内存虚拟化</li>
-<li>I&#x2F;O 虚拟化</li>
+<li>I/O 虚拟化</li>
 </ul>
-<h2 id="二、遇到的问题"><a href="#二、遇到的问题" class="headerlink" title="二、遇到的问题"></a>二、遇到的问题</h2><p>在虚拟化技术的发展初期，在个人计算机领域广泛使用的 x86 架构并没有对虚拟化的经典架构「Trap &amp; Emulate」提供很好的支持，存在着对系统虚拟化的支持缺陷，<strong>系统虚拟化并不能直接而有效的实现</strong></p>
+<h2 id="二、遇到的问题">二、遇到的问题</h2>
+<p>在虚拟化技术的发展初期，在个人计算机领域广泛使用的 x86 架构并没有对虚拟化的经典架构「Trap &amp; Emulate」提供很好的支持，存在着对系统虚拟化的支持缺陷，<strong>系统虚拟化并不能直接而有效的实现</strong></p>
 <p>Intel 分级保护环将权限分为 ring0~ ring3，其中操作系统内核运行在 ring0 权限而用户进程运行在 ring3 权限</p>
-<p><img src="https://i.loli.net/2021/02/22/yQXZhLEHVn1b3uC.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://i.loli.net/2021/02/22/yQXZhLEHVn1b3uC.png" srcset="/img/loading.gif" lazyload alt=""></p>
 <p>在系统虚拟化的经典架构「Trap &amp; Emulate」中， Guest OS 全部运行在 ring3，当涉及到一些敏感指令时，VM 触发 General Protection 异常，由 VMM 进行截获并处理，<strong>但不是所有敏感指令都是特权指令，不是所有的敏感指令都有触发异常以让 VMM 介入的机会</strong>， x86 架构中<strong>一共有 17 条非特权敏感指令</strong>：</p>
 <p><img src="https://s2.loli.net/2022/08/04/qirIbepFOA4U5xf.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>这些指令<strong>直接违反了 <code>Popek and Goldberg virtualization requirements</code> ，从而使得 x86 不是一个可以虚拟化的架构</strong></p>
@@ -467,49 +478,58 @@
 </blockquote>
 <p>“硬件不够，软件来凑”。因此在硬件还未提供对虚拟化的足够支持之前，Hypervisor 只能从软件层面下功夫，于是出现了两种纯软件虚拟化技术：「模拟执行」（VMWare）与「直接源代码改写」（Xen）</p>
 <p>在软件虚拟化技术已经发展成熟多年之后，x86 架构对虚拟化的支持才姗姗来迟：「硬件辅助虚拟化」（Intel VT）开始出现在人们的视野当中</p>
-<h2 id="三、实现方案"><a href="#三、实现方案" class="headerlink" title="三、实现方案"></a>三、实现方案</h2><h3 id="I-完全虚拟化（Full-virtualization）"><a href="#I-完全虚拟化（Full-virtualization）" class="headerlink" title="I.完全虚拟化（Full-virtualization）"></a>I.完全虚拟化（Full-virtualization）</h3><p>完全虚拟化技术提供一个<strong>完整的虚拟化硬件环境</strong>，允许<strong>未经修改的 Guest OS 直接在 VM 上运行</strong>，在 Guest OS 的视角，其与运行在真实的物理平台上一般无二</p>
-<p>完全虚拟化意味着 Guest OS 会将操作正常的处理器、内存、I&#x2F;O 设备那样在虚拟化硬件环境中操作，因此这需要 VMM 能够正确处理 Guest OS 所有可能的行为，因此这需要对应的架构满足 <code>Popek and Goldberg virtualization requirements</code></p>
+<h2 id="三、实现方案">三、实现方案</h2>
+<h3 id="I-完全虚拟化（Full-virtualization）">I.完全虚拟化（Full-virtualization）</h3>
+<p>完全虚拟化技术提供一个<strong>完整的虚拟化硬件环境</strong>，允许<strong>未经修改的 Guest OS 直接在 VM 上运行</strong>，在 Guest OS 的视角，其与运行在真实的物理平台上一般无二</p>
+<p>完全虚拟化意味着 Guest OS 会将操作正常的处理器、内存、I/O 设备那样在虚拟化硬件环境中操作，因此这需要 VMM 能够正确处理 Guest OS 所有可能的行为，因此这需要对应的架构满足 <code>Popek and Goldberg virtualization requirements</code></p>
 <p>由于 x86 架构的硬件在最初并没有对虚拟化提供很好的支持，因此完全虚拟化经历了两个阶段：</p>
-<h4 id="1）「软件辅助的完全虚拟化」"><a href="#1）「软件辅助的完全虚拟化」" class="headerlink" title="1）「软件辅助的完全虚拟化」"></a>1）「软件辅助的完全虚拟化」</h4><p>纯软件实现的完全虚拟化主要依赖两个技术：</p>
+<h4 id="1）「软件辅助的完全虚拟化」">1）「软件辅助的完全虚拟化」</h4>
+<p>纯软件实现的完全虚拟化主要依赖两个技术：</p>
 <ul>
 <li><strong>「优先级压缩」</strong>（Ring Compression）：<strong>即 VMM 与 GUest VM 运行在不同的特权级上</strong>。例如 <code>VMM 运行在 ring0、Guest OS kernel 运行在 ring1、Guest APP 运行在 ring3 </code>，当 Guest OS 想要尝试执行特权指令时，便会触发异常，此时 VMM 便能截获该特权指令并进行模拟执行。但正如我们前面所说，<strong>不是所有敏感指令都是特权指令</strong>，这使得部分敏感指令无法被 VMM 截获并处理，从而导致了虚拟化平台与物理平台表现的行为不一致</li>
 <li><strong>「二进制代码翻译」</strong>（Binary Translation）：二进制代码翻译被引入来<strong>处理对虚拟化不友好的指令</strong>，其思想便是扫描并修改 Guest VM 的二进制代码，将难以虚拟化的指令转化为支持虚拟化的指令（例如显式地触发异常让 VMM 得以介入），对于非敏感指令则仍是直接执行。这在确保了性能的情况下实现了完全虚拟化</li>
 </ul>
 <p><img src="https://s2.loli.net/2022/08/05/AqLhpontmYHCS8T.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <blockquote>
-<p> VMware 与 Qemu 便都是采用了二进制代码翻译的支持完全虚拟化的虚拟机软件，不过最初的 Qemu 更类似于【解释执行】的模式</p>
+<p>VMware 与 Qemu 便都是采用了二进制代码翻译的支持完全虚拟化的虚拟机软件，不过最初的 Qemu 更类似于【解释执行】的模式</p>
 </blockquote>
 <p>虽然在优先级压缩与二进制代码翻译技术的配合下 x86 架构成功地实现了完全虚拟化，但是这种“打补丁”的方式很难在架构上保证完整性，因此 x86 厂商最终在硬件上加入了对虚拟化的支持，从硬件架构层面实现了完全虚拟化</p>
-<h4 id="2）「硬件辅助的完全虚拟化」"><a href="#2）「硬件辅助的完全虚拟化」" class="headerlink" title="2）「硬件辅助的完全虚拟化」"></a>2）「硬件辅助的完全虚拟化」</h4><p>在纯软件虚拟化技术发展多年后，x86 架构对虚拟化的支持终于姗姗来迟：Intel 与 AMD 分别推出了自家的硬件虚拟化技术 Intel VT 与 AMD-v，在硬件层面添加了对虚拟化的支持，使得 x86 架构终于成为一个符合 <code>Popek and Goldberg virtualization requirements</code>的 ISA（Infrastructure Set Architecture），从而得以实现完全虚拟化</p>
+<h4 id="2）「硬件辅助的完全虚拟化」">2）「硬件辅助的完全虚拟化」</h4>
+<p>在纯软件虚拟化技术发展多年后，x86 架构对虚拟化的支持终于姗姗来迟：Intel 与 AMD 分别推出了自家的硬件虚拟化技术 Intel VT 与 AMD-v，在硬件层面添加了对虚拟化的支持，使得 x86 架构终于成为一个符合 <code>Popek and Goldberg virtualization requirements</code>的 ISA（Infrastructure Set Architecture），从而得以实现完全虚拟化</p>
 <p>硬件辅助虚拟化本质上是通过在 Guest OS 与硬件中间再添加一个 VMM 中间层来实现的，<strong>由硬件负责截获 OS 对敏感指令的执行与对敏感资源的访问，并通过异常的方式报告给 VMM</strong>，从而从硬件层面实现了 <code>Popek and Goldberg virtualization requirements</code></p>
 <p><img src="https://s2.loli.net/2022/08/05/1rfEzK89DG6Moml.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>以 <code>Intel VT-x</code> 技术为例，其在硬件架构上将 CPU 的运行模式分为两种：<strong>「Non-Root Mode」与「Root Mode」</strong>，这两个运行模式都有着各自的分级保护环，其中 Host OS 与 VMM 运行在 Root Mode 下而 Guest OS 则运行在 Non-Root Mode 下</p>
 <p>Root Mode 与原有的运行模式一般无二，在 Non-Root Mode下非敏感指令可以直接在硬件上执行，当 Guest OS 运行了敏感指令时，硬件便会捕获到这一行为，切换到 Root Mode 并将之报告给 VMM，由 VMM 处理好后再恢复到 Non-Root Mode 中继续 Guest OS 的运行，<strong>这从硬件层面实现了「Trap &amp; Emulate」模型</strong></p>
 <p><img src="https://s2.loli.net/2022/08/05/n9TRrsCkKZvGE3U.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h3 id="II-半虚拟化（Para-virtualization）"><a href="#II-半虚拟化（Para-virtualization）" class="headerlink" title="II.半虚拟化（Para-virtualization）"></a>II.半虚拟化（Para-virtualization）</h3><p>半虚拟化技术最初的目的也是为了解决 x86 架构无法实现经典虚拟化架构的问题，其<strong>通过修改操作系统内核的代码，使得操作系统内核完全避免这些难以虚拟化的指令</strong>，从而在 x86 架构下实现虚拟化。在半虚拟化技术中，Guest OS 能够感知到自己运行在虚拟化环境中，当涉及到敏感指令的执行或是对敏感资源的访问时，Guest OS 通过名为 <code>Hypercall</code> 的 API 陷入 VMM 中（通常通过陷阱等方式实现），由 VMM 进行相应的操作后再重新返回 VM 中的 Guest OS 继续执行</p>
+<h3 id="II-半虚拟化（Para-virtualization）">II.半虚拟化（Para-virtualization）</h3>
+<p>半虚拟化技术最初的目的也是为了解决 x86 架构无法实现经典虚拟化架构的问题，其<strong>通过修改操作系统内核的代码，使得操作系统内核完全避免这些难以虚拟化的指令</strong>，从而在 x86 架构下实现虚拟化。在半虚拟化技术中，Guest OS 能够感知到自己运行在虚拟化环境中，当涉及到敏感指令的执行或是对敏感资源的访问时，Guest OS 通过名为 <code>Hypercall</code> 的 API 陷入 VMM 中（通常通过陷阱等方式实现），由 VMM 进行相应的操作后再重新返回 VM 中的 Guest OS 继续执行</p>
 <p><img src="https://s2.loli.net/2022/08/05/MhAJEnmCSBzoUVW.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <blockquote>
 <p>Xen 便是采用了这一模式的虚拟化软件</p>
 </blockquote>
 <p>半虚拟化需要对 OS kernel 的代码进行<strong>大量的修改</strong>，从而使得其支持半虚拟化技术，因此 Windows 这样的闭源操作系统最初是不支持半虚拟化的</p>
-<h2 id="四、libvirt"><a href="#四、libvirt" class="headerlink" title="四、libvirt"></a>四、libvirt</h2><p>众所周知系统虚拟化平台不止一种（VMWare、Xen、KVM、…），管理起来较为麻烦，因此 <strong>libvirt</strong> 应运而生</p>
+<h2 id="四、libvirt">四、libvirt</h2>
+<p>众所周知系统虚拟化平台不止一种（VMWare、Xen、KVM、…），管理起来较为麻烦，因此 <strong>libvirt</strong> 应运而生</p>
 <p><code>libvirt</code> 是一个<strong>专门用于管理虚拟化平台的工具包</strong>，其提供了用于管理硬件虚拟化的<strong>开源API</strong>（libvirt API）、<strong>守护进程</strong>（libvirtd）与<strong>管理工具</strong>（virsh），可以用于管理现在主流的大部分 VMM：</p>
 <p><img src="https://s2.loli.net/2022/08/08/tUSvuapWKl6dx9z.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h1 id="0x03-CPU-虚拟化"><a href="#0x03-CPU-虚拟化" class="headerlink" title="0x03. CPU 虚拟化"></a>0x03. CPU 虚拟化</h1><p>CPU 虚拟化是系统虚拟化技术中最核心的部分，因为 CPU 是计算机中最核心的组件，直接控制着整个系统的运行，同时内存访问（内存虚拟化）与 I&#x2F;O 操作（I&#x2F;O虚拟化）也都直接依赖于 CPU，因此 CPU 虚拟化是系统虚拟化技术中的核心</p>
+<h1>0x03. CPU 虚拟化</h1>
+<p>CPU 虚拟化是系统虚拟化技术中最核心的部分，因为 CPU 是计算机中最核心的组件，直接控制着整个系统的运行，同时内存访问（内存虚拟化）与 I/O 操作（I/O虚拟化）也都直接依赖于 CPU，因此 CPU 虚拟化是系统虚拟化技术中的核心</p>
 <p>在 Gerald J. Popek 与 Robert P. Goldberg 的合作论文<a target="_blank" rel="noopener" href="https://dl.acm.org/doi/pdf/10.1145/361011.361073">《Formal Requirements for Virtualizable Third Generation Architectures》</a> 中提出了满足虚拟化系统结构的 VMM 的三个充分条件：等价性，资源控制，效率性。为了满足这个条件， CPU 虚拟化使用的经典模型是「Trap &amp; Emulate」，使用<strong>特权级压缩</strong>（Ring Compression）的方式来实现虚拟环境：</p>
 <ul>
 <li>Hypervisor 运行在最高特权级上，Guest VM 运行在低特权级上，Guest VM 在硬件上直接执行非敏感指令，当 Guest VM 执行到敏感指令时，其便会陷入位于最高特权级的 Hypervisor ，此时便能由 Hypervisor 模拟敏感指令的行为</li>
 <li>当发生 virtual CPU 调度时，我们将 vCPU 的状态保存，恢复 Hypervisor 状态，Hypervisor 完成其行为后进行下一 virtual CPU 的调度，恢复下一 vCPU 的状态并恢复执行</li>
 </ul>
 <p><img src="https://s2.loli.net/2022/08/11/SvO9ewNdxIbsLqV.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h2 id="一、纯软件实现虚拟化"><a href="#一、纯软件实现虚拟化" class="headerlink" title="一、纯软件实现虚拟化"></a>一、纯软件实现虚拟化</h2><p>前文我们已经指出 x86 架构存在<strong>非特权敏感指令，直接导致 VMM 无法截获 x86 VM 的敏感行为</strong>，这违反了<code>Popek and Goldberg virtualization requirements</code>，因此在硬件对虚拟化的支持出现之前，虚拟化厂商只好先从软件层面下手</p>
-<h3 id="I-模拟-amp-解释执行"><a href="#I-模拟-amp-解释执行" class="headerlink" title="I. 模拟 &amp; 解释执行"></a>I. 模拟 &amp; 解释执行</h3><p><strong>「模拟」</strong>（Emulate）技术的出现其实早于虚拟化，纯软件的模拟本质上就是通过编写能够呈现出与被模拟对象相同行为的应用程式从而达到运行非同构平台应用程序的效果</p>
+<h2 id="一、纯软件实现虚拟化">一、纯软件实现虚拟化</h2>
+<p>前文我们已经指出 x86 架构存在<strong>非特权敏感指令，直接导致 VMM 无法截获 x86 VM 的敏感行为</strong>，这违反了<code>Popek and Goldberg virtualization requirements</code>，因此在硬件对虚拟化的支持出现之前，虚拟化厂商只好先从软件层面下手</p>
+<h3 id="I-模拟-解释执行">I. 模拟 &amp; 解释执行</h3>
+<p><strong>「模拟」</strong>（Emulate）技术的出现其实早于虚拟化，纯软件的模拟本质上就是通过编写能够呈现出与被模拟对象相同行为的应用程式从而达到运行非同构平台应用程序的效果</p>
 <p>模拟技术不仅能够应用于程序级别的模拟，还能应用于系统级别的模拟：CPU 运行的本质行为其实就是<strong>从 PC 寄存器所指内存区域中不断取出指令解码执行</strong>，我们不难想到的是，实现一个虚拟机最简单粗暴的方法便是通过<strong>模拟每一条指令对应的行为，从而使得 VM 的行为对 VMM 而言是完全可控的</strong></p>
 <blockquote>
 <p>例如，对于 <code>mov rax, rbx</code> 这样的指令，我们可以使用下面的程序来模拟：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">x86_regs</span>&#123;</span><br>    <span class="hljs-type">uint64_t</span> 	rax;<br>    <span class="hljs-type">uint64_t</span> 	rbx;<br>    <span class="hljs-type">uint64_t</span> 	rcx;<br>    <span class="hljs-type">uint64_t</span> 	rdx;<br>&#125;;<br><br><span class="hljs-type">void</span> <span class="hljs-keyword">inline</span> <span class="hljs-title function_">mov_regs</span><span class="hljs-params">(<span class="hljs-type">uint64_t</span> *to, <span class="hljs-type">uint64_t</span> *from)</span><br>&#123;<br>    *to = *from;<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-keyword">inline</span> <span class="hljs-title function_">mov_rax_rbx</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> x86_regs *regs)</span><br>&#123;<br>    mov_regs(&amp;regs-&gt;rax, &amp;regs-&gt;rbx);<br>&#125;<br></code></pre></td></tr></table></figure>
 </blockquote>
-<p>实现模拟技术的原理也是最简单的——我们可以通过<strong>「解释执行」</strong>的方式来实现模拟技术：</p>
+<p>实现模拟技术的原理也是最简单的——我们可以通过**「解释执行」**的方式来实现模拟技术：</p>
 <ul>
 <li>模拟器程序不断地从内存中读取指令，并模拟出每一条指令的效果，周而复始</li>
 </ul>
@@ -519,13 +539,12 @@
 <blockquote>
 <p>例如以下便是笔者实现的一个最最最最简陋的模拟器架构，实际的架构会比这复杂得多：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">CPU</span> &#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">regs</span> <span class="hljs-title">regs</span>;</span><br>&#125;;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">VM</span>&#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cpu</span> *<span class="hljs-title">cpu</span>[];</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">memory</span> *<span class="hljs-title">mm</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">bus</span> *<span class="hljs-title">bus</span>;</span><br>&#125;;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">start_a_new_vm</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> disk *disk)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">VM</span> <span class="hljs-title">vm</span> =</span> new_vm(<span class="hljs-string">&quot;x86&quot;</span>, disk);<br>    <br>    <span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>) &#123;<br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">instruction</span> <span class="hljs-title">insn</span>;</span><br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">exec_result</span> <span class="hljs-title">res</span>;</span><br>        <br>        fetch_next_insn(vm, &amp;insn);<br>        vm_exec_insn(vm, &amp;insn, &amp;res);<br><br>        <span class="hljs-keyword">switch</span> (res.type) &#123;<br>            <span class="hljs-keyword">case</span> EXIT_VM:<br>                vm_stop(vm);<br>                <span class="hljs-keyword">break</span>;<br>            <span class="hljs-keyword">case</span> RESOURCE_ACCESS:<br>                vm_access_resource(vm, &amp;res);<br>            <span class="hljs-keyword">default</span>:<br>                <span class="hljs-keyword">break</span>;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-
 </blockquote>
 <p>不过基于解释执行的模拟技术有着一个非常致命的缺点——<strong>性能极差</strong>，因为每一条指令都需要经过 VMM 的解析后再由 VMM 模拟执行，哪怕最简单的一条指令也可能需要分解成多个步骤与多次内存访问，效率极低</p>
 <p>让我们重新审视我们为什么需要在 x86 架构上使用模拟技术来实现虚拟机：非特权敏感指令的存在打破了 <code>Popek and Goldberg virtualization requirements</code>，但<strong>非特权敏感指令仅是少数，大部分指令我们仍能直接在物理硬件上运行</strong>，因此基于模拟技术进行改进的虚拟化技术出现了：<code>扫描 &amp; 修补</code> 与 <code>二进制翻译</code></p>
-<h3 id="II-扫描-amp-修补"><a href="#II-扫描-amp-修补" class="headerlink" title="II. 扫描 &amp; 修补"></a>II. 扫描 &amp; 修补</h3><p>虚拟化场景下的虚拟机大都是与物理机有着相同的 ISA，因此我们并没有必要采用纯模拟的技术实现虚拟机，而是可以<strong>让非敏感指令直接在硬件上执行，通过某种方式让非特权敏感指令陷入 VMM</strong>，从而重新实现 Trap &amp; Emulate 模型</p>
-<p><strong>「扫描 &amp; 修补」</strong>便是这样的一种技术，其<strong>让非敏感指令直接在硬件上执行</strong>，同时<strong>将系统代码中的敏感指令替换为跳转指令等能陷入 VMM 中的指令</strong>，从而让 VM 在执行敏感指令时能陷入 VMM，使得 VMM 能够模拟执行敏感指令的效果</p>
+<h3 id="II-扫描-修补">II. 扫描 &amp; 修补</h3>
+<p>虚拟化场景下的虚拟机大都是与物理机有着相同的 ISA，因此我们并没有必要采用纯模拟的技术实现虚拟机，而是可以<strong>让非敏感指令直接在硬件上执行，通过某种方式让非特权敏感指令陷入 VMM</strong>，从而重新实现 Trap &amp; Emulate 模型</p>
+<p><strong>「扫描 &amp; 修补」<strong>便是这样的一种技术，其</strong>让非敏感指令直接在硬件上执行</strong>，同时<strong>将系统代码中的敏感指令替换为跳转指令等能陷入 VMM 中的指令</strong>，从而让 VM 在执行敏感指令时能陷入 VMM，使得 VMM 能够模拟执行敏感指令的效果</p>
 <p>「扫描 &amp; 修补」的基本执行流程如下：</p>
 <ul>
 <li>VMM 在 VM 执行每段代码之前对其进行扫描，解析每一条指令，查找特权与敏感指令</li>
@@ -539,17 +558,21 @@
 </blockquote>
 <p>在「扫描 &amp; 修补」技术当中大部分的代码都可以直接在物理 CPU 上运行，其性能损失较小，但「扫描 &amp; 修补」同样存在着一定的缺陷：</p>
 <ul>
-<li><p>特权指令与敏感指令仍通过模拟执行的方式完成，仍可能造成一定的性能损失</p>
+<li>
+<p>特权指令与敏感指令仍通过模拟执行的方式完成，仍可能造成一定的性能损失</p>
 </li>
-<li><p>代码补丁当中引入了额外的跳转，这破坏了代码的局部性</p>
+<li>
+<p>代码补丁当中引入了额外的跳转，这破坏了代码的局部性</p>
 <blockquote>
-<p>局部性原理：CPU存取指令&#x2F;数据的内存单元应当趋向于聚集在一个较小的区域</p>
+<p>局部性原理：CPU存取指令/数据的内存单元应当趋向于聚集在一个较小的区域</p>
 </blockquote>
 </li>
-<li><p>VMM 需要维护一份补丁代码对应的原始代码的副本，这造成了额外的开销</p>
+<li>
+<p>VMM 需要维护一份补丁代码对应的原始代码的副本，这造成了额外的开销</p>
 </li>
 </ul>
-<h3 id="III-二进制翻译"><a href="#III-二进制翻译" class="headerlink" title="III. 二进制翻译"></a>III. 二进制翻译</h3><p>为了进一步地提高虚拟化的性能，<strong>「二进制代码翻译」</strong>（Binary Translation）技术应运而生，类似于「扫描 &amp; 修补」技术，二进制代码翻译同样会在运行时动态地修改代码，不过不同的是 BT 技术以<strong>基本块</strong>（只有一个入口和一个出口的代码块）作为翻译的单位：</p>
+<h3 id="III-二进制翻译">III. 二进制翻译</h3>
+<p>为了进一步地提高虚拟化的性能，<strong>「二进制代码翻译」</strong>（Binary Translation）技术应运而生，类似于「扫描 &amp; 修补」技术，二进制代码翻译同样会在运行时动态地修改代码，不过不同的是 BT 技术以<strong>基本块</strong>（只有一个入口和一个出口的代码块）作为翻译的单位：</p>
 <ul>
 <li>Emulator 对读入的二进制代码<strong>翻译</strong>输出为对应 ISA 的一个<strong>不包含特权指令与敏感指令的子集</strong>所构成的代码，使其可以在用户态下安全运行</li>
 <li>Emulator 动态地为当前要运行的基本块开辟一块空间，称之为<strong>翻译缓存</strong>（translation cache），在其中存放着翻译后的代码，每一块 TC 与原代码以某种映射关系（例如哈希表）进行关联</li>
@@ -581,14 +604,16 @@
 <li>精确异常（Precise Exceptions）。即在翻译代码执行的过程中发生了中断或异常，这需要将运行状态恢复到原代码执行到异常点时的状态，之后再交给 Guest OS 处理。BT 技术暂很难很好地处理这种情况，因为翻译后的代码与原代码已经失去了逐条对应的关系。一个可行的解决方案就是在发生异常时进行回滚，之后重新使用解释执行的方式</li>
 <li>实时代码。这类代码对于实时性要求较高，在模拟环境下运行会损失时间精确性，目前暂时无法解决</li>
 </ul>
-<h2 id="二、硬件辅助虚拟化-Intel-VT-x"><a href="#二、硬件辅助虚拟化-Intel-VT-x" class="headerlink" title="二、硬件辅助虚拟化 - Intel VT-x"></a>二、硬件辅助虚拟化 - Intel VT-x</h2><blockquote>
-<p><del>听说硬件辅助虚拟化一出来 Xen 就没人用了</del></p>
+<h2 id="二、硬件辅助虚拟化-Intel-VT-x">二、硬件辅助虚拟化 - Intel VT-x</h2>
+<blockquote>
+<p><s>听说硬件辅助虚拟化一出来 Xen 就没人用了</s></p>
 </blockquote>
-<h3 id="I-概述"><a href="#I-概述" class="headerlink" title="I. 概述"></a>I. 概述</h3><p>Intel VT 技术是 Intel 为 x86 虚拟化所提供的硬件支持，其中用于辅助 CPU 虚拟化的是 <code>Intel VT-x</code> 技术，其扩展了传统的 IA32 处理器架构，为 IA32 架构的 CPU 虚拟化提供了硬件支持</p>
-<p>VT-x 技术为 Intel CPU 额外引入了两种运行模式，统称为<strong>「VMX 操作模式」</strong>（Virtual Machine eXtensions），通过 <code>vmxon</code> 指令开启，这两种运行模式<strong>都独立有着自己的分级保护环</strong>：</p>
+<h3 id="I-概述">I. 概述</h3>
+<p>Intel VT 技术是 Intel 为 x86 虚拟化所提供的硬件支持，其中用于辅助 CPU 虚拟化的是 <code>Intel VT-x</code> 技术，其扩展了传统的 IA32 处理器架构，为 IA32 架构的 CPU 虚拟化提供了硬件支持</p>
+<p>VT-x 技术为 Intel CPU 额外引入了两种运行模式，统称为**「VMX 操作模式」<strong>（Virtual Machine eXtensions），通过 <code>vmxon</code> 指令开启，这两种运行模式</strong>都独立有着自己的分级保护环**：</p>
 <ul>
 <li><code>VMX Root Operation</code>：Hypervisor 所工作的模式，在这个模式下可以访问计算机的所有资源，并对 VM 进行调度</li>
-<li><code>VMX Non-Root Operation</code>：VM 所工作的模式，在这个模式下仅能访问非敏感资源，对于敏感资源的访问（例如 I&#x2F;O 操作）会使得 CPU 退出 Non-Root 模式并陷入 Hypervisor 中，由 Hypervisor 处理后再重新进入 Non-Root 模式恢复 VM 的运行</li>
+<li><code>VMX Non-Root Operation</code>：VM 所工作的模式，在这个模式下仅能访问非敏感资源，对于敏感资源的访问（例如 I/O 操作）会使得 CPU 退出 Non-Root 模式并陷入 Hypervisor 中，由 Hypervisor 处理后再重新进入 Non-Root 模式恢复 VM 的运行</li>
 </ul>
 <p>由此，我们对 Root 模式与 Non-Root 模式间的切换行为进行定义：</p>
 <ul>
@@ -597,42 +622,50 @@
 </ul>
 <p><img src="https://s2.loli.net/2022/08/11/uzmNXaOP6HSVqFL.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>由于 Non-Root 模式与 Root 模式都各自有着自己的分级保护环，因此 Host OS 与 Guest OS 都可以<strong>不加修改地在自己对应的模式下直接在硬件上运行</strong>，仅有当 Guest OS 涉及到敏感资源的访问及 Host OS 对 VM 的调度时才会发生切换，这在确保了 VM 高性能的同时满足了「Trap &amp; Emulate」模型实现，也解决了 x86 架构的虚拟化漏洞</p>
-<h3 id="II-VMCS"><a href="#II-VMCS" class="headerlink" title="II. VMCS"></a>II. VMCS</h3><p>在 Intel VT-x 技术引入了<code>VMCS</code>（<strong>Virtual-Machine Control Structure</strong>），用以保存 CPU 虚拟化所需要的相关状态，<strong>每个 virtual CPU 对应有一个 VMCS</strong></p>
+<h3 id="II-VMCS">II. VMCS</h3>
+<p>在 Intel VT-x 技术引入了<code>VMCS</code>（<strong>Virtual-Machine Control Structure</strong>），用以保存 CPU 虚拟化所需要的相关状态，<strong>每个 virtual CPU 对应有一个 VMCS</strong></p>
 <p>VMCS 与物理 CPU 是<strong>一一对应的绑定关系</strong>，即在同一时刻一个物理 CPU 只能与一个 VMCS 绑定，反之亦然，但在不同的时刻我们可以将 VMCS 绑定到不同的物理 CPU 上，称之为 VMCS 的<strong>迁移</strong>（Migration）</p>
 <p>与 VMCS 的绑定与解绑相关的是以下两条指令：</p>
 <table>
 <thead>
 <tr>
-<th align="center">Instruction</th>
-<th align="center">Description</th>
+<th style="text-align:center">Instruction</th>
+<th style="text-align:center">Description</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">VMPTRLD &lt;VMCS 地址&gt;</td>
-<td align="center">将指定的 VMCS 与执行该指令的 CPU 进行绑定</td>
+<tbody>
+<tr>
+<td style="text-align:center">VMPTRLD &lt;VMCS 地址&gt;</td>
+<td style="text-align:center">将指定的 VMCS 与执行该指令的 CPU 进行绑定</td>
 </tr>
 <tr>
-<td align="center">VMCLEAR</td>
-<td align="center">将执行该指令的 CPU 与其 VMCS 进行解绑</td>
+<td style="text-align:center">VMCLEAR</td>
+<td style="text-align:center">将执行该指令的 CPU 与其 VMCS 进行解绑</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <p>VT-x 中将 VMCS 定义为一个<strong>最大不超过 4KB 的内存块，且应与 4KB 对齐</strong>，其内容格式如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">VMCS</span> &#123;</span><br>    <span class="hljs-comment">/* 版本号，4字节 */</span><br>	<span class="hljs-type">uint32_t</span> vmcs_revision_identifier:<span class="hljs-number">31</span>, shadow_vmcs_indicator:<span class="hljs-number">1</span>;<br>    <br>    <span class="hljs-comment">/* 中止标识，4字节</span><br><span class="hljs-comment">     * 当 VM-Exit 失败时便会产生 VMX 中止，并在此处存放原因</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-type">uint32_t</span> 	vmx_abort_indicator;<br>    <br>    <span class="hljs-comment">/* 数据域 */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">VMCSData</span> <span class="hljs-title">vmcs_data</span>;</span><br>&#125;;<br></code></pre></td></tr></table></figure>
-
 <p>VMCS 数据域 存放着 VMCS 主要的信息，分为以下六个子域：</p>
 <ul>
-<li><p><strong>Guest-state area</strong>：保存 VM 寄存器状态，在 VM-entry 时加载，在 VM-exit 时保存</p>
+<li>
+<p><strong>Guest-state area</strong>：保存 VM 寄存器状态，在 VM-entry 时加载，在 VM-exit 时保存</p>
 </li>
-<li><p><strong>Host-state area</strong>：保存 Hypervisor 寄存器状态，在 VM-exit 时加载</p>
+<li>
+<p><strong>Host-state area</strong>：保存 Hypervisor 寄存器状态，在 VM-exit 时加载</p>
 <p><img src="https://s2.loli.net/2022/08/15/C8wMpWE5X7S1KYP.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 </li>
-<li><p><strong>VM-execution control fileds</strong>：控制 <code>Non-Root</code> 模式下的处理器行为 </p>
+<li>
+<p><strong>VM-execution control fileds</strong>：控制 <code>Non-Root</code> 模式下的处理器行为</p>
 </li>
-<li><p><strong>VM-entry  control fileds</strong>：控制 <code>VM-Entry</code> 过程中的某些行为</p>
+<li>
+<p><strong>VM-entry  control fileds</strong>：控制 <code>VM-Entry</code> 过程中的某些行为</p>
 </li>
-<li><p><strong>VM-exit  control fileds</strong>：控制 <code>VM-Exit</code> 过程中的某些行为</p>
+<li>
+<p><strong>VM-exit  control fileds</strong>：控制 <code>VM-Exit</code> 过程中的某些行为</p>
 </li>
-<li><p><strong>VM-exit information fields</strong>：保存 <code>VM-Exit</code> 的基本原因及其他详细信息，在一些处理器上该域为只读域</p>
+<li>
+<p><strong>VM-exit information fields</strong>：保存 <code>VM-Exit</code> 的基本原因及其他详细信息，在一些处理器上该域为只读域</p>
 <p><img src="https://s2.loli.net/2022/08/15/jqQDsA6UHZ7wy8z.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 </li>
 </ul>
@@ -640,24 +673,27 @@
 <table>
 <thead>
 <tr>
-<th align="center">Instruction</th>
-<th align="center">Description</th>
+<th style="text-align:center">Instruction</th>
+<th style="text-align:center">Description</th>
 </tr>
 </thead>
-<tbody><tr>
-<td align="center">VMREAD &lt;索引&gt;</td>
-<td align="center">读 VMCS 中“索引”指定的域</td>
+<tbody>
+<tr>
+<td style="text-align:center">VMREAD &lt;索引&gt;</td>
+<td style="text-align:center">读 VMCS 中“索引”指定的域</td>
 </tr>
 <tr>
-<td align="center">VMWRITE &lt;索引&gt; &lt;数据&gt;</td>
-<td align="center">向 VMCS 中“索引”指定的域写入数据</td>
+<td style="text-align:center">VMWRITE &lt;索引&gt; &lt;数据&gt;</td>
+<td style="text-align:center">向 VMCS 中“索引”指定的域写入数据</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <blockquote>
 <p>这里的索引并非偏移值，而是 Intel 为数据域中每个字段都定义了一个独特的索引值，例如 Guest State Area 中 ES 段选择子的索引值便是 <code>0x00000800</code></p>
 <p>当然，要把所有域的索引都背下来并不现实，最好的办法还是多多查表：）推荐阅读：<a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html">Intel SDM</a> 的 <a target="_blank" rel="noopener" href="https://cdrdv2.intel.com/v1/dl/getContent/671506">Intel® 64 and IA-32 Architectures Software Developer’s Manual Volume 3C: System Programming Guide, Part 3</a></p>
 </blockquote>
-<h3 id="III-VMX-操作模式"><a href="#III-VMX-操作模式" class="headerlink" title="III. VMX 操作模式"></a>III. VMX 操作模式</h3><p>作为传统的 IA32 架构的扩展，VMX 操作模式在默认下是关闭的，只有当 VMM 需要使用硬件辅助虚拟化功能时才会使用 Intel 提供的两条新指令来开关 VMX 操作模式：</p>
+<h3 id="III-VMX-操作模式">III. VMX 操作模式</h3>
+<p>作为传统的 IA32 架构的扩展，VMX 操作模式在默认下是关闭的，只有当 VMM 需要使用硬件辅助虚拟化功能时才会使用 Intel 提供的两条新指令来开关 VMX 操作模式：</p>
 <ul>
 <li><code>VMXON</code>：开启 VMX 操作模式</li>
 <li><code>VMXOFF</code>：关闭 VMX 操作模式</li>
@@ -672,7 +708,8 @@
 <p><img src="https://s2.loli.net/2022/09/05/FXCzMI3N4JafQRe.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>现在我们来深入 <code>VM entry</code> 与 <code>VM exit</code> 这两个行为的实现细节中，在其流程中他们分别进行了如下动作：</p>
 <ul>
-<li><strong>VM entry</strong>：从 Hypervisor 切换到 VM<ul>
+<li><strong>VM entry</strong>：从 Hypervisor 切换到 VM
+<ul>
 <li>检查 VMCS 合法性（各字段值是否合法）</li>
 <li>加载 VMCS 的 <code>Guest-state area</code> 中的各字段到对应的寄存器</li>
 <li>加载指定的 MSR</li>
@@ -680,9 +717,10 @@
 <li>根据需要通过写 VMCS 的 <code>VM-entry Interrucption-Information</code> 向 VM 进行<strong>事件注入</strong>（如异常、异步中断等）</li>
 </ul>
 </li>
-<li><strong>VM exit</strong>：从 VM 切换到 Hypervisor<ul>
+<li><strong>VM exit</strong>：从 VM 切换到 Hypervisor
+<ul>
 <li>将 VM 退出的原因与详细信息写入 VMCS 的  <code>VM-exit information fields</code></li>
-<li>将 VM 的寄存器保存至 VMCS 的 <code>Guest-state area</code> </li>
+<li>将 VM 的寄存器保存至 VMCS 的 <code>Guest-state area</code></li>
 <li>从 VMCS 的 <code>Host-state area</code> 中恢复 Host 寄存器</li>
 <li>加载指定 MSR</li>
 </ul>
@@ -697,7 +735,8 @@
 <p>每个 MSR 寄存器都会有一个 id，称之为 <code>MSR Index</code>，我们可以通过这个 id 来利用 <code>RDMSR</code> 与 <code>WRMSR</code> 指令读写指定的 MSR 寄存器</p>
 <p>我们可以在 Intel SDM 的 Volume 4 中获取到到 MSR 寄存器的详细信息</p>
 </blockquote>
-<h2 id="三、KVM-amp-QEMU-KVM"><a href="#三、KVM-amp-QEMU-KVM" class="headerlink" title="三、KVM &amp; QEMU-KVM"></a>三、KVM &amp; QEMU-KVM</h2><p>下面我们来介绍 KVM——<strong>Kernel-based Virtual Machine</strong>，是一个自 Linux 2.6.20 后集成在 kernel 中的一个<strong>开源系统虚拟化内核模块</strong>，本质上是一个依赖于硬件辅助虚拟化的位于 kernel 中的 Hypervisor，或者说<strong>KVM 将 Linux kernel 变成了 Hypervisor</strong>，并提供了相应的用户态操作 VM 的接口： <code>/dev/kvm</code> ，我们可以通过 ioctl 指令来操作 KVM</p>
+<h2 id="三、KVM-QEMU-KVM">三、KVM &amp; QEMU-KVM</h2>
+<p>下面我们来介绍 KVM——<strong>Kernel-based Virtual Machine</strong>，是一个自 Linux 2.6.20 后集成在 kernel 中的一个<strong>开源系统虚拟化内核模块</strong>，本质上是一个依赖于硬件辅助虚拟化的位于 kernel 中的 Hypervisor，或者说<strong>KVM 将 Linux kernel 变成了 Hypervisor</strong>，并提供了相应的用户态操作 VM 的接口： <code>/dev/kvm</code> ，我们可以通过 ioctl 指令来操作 KVM</p>
 <p>但 KVM 本身仅提供了 CPU 与内存的虚拟化，不能构成一个完整的虚拟化环境，那么我们不难想到的是我们可以复用现有的全虚拟化方案，<strong>将模拟 CPU 与内存的工作交由 KVM 完成</strong>，这样便能直接通过 KVM 来借助硬件辅助虚拟化以提高虚拟机性能</p>
 <p>那么我们有这样的一个现成的完备的全虚拟化实现方案吗？答案是有的——<strong>QEMU</strong> 本身便<strong>完整模拟了一整套虚拟机环境</strong>，我们不难想到的是我们可以修改 QEMU 的代码，使其通过 KVM 来创建与运行虚拟机，而设备模拟等依旧复用原有的框架，<strong>这样我们就实现了一个高性能的全虚拟化平台：KVM + QEMU</strong></p>
 <p><img src="https://s2.loli.net/2022/08/29/7WByzSrM9QYPsKH.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
@@ -710,20 +749,23 @@
 <p><img src="https://s2.loli.net/2022/08/05/GUxVBYWnbdzA6KD.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>这个基本执行框架实际上为 QEMU 源码 <code>accel/kvm/kvm-all.c</code> 中的 <code>kvm_cpu_exec()</code>：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">kvm_cpu_exec</span><span class="hljs-params">(CPUState *cpu)</span><br>&#123;<br>    <span class="hljs-comment">//...</span><br>    cpu_exec_start(cpu);<br><br>    <span class="hljs-keyword">do</span> &#123;<br>        <span class="hljs-comment">//...</span><br>        <span class="hljs-comment">/**</span><br><span class="hljs-comment">         * 开始运行 VM，本质上就是 ioctl(kvm_fd, KVM_RUN)</span><br><span class="hljs-comment">         * 当产生 VM-Exit 时，首先在 KVM 中完成处理，</span><br><span class="hljs-comment">         * 若产生 IO，则退出内核态，即恢复到这里，接下来进入到用户态的处理</span><br><span class="hljs-comment">         */</span><br>        run_ret = kvm_vcpu_ioctl(cpu, KVM_RUN, <span class="hljs-number">0</span>);<br>        <br>        <span class="hljs-comment">//...</span><br>        <span class="hljs-keyword">if</span> (run_ret &lt; <span class="hljs-number">0</span>) &#123;<br>            <span class="hljs-comment">/**</span><br><span class="hljs-comment">             * 返回值小于 0 说明 VM 运行出了些问题，</span><br><span class="hljs-comment">             * 这里会简单处理后 break 打破大循环 </span><br><span class="hljs-comment">             */</span><br>        	<span class="hljs-comment">//...</span><br>        &#125;<br>        <br>        trace_kvm_run_exit(cpu-&gt;cpu_index, run-&gt;exit_reason);<br>        <span class="hljs-comment">/* 这里就是一个大的 switch，根据退出的原因进行不同的处理，就不放完整代码了 */</span><br>        <span class="hljs-keyword">switch</span> (run-&gt;exit_reason) &#123;<br>        <span class="hljs-keyword">case</span> KVM_EXIT_IO:<br>            DPRINTF(<span class="hljs-string">&quot;handle_io\n&quot;</span>);<br>            <span class="hljs-comment">/* Called outside BQL */</span><br>            kvm_handle_io(run-&gt;io.port, attrs,<br>                          (<span class="hljs-type">uint8_t</span> *)run + run-&gt;io.data_offset,<br>                          run-&gt;io.direction,<br>                          run-&gt;io.size,<br>                          run-&gt;io.count);<br>            ret = <span class="hljs-number">0</span>;<br>            <span class="hljs-keyword">break</span>;<br>        <span class="hljs-keyword">case</span> KVM_EXIT_MMIO:<br>            DPRINTF(<span class="hljs-string">&quot;handle_mmio\n&quot;</span>);<br>            <span class="hljs-comment">/* Called outside BQL */</span><br>            address_space_rw(&amp;address_space_memory,<br>                             run-&gt;mmio.phys_addr, attrs,<br>                             run-&gt;mmio.data,<br>                             run-&gt;mmio.len,<br>                             run-&gt;mmio.is_write);<br>            ret = <span class="hljs-number">0</span>;<br>            <span class="hljs-keyword">break</span>;<br>        <span class="hljs-comment">//...</span><br>        <span class="hljs-keyword">default</span>:<br>            DPRINTF(<span class="hljs-string">&quot;kvm_arch_handle_exit\n&quot;</span>);<br>            ret = kvm_arch_handle_exit(cpu, run);<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br>    &#125; <span class="hljs-keyword">while</span> (ret == <span class="hljs-number">0</span>);<br>    <br>    <span class="hljs-comment">/* 运行结束，收尾处理 */</span><br>    <span class="hljs-comment">// ...</span><br></code></pre></td></tr></table></figure>
-
-<h1 id="0x04-中断虚拟化"><a href="#0x04-中断虚拟化" class="headerlink" title="0x04.中断虚拟化"></a>0x04.中断虚拟化</h1><p><strong>中断</strong>（Interrupt）机制是一种用来通知 CPU 发生了需要处理的事件的机制，按照发生的位置分为外部中断（来自外部的中断，INTR 引脚传来的为可屏蔽中断，NMI 引脚传来的为不可屏蔽中断）与内部中断（软中断、异常、陷阱等），实模式下 CPU 根据中断向量表来寻找对应的处理程序，保护模式下则通过中断描述符表来寻找处理程序</p>
-<p>现代 X86 处理器使用的中断控制器称之为 <strong>APIC</strong>(Advanced Programmable Interrupt Controller)，所有的核心共用一个 I&#x2F;O APIC ，用于接收外部中断，同时每个核独立有着一个 <strong>Local APIC</strong>，用于接收来自 I&#x2F;O APIC 的中断信息、内部时钟中断、来自其他核心的中断（<strong>Inter-Processor Interrupt</strong>，IPI）等</p>
+<h1>0x04.中断虚拟化</h1>
+<p><strong>中断</strong>（Interrupt）机制是一种用来通知 CPU 发生了需要处理的事件的机制，按照发生的位置分为外部中断（来自外部的中断，INTR 引脚传来的为可屏蔽中断，NMI 引脚传来的为不可屏蔽中断）与内部中断（软中断、异常、陷阱等），实模式下 CPU 根据中断向量表来寻找对应的处理程序，保护模式下则通过中断描述符表来寻找处理程序</p>
+<p>现代 X86 处理器使用的中断控制器称之为 <strong>APIC</strong>(Advanced Programmable Interrupt Controller)，所有的核心共用一个 I/O APIC ，用于接收外部中断，同时每个核独立有着一个 <strong>Local APIC</strong>，用于接收来自 I/O APIC 的中断信息、内部时钟中断、来自其他核心的中断（<strong>Inter-Processor Interrupt</strong>，IPI）等</p>
 <p><img src="https://s2.loli.net/2022/08/29/BWGZpyebmVXCcLJ.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<p>在虚拟化环境当中，每个 vCPU 都对应需要有一个 virtual LAPIC，所有的核心则需要共享一个 virtual I&#x2F;O APIC，这都是需要 Hypervisor 进行模拟与维护的</p>
-<h2 id="一、基本模型-1"><a href="#一、基本模型-1" class="headerlink" title="一、基本模型"></a>一、基本模型</h2><h1 id="0x05-内存虚拟化"><a href="#0x05-内存虚拟化" class="headerlink" title="0x05. 内存虚拟化"></a>0x05. 内存虚拟化</h1><p>内存虚拟化本质上是需要达成以下两个目的：</p>
+<p>在虚拟化环境当中，每个 vCPU 都对应需要有一个 virtual LAPIC，所有的核心则需要共享一个 virtual I/O APIC，这都是需要 Hypervisor 进行模拟与维护的</p>
+<h2 id="一、基本模型-2">一、基本模型</h2>
+<h1>0x05. 内存虚拟化</h1>
+<p>内存虚拟化本质上是需要达成以下两个目的：</p>
 <ul>
 <li>提供一个在 Guest 感知中的从零开始的连续物理内存空间</li>
 <li>在各个 VM 之间进行有效的隔离、调度、共享内存资源</li>
 </ul>
-<h2 id="一、纯软件实现虚拟化-1"><a href="#一、纯软件实现虚拟化-1" class="headerlink" title="一、纯软件实现虚拟化"></a>一、纯软件实现虚拟化</h2><h3 id="I-虚拟机内存访问原理及遇到的问题"><a href="#I-虚拟机内存访问原理及遇到的问题" class="headerlink" title="I.虚拟机内存访问原理及遇到的问题"></a>I.虚拟机内存访问原理及遇到的问题</h3><p>为了实现内存空间的隔离，Hypervisor 需要为 Guest VM 准备一层新的地址空间：<code>Guest Physical Address Space</code>，从 Guest 侧其只能看到这一层地址空间，Hypervisor 需要记录从 GPA 到 HVA 之间的转换关系</p>
+<h2 id="一、纯软件实现虚拟化-2">一、纯软件实现虚拟化</h2>
+<h3 id="I-虚拟机内存访问原理及遇到的问题">I.虚拟机内存访问原理及遇到的问题</h3>
+<p>为了实现内存空间的隔离，Hypervisor 需要为 Guest VM 准备一层新的地址空间：<code>Guest Physical Address Space</code>，从 Guest 侧其只能看到这一层地址空间，Hypervisor 需要记录从 GPA 到 HVA 之间的转换关系</p>
 <p>下图为 Qemu 的内存架构：</p>
 <figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">Guest&#x27; processes<br>                     +--------------------+<br>Virtual addr space   |<span class="hljs-string">                    </span>|<br>                     +--------------------+                                    （GVA）<br>                     |<span class="hljs-string">                    </span>|<br>                     \__   Page Table     \__<br>                        \                    \<br>                         |<span class="hljs-string">                    </span>|<span class="hljs-string">  Guest kernel</span><br><span class="hljs-string">                    +----+--------------------+----------------+</span><br><span class="hljs-string">Guest&#x27;s phy  memory </span>|<span class="hljs-string">    </span>|<span class="hljs-string">                    </span>|<span class="hljs-string">                </span>|<span class="hljs-string">            （GPA）</span><br><span class="hljs-string">                    +----+--------------------+----------------+</span><br><span class="hljs-string">                    </span>|<span class="hljs-string">                                          </span>|<br>                    \__                                        \__<br>                       \                                          \<br>                        |<span class="hljs-string">             QEMU process                 </span>|<br>                   +----+------------------------------------------+<br>Virtual addr space |<span class="hljs-string">    </span>|<span class="hljs-string">                                          </span>|<span class="hljs-string">         （HVA）</span><br><span class="hljs-string">                   +----+------------------------------------------+</span><br><span class="hljs-string">                   </span>|<span class="hljs-string">                                               </span>|<br>                    \__                Page Table                   \__<br>                       \                                               \<br>                        |<span class="hljs-string">                                               </span>|<br>                   +----+-----------------------------------------------+----+<br>Physical memory    |<span class="hljs-string">    </span>|<span class="hljs-string">                                               </span>|<span class="hljs-string">    </span>|<span class="hljs-string">    （HPA）</span><br><span class="hljs-string">                   +----+-----------------------------------------------+----+</span><br></code></pre></td></tr></table></figure>
-
 <p>当我们要访问 Guest 中某个虚拟地址上的数据时，我们需要：</p>
 <ul>
 <li>首先得先通过 Guest 的页表将 <code>Guest Virtual Address</code> （GVA）转换为 <code>Guest Physical Address</code>（GPA）</li>
@@ -735,7 +777,8 @@
 <blockquote>
 <p>在 QEMU 当中访问内存的核心函数是 <code>address_space_rw()</code>，感兴趣的同学可以看一下其内部实现，虽然说只是 GPA-&gt;HVA（笑）</p>
 </blockquote>
-<h3 id="II-影子页表-（shadow-page-table）"><a href="#II-影子页表-（shadow-page-table）" class="headerlink" title="II.影子页表 （shadow page table）"></a>II.影子页表 （shadow page table）</h3><p>在早期的时候 Intel 硬件对虚拟化并没有很好的支持，因此 Hypervisor 只能先在软件层面进行优化——<strong>影子页表</strong>（Shadow Page Table）应运而生</p>
+<h3 id="II-影子页表-（shadow-page-table）">II.影子页表 （shadow page table）</h3>
+<p>在早期的时候 Intel 硬件对虚拟化并没有很好的支持，因此 Hypervisor 只能先在软件层面进行优化——<strong>影子页表</strong>（Shadow Page Table）应运而生</p>
 <p>以 Intel 为例，由于读写 CR3 寄存器（存放页顶级表指针）的操作是敏感指令，我们的 Hypervisor 可以很轻易地截获 VM 的这个操作，<strong>并将页表替换为存放 GVA→HPA 映射关系的影子页表</strong>，这样就能<strong>直接完成由 GVA 到 HPA 的转换过程</strong></p>
 <p><img src="https://s2.loli.net/2022/08/05/eG1hpBbZy6Edszg.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>为了实现影子页表，我们本质上需要实现<strong>MMU 虚拟化</strong>：</p>
@@ -744,41 +787,52 @@
 <li>影子页表中的访问权限为<strong>只读的</strong>，当 Guest 想要读写页表时便能被 Hypervisor 捕获到这个操作并代为处理</li>
 </ul>
 <p>不过这种方法的缺点就是<strong>我们需要为 Guest VM 中的每套页表都独立维护一份影子页表，且需要多次在 VMM 与 VM 间进行切换，这具有一定的开销</strong></p>
-<h2 id="二、硬件辅助虚拟化"><a href="#二、硬件辅助虚拟化" class="headerlink" title="二、硬件辅助虚拟化"></a>二、硬件辅助虚拟化</h2><h3 id="III-扩展页表（Extend-Page-Table-EPT）"><a href="#III-扩展页表（Extend-Page-Table-EPT）" class="headerlink" title="III.扩展页表（Extend Page Table, EPT）"></a>III.扩展页表（Extend Page Table, EPT）</h3><p>从软件层面似乎已经是难以有更好的优化的方案了，因此硬件层面的对内存虚拟化的支持便应运而生——<strong>EPT</strong> 即 <strong>Extend Page Table</strong>，是 Intel 为实现内存虚拟化而新增的特性，目的是为了减少内存访问的开销</p>
+<h2 id="二、硬件辅助虚拟化">二、硬件辅助虚拟化</h2>
+<h3 id="III-扩展页表（Extend-Page-Table-EPT）">III.扩展页表（Extend Page Table, EPT）</h3>
+<p>从软件层面似乎已经是难以有更好的优化的方案了，因此硬件层面的对内存虚拟化的支持便应运而生——<strong>EPT</strong> 即 <strong>Extend Page Table</strong>，是 Intel 为实现内存虚拟化而新增的特性，目的是为了减少内存访问的开销</p>
 <p>EPT 并不干扰 Guest VM 操作自身页表的过程，其本质上是<strong>额外提供了一个 Guest 物理地址空间到 Host 物理地址空间转换的页表</strong>，即使用一个额外的页表来完成 <code>GPA→HPA</code> 的转换</p>
 <p>EPT 方案虽然相比起影子页表而言多了一层转换，但是并不需要干扰 Guest 原有的页表管理，<strong>GVA→GPA→HPA 的过程都由硬件自动完成</strong>，同时 Hypervisor 仅需要截获 <code>EPT Violation</code> 异常（EPT 表项为空），效率提高了不少</p>
 <p><img src="https://s2.loli.net/2022/08/05/BSjJk3zq6ayrXvO.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h3 id="IV-VPID：TLB-资源优化"><a href="#IV-VPID：TLB-资源优化" class="headerlink" title="IV. VPID：TLB 资源优化"></a>IV. VPID：TLB 资源优化</h3><p><strong>Translation Lookaside Buffer</strong>为用以加快虚拟地址到物理地址转换的<strong>页表项缓存</strong>，当进行地址转换时 CPU 首先会先查询 TLB，TLB 根据虚拟地址查找是否存在对应的 cache，若 cache miss 了才会查询页表</p>
+<h3 id="IV-VPID：TLB-资源优化">IV. VPID：TLB 资源优化</h3>
+<p><strong>Translation Lookaside Buffer</strong>为用以加快虚拟地址到物理地址转换的<strong>页表项缓存</strong>，当进行地址转换时 CPU 首先会先查询 TLB，TLB 根据虚拟地址查找是否存在对应的 cache，若 cache miss 了才会查询页表</p>
 <p>由于 TLB 是与对应的页表进行工作的，因此在切换页表时 TLB 原有的内容就失效了，此时我们应当使用 <code>INVLPG</code> 使 TLB 失效，类似地，在 VM-Entry 与 VM-Exit 时 CPU 都会强制让 TLB 失效，但这么做仍存在一定的性能损耗</p>
-<p><strong>Virtual Processor Identifier</strong>（VPID）则是一种硬件级的对 TLB 资源管理的优化，其在硬件上为每个 TLB 表项打上一个 VPID 标识（VMM 为每个 vCPU 分配一个唯一的 VPID，存放在 VMCS 中，逻辑 CPU 的 VPID 为 0），在 CPU 查找 TLB cache 时会先比对 VPID，这样我们就无需在每次进行 VM entry&#x2F;exit 时刷掉所有的 cache，而可以继续复用之前保留的 cache</p>
-<h1 id="0x06-I-x2F-O-虚拟化"><a href="#0x06-I-x2F-O-虚拟化" class="headerlink" title="0x06. I&#x2F;O 虚拟化"></a>0x06. I&#x2F;O 虚拟化</h1><p>现实的外设资源往往是有限的，同时我们有的时候并不需要让 VM 直接接触到现实存在的外设资源，有的时候我们还想为 VM 提供一些不存在实体设备的设备，因此 Hypervisor 需要通过 IO 虚拟化的方式来为 VM 提供<strong>虚拟的设备资源</strong></p>
-<p>从处理器的角度而言，我们与外设之间的交互主要是通过 <code>MMIO</code> 与 <code>Port IO</code> 来完成的，因而针对外设的虚拟化称之为 <strong>I&#x2F;O 虚拟化</strong></p>
-<p>I&#x2F;O 虚拟化需要实现以下三个任务：</p>
+<p><strong>Virtual Processor Identifier</strong>（VPID）则是一种硬件级的对 TLB 资源管理的优化，其在硬件上为每个 TLB 表项打上一个 VPID 标识（VMM 为每个 vCPU 分配一个唯一的 VPID，存放在 VMCS 中，逻辑 CPU 的 VPID 为 0），在 CPU 查找 TLB cache 时会先比对 VPID，这样我们就无需在每次进行 VM entry/exit 时刷掉所有的 cache，而可以继续复用之前保留的 cache</p>
+<h1>0x06. I/O 虚拟化</h1>
+<p>现实的外设资源往往是有限的，同时我们有的时候并不需要让 VM 直接接触到现实存在的外设资源，有的时候我们还想为 VM 提供一些不存在实体设备的设备，因此 Hypervisor 需要通过 IO 虚拟化的方式来为 VM 提供<strong>虚拟的设备资源</strong></p>
+<p>从处理器的角度而言，我们与外设之间的交互主要是通过 <code>MMIO</code> 与 <code>Port IO</code> 来完成的，因而针对外设的虚拟化称之为 <strong>I/O 虚拟化</strong></p>
+<p>I/O 虚拟化需要实现以下三个任务：</p>
 <ul>
 <li>访问截获：Hypervisor 需要截获 VM 对外设的访问操作</li>
-<li>提供设备接口：Hypervisor 需要为 VM 提供虚拟&#x2F;直通设备的接口</li>
+<li>提供设备接口：Hypervisor 需要为 VM 提供虚拟/直通设备的接口</li>
 <li>实现设备功能：Hypervisor 需要实现虚拟设备的功能</li>
 </ul>
-<h2 id="一、I-x2F-O-虚拟化基本模型"><a href="#一、I-x2F-O-虚拟化基本模型" class="headerlink" title="一、I&#x2F;O 虚拟化基本模型"></a>一、I&#x2F;O 虚拟化基本模型</h2><blockquote>
+<h2 id="一、I-O-虚拟化基本模型">一、I/O 虚拟化基本模型</h2>
+<blockquote>
 <p>这一节其实是笔者不记得不知道什么时候出于什么目的从<a target="_blank" rel="noopener" href="https://developer.ibm.com/tutorials/l-pci-passthrough/">https://developer.ibm.com/tutorials/l-pci-passthrough/</a>上翻译了一段存在草稿箱里，最近翻草稿箱发现之前居然还留存有这种东西，所以修改一下就放上来了XD</p>
 </blockquote>
-<h3 id="I-平台设备模拟（Platform-device-emulation）"><a href="#I-平台设备模拟（Platform-device-emulation）" class="headerlink" title="I.平台设备模拟（Platform device emulation）"></a>I.平台设备模拟（Platform device emulation）</h3><p>QEMU 和 VMWare 都选择了仿真出一个虚拟设备，不同在于其模拟设备的实现方式。</p>
-<h4 id="基于虚拟机管理程序的设备模拟（Hypervisor-based-device-emulation）"><a href="#基于虚拟机管理程序的设备模拟（Hypervisor-based-device-emulation）" class="headerlink" title="基于虚拟机管理程序的设备模拟（Hypervisor-based device emulation）"></a>基于虚拟机管理程序的设备模拟（Hypervisor-based device emulation）</h4><p>在 hypervisor （虚拟机管理程序）中对设备进行仿真是 VMware workstation 系列产品较为常用的一种方式：在 hypervisor 中有着对一般设备的仿真供 guest OS 进行共享，包括虚拟磁盘、虚拟网络适配器与其他的必要元素，这种模型如下图所示：</p>
+<h3 id="I-平台设备模拟（Platform-device-emulation）">I.平台设备模拟（Platform device emulation）</h3>
+<p>QEMU 和 VMWare 都选择了仿真出一个虚拟设备，不同在于其模拟设备的实现方式。</p>
+<h4 id="基于虚拟机管理程序的设备模拟（Hypervisor-based-device-emulation）">基于虚拟机管理程序的设备模拟（Hypervisor-based device emulation）</h4>
+<p>在 hypervisor （虚拟机管理程序）中对设备进行仿真是 VMware workstation 系列产品较为常用的一种方式：在 hypervisor 中有着对一般设备的仿真供 guest OS 进行共享，包括虚拟磁盘、虚拟网络适配器与其他的必要元素，这种模型如下图所示：</p>
 <p><img src="https://s2.loli.net/2022/02/25/IQduvSe7wE4TLgq.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h4 id="在用户空间进行设备模拟（User-space-device-emulation）"><a href="#在用户空间进行设备模拟（User-space-device-emulation）" class="headerlink" title="在用户空间进行设备模拟（User space device emulation）"></a>在用户空间进行设备模拟（User space device emulation）</h4><p>第二种架构称为用户空间设备模拟，正如其名，相比于在 hypervisor 中进行模拟，其选择了在用户空间进行模拟的方式。QEMU（不仅提供了设备模拟同时还有一个 hypervisor）在用户空间中独立模拟了一个设备，该模拟设备被其他的 VM 通过 hypervisor 提供的接口进行调用。由于设备的模拟是独立于 hypervisor 的，因此我们可以模拟任何设备，且该模拟设备可以在其他 hypervisor 间进行共享。</p>
+<h4 id="在用户空间进行设备模拟（User-space-device-emulation）">在用户空间进行设备模拟（User space device emulation）</h4>
+<p>第二种架构称为用户空间设备模拟，正如其名，相比于在 hypervisor 中进行模拟，其选择了在用户空间进行模拟的方式。QEMU（不仅提供了设备模拟同时还有一个 hypervisor）在用户空间中独立模拟了一个设备，该模拟设备被其他的 VM 通过 hypervisor 提供的接口进行调用。由于设备的模拟是独立于 hypervisor 的，因此我们可以模拟任何设备，且该模拟设备可以在其他 hypervisor 间进行共享。</p>
 <p><img src="https://s2.loli.net/2022/02/28/IQbMNCcDlXR4z5V.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h3 id="II-设备直通（Device-passthrough）"><a href="#II-设备直通（Device-passthrough）" class="headerlink" title="II.设备直通（Device passthrough）"></a>II.设备直通（Device passthrough）</h3><p>上面的这两种模型或多或少都存在着一定的性能开销，如果该设备需要被多个 VM 共享，那这种开销或许是值得的，但如果该设备并不需要共享，那么我们其实可以使用一种更为高效的方法——设备直通（Device passthrough）。</p>
-<h4 id="通过虚拟机管理程序进行直通（Passthrough-within-the-hypervisor）"><a href="#通过虚拟机管理程序进行直通（Passthrough-within-the-hypervisor）" class="headerlink" title="通过虚拟机管理程序进行直通（Passthrough within the hypervisor）"></a>通过虚拟机管理程序进行直通（Passthrough within the hypervisor）</h4><p>设备直通可以理解为设备独占的设备模拟：直接将设备<strong>隔离</strong>给到指定的 VM 上，以便该设备可以由该 VM 独占使用。<strong>这提供了接近于原生设备的性能</strong>，例如对于一些需要大量 IO 的设备（例如网络设备等），使用设备直通能提供相当完美的性能。</p>
+<h3 id="II-设备直通（Device-passthrough）">II.设备直通（Device passthrough）</h3>
+<p>上面的这两种模型或多或少都存在着一定的性能开销，如果该设备需要被多个 VM 共享，那这种开销或许是值得的，但如果该设备并不需要共享，那么我们其实可以使用一种更为高效的方法——设备直通（Device passthrough）。</p>
+<h4 id="通过虚拟机管理程序进行直通（Passthrough-within-the-hypervisor）">通过虚拟机管理程序进行直通（Passthrough within the hypervisor）</h4>
+<p>设备直通可以理解为设备独占的设备模拟：直接将设备<strong>隔离</strong>给到指定的 VM 上，以便该设备可以由该 VM 独占使用。<strong>这提供了接近于原生设备的性能</strong>，例如对于一些需要大量 IO 的设备（例如网络设备等），使用设备直通能提供相当完美的性能。</p>
 <p>下图左半部分便为设备直通</p>
 <p><img src="https://s2.loli.net/2022/02/28/PRSNK1g4saEjvVF.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h2 id="二、软件半虚拟化-virtio"><a href="#二、软件半虚拟化-virtio" class="headerlink" title="二、软件半虚拟化 - virtio"></a>二、软件半虚拟化 - virtio</h2><p><code>virtio</code> 这个概念来自于一篇非常古老的虚拟化领域的论文：<a target="_blank" rel="noopener" href="https://ozlabs.org/~rusty/virtio-spec/virtio-paper.pdf">virtio: towards a de-facto standard for virtual I&#x2F;O devices</a>，主要是为了解决设备虚拟化的问题而<strong>提供了一套通用的虚拟化设备模型</strong>，Guest OS 只需要实现一套统一的 virtio 驱动便能以统一的方式访问虚拟化设备，从而避免了各种虚拟化驱动分裂的问题</p>
+<h2 id="二、软件半虚拟化-virtio">二、软件半虚拟化 - virtio</h2>
+<p><code>virtio</code> 这个概念来自于一篇非常古老的虚拟化领域的论文：<a target="_blank" rel="noopener" href="https://ozlabs.org/~rusty/virtio-spec/virtio-paper.pdf">virtio: towards a de-facto standard for virtual I/O devices</a>，主要是为了解决设备虚拟化的问题而<strong>提供了一套通用的虚拟化设备模型</strong>，Guest OS 只需要实现一套统一的 virtio 驱动便能以统一的方式访问虚拟化设备，从而避免了各种虚拟化驱动分裂的问题</p>
 <p><img src="https://s2.loli.net/2022/08/29/SZ2p17EtqRHoFQh.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h3 id="I-VirtQueue：传输层抽象"><a href="#I-VirtQueue：传输层抽象" class="headerlink" title="I. VirtQueue：传输层抽象"></a>I. VirtQueue：传输层抽象</h3><p><code>virtqueue</code> 为 virtio 中用以进行数据传输的关键结构，其本身表示一个<strong>数据队列</strong>：由一方向队列中添加 buffer，另一方从队列中取出 buffer——通过这样的方式实现了 Guest 与 Host 之间基本的数据传输模型</p>
+<h3 id="I-VirtQueue：传输层抽象">I. VirtQueue：传输层抽象</h3>
+<p><code>virtqueue</code> 为 virtio 中用以进行数据传输的关键结构，其本身表示一个<strong>数据队列</strong>：由一方向队列中添加 buffer，另一方从队列中取出 buffer——通过这样的方式实现了 Guest 与 Host 之间基本的数据传输模型</p>
 <p>为了减少模型的复杂性，通常我们使用 virtqueue 的传输都是单向的，因此一个最简单的模型就是我们就可以使用两个 virtqueue 来实现 Guest 与 Host 之间的双向通信：tx queue（发送队列） &amp; rx queue（接收队列）</p>
 <p><img src="https://s2.loli.net/2022/08/29/g1kn2r4VWO7GBLM.png" srcset="/img/loading.gif" lazyload alt="转自 LoyenWang 公众号的图片，非常清晰的表示了 virtqueue 工作原理的一张图！"></p>
 <p>对于 virtqueue 的操作，在论文中抽象成一个函数表 <code>virtqueue_ops</code>：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">virtqueue_ops</span> &#123;</span><br>    <span class="hljs-type">int</span> (*add_buf)(<span class="hljs-keyword">struct</span> virtqueue *vq,<br>                    <span class="hljs-keyword">struct</span> scatterlist sg[],<br>                    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> out_num,<br>                    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> in_num,<br>                    <span class="hljs-type">void</span> *data);<br>    <span class="hljs-type">void</span> (*kick)(<span class="hljs-keyword">struct</span> virtqueue *vq);<br>    <span class="hljs-type">void</span> *(*get_buf)(<span class="hljs-keyword">struct</span> virtqueue *vq,<br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> *len);<br>    <span class="hljs-type">void</span> (*disable_cb)(<span class="hljs-keyword">struct</span> virtqueue *vq);<br>    <span class="hljs-type">bool</span> (*enable_cb)(<span class="hljs-keyword">struct</span> virtqueue *vq);<br>&#125;;<br></code></pre></td></tr></table></figure>
-
 <ul>
 <li><code>add_buf</code>：向 virtqueue 中添加一个 buffer</li>
 <li><code>kick</code> ：通知另一方新到达了一个 buffer</li>
@@ -786,22 +840,20 @@
 <li><code>disable_cb</code>：通知另一方关闭 buffer 到达的提示</li>
 <li><code>enable_cb</code>：通知另一方开启 buffer 到达的提示</li>
 </ul>
-<h3 id="II-VRing：virtqueue-的基本结构"><a href="#II-VRing：virtqueue-的基本结构" class="headerlink" title="II. VRing：virtqueue 的基本结构"></a>II. VRing：virtqueue 的基本结构</h3><p>virtqueue 核心的数据结构便是 <code>vring</code>，这是一个<strong>环形缓冲区队列</strong>，其由三部分组成：</p>
+<h3 id="II-VRing：virtqueue-的基本结构">II. VRing：virtqueue 的基本结构</h3>
+<p>virtqueue 核心的数据结构便是 <code>vring</code>，这是一个<strong>环形缓冲区队列</strong>，其由三部分组成：</p>
 <ul>
 <li>描述符表（Desc）</li>
 <li>可用描述符数组（Used）</li>
 <li>已用描述符数组（Avail）</li>
 </ul>
 <p><img src="https://s2.loli.net/2022/08/29/OrlAvYaFkZ3dIXt.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<p>一个描述符（Descriptor）为如下结构，表示了一块 buffer 的基本属性，需要注意的是一个 Avail&#x2F;Used 表项通常是多个 descriptor 串联的 buffer——这便是 next 域的作用：</p>
+<p>一个描述符（Descriptor）为如下结构，表示了一块 buffer 的基本属性，需要注意的是一个 Avail/Used 表项通常是多个 descriptor 串联的 buffer——这便是 next 域的作用：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">vring_desc</span></span><br><span class="hljs-class">&#123;</span><br>    __u64 addr;		<span class="hljs-comment">// Guest Physical Addresses</span><br>    __u32 len;		<span class="hljs-comment">// 长度</span><br>    __u16 flags;	<span class="hljs-comment">// 属性</span><br>    __u16 next;		<span class="hljs-comment">// 下一个描述符的 idx</span><br>&#125;;<br></code></pre></td></tr></table></figure>
-
 <p><strong>Avail</strong> 数组用来存储当前可用的描述符：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">vring_avail</span></span><br><span class="hljs-class">&#123;</span><br>    __u16 flags;<br>    __u16 idx;<br>    __u16 ring[NUM];<br>&#125;;<br></code></pre></td></tr></table></figure>
-
 <p><strong>Used</strong> 数组则用来存储已经被使用的描述符：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">vring_used_elem</span></span><br><span class="hljs-class">&#123;</span><br>    __u32 id;<br>    __u32 len;<br>&#125;;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">vring_used</span></span><br><span class="hljs-class">&#123;</span><br>    __u16 flags;<br>    __u16 idx;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">vring_used_elem</span> <span class="hljs-title">ring</span>[];</span><br>&#125;;<br></code></pre></td></tr></table></figure>
-
 <p>Avail 数组与 Used 数组同样是一个<strong>环形队列</strong>，不过这两个数组分别由通信的两方进行使用：</p>
 <ul>
 <li>数据<strong>发送方</strong>准备好数据后从 <code>Avail 队列</code> 中获取可用的表项，更新描述符表，并在 <code>Used 队列</code> 中插入新的表项，通知接收方有数据到达</li>
@@ -809,29 +861,30 @@
 </ul>
 <p>下图为由 Guest 向 Host 发送数据的一个 vring 示例：</p>
 <p><img src="https://s2.loli.net/2022/08/29/8uUq1jacyEYGlXR.png" srcset="/img/loading.gif" lazyload alt="转自 LoyenWang 公众号的图片，非常清晰的表示了 virtqueue 工作原理的一张图！"></p>
-<h3 id="III-virtio-配置操作抽象"><a href="#III-virtio-配置操作抽象" class="headerlink" title="III. virtio 配置操作抽象"></a>III. virtio 配置操作抽象</h3><p>结合 virtqueue，我们现在可以抽象出一个虚拟 PCI 设备的基本操作：</p>
+<h3 id="III-virtio-配置操作抽象">III. virtio 配置操作抽象</h3>
+<p>结合 virtqueue，我们现在可以抽象出一个虚拟 PCI 设备的基本操作：</p>
 <ul>
 <li>获取 feature bits</li>
 <li>读写配置空间</li>
 <li>读写 status bits</li>
 <li>设备重置</li>
-<li>创建&#x2F;销毁 virtqueue</li>
+<li>创建/销毁 virtqueue</li>
 </ul>
 <p>我们将其抽象成一张函数表：<code>virtio_config_ops</code></p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">virtio_config_ops</span></span><br><span class="hljs-class">&#123;</span><br>        <span class="hljs-type">bool</span> (*feature)(<span class="hljs-keyword">struct</span> virtio_device *vdev, <span class="hljs-type">unsigned</span> bit);<br>        <span class="hljs-type">void</span> (*get)(<span class="hljs-keyword">struct</span> virtio_device *vdev, <span class="hljs-type">unsigned</span> offset,<br>                    <span class="hljs-type">void</span> *buf, <span class="hljs-type">unsigned</span> len);<br>        <span class="hljs-type">void</span> (*<span class="hljs-built_in">set</span>)(<span class="hljs-keyword">struct</span> virtio_device *vdev, <span class="hljs-type">unsigned</span> offset,<br>                    <span class="hljs-type">const</span> <span class="hljs-type">void</span> *buf, <span class="hljs-type">unsigned</span> len);<br>        u8 (*get_status)(<span class="hljs-keyword">struct</span> virtio_device *vdev);<br>        <span class="hljs-type">void</span> (*set_status)(<span class="hljs-keyword">struct</span> virtio_device *vdev, u8 status);<br>        <span class="hljs-type">void</span> (*reset)(<span class="hljs-keyword">struct</span> virtio_device *vdev);<br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">virtqueue</span> *(*<span class="hljs-title">find_vq</span>)(<span class="hljs-keyword">struct</span> <span class="hljs-title">virtio_device</span> *<span class="hljs-title">vdev</span>,</span><br><span class="hljs-class">                                     <span class="hljs-title">unsigned</span> <span class="hljs-title">index</span>,</span><br><span class="hljs-class">                                     <span class="hljs-title">void</span> (*<span class="hljs-title">callback</span>)(<span class="hljs-keyword">struct</span> <span class="hljs-title">virtqueue</span> *));</span><br>        <span class="hljs-type">void</span> (*del_vq)(<span class="hljs-keyword">struct</span> virtqueue *vq);<br>&#125;;<br></code></pre></td></tr></table></figure>
-
 <ul>
 <li><code>feature</code>：获取设备对应的 feature bit</li>
 <li><code>get &amp; set</code> ：读写设备的配置空间</li>
 <li><code>get_status &amp; set_status</code>：读写设备的 status bits</li>
 <li><code>reset</code>：重置设备</li>
-<li><code>find_vq</code>：获取&#x2F;创建 virtqueue</li>
+<li><code>find_vq</code>：获取/创建 virtqueue</li>
 <li><code>del_vq</code>：销毁 virtqueue</li>
 </ul>
-<h2 id="三、IOMMU"><a href="#三、IOMMU" class="headerlink" title="三、IOMMU"></a>三、IOMMU</h2><blockquote>
+<h2 id="三、IOMMU">三、IOMMU</h2>
+<blockquote>
 <p>可以直接参见 <a target="_blank" rel="noopener" href="https://www.intel.com/content/dam/develop/external/us/en/documents/intel-whitepaper-using-iommu-for-dma-protection-in-uefi.pdf">Intel 的手册</a></p>
 </blockquote>
-<p> IOMMU 即 <strong>Input&#x2F;Output Memory Management Unit</strong>，其功能类似于 CPU 中的 MMU，是一个<strong>向设备侧提供地址翻译功能的单元</strong></p>
+<p>IOMMU 即 <strong>Input/Output Memory Management Unit</strong>，其功能类似于 CPU 中的 MMU，是一个<strong>向设备侧提供地址翻译功能的单元</strong></p>
 <p><img src="https://s2.loli.net/2022/09/03/3GOTl4oAExSdPcL.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>IOMMU 通常被集成于北桥中，其提供面向设备端的两个功能：</p>
 <ul>
@@ -839,10 +892,12 @@
 <li><strong>中断重映射</strong>（<strong>Interrupt remapping</strong>）：IOMMU 会拦截设备产生的中断，根据中断重映射表产生新的中断请求发送给 LAPIC</li>
 </ul>
 <p><img src="https://s2.loli.net/2022/09/03/k8mOSalVRWtseMi.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h3 id="I-DMA-重映射"><a href="#I-DMA-重映射" class="headerlink" title="I. DMA 重映射"></a>I. DMA 重映射</h3><p>DMA 重映射即面向设备侧的地址访问重翻译，如下图所示，左侧是 CPU 对内存的虚拟化：MMU 利用进程页表将进程要访问的虚拟地址翻译为物理地址，从而实现在两个进程中访问同一个虚拟地址实际上访问到不同的物理地址——DMA 重映射也是类似的原理，如下图右侧所示，当外设想要进行 DMA 时，IOMMU 会根据“设备页表”进行地址翻译，从而使得两个设备各自感知访问的是同一个地址，但实际上访问到了不同的物理地址</p>
+<h3 id="I-DMA-重映射">I. DMA 重映射</h3>
+<p>DMA 重映射即面向设备侧的地址访问重翻译，如下图所示，左侧是 CPU 对内存的虚拟化：MMU 利用进程页表将进程要访问的虚拟地址翻译为物理地址，从而实现在两个进程中访问同一个虚拟地址实际上访问到不同的物理地址——DMA 重映射也是类似的原理，如下图右侧所示，当外设想要进行 DMA 时，IOMMU 会根据“设备页表”进行地址翻译，从而使得两个设备各自感知访问的是同一个地址，但实际上访问到了不同的物理地址</p>
 <p><img src="https://s2.loli.net/2022/09/03/B3yxUoClVsArMGp.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>DMA 重映射有着以下的两种方式：</p>
-<h4 id="①-Request-without-PASID"><a href="#①-Request-without-PASID" class="headerlink" title="① Request-without-PASID"></a>① Request-without-PASID</h4><p>在 IOMMU 中使用了一个“二层页表 + 标准页表”结构来实现 DMA 重映射，需要占用部分物理内存空间：</p>
+<h4 id="①-Request-without-PASID">① Request-without-PASID</h4>
+<p>在 IOMMU 中使用了一个“二层页表 + 标准页表”结构来实现 DMA 重映射，需要占用部分物理内存空间：</p>
 <ul>
 <li><strong>Root Table</strong>：存放各个 bus 的 DMA 重映射表地址，一个 entry 对应一个 bus</li>
 <li><strong>Context Table</strong>：存放各个 domain 的 DMA 重映射表地址，一个 entry 对应一个 domain</li>
@@ -850,9 +905,12 @@
 </ul>
 <p>在 IOMMU 中的寄存器 <strong>Root Table Address Register</strong> 用以存放指向 Root-table 的指针</p>
 <p><img src="https://s2.loli.net/2022/09/03/TdAB3Um4xhzHKXZ.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<p>DMA 重映射还需要一个 id 来唯一标识一个设备，对于 PCI 设备而言便是其 BDF（Bus&#x2F;Device&#x2F;Function），因此实际的地址访问过程如下图所示：</p>
+<p>DMA 重映射还需要一个 id 来唯一标识一个设备，对于 PCI 设备而言便是其 BDF（Bus/Device/Function），因此实际的地址访问过程如下图所示：</p>
 <p><img src="https://s2.loli.net/2022/09/03/67FPkW2zafeMBpL.png" srcset="/img/loading.gif" lazyload alt="知乎偷的图"></p>
-<h4 id="②-Request-with-PASID"><a href="#②-Request-with-PASID" class="headerlink" title="② Request-with-PASID"></a>② Request-with-PASID</h4><h3 id="II-中断重映射"><a href="#II-中断重映射" class="headerlink" title="II.中断重映射"></a>II.中断重映射</h3><h3 id="III-IOMMU-与虚拟化"><a href="#III-IOMMU-与虚拟化" class="headerlink" title="III. IOMMU 与虚拟化"></a>III. IOMMU 与虚拟化</h3><p>虽然 IOMMU 的引入增加了与外设通信间的开销，但 IOMMU 解决了系统虚拟化技术的一个难点：对于非纯模拟的设备而言，其并不知道 GPA 与 HPA 之间的映射关系，当其按 Guest OS 提供的地址进行 DMA 时<strong>会直接访问到 Host 的内存</strong></p>
+<h4 id="②-Request-with-PASID">② Request-with-PASID</h4>
+<h3 id="II-中断重映射">II.中断重映射</h3>
+<h3 id="III-IOMMU-与虚拟化">III. IOMMU 与虚拟化</h3>
+<p>虽然 IOMMU 的引入增加了与外设通信间的开销，但 IOMMU 解决了系统虚拟化技术的一个难点：对于非纯模拟的设备而言，其并不知道 GPA 与 HPA 之间的映射关系，当其按 Guest OS 提供的地址进行 DMA 时<strong>会直接访问到 Host 的内存</strong></p>
 <p>当引入了 IOMMU 之后，IOMMU 可以根据 Host 侧提供的 GPA 到 HPA 之间的地址转换表，进行<strong>DMA remapping</strong>，这样外设就能正常地访问到 Guest 的物理内存，而不会错误地访问到 Host 对应的物理内存区域</p>
 
                 
@@ -944,9 +1002,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2022/09/30/CTF-0X07-BYTECTF2022_BYTERUN/" title="【CTF.0x07】ByteCTF2022 byte_run 出题手记">
+                      <a href="/2022/08/30/HARDWARE-0X00-PCI_DEVICE/" title="【HARDWARE.0x00】PCI 设备简易食用手册">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">【CTF.0x07】ByteCTF2022 byte_run 出题手记</span>
+                        <span class="hidden-mobile">【HARDWARE.0x00】PCI 设备简易食用手册</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     

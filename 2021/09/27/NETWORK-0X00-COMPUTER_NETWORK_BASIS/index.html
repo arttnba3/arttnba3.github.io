@@ -261,7 +261,7 @@
         
         
         
-          95 分钟
+          94 分钟
         
       </span>
     
@@ -326,22 +326,25 @@
                 
                 <p>我爱计网计网爱我</p>
 <span id="more"></span>
-
 <blockquote>
-<p><del>我像计网爱我那样爱计网</del>（🔫</p>
+<p><s>我像计网爱我那样爱计网</s>（🔫</p>
 </blockquote>
-<h1 id="0x00-写在开始之前"><a href="#0x00-写在开始之前" class="headerlink" title="0x00.写在开始之前"></a>0x00.写在开始之前</h1><p>计算机网络原理一直都是计算机科学与技术中十分基础与重要的的课程，刚好这学期开了计算机网络这门课，<del>为了避免挂科还是</del>学到一点写一点，不过本篇博文<strong>并非考试导向性质的笔记，只会记录笔者认为重要的内容，不会特意标注所谓重点</strong>（<del>什么·？你想拿来考研？</del></p>
+<h1>0x00.写在开始之前</h1>
+<p>计算机网络原理一直都是计算机科学与技术中十分基础与重要的的课程，刚好这学期开了计算机网络这门课，<s>为了避免挂科还是</s>学到一点写一点，不过本篇博文<strong>并非考试导向性质的笔记，只会记录笔者认为重要的内容，不会特意标注所谓重点</strong>（<s>什么·？你想拿来考研？</s></p>
 <p>主要参照《数据通信与网络》与老师上课用的 PPT，配合着笔者个人的一些理解，笔者认为不重要的会标注 <code>*</code>，如有错误还请大家不吝赐教</p>
 <p>当前进度：Chapter.06   2022.1.5（如果看到笔者还没更新完请提醒笔者（笑））</p>
 <blockquote>
-<p>简单看了一下这本书主要以自底向上的方式混合叙述了 TCP&#x2F;IP 四层模型与 OSI 七层模型的内容：物理层、数据链路层（前面这两层在 TCP&#x2F;IP 中合为网络访问层）、网络层、传输层、应用层（在 OSI 七层模型中应用层被分为三层，自底向上为：会话层、表示层、应用层）</p>
+<p>简单看了一下这本书主要以自底向上的方式混合叙述了 TCP/IP 四层模型与 OSI 七层模型的内容：物理层、数据链路层（前面这两层在 TCP/IP 中合为网络访问层）、网络层、传输层、应用层（在 OSI 七层模型中应用层被分为三层，自底向上为：会话层、表示层、应用层）</p>
 </blockquote>
 <blockquote>
 <p>附上两张从网上找到的图</p>
-<p><img src="https://i.loli.net/2021/09/28/AGyOHXZINmP7R4C.png" srcset="/img/loading.gif" lazyload></p>
-<p><img src="https://i.loli.net/2021/09/28/FRj2ZYOiT1Ah8wo.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://i.loli.net/2021/09/28/AGyOHXZINmP7R4C.png" srcset="/img/loading.gif" lazyload alt=""></p>
+<p><img src="https://i.loli.net/2021/09/28/FRj2ZYOiT1Ah8wo.png" srcset="/img/loading.gif" lazyload alt=""></p>
 </blockquote>
-<h1 id="0x01-概述"><a href="#0x01-概述" class="headerlink" title="0x01.概述"></a>0x01.概述</h1><h2 id="Chapter-1-绪论"><a href="#Chapter-1-绪论" class="headerlink" title="Chapter 1 - 绪论"></a>Chapter 1 - 绪论</h2><h3 id="1-1-数据通信"><a href="#1-1-数据通信" class="headerlink" title="1.1 数据通信"></a>1.1 数据通信</h3><p><strong>数据通信</strong>（data communication）即在两台设备间进行数据交换，其效率主要取决于以下四个因素：</p>
+<h1>0x01.概述</h1>
+<h2 id="Chapter-1-绪论">Chapter 1 - 绪论</h2>
+<h3 id="1-1-数据通信">1.1 数据通信</h3>
+<p><strong>数据通信</strong>（data communication）即在两台设备间进行数据交换，其效率主要取决于以下四个因素：</p>
 <ul>
 <li><strong>传递性</strong>：系统必须将数据传递到正确的目的地</li>
 <li><strong>准确性</strong>：系统必须准确地传输数据</li>
@@ -364,15 +367,18 @@
 <li>(全)<strong>双工</strong>（(full-)duplex mode）：两台设备间的通信是双向的，<strong>通信双方都可以同时收发报文</strong></li>
 <li><strong>半双工</strong>（half-duplex mode）：两台设备间的通信是双向的，但是<strong>在同一时刻报文的传输只能是单向的</strong></li>
 </ul>
-<h3 id="1-2-网络"><a href="#1-2-网络" class="headerlink" title="1.2 网络"></a>1.2 网络</h3><h4 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h4><p><strong>网络</strong>（network）即为用通信链路连接起来的<strong>设备</strong>（称之为节点）<strong>的集合</strong></p>
+<h3 id="1-2-网络">1.2 网络</h3>
+<h4 id="定义">定义</h4>
+<p><strong>网络</strong>（network）即为用通信链路连接起来的<strong>设备</strong>（称之为节点）<strong>的集合</strong></p>
 <blockquote>
 <p><strong>分布式处理</strong>（distributed processing）为一种典型的网络模式：将一个任务分给多个节点处理</p>
 </blockquote>
 <p>我们主要从以下三个方面评估一个网络：</p>
 <ul>
-<li><strong>性能</strong>（performance）：主要由以下两个因素进行度量：<ul>
+<li><strong>性能</strong>（performance）：主要由以下两个因素进行度量：
+<ul>
 <li><strong>吞吐量</strong>（throughput）：【相当一段时间】内收发的总数据量</li>
-<li><strong>延迟</strong>（delay&#x2F;latency）：请求响应【出入系统的时间】</li>
+<li><strong>延迟</strong>（delay/latency）：请求响应【出入系统的时间】</li>
 </ul>
 </li>
 </ul>
@@ -384,38 +390,47 @@
 <li><strong>可靠性</strong>（reliability）：即网络是否可靠，主要由故障出现的频率、出错的恢复时间、抗灾性能三个方面来衡量</li>
 <li><strong>安全性</strong>（security）：网络是否能够保护数据在传输过程中不被窃取与破解、数据丢失后是否有较好的恢复策略</li>
 </ul>
-<h4 id="连接类型"><a href="#连接类型" class="headerlink" title="连接类型"></a>连接类型</h4><p>网络的<strong>连接类型</strong>主要有以下两种：</p>
+<h4 id="连接类型">连接类型</h4>
+<p>网络的<strong>连接类型</strong>主要有以下两种：</p>
 <p><img src="https://i.loli.net/2021/09/28/nH1qta5ml4vTFzY.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <ul>
 <li><strong>点到点</strong>（point-to-point）：两台设备之间使用一条专用链路进行通信</li>
 <li><strong>多点连接</strong>（multipoint connection）：在一条通信链路上有着多台设备</li>
 </ul>
-<h4 id="拓扑结构"><a href="#拓扑结构" class="headerlink" title="拓扑结构"></a>拓扑结构</h4><p><strong>物理拓扑结构</strong>（physical topology）指的是网络在物理上分布的方式，一条链路上连接着两台或多台设备，两条或多条链路组成拓扑结构，主要有以下几种：</p>
+<h4 id="拓扑结构">拓扑结构</h4>
+<p><strong>物理拓扑结构</strong>（physical topology）指的是网络在物理上分布的方式，一条链路上连接着两台或多台设备，两条或多条链路组成拓扑结构，主要有以下几种：</p>
 <ul>
-<li><p><strong>网状</strong>：网络中的数个节点之间互相<strong>自由连接</strong>，形成一张网</p>
+<li>
+<p><strong>网状</strong>：网络中的数个节点之间互相<strong>自由连接</strong>，形成一张网</p>
 </li>
-<li><p><strong>星型</strong>：网络中的数个节点拥有一条与中央节点连接的链路，这个中央节点通常是一个集线器（sub）</p>
+<li>
+<p><strong>星型</strong>：网络中的数个节点拥有一条与中央节点连接的链路，这个中央节点通常是一个集线器（sub）</p>
 </li>
-<li><p><strong>总线型</strong>：由一条较长的线缆作为<strong>主干</strong>（backbone）来连接网络上的所有设备</p>
+<li>
+<p><strong>总线型</strong>：由一条较长的线缆作为<strong>主干</strong>（backbone）来连接网络上的所有设备</p>
 </li>
-<li><p><strong>环状</strong>：每台设备只与其两侧的设备有一条专用的点到点连接，环中的每个设备中安装有一个中继器</p>
+<li>
+<p><strong>环状</strong>：每台设备只与其两侧的设备有一条专用的点到点连接，环中的每个设备中安装有一个中继器</p>
 <blockquote>
 <p>笔者认为环状可以理解为总线型首尾相连，每个设备多出一个中继器</p>
 </blockquote>
 </li>
-<li><p><strong>混合型</strong>：由上述拓扑结构中的两种及以上构成的网络</p>
+<li>
+<p><strong>混合型</strong>：由上述拓扑结构中的两种及以上构成的网络</p>
 </li>
 </ul>
-<h4 id="规模分类"><a href="#规模分类" class="headerlink" title="规模分类"></a>规模分类</h4><p><strong>根据网络的规模</strong>，我们将网络分为以下两种类型：</p>
+<h4 id="规模分类">规模分类</h4>
+<p><strong>根据网络的规模</strong>，我们将网络分为以下两种类型：</p>
 <ul>
 <li><strong>局域网</strong>（local area network，简称 LAN）：由一定范围内的少量设备组成的网络，通常是私有网络</li>
 <li><strong>广域网</strong>（wide area network，简称 WAN）：大范围内的数个局域网与设备组成的网络</li>
 </ul>
 <p><strong>互联网络</strong>（internet）便是由多个网络彼此连接组成的网络，最著名的互联网便是因特网（Internet）</p>
 <blockquote>
-<p> 还有一种介于广域网与局域网间的概念叫城域网，不过在笔者看来似乎并不常用</p>
+<p>还有一种介于广域网与局域网间的概念叫城域网，不过在笔者看来似乎并不常用</p>
 </blockquote>
-<h3 id="1-3-协议"><a href="#1-3-协议" class="headerlink" title="1.3 协议"></a>1.3 协议</h3><p><strong>协议</strong>（protocol）即为用来管理数据通讯的一组规则，其定义了通信的内容、通信的方式与通信的时间。协议的核心要素为：</p>
+<h3 id="1-3-协议">1.3 协议</h3>
+<p><strong>协议</strong>（protocol）即为用来管理数据通讯的一组规则，其定义了通信的内容、通信的方式与通信的时间。协议的核心要素为：</p>
 <ul>
 <li><strong>语法</strong>（syntax）：数据的结构或格式</li>
 </ul>
@@ -431,26 +446,30 @@
 <ul>
 <li><strong>时序</strong>（timing）：报文的发送时间与发送速率</li>
 </ul>
-<h2 id="Chapter-2-网络模型"><a href="#Chapter-2-网络模型" class="headerlink" title="Chapter 2 - 网络模型"></a>Chapter 2 - 网络模型</h2><p>目前主要有两种网络<strong>分层</strong>模型：<code>OSI七层模型</code>（Open System Interconnection，开放式系统互联）与 <code>TCP/IP 模型</code>，其对应关系如下图所示：</p>
+<h2 id="Chapter-2-网络模型">Chapter 2 - 网络模型</h2>
+<p>目前主要有两种网络<strong>分层</strong>模型：<code>OSI七层模型</code>（Open System Interconnection，开放式系统互联）与 <code>TCP/IP 模型</code>，其对应关系如下图所示：</p>
 <p><img src="https://i.loli.net/2021/09/28/1ujnpTi6efUPwEX.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>信息在发送时通过各层提供的接口由高层向低层传递，逐层封装，接收方再逐层进行解封，如下图所示：</p>
 <p><img src="https://i.loli.net/2021/10/08/r3Zoi6bufOAyNep.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h3 id="2-1-OSI-Model"><a href="#2-1-OSI-Model" class="headerlink" title="2.1 OSI Model"></a>2.1 OSI Model</h3><p>由 ISO 定义的一个网络模型，结构如下图所示：</p>
+<h3 id="2-1-OSI-Model">2.1 OSI Model</h3>
+<p>由 ISO 定义的一个网络模型，结构如下图所示：</p>
 <blockquote>
 <p>这张图也是从网上偷的</p>
 </blockquote>
 <p><img src="https://i.loli.net/2021/10/09/OIbesTYf79y3pDw.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h4 id="物理层（physical-layer）"><a href="#物理层（physical-layer）" class="headerlink" title="物理层（physical layer）"></a>物理层（physical layer）</h4><p>定义了接口与传输介质的物理属性，以及物理设备和接口为了传输而必须执行的过程和功能，其主要关注如下问题：</p>
+<h4 id="物理层（physical-layer）">物理层（physical layer）</h4>
+<p>定义了接口与传输介质的物理属性，以及物理设备和接口为了传输而必须执行的过程和功能，其主要关注如下问题：</p>
 <ul>
 <li><strong>接口与介质的物理特性</strong></li>
-<li><strong>位的表示</strong>（编码类型，即如何将0&#x2F;1转换为信号）</li>
+<li><strong>位的表示</strong>（编码类型，即如何将0/1转换为信号）</li>
 <li><strong>数据速率</strong>（每秒发送的位数）</li>
 <li><strong>位同步</strong>（收发双方时钟同步）</li>
 <li><strong>线路配置</strong></li>
 <li><strong>物理拓扑结构</strong></li>
 <li><strong>传输方式</strong></li>
 </ul>
-<h4 id="数据链路层（data-link-layer）"><a href="#数据链路层（data-link-layer）" class="headerlink" title="数据链路层（data link layer）"></a>数据链路层（data link layer）</h4><p>该层负责<strong>帧</strong>（<strong>frame</strong>）<strong>从一个节点</strong>（<strong>node</strong>）<strong>到下一个节点的传输</strong>，职能如下：</p>
+<h4 id="数据链路层（data-link-layer）">数据链路层（data link layer）</h4>
+<p>该层负责<strong>帧</strong>（<strong>frame</strong>）<strong>从一个节点</strong>（<strong>node</strong>）<strong>到下一个节点的传输</strong>，职能如下：</p>
 <ul>
 <li><strong>分帧</strong>：将从网络层接收到的数据流划分为称为<strong>帧</strong>（<strong>frame</strong>）的单元</li>
 <li><strong>物理寻址</strong>：数据链路层会在 frame header 中记录<strong>发送方与接收方的物理地址</strong>（主要是 mac 地址），若目标设备处在发送设备所处网络内，则 frame header 中记录的接收方地址为目标设备地址，否则为下一个节点的地址</li>
@@ -463,12 +482,14 @@
 <li><strong>差错控制</strong>：检测与重发损坏或丢失的帧，去除重复帧，保证数据可靠性</li>
 <li><strong>访问控制</strong>：决定多台设备并发访问同一条链路的访问顺序</li>
 </ul>
-<h4 id="网络层（network-layer）"><a href="#网络层（network-layer）" class="headerlink" title="网络层（network layer）"></a>网络层（network layer）</h4><p>该层负责将各个分组从源地址传递到目标地址（主要是针对不同链路中的设备，对于同一链路上的设备间的通信则可以不需要网络层的经手），主要任务为：</p>
+<h4 id="网络层（network-layer）">网络层（network layer）</h4>
+<p>该层负责将各个分组从源地址传递到目标地址（主要是针对不同链路中的设备，对于同一链路上的设备间的通信则可以不需要网络层的经手），主要任务为：</p>
 <ul>
 <li><strong>逻辑寻址</strong>：网络层会在 data header 中记录<strong>发送方与接收方的逻辑地址</strong>（最常用的为 IP 地址）</li>
-<li><strong>路由选择</strong>：在多个链路构成的互联网中通过连接设备（路由器&#x2F;网关）将分组送至其最终目的地</li>
+<li><strong>路由选择</strong>：在多个链路构成的互联网中通过连接设备（路由器/网关）将分组送至其最终目的地</li>
 </ul>
-<h4 id="传输层（transport-layer）"><a href="#传输层（transport-layer）" class="headerlink" title="传输层（transport layer）"></a>传输层（transport layer）</h4><p>该层负责报文的<strong>进程到进程传递</strong>（<strong>process-to-process delivery</strong>），即将报文送到相应的端口，传递给对应的进程，具体任务如下：</p>
+<h4 id="传输层（transport-layer）">传输层（transport layer）</h4>
+<p>该层负责报文的<strong>进程到进程传递</strong>（<strong>process-to-process delivery</strong>），即将报文送到相应的端口，传递给对应的进程，具体任务如下：</p>
 <ul>
 <li><strong>服务点寻址</strong>：在传输层的 header 中记录了进程对应的_服务点地址_（端口地址），由此将报文传送给指定进程</li>
 <li><strong>分段和组装</strong>：将报文分解为可传输片段并标号以保证数据可靠性</li>
@@ -478,87 +499,149 @@
 </ul>
 <blockquote>
 <p>至此，数据在网络间的传输过程已经结束，接下来的三层在笔者看来<strong>与实际应用程序相关联，并不与计算机网络原理具有强关联</strong>，故不会详细叙述</p>
-<h4 id="会话层（session-layer）"><a href="#会话层（session-layer）" class="headerlink" title="*会话层（session layer）"></a><em>*会话层（session layer）</em></h4><p>该层主要负责对话控制与同步</p>
-<h4 id="表示层（presentation-layer）"><a href="#表示层（presentation-layer）" class="headerlink" title="*表示层（presentation layer）"></a><em>*表示层（presentation layer）</em></h4><p>该层主要负责翻译、加密与压缩数据</p>
-<h4 id="应用层（application-layer）"><a href="#应用层（application-layer）" class="headerlink" title="*应用层（application layer）"></a><em>*应用层（application layer）</em></h4><p>该层主要负责向用户提供服务</p>
+<h4 id="会话层（session-layer）"><em>*会话层（session layer）</em></h4>
+<p>该层主要负责对话控制与同步</p>
+<h4 id="表示层（presentation-layer）"><em>*表示层（presentation layer）</em></h4>
+<p>该层主要负责翻译、加密与压缩数据</p>
+<h4 id="应用层（application-layer）"><em>*应用层（application layer）</em></h4>
+<p>该层主要负责向用户提供服务</p>
 </blockquote>
-<h3 id="2-2-TCP-x2F-IP-协议族"><a href="#2-2-TCP-x2F-IP-协议族" class="headerlink" title="2.2 TCP&#x2F;IP 协议族"></a>2.2 TCP&#x2F;IP 协议族</h3><p>TCP&#x2F;IP 协议族与 OSI 七层模型<strong>并非严格对应</strong>，但大致上存在如本章头图所示的对应关系</p>
-<h4 id="网络访问层（network-access）"><a href="#网络访问层（network-access）" class="headerlink" title="网络访问层（network access）"></a>网络访问层（network access）</h4><p>相当于 OSI Model 中的 <code>物理层 + 数据链路层</code>，在这一层中支持所有的标准与专门协议</p>
+<h3 id="2-2-TCP-IP-协议族">2.2 TCP/IP 协议族</h3>
+<p>TCP/IP 协议族与 OSI 七层模型<strong>并非严格对应</strong>，但大致上存在如本章头图所示的对应关系</p>
+<h4 id="网络访问层（network-access）">网络访问层（network access）</h4>
+<p>相当于 OSI Model 中的 <code>物理层 + 数据链路层</code>，在这一层中支持所有的标准与专门协议</p>
 <blockquote>
 <p>也有人称为 “一个大的物理层”</p>
 </blockquote>
-<h4 id="互联网层（internet）"><a href="#互联网层（internet）" class="headerlink" title="互联网层（internet）"></a>互联网层（internet）</h4><p>相当于 OSI Model 中的 <code>网络层</code>，在这一层中使用<strong>网际协议</strong>（<strong>Internetworking Protocol， 即 IP</strong>）</p>
-<p>网际协议为 TCP&#x2F;IP 协议使用的传输机制，其支持四个子协议：</p>
+<h4 id="互联网层（internet）">互联网层（internet）</h4>
+<p>相当于 OSI Model 中的 <code>网络层</code>，在这一层中使用<strong>网际协议</strong>（<strong>Internetworking Protocol， 即 IP</strong>）</p>
+<p>网际协议为 TCP/IP 协议使用的传输机制，其支持四个子协议：</p>
 <ul>
 <li><strong>地址解析协议</strong>（<strong>Address Resolution Protocol，即 ARP</strong>）：通过逻辑地址获得对应物理地址（例如由 IP 地址寻找对应 mac 地址）</li>
 <li><strong>逆地址解析协议</strong>（<strong>Reverse Address Resolution Protocol，即 RARP</strong>）：设备第一次接入网络时向网关请求逻辑地址</li>
 <li><strong>因特网控制报文协议</strong>（<strong>Internet Control Message Protocol，即 ICMP</strong>）：用于在 IP 主机与路由之间传递控制消息（网络是否连通、主机是否可达、路由是否可用等）</li>
 <li><strong>因特网控制报文协议</strong>（<strong>Internet Group Message Protocol，即 IGMP</strong>）：用于主机与本地路由器之间进行组播组成员信息的交互（决定分组信息与组播报文的传递）</li>
 </ul>
-<h4 id="传输层（transport）"><a href="#传输层（transport）" class="headerlink" title="传输层（transport）"></a>传输层（transport）</h4><p>相当于 OSI Model 中的 <code>传输层</code>，负责报文的进程间传递，主要支持如下协议：</p>
+<h4 id="传输层（transport）">传输层（transport）</h4>
+<p>相当于 OSI Model 中的 <code>传输层</code>，负责报文的进程间传递，主要支持如下协议：</p>
 <ul>
 <li><strong>用户数据报协议</strong>（<strong>User Datagram Protocol， 即 UDP</strong>）：无连接的传输</li>
 <li><strong>传输控制协议</strong>（<strong>Transmission Control Protocol，即 TCP</strong>）：面向连接的传输</li>
 <li>流控制传输协议（Stream Control Transmission Protocol，即 SCTP）</li>
 </ul>
-<h4 id="应用层（application）"><a href="#应用层（application）" class="headerlink" title="应用层（application）"></a>应用层（application）</h4><p>相当于 OSI Model 中的 <code>会话层 + 表示层 + 应用层</code>，常见的 <code>http/ftp/telnet/ssh/snmp/smb</code> 等都在这一层</p>
-<p>综上，我们可以将 TCP&#x2F;IP 模型化为较为通用的<strong>五层</strong>层次结构，如下图所示：</p>
+<h4 id="应用层（application）">应用层（application）</h4>
+<p>相当于 OSI Model 中的 <code>会话层 + 表示层 + 应用层</code>，常见的 <code>http/ftp/telnet/ssh/snmp/smb</code> 等都在这一层</p>
+<p>综上，我们可以将 TCP/IP 模型化为较为通用的<strong>五层</strong>层次结构，如下图所示：</p>
 <p><img src="https://i.loli.net/2021/10/09/tiopV6dEJwjSYmu.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h3 id="2-3-寻址"><a href="#2-3-寻址" class="headerlink" title="2.3 寻址"></a>2.3 寻址</h3><p>对于采用了 TCP&#x2F;IP 协议的互联网而言其使用四层地址结构：</p>
-<h4 id="物理（链路）地址（physical-（link）-address）："><a href="#物理（链路）地址（physical-（link）-address）：" class="headerlink" title="物理（链路）地址（physical （link） address）："></a><strong>物理</strong>（<strong>链路</strong>）<strong>地址</strong>（<strong>physical</strong> （<strong>link</strong>） <strong>address</strong>）：</h4><p>对应 TCP&#x2F;IP 四层模型中的网络访问层（物理层），主要在网络（LAN&#x2F;WAN）中使用，<strong>不同网络中的物理地址格式可能不同</strong></p>
-<h4 id="逻辑（IP）地址（logical-（IP）-address）"><a href="#逻辑（IP）地址（logical-（IP）-address）" class="headerlink" title="逻辑（IP）地址（logical （IP） address）"></a><strong>逻辑</strong>（<strong>IP</strong>）<strong>地址</strong>（<strong>logical</strong> （<strong>IP</strong>） <strong>address</strong>）</h4><p>对应 TCP&#x2F;IP 四层模型中的互联网层，与物理地址无关，作为互联网环境中一台设备的<strong>唯一标记</strong>，在一个互联网中<strong>没有两台主机具有相同的 IP 地址</strong></p>
+<h3 id="2-3-寻址">2.3 寻址</h3>
+<p>对于采用了 TCP/IP 协议的互联网而言其使用四层地址结构：</p>
+<h4 id="物理（链路）地址（physical-（link）-address）："><strong>物理</strong>（<strong>链路</strong>）<strong>地址</strong>（<strong>physical</strong> （<strong>link</strong>） <strong>address</strong>）：</h4>
+<p>对应 TCP/IP 四层模型中的网络访问层（物理层），主要在网络（LAN/WAN）中使用，<strong>不同网络中的物理地址格式可能不同</strong></p>
+<h4 id="逻辑（IP）地址（logical-（IP）-address）"><strong>逻辑</strong>（<strong>IP</strong>）<strong>地址</strong>（<strong>logical</strong> （<strong>IP</strong>） <strong>address</strong>）</h4>
+<p>对应 TCP/IP 四层模型中的互联网层，与物理地址无关，作为互联网环境中一台设备的<strong>唯一标记</strong>，在一个互联网中<strong>没有两台主机具有相同的 IP 地址</strong></p>
 <blockquote>
 <p>由此我们可以看出，在数据在节点到节点的传输过程中<strong>物理地址会发生改变，但逻辑地址并不会</strong></p>
 </blockquote>
-<h4 id="端口地址（port-addr）"><a href="#端口地址（port-addr）" class="headerlink" title="端口地址（port addr）"></a><strong>端口地址</strong>（<strong>port addr</strong>）</h4><p>对应 TCP&#x2F;IP 四层模型中的传输层，为赋予对应通信进程的标识符，其长度为 16 位</p>
-<h4 id="专用地址（private-address）"><a href="#专用地址（private-address）" class="headerlink" title="*专用地址（private address）"></a>*专用地址（private address）</h4><p>对应 TCP&#x2F;IP 四层模型中的应用层，部分面向用户的应用被设计为专用地址（例如邮件地址、URL等）</p>
-<h1 id="00x02-物理层和介质"><a href="#00x02-物理层和介质" class="headerlink" title="00x02.物理层和介质"></a>00x02.物理层和介质</h1><blockquote>
+<h4 id="端口地址（port-addr）"><strong>端口地址</strong>（<strong>port addr</strong>）</h4>
+<p>对应 TCP/IP 四层模型中的传输层，为赋予对应通信进程的标识符，其长度为 16 位</p>
+<h4 id="专用地址（private-address）">*专用地址（private address）</h4>
+<p>对应 TCP/IP 四层模型中的应用层，部分面向用户的应用被设计为专用地址（例如邮件地址、URL等）</p>
+<h1>00x02.物理层和介质</h1>
+<blockquote>
 <p>笔者最讨厌的物理部分（笑）</p>
 <p>一些基本概念这里就不再手抄一遍了，不懂的自己百度（）</p>
 </blockquote>
-<h2 id="Chapter-3-数据和信号"><a href="#Chapter-3-数据和信号" class="headerlink" title="Chapter 3 - 数据和信号"></a>Chapter 3 - 数据和信号</h2><p>数据若要进行传输，则必须要将其转为电磁信号的形式</p>
-<h3 id="3-1-周期模拟信号"><a href="#3-1-周期模拟信号" class="headerlink" title="3.1 周期模拟信号"></a>3.1 周期模拟信号</h3><p>最简单的周期模拟信号为<strong>正弦波</strong>，由多个正弦波组成的信号为复合型模拟信号，我们使用<strong>复合信号</strong>（composite signal）来进行数据通信</p>
-<h4 id="带宽（bandwidth）"><a href="#带宽（bandwidth）" class="headerlink" title="带宽（bandwidth）"></a>带宽（bandwidth）</h4><p><strong>复合信号包含的频率范围称为带宽</strong>，即带宽通常为信号最高频率与最低频率的差值</p>
-<h3 id="3-2-数字信号"><a href="#3-2-数字信号" class="headerlink" title="3.2 数字信号"></a>3.2 数字信号</h3><blockquote>
+<h2 id="Chapter-3-数据和信号">Chapter 3 - 数据和信号</h2>
+<p>数据若要进行传输，则必须要将其转为电磁信号的形式</p>
+<h3 id="3-1-周期模拟信号">3.1 周期模拟信号</h3>
+<p>最简单的周期模拟信号为<strong>正弦波</strong>，由多个正弦波组成的信号为复合型模拟信号，我们使用<strong>复合信号</strong>（composite signal）来进行数据通信</p>
+<h4 id="带宽（bandwidth）">带宽（bandwidth）</h4>
+<p><strong>复合信号包含的频率范围称为带宽</strong>，即带宽通常为信号最高频率与最低频率的差值</p>
+<h3 id="3-2-数字信号">3.2 数字信号</h3>
+<blockquote>
 <p>“《数字信号处理》，一章没看”</p>
 </blockquote>
 <p>我们可以使用数字信号表示数据——<strong>将不同的数据编码为不同的电平</strong>，例如将 1 编码为正电平而 0 编码为 0 电平。一般来说，对于 L 个不同的电平而言，每个电平可以表示 log<sub>2</sub>L 个位</p>
 <p>基于_傅里叶分析_，我们可以得出：数字信号为<strong>带宽无限大的复合模拟信号</strong>。</p>
-<h4 id="比特率（bit-rate）"><a href="#比特率（bit-rate）" class="headerlink" title="比特率（bit rate）"></a>比特率（bit rate）</h4><p>比特率即为<strong>一秒中所发送的位数</strong>，单位为<strong>位每秒</strong>（<strong>bits per second，即 bps</strong>）</p>
-<h4 id="位长（bit-length）"><a href="#位长（bit-length）" class="headerlink" title="位长（bit length）"></a>位长（bit length）</h4><p>位长即为<strong>一个位在传输介质上的距离</strong>，有如下公式：</p>
-<p>$$<br>位长 &#x3D; 传播速度 × 位持续时间<br>$$</p>
-<h4 id="数字信号的传输"><a href="#数字信号的传输" class="headerlink" title="数字信号的传输"></a>数字信号的传输</h4><h5 id="基带传输"><a href="#基带传输" class="headerlink" title="基带传输"></a>基带传输</h5><p>即通过通道直接发送数字信号，而非转为模拟信号，<strong>需要一个带宽下限频率为 0 的低通通道</strong></p>
-<h5 id="宽带传输（使用调制）"><a href="#宽带传输（使用调制）" class="headerlink" title="宽带传输（使用调制）"></a>宽带传输（使用调制）</h5><p>即将数字信号<strong>转换成模拟信号传输</strong>，调制允许我们使用<strong>带通通道</strong></p>
-<h3 id="3-3-传输减损"><a href="#3-3-传输减损" class="headerlink" title="3.3 传输减损"></a>3.3 传输减损</h3><h4 id="衰减（attenuation）"><a href="#衰减（attenuation）" class="headerlink" title="衰减（attenuation）"></a>衰减（attenuation）</h4><p>即信号强度衰减，这意味着能量的损失，为了补偿衰减的能量通常会用放大器放大信号。</p>
+<h4 id="比特率（bit-rate）">比特率（bit rate）</h4>
+<p>比特率即为<strong>一秒中所发送的位数</strong>，单位为<strong>位每秒</strong>（<strong>bits per second，即 bps</strong>）</p>
+<h4 id="位长（bit-length）">位长（bit length）</h4>
+<p>位长即为<strong>一个位在传输介质上的距离</strong>，有如下公式：</p>
+<p>$$<br>
+位长 = 传播速度 × 位持续时间<br>
+$$</p>
+<h4 id="数字信号的传输">数字信号的传输</h4>
+<h5 id="基带传输">基带传输</h5>
+<p>即通过通道直接发送数字信号，而非转为模拟信号，<strong>需要一个带宽下限频率为 0 的低通通道</strong></p>
+<h5 id="宽带传输（使用调制）">宽带传输（使用调制）</h5>
+<p>即将数字信号<strong>转换成模拟信号传输</strong>，调制允许我们使用<strong>带通通道</strong></p>
+<h3 id="3-3-传输减损">3.3 传输减损</h3>
+<h4 id="衰减（attenuation）">衰减（attenuation）</h4>
+<p>即信号强度衰减，这意味着能量的损失，为了补偿衰减的能量通常会用放大器放大信号。</p>
 <p><img src="https://i.loli.net/2021/10/11/To8UcnqVvRC2dlK.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h5 id="分贝（decibel，-DB）"><a href="#分贝（decibel，-DB）" class="headerlink" title="分贝（decibel， DB）"></a>分贝（decibel， DB）</h5><p>分贝用于描述信号损失&#x2F;增益的强度：<strong>若信号衰减了，则分贝为负值；若信号被放大了，则分贝为正值</strong></p>
-<p>设 P<sub>1</sub> 与 P <sub>2</sub> 为信号在位置 1、2 处的功率，则分贝为：<br>$$<br>dB &#x3D; 10 log_{10}\frac{P_2}{P_1}<br>$$</p>
-<h4 id="失真（distortion）"><a href="#失真（distortion）" class="headerlink" title="失真（distortion）"></a>失真（distortion）</h4><p>即信号的形状或形态发生了改变</p>
+<h5 id="分贝（decibel，-DB）">分贝（decibel， DB）</h5>
+<p>分贝用于描述信号损失/增益的强度：<strong>若信号衰减了，则分贝为负值；若信号被放大了，则分贝为正值</strong></p>
+<p>设 P<sub>1</sub> 与 P <sub>2</sub> 为信号在位置 1、2 处的功率，则分贝为：<br>
+$$<br>
+dB = 10 log_{10}\frac{P_2}{P_1}<br>
+$$</p>
+<h4 id="失真（distortion）">失真（distortion）</h4>
+<p>即信号的形状或形态发生了改变</p>
 <p><img src="https://i.loli.net/2021/10/11/Dl49Asgq7dZj3GH.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h4 id="噪声（noise）"><a href="#噪声（noise）" class="headerlink" title="噪声（noise）"></a>噪声（noise）</h4><p>噪声即为由各种环境因素<strong>附加在原始信号上的额外的垃圾信号</strong></p>
+<h4 id="噪声（noise）">噪声（noise）</h4>
+<p>噪声即为由各种环境因素<strong>附加在原始信号上的额外的垃圾信号</strong></p>
 <p><img src="https://i.loli.net/2021/10/11/MqDXOFIm6rgdh1s.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h5 id="信噪比（signal-to-noise-ratio，SNR）"><a href="#信噪比（signal-to-noise-ratio，SNR）" class="headerlink" title="信噪比（signal-to-noise ratio，SNR）"></a>信噪比（signal-to-noise ratio，SNR）</h5><p>信噪比用以描述信号被噪声破坏的程度，计算公式如下：<br>$$<br>SNR&#x3D;\frac{平均信号功率}{平均噪声功率}<br>$$<br>容易看出，SNR 越高，信号被破坏的越少，反之亦然</p>
-<h3 id="3-4-数据速率限制"><a href="#3-4-数据速率限制" class="headerlink" title="3.4 数据速率限制"></a>3.4 数据速率限制</h3><p>数据速率即<strong>每秒传输的比特数</strong>，即<strong>比特率</strong>，通常取决于以下三个因素：</p>
+<h5 id="信噪比（signal-to-noise-ratio，SNR）">信噪比（signal-to-noise ratio，SNR）</h5>
+<p>信噪比用以描述信号被噪声破坏的程度，计算公式如下：<br>
+$$<br>
+SNR=\frac{平均信号功率}{平均噪声功率}<br>
+$$<br>
+容易看出，SNR 越高，信号被破坏的越少，反之亦然</p>
+<h3 id="3-4-数据速率限制">3.4 数据速率限制</h3>
+<p>数据速率即<strong>每秒传输的比特数</strong>，即<strong>比特率</strong>，通常取决于以下三个因素：</p>
 <ul>
 <li>有效带宽</li>
 <li>使用的信号电平数</li>
 <li>通道的质量（噪声电平）</li>
 </ul>
-<h4 id="无噪声通道：奈奎斯特比特率"><a href="#无噪声通道：奈奎斯特比特率" class="headerlink" title="无噪声通道：奈奎斯特比特率"></a>无噪声通道：奈奎斯特比特率</h4><p>对于无噪声的理想通道，<strong>奈奎斯特比特率</strong>（<strong>Nyquist bit rate</strong>）公式定义了理论上的<strong>最大</strong>比特率：<br>$$<br>比特率 &#x3D; 2 × 带宽 × log_2L<br>$$<br>其中 <code>L</code> 为使用的信号电平数量，需要注意的是 L 的增加会减弱系统的可靠性</p>
-<h4 id="噪声通道：香农容量定理"><a href="#噪声通道：香农容量定理" class="headerlink" title="噪声通道：香农容量定理"></a>噪声通道：香农容量定理</h4><p>对于有噪声的通道，其理论上<strong>最大</strong>比特率为：<br>$$<br>通道容量 &#x3D; 通道带宽 × log_2(1 + SNR)<br>$$<br>该公式定义了通道的特性而非传输方式，<strong>其速率与使用的信号电平数量无关</strong></p>
-<h3 id="3-5-性能"><a href="#3-5-性能" class="headerlink" title="3.5 性能"></a>3.5 性能</h3><p>我们通过以下几个方面衡量网络的性能</p>
-<h4 id="带宽"><a href="#带宽" class="headerlink" title="带宽"></a>带宽</h4><p>链路速度的潜在衡量值，主要有两种衡量方式：以赫兹衡量&#x2F;以每秒比特数衡量</p>
-<h4 id="吞吐量"><a href="#吞吐量" class="headerlink" title="吞吐量"></a>吞吐量</h4><p>即单位时间内成功传输的数据量，是链路速度的实际衡量值</p>
-<h4 id="延迟"><a href="#延迟" class="headerlink" title="延迟"></a>延迟</h4><p>延迟定义了第一个位从源开始发出到整个报文完全到达目标所经历的时间，由以下四个部分组成</p>
-<h5 id="传播时间（propagation-time）"><a href="#传播时间（propagation-time）" class="headerlink" title="传播时间（propagation time）"></a>传播时间（propagation time）</h5><p>即一个位从源传输到目标所需的时间，通过<code>距离➗传播速度</code>计算而得</p>
-<h5 id="传输时间（transmission-time）"><a href="#传输时间（transmission-time）" class="headerlink" title="传输时间（transmission time）"></a>传输时间（transmission time）</h5><p>即传输一个报文所需的时间，计算公式为<code>报文长度➗带宽</code></p>
-<h5 id="排队时间（queuing-time）"><a href="#排队时间（queuing-time）" class="headerlink" title="排队时间（queuing time）"></a>排队时间（queuing time）</h5><p>每个中间或端设备在处理报文前保持报文所需的时间</p>
-<h5 id="处理延迟（processing-delay）"><a href="#处理延迟（processing-delay）" class="headerlink" title="处理延迟（processing delay）"></a>处理延迟（processing delay）</h5><p>接收者处理报文所需时间</p>
-<h2 id="Chapter-4-数字传输"><a href="#Chapter-4-数字传输" class="headerlink" title="Chapter 4 - 数字传输"></a>Chapter 4 - 数字传输</h2><h3 id="4-1-数字到数字转换"><a href="#4-1-数字到数字转换" class="headerlink" title="4.1 数字到数字转换"></a>4.1 数字到数字转换</h3><h4 id="线路编码（line-coding）"><a href="#线路编码（line-coding）" class="headerlink" title="线路编码（line coding）"></a>线路编码（line coding）</h4><p>线路编码即为将数字数据转换为数字信号的过程（0110…转换为高低电平），首先明确如下两个概念：</p>
+<h4 id="无噪声通道：奈奎斯特比特率">无噪声通道：奈奎斯特比特率</h4>
+<p>对于无噪声的理想通道，<strong>奈奎斯特比特率</strong>（<strong>Nyquist bit rate</strong>）公式定义了理论上的<strong>最大</strong>比特率：<br>
+$$<br>
+比特率 = 2 × 带宽 × log_2L<br>
+$$<br>
+其中 <code>L</code> 为使用的信号电平数量，需要注意的是 L 的增加会减弱系统的可靠性</p>
+<h4 id="噪声通道：香农容量定理">噪声通道：香农容量定理</h4>
+<p>对于有噪声的通道，其理论上<strong>最大</strong>比特率为：<br>
+$$<br>
+通道容量 = 通道带宽 × log_2(1 + SNR)<br>
+$$<br>
+该公式定义了通道的特性而非传输方式，<strong>其速率与使用的信号电平数量无关</strong></p>
+<h3 id="3-5-性能">3.5 性能</h3>
+<p>我们通过以下几个方面衡量网络的性能</p>
+<h4 id="带宽">带宽</h4>
+<p>链路速度的潜在衡量值，主要有两种衡量方式：以赫兹衡量/以每秒比特数衡量</p>
+<h4 id="吞吐量">吞吐量</h4>
+<p>即单位时间内成功传输的数据量，是链路速度的实际衡量值</p>
+<h4 id="延迟">延迟</h4>
+<p>延迟定义了第一个位从源开始发出到整个报文完全到达目标所经历的时间，由以下四个部分组成</p>
+<h5 id="传播时间（propagation-time）">传播时间（propagation time）</h5>
+<p>即一个位从源传输到目标所需的时间，通过<code>距离➗传播速度</code>计算而得</p>
+<h5 id="传输时间（transmission-time）">传输时间（transmission time）</h5>
+<p>即传输一个报文所需的时间，计算公式为<code>报文长度➗带宽</code></p>
+<h5 id="排队时间（queuing-time）">排队时间（queuing time）</h5>
+<p>每个中间或端设备在处理报文前保持报文所需的时间</p>
+<h5 id="处理延迟（processing-delay）">处理延迟（processing delay）</h5>
+<p>接收者处理报文所需时间</p>
+<h2 id="Chapter-4-数字传输">Chapter 4 - 数字传输</h2>
+<h3 id="4-1-数字到数字转换">4.1 数字到数字转换</h3>
+<h4 id="线路编码（line-coding）">线路编码（line coding）</h4>
+<p>线路编码即为将数字数据转换为数字信号的过程（0110…转换为高低电平），首先明确如下两个概念：</p>
 <ul>
-<li><p><strong>数据元素</strong>（data element）：数据元素为表示一块信息的最小实体，即<strong>位</strong></p>
+<li>
+<p><strong>数据元素</strong>（data element）：数据元素为表示一块信息的最小实体，即<strong>位</strong></p>
 </li>
-<li><p><strong>信号元素</strong>（signal element）：数字信号的最小单元</p>
+<li>
+<p><strong>信号元素</strong>（signal element）：数字信号的最小单元</p>
 </li>
 </ul>
 <p>数据元素为我们需要发送的数据，信号元素则为我们实际发送的信号，<strong>比率r</strong>为<strong>每个信号元素所承载的数据元素的数量</strong></p>
@@ -570,20 +653,36 @@
 <blockquote>
 <p>这里注意 baud 本身就包含“每秒”的含义在内，故不存在“波特每秒”的说法</p>
 </blockquote>
-<p>设 <em>N</em> 为数据速率，<em>c</em> 为情形因子，<em>S</em> 为信号速率，数据速率与信号速率的关系如下：<br>$$<br>S &#x3D; c × N × \frac{1}{r}baud<br>$$<br>最小带宽的计算公式如下：<br>$$<br>B_{min} &#x3D; c × N × \frac{1}{r}<br>$$<br>若通道带宽恒定为 B ，则最大数据速率为：<br>$$<br>N_{max} &#x3D; \frac{1}{c} × B × r<br>$$<br><strong>基线</strong>即为接收方计算接收到信号功率的运行平均值，对于一长串的 0 或 1 的接受很容易引起基线的偏移，称为<strong>基线偏移</strong>（baseline wandering）</p>
+<p>设 <em>N</em> 为数据速率，<em>c</em> 为情形因子，<em>S</em> 为信号速率，数据速率与信号速率的关系如下：<br>
+$$<br>
+S = c × N × \frac{1}{r}baud<br>
+$$<br>
+最小带宽的计算公式如下：<br>
+$$<br>
+B_{min} = c × N × \frac{1}{r}<br>
+$$<br>
+若通道带宽恒定为 B ，则最大数据速率为：<br>
+$$<br>
+N_{max} = \frac{1}{c} × B × r<br>
+$$<br>
+<strong>基线</strong>即为接收方计算接收到信号功率的运行平均值，对于一长串的 0 或 1 的接受很容易引起基线的偏移，称为<strong>基线偏移</strong>（baseline wandering）</p>
 <p>当数字信号中电平保持一段时间的恒定时，频谱会产生接近 0 的低频，称之为<strong>直流成分</strong></p>
 <p><strong>自同步</strong>（self-synchronization）信号在数据中包含有定时信息，以实现双方时钟同步</p>
-<h4 id="编码方案"><a href="#编码方案" class="headerlink" title="编码方案"></a>编码方案</h4><p><img src="https://i.loli.net/2021/10/10/AXvGWmOlxhowsqR.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h5 id="单极编码方案（Unipolar）"><a href="#单极编码方案（Unipolar）" class="headerlink" title="单极编码方案（Unipolar）"></a>单极编码方案（Unipolar）</h5><p>即所有信号电平都在时间轴的一边（时间轴上方或下方）</p>
+<h4 id="编码方案">编码方案</h4>
+<p><img src="https://i.loli.net/2021/10/10/AXvGWmOlxhowsqR.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h5 id="单极编码方案（Unipolar）">单极编码方案（Unipolar）</h5>
+<p>即所有信号电平都在时间轴的一边（时间轴上方或下方）</p>
 <ul>
 <li><strong>不归零</strong>（<strong>Non-Return-to-Zero, NRZ</strong>）方案：正电平定义为 1 而负电平定义为 0，在位中间信号不会回到0，有着 <em><code>N/2 Bd</code></em> 的平均信号速率</li>
 </ul>
-<h5 id="极性编码方案（Polar）"><a href="#极性编码方案（Polar）" class="headerlink" title="极性编码方案（Polar）"></a>极性编码方案（Polar）</h5><p>即信号电平分布在时间轴的两边</p>
+<h5 id="极性编码方案（Polar）">极性编码方案（Polar）</h5>
+<p>即信号电平分布在时间轴的两边</p>
 <blockquote>
 <p>例如 0 的电平为正数而 1 的电平为负数</p>
 </blockquote>
 <ul>
-<li><p><strong>不归零</strong>（<strong>Non-Return-to-Zero, NRZ</strong>）方案：</p>
+<li>
+<p><strong>不归零</strong>（<strong>Non-Return-to-Zero, NRZ</strong>）方案：</p>
 <ul>
 <li><strong>NRZ-L</strong>（<strong>NRZ电平编码，即 NRZ-Level</strong>）：即由信号电平决定位值</li>
 <li><strong>NRZ-I</strong>（<strong>NRZ反相编码，即 NRZ-Invert</strong>）：信号电平是否反转决定位值（下一个位电平未反转为0，反转了就是1）</li>
@@ -591,12 +690,14 @@
 <p>这两种方案都有着 <em><code>N/2 Bd</code></em> 的平均信号速率，且都存在基线偏移、同步问题、直流成分问题</p>
 <p><img src="https://i.loli.net/2021/10/11/Y1DXC2Jc5SQAzZ8.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 </li>
-<li><p><strong>归零编码</strong>（<strong>Return-to-Zeron，RZ</strong>）：信号在位中间变化，在每个位中间信号变为0，由两个信号编码一个位</p>
+<li>
+<p><strong>归零编码</strong>（<strong>Return-to-Zeron，RZ</strong>）：信号在位中间变化，在每个位中间信号变为0，由两个信号编码一个位</p>
 </li>
 </ul>
 <p><img src="https://i.loli.net/2021/10/11/iVKm2AzTeaB85n1.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <ul>
-<li><p><strong>双相编码</strong>（<strong>biphase</strong>）：</p>
+<li>
+<p><strong>双相编码</strong>（<strong>biphase</strong>）：</p>
 <ul>
 <li><strong>曼彻斯特编码方案</strong>：两个电平编码一个位（例如【负-正】为1，【正-负】为0）</li>
 <li><strong>差分曼彻斯特编码方案</strong>：类似于曼彻斯特编码，不过由跳变决定位值（下一个信号的第一个电平未跳变为1，跳变为0)</li>
@@ -605,85 +706,140 @@
 <p><img src="https://i.loli.net/2021/10/11/w9kZh3CxKt8DmcU.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 </li>
 </ul>
-<h5 id="双极性方案（bipolar）"><a href="#双极性方案（bipolar）" class="headerlink" title="双极性方案（bipolar）"></a>双极性方案（bipolar）</h5><p>又称多电平二进制，其中一个数据元素的电平固定为0，另一个则在正负值间交替。</p>
+<h5 id="双极性方案（bipolar）">双极性方案（bipolar）</h5>
+<p>又称多电平二进制，其中一个数据元素的电平固定为0，另一个则在正负值间交替。</p>
 <ul>
-<li><p><strong>AMI</strong>（alternate mark inversion）：中值0电平表示0，1由交替正负电平表示</p>
+<li>
+<p><strong>AMI</strong>（alternate mark inversion）：中值0电平表示0，1由交替正负电平表示</p>
 </li>
-<li><p><strong>伪三元编码</strong>：AMI的变形，中值0电平表示1，0由交替正负电平表示</p>
+<li>
+<p><strong>伪三元编码</strong>：AMI的变形，中值0电平表示1，0由交替正负电平表示</p>
 </li>
 </ul>
-<p>  双极性方案没有直流成分，有着 <em><code>N/2 Bd</code></em> 的平均信号速率，通常用于长距离通信，但<strong>当数据中存在0的长序列时就会有同步问题</strong></p>
-<p>  <img src="https://i.loli.net/2021/10/11/HaMg9Pu4kozdcrI.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h5 id="多电平方案（multilevel）"><a href="#多电平方案（multilevel）" class="headerlink" title="*多电平方案（multilevel）"></a>*多电平方案（multilevel）</h5><p>由多个电平表示多个数据元素-&gt;mBnL：有L个电平模式，由n个信号表示m（长度）B（二进制数据）数据</p>
-<h5 id="多线路传输（multitransition）"><a href="#多线路传输（multitransition）" class="headerlink" title="*多线路传输（multitransition）"></a>*多线路传输（multitransition）</h5><p>比较典型的就是MLT-3</p>
-<h4 id="块编码（block-coding）"><a href="#块编码（block-coding）" class="headerlink" title="*块编码（block coding）"></a>*块编码（block coding）</h4><p>即将 <code>m 位/块</code> 的一组块重新分为 <code>n 位/块</code>的一组块，又称为 <code>mB/nB</code> 编码技术</p>
+<p>双极性方案没有直流成分，有着 <em><code>N/2 Bd</code></em> 的平均信号速率，通常用于长距离通信，但<strong>当数据中存在0的长序列时就会有同步问题</strong></p>
+<p><img src="https://i.loli.net/2021/10/11/HaMg9Pu4kozdcrI.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h5 id="多电平方案（multilevel）">*多电平方案（multilevel）</h5>
+<p>由多个电平表示多个数据元素-&gt;mBnL：有L个电平模式，由n个信号表示m（长度）B（二进制数据）数据</p>
+<h5 id="多线路传输（multitransition）">*多线路传输（multitransition）</h5>
+<p>比较典型的就是MLT-3</p>
+<h4 id="块编码（block-coding）">*块编码（block coding）</h4>
+<p>即将 <code>m 位/块</code> 的一组块重新分为 <code>n 位/块</code>的一组块，又称为 <code>mB/nB</code> 编码技术</p>
 <p><img src="https://i.loli.net/2021/10/11/iJwnmoaXgDVWYGQ.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h3 id="4-2-模拟到数字转换"><a href="#4-2-模拟到数字转换" class="headerlink" title="4.2 模拟到数字转换"></a>4.2 模拟到数字转换</h3><h4 id="脉冲码调制（Pulse-Code-Modulation-PCM）"><a href="#脉冲码调制（Pulse-Code-Modulation-PCM）" class="headerlink" title="脉冲码调制（Pulse Code Modulation, PCM）"></a>脉冲码调制（Pulse Code Modulation, PCM）</h4><p>将模拟信号转换为数字信号的最通用技术，有如下三个过程：</p>
+<h3 id="4-2-模拟到数字转换">4.2 模拟到数字转换</h3>
+<h4 id="脉冲码调制（Pulse-Code-Modulation-PCM）">脉冲码调制（Pulse Code Modulation, PCM）</h4>
+<p>将模拟信号转换为数字信号的最通用技术，有如下三个过程：</p>
 <p><img src="https://i.loli.net/2021/10/11/Ep9zod8LD6hcgQK.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h5 id="1-采样（sampling）"><a href="#1-采样（sampling）" class="headerlink" title="1.采样（sampling）"></a>1.采样（sampling）</h5><p>又称为<strong>脉冲振幅调制</strong>（pulse amplitude modulation， <strong>PAM</strong>），主要关注两个方面：</p>
+<h5 id="1-采样（sampling）">1.采样（sampling）</h5>
+<p>又称为<strong>脉冲振幅调制</strong>（pulse amplitude modulation， <strong>PAM</strong>），主要关注两个方面：</p>
 <ul>
 <li><strong>采样率</strong>（sampling rate）：我们每隔 <em><strong>T<sub>s</sub></strong></em> 秒进行一次采样，采样率 _<strong>f<sub>s </sub></strong>_便是<strong>采样间隔的倒数</strong>，又称为采样频率（sampling frequency）</li>
 <li><strong>奈奎斯特采样定理</strong>：为了再生原始模拟信号，<strong>采样速率至少为原始信号最高频率的两倍</strong></li>
 </ul>
-<h5 id="2-量化（quantizing）"><a href="#2-量化（quantizing）" class="headerlink" title="2.量化（quantizing）"></a>2.量化（quantizing）</h5><p>即将信号的连续取值近似为有限多个离散值的过程，如下：</p>
+<h5 id="2-量化（quantizing）">2.量化（quantizing）</h5>
+<p>即将信号的连续取值近似为有限多个离散值的过程，如下：</p>
 <ul>
 <li>假定原始模拟信号振幅介于 <em><strong>V<sub>min</sub></strong></em> 和 <em><strong>V<sub>min</sub></strong></em> 之间</li>
 <li>将范围分为 L 个区间，每个区间高度为 Δ</li>
 <li>分配 0 到 L-1 的量化值给每个区间的中点</li>
 <li>样本振幅值近似为量化值</li>
 </ul>
-<h6 id="量化误差"><a href="#量化误差" class="headerlink" title="量化误差"></a>量化误差</h6><p>量化是一个将实际值转为近似值的过程，因此会存在误差，其对信号 SNR<sub>dB</sub> 的影响取决于量化级别 L 或<strong>每个样本位数</strong> n<sub>b</sub></p>
-<h5 id="3-编码（encoding）"><a href="#3-编码（encoding）" class="headerlink" title="3.编码（encoding）"></a>3.编码（encoding）</h5><p>将量化后的离散信号转换为原始信号的过程，编码的比特率可以由如下公式计算：<br>$$<br>比特率 &#x3D; 采样速率 × 每个样本位数<br>$$</p>
-<h3 id="4-3-传输模式"><a href="#4-3-传输模式" class="headerlink" title="4.3 传输模式"></a>4.3 传输模式</h3><h4 id="并行传输（parallel-transmission）"><a href="#并行传输（parallel-transmission）" class="headerlink" title="并行传输（parallel transmission）"></a>并行传输（parallel transmission）</h4><p>使用 n 条通信线路，从而一次可以发送 n 位数据</p>
-<h4 id="串行传输（serial-transmission）"><a href="#串行传输（serial-transmission）" class="headerlink" title="串行传输（serial transmission）"></a>串行传输（serial transmission）</h4><p>只需要 1 条通信线路，一次发发送 1位数据，有三种模式：</p>
+<h6 id="量化误差">量化误差</h6>
+<p>量化是一个将实际值转为近似值的过程，因此会存在误差，其对信号 SNR<sub>dB</sub> 的影响取决于量化级别 L 或<strong>每个样本位数</strong> n<sub>b</sub></p>
+<h5 id="3-编码（encoding）">3.编码（encoding）</h5>
+<p>将量化后的离散信号转换为原始信号的过程，编码的比特率可以由如下公式计算：<br>
+$$<br>
+比特率 = 采样速率 × 每个样本位数<br>
+$$</p>
+<h3 id="4-3-传输模式">4.3 传输模式</h3>
+<h4 id="并行传输（parallel-transmission）">并行传输（parallel transmission）</h4>
+<p>使用 n 条通信线路，从而一次可以发送 n 位数据</p>
+<h4 id="串行传输（serial-transmission）">串行传输（serial transmission）</h4>
+<p>只需要 1 条通信线路，一次发发送 1位数据，有三种模式：</p>
 <ul>
 <li><strong>异步传输</strong>（asynchronous transmission）：将位流按字节分组，（在字节级别上）传输过程中不关心信号的时序（每个 bit 仍要同步），在每个字节开始与结尾添加起始位与停止位以提示接收方</li>
 <li><strong>同步传输</strong>（synchronous transmission）：将位流组合为更长的“帧”，一帧包含数个字节，发送方依次发送位流而不含起始位、停止位与间隙</li>
 <li><strong>等时传输</strong>（isochronous transmission）：保证数据以固定速率到达</li>
 </ul>
-<h2 id="Chapter-5-模拟传输"><a href="#Chapter-5-模拟传输" class="headerlink" title="Chapter 5 - 模拟传输"></a>Chapter 5 - 模拟传输</h2><p>数字传输需要低通通道，而我们通常只有带通通道，因此需要将数字数据&#x2F;低通模拟信号转换为带通模拟信号</p>
-<h3 id="5-1-数字到模拟转换"><a href="#5-1-数字到模拟转换" class="headerlink" title="5.1 数字到模拟转换"></a>5.1 数字到模拟转换</h3><p><img src="https://i.loli.net/2021/10/11/oxNdktvlIfn2iMa.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h4 id="比特率和波特率"><a href="#比特率和波特率" class="headerlink" title="比特率和波特率"></a>比特率和波特率</h4><p>与数字传输相似，我们同样可以定义比特率与波特率，设比特率为 <em>N</em> ，波特率为 _S_，比率为 _r_，其关系如下：<br>$$<br>S &#x3D; N × \frac{1}{r} baud<br>$$<br>在模拟传输中有 _<strong>r &#x3D; log<sub>2</sub>L</strong>_，其中 <code>L</code> 为信号元素类型，而非电平数，<strong>波特率小于比特率</strong></p>
-<h4 id="幅移键控（amplitude-shift-keying，-ASK）"><a href="#幅移键控（amplitude-shift-keying，-ASK）" class="headerlink" title="幅移键控（amplitude-shift keying， ASK）"></a>幅移键控（amplitude-shift keying， ASK）</h4><p><img src="https://i.loli.net/2021/10/11/9BigYEr1qPxCHZm.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h2 id="Chapter-5-模拟传输">Chapter 5 - 模拟传输</h2>
+<p>数字传输需要低通通道，而我们通常只有带通通道，因此需要将数字数据/低通模拟信号转换为带通模拟信号</p>
+<h3 id="5-1-数字到模拟转换">5.1 数字到模拟转换</h3>
+<p><img src="https://i.loli.net/2021/10/11/oxNdktvlIfn2iMa.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h4 id="比特率和波特率">比特率和波特率</h4>
+<p>与数字传输相似，我们同样可以定义比特率与波特率，设比特率为 <em>N</em> ，波特率为 <em>S</em>，比率为 <em>r</em>，其关系如下：<br>
+$$<br>
+S = N × \frac{1}{r} baud<br>
+$$<br>
+在模拟传输中有 <em><strong>r = log<sub>2</sub>L</strong></em>，其中 <code>L</code> 为信号元素类型，而非电平数，<strong>波特率小于比特率</strong></p>
+<h4 id="幅移键控（amplitude-shift-keying，-ASK）">幅移键控（amplitude-shift keying， ASK）</h4>
+<p><img src="https://i.loli.net/2021/10/11/9BigYEr1qPxCHZm.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>以基带数字信号控制载波的幅度变化的调制方式称为幅移键控(ASK)，又称数字调幅</p>
 <p>通过改变载波信号的振幅来生成信号元素，<strong>只有振幅变化而频率和相位保持不变</strong></p>
-<h5 id="二进制-ASK（BASK）"><a href="#二进制-ASK（BASK）" class="headerlink" title="二进制 ASK（BASK）"></a>二进制 ASK（BASK）</h5><p>信号元素只使用两个电平称之为二进制幅移键控或开关键控（OOK）</p>
-<h5 id="ASK-带宽"><a href="#ASK-带宽" class="headerlink" title="ASK 带宽"></a>ASK 带宽</h5><p>设信号速率为 _S_，带宽为 <em>B</em> ，取一个因子 <em>d</em> （取决于调制与过滤处理，值在区间 <code>[0,1]</code>），带宽与信号速率的关系如下：<br>$$<br>B &#x3D; (1+d)×S<br>$$<br>这个公式说明所需带宽最小为 S，最大为 2S，载波频率 <em><strong>f<sub>c</sub></strong></em> 位于带宽中间</p>
-<h4 id="频移键控（Frequency-shift-keying，FSK）"><a href="#频移键控（Frequency-shift-keying，FSK）" class="headerlink" title="频移键控（Frequency-shift keying，FSK）"></a>频移键控（Frequency-shift keying，FSK）</h4><p><img src="https://i.loli.net/2021/10/11/kg7T5rdDzsu8lAn.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h5 id="二进制-ASK（BASK）">二进制 ASK（BASK）</h5>
+<p>信号元素只使用两个电平称之为二进制幅移键控或开关键控（OOK）</p>
+<h5 id="ASK-带宽">ASK 带宽</h5>
+<p>设信号速率为 <em>S</em>，带宽为 <em>B</em> ，取一个因子 <em>d</em> （取决于调制与过滤处理，值在区间 <code>[0,1]</code>），带宽与信号速率的关系如下：<br>
+$$<br>
+B = (1+d)×S<br>
+$$<br>
+这个公式说明所需带宽最小为 S，最大为 2S，载波频率 <em><strong>f<sub>c</sub></strong></em> 位于带宽中间</p>
+<h4 id="频移键控（Frequency-shift-keying，FSK）">频移键控（Frequency-shift keying，FSK）</h4>
+<p><img src="https://i.loli.net/2021/10/11/kg7T5rdDzsu8lAn.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>以基带数字信号控制载波的频率变化的调制方式称为频移键控，通过改变载波信号的频率来表示数据，信号元素的振幅峰值与相位保持不变</p>
-<h5 id="二进制-FSK（BFSK）"><a href="#二进制-FSK（BFSK）" class="headerlink" title="二进制 FSK（BFSK）"></a>二进制 FSK（BFSK）</h5><p>即使用两个载波频率表示 0 与 1，通常这两个载波频率很高，之间的差很小</p>
+<h5 id="二进制-FSK（BFSK）">二进制 FSK（BFSK）</h5>
+<p>即使用两个载波频率表示 0 与 1，通常这两个载波频率很高，之间的差很小</p>
 <p>BFSK 的实现方式有：</p>
 <ul>
 <li><strong>相干</strong>：两个信号元素的边界处的相位是连续的</li>
 <li><strong>非相干</strong>：两个信号元素的边界处的相位是非连续的，可以看作两个 ASK</li>
 </ul>
-<h6 id="BFSK-的带宽"><a href="#BFSK-的带宽" class="headerlink" title="BFSK 的带宽"></a>BFSK 的带宽</h6><p>我们可以将 FSK 看做有着自己载波频率的两个 ASK 信号，若两频率差值为 <em><strong>2 Δf</strong></em> ，则 BFSK 要求的带宽为：<br>$$<br>B &#x3D; (1+d)×S + 2 Δf<br>$$</p>
-<h4 id="相移键控（phase-shift-keying，PSK）"><a href="#相移键控（phase-shift-keying，PSK）" class="headerlink" title="相移键控（phase-shift keying，PSK）"></a>相移键控（phase-shift keying，PSK）</h4><p>以基带数字信号控制载波的相位变化的调制方式称为相移键控，通过改变载波的相位来表示两个或多个信号元素，信号元素的峰值振幅与频率保持不变</p>
-<h5 id="二进制-PSK（BPSK）"><a href="#二进制-PSK（BPSK）" class="headerlink" title="二进制 PSK（BPSK）"></a>二进制 PSK（BPSK）</h5><p><img src="https://i.loli.net/2021/10/11/7nhKPUdlq3R5NOc.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h6 id="BFSK-的带宽">BFSK 的带宽</h6>
+<p>我们可以将 FSK 看做有着自己载波频率的两个 ASK 信号，若两频率差值为 <em><strong>2 Δf</strong></em> ，则 BFSK 要求的带宽为：<br>
+$$<br>
+B = (1+d)×S + 2 Δf<br>
+$$</p>
+<h4 id="相移键控（phase-shift-keying，PSK）">相移键控（phase-shift keying，PSK）</h4>
+<p>以基带数字信号控制载波的相位变化的调制方式称为相移键控，通过改变载波的相位来表示两个或多个信号元素，信号元素的峰值振幅与频率保持不变</p>
+<h5 id="二进制-PSK（BPSK）">二进制 PSK（BPSK）</h5>
+<p><img src="https://i.loli.net/2021/10/11/7nhKPUdlq3R5NOc.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>即只有两个信号元素，一个相位为 0° 而另一个为 180°，相比起 ASK 而言更不易受噪声影响，也不似 FSK 一般需要两个载波信号</p>
-<h6 id="BPSK-的带宽"><a href="#BPSK-的带宽" class="headerlink" title="BPSK 的带宽"></a>BPSK 的带宽</h6><p>$$<br>B &#x3D; (1+d)×S<br>$$</p>
-<h5 id="正交-PSK（QPSK）"><a href="#正交-PSK（QPSK）" class="headerlink" title="正交 PSK（QPSK）"></a>正交 PSK（QPSK）</h5><p>使用两个独立的 BPSK 调制：一个为同相的，一个为正交（异相）的</p>
-<h5 id="正交振幅调制"><a href="#正交振幅调制" class="headerlink" title="正交振幅调制"></a>正交振幅调制</h5><p>为 ASK 与 PSK 的结合：<strong>使用两个载波，一个同相而另一个正交，每个载波都使用不同的振幅</strong>，带宽与 ASK 和 PSK 的最小带宽相同</p>
-<h3 id="5-2-模拟信号调制"><a href="#5-2-模拟信号调制" class="headerlink" title="*5.2 模拟信号调制"></a>*5.2 模拟信号调制</h3><p>由于介质的限制因此有的时候我们还需要将模拟信号进行调制，即<strong>模拟到模拟转换</strong>（analog-to-analog conversion），主要有三种方法：</p>
+<h6 id="BPSK-的带宽">BPSK 的带宽</h6>
+<p>$$<br>
+B = (1+d)×S<br>
+$$</p>
+<h5 id="正交-PSK（QPSK）">正交 PSK（QPSK）</h5>
+<p>使用两个独立的 BPSK 调制：一个为同相的，一个为正交（异相）的</p>
+<h5 id="正交振幅调制">正交振幅调制</h5>
+<p>为 ASK 与 PSK 的结合：<strong>使用两个载波，一个同相而另一个正交，每个载波都使用不同的振幅</strong>，带宽与 ASK 和 PSK 的最小带宽相同</p>
+<h3 id="5-2-模拟信号调制">*5.2 模拟信号调制</h3>
+<p>由于介质的限制因此有的时候我们还需要将模拟信号进行调制，即<strong>模拟到模拟转换</strong>（analog-to-analog conversion），主要有三种方法：</p>
 <ul>
-<li><p>调幅（amplitude modulation，AM）</p>
+<li>
+<p>调幅（amplitude modulation，AM）</p>
 </li>
-<li><p>调频（frequency modulation，FM）</p>
+<li>
+<p>调频（frequency modulation，FM）</p>
 </li>
-<li><p>调相（phase modulation，PM）</p>
+<li>
+<p>调相（phase modulation，PM）</p>
 </li>
 </ul>
-<h2 id="Chapter-6-带宽利用"><a href="#Chapter-6-带宽利用" class="headerlink" title="Chapter 6 - 带宽利用"></a>Chapter 6 - 带宽利用</h2><p>为达到相应的目的，有时需要对带宽进行特殊的利用：复用带宽以获得效率、扩频以进行保密与抗干扰</p>
-<h3 id="6-1-复用（multiplexing）"><a href="#6-1-复用（multiplexing）" class="headerlink" title="6.1 复用（multiplexing）"></a>6.1 复用（multiplexing）</h3><p>复用即允许同时通过一条数据链路传输多个信号的一组技术：多条线路的传输流量送到<strong>复用器</strong>（multiplexer，MUX）后被组成一个单独的传输流，在接收端被<strong>分离器</strong>（demultiplexer，DEMUX）接收，分解为原先的独立传输流</p>
-<h4 id="频分复用（frequency-division-multiplexing，-FDM）"><a href="#频分复用（frequency-division-multiplexing，-FDM）" class="headerlink" title="频分复用（frequency-division multiplexing， FDM）"></a>频分复用（frequency-division multiplexing， FDM）</h4><p><img src="https://i.loli.net/2021/10/11/KduOHNaS5oUZwIc.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h2 id="Chapter-6-带宽利用">Chapter 6 - 带宽利用</h2>
+<p>为达到相应的目的，有时需要对带宽进行特殊的利用：复用带宽以获得效率、扩频以进行保密与抗干扰</p>
+<h3 id="6-1-复用（multiplexing）">6.1 复用（multiplexing）</h3>
+<p>复用即允许同时通过一条数据链路传输多个信号的一组技术：多条线路的传输流量送到<strong>复用器</strong>（multiplexer，MUX）后被组成一个单独的传输流，在接收端被<strong>分离器</strong>（demultiplexer，DEMUX）接收，分解为原先的独立传输流</p>
+<h4 id="频分复用（frequency-division-multiplexing，-FDM）">频分复用（frequency-division multiplexing， FDM）</h4>
+<p><img src="https://i.loli.net/2021/10/11/KduOHNaS5oUZwIc.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>在链路带宽大于待传输信号带宽之和时使用：<strong>将不同的信号调制到不同频率的载波上，再将调制后的信号合并为一个复合信号进行传输</strong></p>
 <p>不同信号的通道间会有部分带宽未被使用，作为<strong>防护带宽</strong>进行分隔以防止信号重叠</p>
-<h4 id="波分复用（wave-division-multiplexing，-WDM）"><a href="#波分复用（wave-division-multiplexing，-WDM）" class="headerlink" title="波分复用（wave-division multiplexing， WDM）"></a>波分复用（wave-division multiplexing， WDM）</h4><p>将多个信号调制为不同波长的信号，合并为复合信号进行传输，类似于 FDM</p>
+<h4 id="波分复用（wave-division-multiplexing，-WDM）">波分复用（wave-division multiplexing， WDM）</h4>
+<p>将多个信号调制为不同波长的信号，合并为复合信号进行传输，类似于 FDM</p>
 <blockquote>
 <p>主要用于光缆</p>
 </blockquote>
-<h4 id="时分复用（time-division-multiplexing，TDM）"><a href="#时分复用（time-division-multiplexing，TDM）" class="headerlink" title="时分复用（time-division multiplexing，TDM）"></a>时分复用（time-division multiplexing，TDM）</h4><p>TDM 为数字化的共享过程，共享的是<strong>时间</strong>：<strong>每个连接占用该条链路的一个时间段进行传输</strong></p>
-<h5 id="同步时分复用（synchronous-TDM）"><a href="#同步时分复用（synchronous-TDM）" class="headerlink" title="同步时分复用（synchronous TDM）"></a>同步时分复用（synchronous TDM）</h5><p><img src="https://i.loli.net/2021/10/11/Z2PHGCawpDjOM8i.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h4 id="时分复用（time-division-multiplexing，TDM）">时分复用（time-division multiplexing，TDM）</h4>
+<p>TDM 为数字化的共享过程，共享的是<strong>时间</strong>：<strong>每个连接占用该条链路的一个时间段进行传输</strong></p>
+<h5 id="同步时分复用（synchronous-TDM）">同步时分复用（synchronous TDM）</h5>
+<p><img src="https://i.loli.net/2021/10/11/Z2PHGCawpDjOM8i.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <ul>
 <li>每个输入连接的数据流被划分成<strong>多个单元</strong>（一位、一字节、一个数据块…），每个输入占用一个输入间隙</li>
 <li>每个输入单元成为一个输出单元，占用一个输出间隙</li>
@@ -696,16 +852,46 @@
 <li><strong>多时隙分配</strong>：为一条输入线分配多个时隙</li>
 <li><strong>脉冲填充</strong>：为速率较低的线路添加额外的虚位作为脉冲填充</li>
 </ul>
-<h5 id="统计时分复用（statistical-TDM）"><a href="#统计时分复用（statistical-TDM）" class="headerlink" title="统计时分复用（statistical TDM）"></a>统计时分复用（statistical TDM）</h5><p><img src="https://i.loli.net/2021/10/11/krDoZJAMEmi6O5d.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h5 id="统计时分复用（statistical-TDM）">统计时分复用（statistical TDM）</h5>
+<p><img src="https://i.loli.net/2021/10/11/krDoZJAMEmi6O5d.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>动态地进行时隙的分配以避免空时隙的出现，提高带宽的效率，与同步 TDM 不同的是其不需要同步位</p>
-<h3 id="6-2-扩频（spread-spectrum，SS）"><a href="#6-2-扩频（spread-spectrum，SS）" class="headerlink" title="6.2 扩频（spread spectrum，SS）"></a>6.2 扩频（spread spectrum，SS）</h3><p><img src="https://i.loli.net/2021/10/11/4wudMCfeF862aqg.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h3 id="6-2-扩频（spread-spectrum，SS）">6.2 扩频（spread spectrum，SS）</h3>
+<p><img src="https://i.loli.net/2021/10/11/4wudMCfeF862aqg.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>将传输信号的频谱（spectrum）打散到较其原始带宽更宽的一种通信技术，常用于无线通信领域（LAN 与 WAN）</p>
 <ul>
 <li>对每个站点所需分配带宽比原所需带宽大</li>
 <li>带宽的扩大过程为<strong>与原信号无关的过程</strong>，即在信号由源端生成后才进行扩频</li>
 </ul>
-<h2 id="Chapter-7-传输介质"><a href="#Chapter-7-传输介质" class="headerlink" title="Chapter 7 - 传输介质"></a>Chapter 7 - 传输介质</h2><h2 id="Chapter-8-交换"><a href="#Chapter-8-交换" class="headerlink" title="Chapter 8 - 交换"></a>Chapter 8 - 交换</h2><h2 id="Chapter-9-使用电话网与有线电视网进行数据传输"><a href="#Chapter-9-使用电话网与有线电视网进行数据传输" class="headerlink" title="Chapter 9 - 使用电话网与有线电视网进行数据传输"></a>Chapter 9 - 使用电话网与有线电视网进行数据传输</h2><h1 id="0x03-数据链路层"><a href="#0x03-数据链路层" class="headerlink" title="0x03.数据链路层"></a>0x03.数据链路层</h1><h2 id="Chapter-10-检错与纠错"><a href="#Chapter-10-检错与纠错" class="headerlink" title="Chapter 10 - 检错与纠错"></a>Chapter 10 - 检错与纠错</h2><h2 id="Chapter-11-数据链路控制"><a href="#Chapter-11-数据链路控制" class="headerlink" title="Chapter 11 - 数据链路控制"></a>Chapter 11 - 数据链路控制</h2><h2 id="Chapter-12-多路访问"><a href="#Chapter-12-多路访问" class="headerlink" title="Chapter 12 - 多路访问"></a>Chapter 12 - 多路访问</h2><h2 id="Chapter-13-有线局域网：以太网"><a href="#Chapter-13-有线局域网：以太网" class="headerlink" title="Chapter 13 - 有线局域网：以太网"></a>Chapter 13 - 有线局域网：以太网</h2><h2 id="Chapter-14-无线局域网"><a href="#Chapter-14-无线局域网" class="headerlink" title="Chapter 14 - 无线局域网"></a>Chapter 14 - 无线局域网</h2><h2 id="Chapter-15-连接局域网、主干网和虚拟局域网"><a href="#Chapter-15-连接局域网、主干网和虚拟局域网" class="headerlink" title="Chapter 15 -连接局域网、主干网和虚拟局域网"></a>Chapter 15 -连接局域网、主干网和虚拟局域网</h2><h2 id="Chapter-16-无线WAN：移动电话和卫星网络"><a href="#Chapter-16-无线WAN：移动电话和卫星网络" class="headerlink" title="Chapter 16 - 无线WAN：移动电话和卫星网络"></a>Chapter 16 - 无线WAN：移动电话和卫星网络</h2><h2 id="Chapter-17-广域网SONET-x2F-SDH"><a href="#Chapter-17-广域网SONET-x2F-SDH" class="headerlink" title="Chapter 17 - 广域网SONET&#x2F;SDH"></a>Chapter 17 - 广域网SONET&#x2F;SDH</h2><h2 id="Chapter-18-虚电路网络：帧中继和ATM"><a href="#Chapter-18-虚电路网络：帧中继和ATM" class="headerlink" title="Chapter 18 - 虚电路网络：帧中继和ATM"></a>Chapter 18 - 虚电路网络：帧中继和ATM</h2><h1 id="0x04-网络层"><a href="#0x04-网络层" class="headerlink" title="0x04.网络层"></a>0x04.网络层</h1><h2 id="Chapter-19-逻辑寻址"><a href="#Chapter-19-逻辑寻址" class="headerlink" title="Chapter 19 - 逻辑寻址"></a>Chapter 19 - 逻辑寻址</h2><h2 id="Chapter-20-IP协议"><a href="#Chapter-20-IP协议" class="headerlink" title="Chapter 20 - IP协议"></a>Chapter 20 - IP协议</h2><h2 id="Chapter-21-地址映射、差错报告和多播"><a href="#Chapter-21-地址映射、差错报告和多播" class="headerlink" title="Chapter 21 - 地址映射、差错报告和多播"></a>Chapter 21 - 地址映射、差错报告和多播</h2><h2 id="Chapter-22-传递、转发和路由选择"><a href="#Chapter-22-传递、转发和路由选择" class="headerlink" title="Chapter 22 - 传递、转发和路由选择"></a>Chapter 22 - 传递、转发和路由选择</h2><h1 id="0x05-传输层"><a href="#0x05-传输层" class="headerlink" title="0x05.传输层"></a>0x05.传输层</h1><h2 id="Chapter-23-UDP、TCP和SCTP"><a href="#Chapter-23-UDP、TCP和SCTP" class="headerlink" title="Chapter 23 - UDP、TCP和SCTP"></a>Chapter 23 - UDP、TCP和SCTP</h2><h2 id="Chapter-24-拥塞控制和服务质量"><a href="#Chapter-24-拥塞控制和服务质量" class="headerlink" title="Chapter 24 - 拥塞控制和服务质量"></a>Chapter 24 - 拥塞控制和服务质量</h2><h1 id="0x06-应用层"><a href="#0x06-应用层" class="headerlink" title="0x06.应用层"></a>0x06.应用层</h1><p>这一部分好像都是科普性质，考试应该也不考，可能要摸</p>
-<h2 id="Chapter-25-域名系统"><a href="#Chapter-25-域名系统" class="headerlink" title="Chapter 25 - 域名系统"></a>Chapter 25 - 域名系统</h2><h2 id="Chapter-26-远程登陆、电子邮件与文件传输"><a href="#Chapter-26-远程登陆、电子邮件与文件传输" class="headerlink" title="Chapter 26 - 远程登陆、电子邮件与文件传输"></a>Chapter 26 - 远程登陆、电子邮件与文件传输</h2><h2 id="Chapter-27-万维网与超文本传输协议"><a href="#Chapter-27-万维网与超文本传输协议" class="headerlink" title="Chapter 27 - 万维网与超文本传输协议"></a>Chapter 27 - 万维网与超文本传输协议</h2><h2 id="Chapter-28-网络管理"><a href="#Chapter-28-网络管理" class="headerlink" title="Chapter 28 - 网络管理"></a>Chapter 28 - 网络管理</h2><h2 id="Chapter-29-多媒体"><a href="#Chapter-29-多媒体" class="headerlink" title="Chapter 29 - 多媒体"></a>Chapter 29 - 多媒体</h2><h1 id="0x07-网络安全"><a href="#0x07-网络安全" class="headerlink" title="0x07.网络安全"></a>0x07.网络安全</h1><p>这一部分好像都是科普性质，考试应该也不考，摸了</p>
+<h2 id="Chapter-7-传输介质">Chapter 7 - 传输介质</h2>
+<h2 id="Chapter-8-交换">Chapter 8 - 交换</h2>
+<h2 id="Chapter-9-使用电话网与有线电视网进行数据传输">Chapter 9 - 使用电话网与有线电视网进行数据传输</h2>
+<h1>0x03.数据链路层</h1>
+<h2 id="Chapter-10-检错与纠错">Chapter 10 - 检错与纠错</h2>
+<h2 id="Chapter-11-数据链路控制">Chapter 11 - 数据链路控制</h2>
+<h2 id="Chapter-12-多路访问">Chapter 12 - 多路访问</h2>
+<h2 id="Chapter-13-有线局域网：以太网">Chapter 13 - 有线局域网：以太网</h2>
+<h2 id="Chapter-14-无线局域网">Chapter 14 - 无线局域网</h2>
+<h2 id="Chapter-15-连接局域网、主干网和虚拟局域网">Chapter 15 -连接局域网、主干网和虚拟局域网</h2>
+<h2 id="Chapter-16-无线WAN：移动电话和卫星网络">Chapter 16 - 无线WAN：移动电话和卫星网络</h2>
+<h2 id="Chapter-17-广域网SONET-SDH">Chapter 17 - 广域网SONET/SDH</h2>
+<h2 id="Chapter-18-虚电路网络：帧中继和ATM">Chapter 18 - 虚电路网络：帧中继和ATM</h2>
+<h1>0x04.网络层</h1>
+<h2 id="Chapter-19-逻辑寻址">Chapter 19 - 逻辑寻址</h2>
+<h2 id="Chapter-20-IP协议">Chapter 20 - IP协议</h2>
+<h2 id="Chapter-21-地址映射、差错报告和多播">Chapter 21 - 地址映射、差错报告和多播</h2>
+<h2 id="Chapter-22-传递、转发和路由选择">Chapter 22 - 传递、转发和路由选择</h2>
+<h1>0x05.传输层</h1>
+<h2 id="Chapter-23-UDP、TCP和SCTP">Chapter 23 - UDP、TCP和SCTP</h2>
+<h2 id="Chapter-24-拥塞控制和服务质量">Chapter 24 - 拥塞控制和服务质量</h2>
+<h1>0x06.应用层</h1>
+<p>这一部分好像都是科普性质，考试应该也不考，可能要摸</p>
+<h2 id="Chapter-25-域名系统">Chapter 25 - 域名系统</h2>
+<h2 id="Chapter-26-远程登陆、电子邮件与文件传输">Chapter 26 - 远程登陆、电子邮件与文件传输</h2>
+<h2 id="Chapter-27-万维网与超文本传输协议">Chapter 27 - 万维网与超文本传输协议</h2>
+<h2 id="Chapter-28-网络管理">Chapter 28 - 网络管理</h2>
+<h2 id="Chapter-29-多媒体">Chapter 29 - 多媒体</h2>
+<h1>0x07.网络安全</h1>
+<p>这一部分好像都是科普性质，考试应该也不考，摸了</p>
 
                 
               </div>
