@@ -1,0 +1,901 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="DP 从入门到入坟">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【ALGORITHM.0x00】动态规划算法浅析">
+<meta property="og:url" content="http://blog.arttnba3.cn/2020/04/21/ALGORITHM-0X00-DYNAMIC_PROGRAMMING/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="DP 从入门到入坟">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2020/08/30/ecDdL9QVxnHBl8r.png">
+<meta property="article:published_time" content="2020-04-21T10:27:55.000Z">
+<meta property="article:modified_time" content="2023-04-19T12:09:29.527Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="C&amp;C++">
+<meta property="article:tag" content="Algorithm">
+<meta property="article:tag" content="python">
+<meta property="article:tag" content="Dynamic Programming">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://i.loli.net/2020/08/30/ecDdL9QVxnHBl8r.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【ALGORITHM.0x00】动态规划算法浅析 - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.arttnba3.cn","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://i.loli.net/2020/08/29/MAZgnQxytHqdL52.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【ALGORITHM.0x00】动态规划算法浅析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-04-21 18:27" pubdate>
+          2020年4月21日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          29 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【ALGORITHM.0x00】动态规划算法浅析</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2023年4月19日 晚上
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>DP 从入门到入坟</p>
+<span id="more"></span>
+
+<h1 id="0x00-绪论"><a href="#0x00-绪论" class="headerlink" title="0x00.绪论"></a>0x00.绪论</h1><p><strong>动态规划</strong>（<strong>Dynamic Programming</strong>）是一种通过把原问题分解为相对简单的子问题的方式求解复杂问题的方法。同时也是各类信息学竞赛（ Olympiad in Informatics ）中较为常用的算法之一。</p>
+<p>作为前·蒟蒻·OIer，对动态规划也是稍微了解一点点的XD，所以今天来简单地讲讲这个算法XD<del>就当复习了</del></p>
+<blockquote>
+<p>注：你一定想不到这篇文章拖了4个月才开始动笔2333333</p>
+</blockquote>
+<h1 id="0x01-什么是动态规划算法？"><a href="#0x01-什么是动态规划算法？" class="headerlink" title="0x01.什么是动态规划算法？"></a>0x01.什么是动态规划算法？</h1><h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><blockquote>
+<p><strong>动态规划</strong>（英语：Dynamic programming，简称DP）是一种在<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%95%B0%E5%AD%A6">数学</a>、<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E7%AE%A1%E7%90%86%E7%A7%91%E5%AD%A6">管理科学</a>、<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6">计算机科学</a>、<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E7%BB%8F%E6%B5%8E%E5%AD%A6">经济学</a>和<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E7%94%9F%E7%89%A9%E4%BF%A1%E6%81%AF%E5%AD%A6">生物信息学</a>中使用的，通过把原问题分解为相对简单的子问题的方式求解复杂问题的方法。</p>
+<p>动态规划常常适用于有重叠子问题和<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/w/index.php?title=%E6%9C%80%E4%BC%98%E5%AD%90%E7%BB%93%E6%9E%84&action=edit&redlink=1">最优子结构</a>性质的问题，动态规划方法所耗时间往往远少于朴素解法。</p>
+<p>动态规划背后的基本思想非常简单。大致上，若要解一个给定问题，我们需要解其不同部分（即子问题），再根据子问题的解以得出原问题的解。</p>
+<p>通常许多子问题非常相似，为此动态规划法试图仅仅解决每个子问题一次，从而减少计算量：一旦某个给定子问题的解已经算出，则将其<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%AE%B0%E5%BF%86%E5%8C%96">记忆化</a>存储，以便下次需要同一个子问题解之时直接查表。这种做法在重复子问题的数目关于输入的规模呈<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%8C%87%E6%95%B8%E5%A2%9E%E9%95%B7">指数增长</a>时特别有用。</p>
+<p><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-cn/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92">维基百科：动态规划</a></p>
+</blockquote>
+<p>简单而言：</p>
+<p>动态规划便是通过寻找出一个问题的<strong>重叠子问题</strong>&#x2F;<strong>最优子结构</strong>来优化对问题的求解，将问题进行分阶段求解，并确保当前阶段是过于所有阶段的完美总结。</p>
+<p>适用于求解具有如下性质的问题</p>
+<ul>
+<li><strong>最优子结构</strong>： 无论其初始状态及初始决策如何，其<strong>以后诸决策对以第一个决策所形成的状态</strong>作为初始状态的过程而言，<strong>永远构成最优策略</strong>。这个原理的实质是多阶段决策过程具有这样的性质，即不管过去的过程如何，只从当前的状态和系统的最优化要求出发，作出下一步的最优决策 。</li>
+<li><strong>无后效性</strong>： 将各阶段按照一定的次序排列好之后，对于某个给定的阶段状态，它以前各阶段的状态无法直接影响它未来的决策，而只能通过当前的这个状态。换句话说，<strong>每个状态都是过去历史的一个完整总结</strong>。这就是无后向性，又称为无后效性 </li>
+<li><strong>子问题重叠</strong>： 动态规划算法的关键在于解决冗余，这是动态规划算法的根本目的。动态规划实质上是一种以空间换时间的技术，它在实现的过程中，不得不存储产生过程中的各种状态，所以它的空间复杂度要大于其他的算法。选择动态规划算法是因为动态规划算法在空间上可以承受，而搜索算法在时间上却无法承受，所以我们<strong>舍空间而取时间</strong></li>
+</ul>
+<p>如下图所示便是一个简单的动态规划算法的应用过程</p>
+<p><img src="https://i.loli.net/2020/08/29/MAZgnQxytHqdL52.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h2 id="求解过程"><a href="#求解过程" class="headerlink" title="求解过程"></a>求解过程</h2><blockquote>
+<p>  动态规划所处理的问题是一个多阶段决策问题，一般由初始状态开始，通过对中间阶段决策的选择，达到结束状态。这些决策形成了一个决策序列，同时确定了完成整个过程的一条活动路线(通常是求最优的活动路线)。 </p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/zw6161080123/article/details/80639932">动态规划-CSDN</a></p>
+</blockquote>
+<p>适用于使用动态规划算法进行求解的问题的求解过程大致如下：</p>
+<ul>
+<li><p><strong>划分阶段</strong>：按照问题的时间或空间特征，把问题分为若干个阶段。在划分阶段时，注意划分后的阶段一定要是有序的或者是可排序的，否则问题就无法求解。</p>
+</li>
+<li><p><strong>确定状态和状态变量</strong>：将问题发展到各个阶段时所处于的各种客观情况用不同的状态表示出来。当然，状态的选择要满足无后效性。</p>
+</li>
+<li><p><strong>确定决策并写出状态转移方程</strong>：因为决策和状态转移有着天然的联系，状态转移就是根据上一阶段的状态和决策来导出本阶段的状态。所以如果确定了决策，状态转移方程也就可写出。但事实上常常是反过来做，根据相邻两个阶段的状态之间的关系来确定决策方法和状态转移方程。</p>
+</li>
+<li><p><strong>寻找边界条件</strong>：给出的状态转移方程是一个递推式，需要一个递推的终止条件或边界条件。</p>
+</li>
+</ul>
+<h2 id="算法过程"><a href="#算法过程" class="headerlink" title="算法过程"></a>算法过程</h2><blockquote>
+<p>   递推关系必须是从次小的问题开始到较大的问题之间的转化，从这个角度来说，动态规划往往可以用递归程序来实现，不过因为递推可以充分利用前面保存的子问题的解来减少重复计算，所以对于大规模问题来说，有递归不可比拟的优势，这也是动态规划算法的核心之处。 </p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/zw6161080123/article/details/80639932">动态规划-CSDN</a></p>
+</blockquote>
+<p>在使用计算机求解适用于使用动态规划算法进行解决的问题时，我们首先需要确定<strong>动态规划三要素</strong>:</p>
+<ul>
+<li>问题的阶段</li>
+<li>每个阶段的状态</li>
+<li>从前一个阶段转换到后一个阶段之间的递推关系</li>
+</ul>
+<h1 id="0x02-动态规划算法的简单应用"><a href="#0x02-动态规划算法的简单应用" class="headerlink" title="0x02.动态规划算法的简单应用"></a>0x02.动态规划算法的简单应用</h1><p>有了如上的这些概念，我们很容易就能知道该如何使用动态规划算法来解决实际生活（<del>OI生活</del>）中的问题</p>
+<p>那么下面选几个<del>OI中</del>生活中常见的问题来简单讲讲动态规划23333</p>
+<h2 id="一、最长上升降子序列问题"><a href="#一、最长上升降子序列问题" class="headerlink" title="一、最长上升降子序列问题"></a>一、最长上升降子序列问题</h2><blockquote>
+<h3 id="1759-最长上升子序列"><a href="#1759-最长上升子序列" class="headerlink" title="1759:最长上升子序列"></a>1759:最长上升子序列</h3><ul>
+<li><p>总时间限制: 2000ms</p>
+</li>
+<li><p>内存限制: 65536kB</p>
+</li>
+<li><p>描述</p>
+</li>
+</ul>
+<p> 一个数的序列<em>bi</em>，当<em>b1</em> &lt; <em>b2</em> &lt; … &lt; <em>bS</em>的时候，我们称这个序列是上升的。对于给定的一个序列(<em>a1</em>, <em>a2</em>, …, <em>aN</em>)，我们可以得到一些上升的子序列(<em>ai1</em>, <em>ai2</em>, …, <em>aiK</em>)，这里1 &lt;&#x3D; <em>i1</em> &lt; <em>i2</em> &lt; … &lt; <em>iK</em> &lt;&#x3D; N。比如，对于序列(1, 7, 3, 5, 9, 4, 8)，有它的一些上升子序列，如(1, 7), (3, 4, 8)等等。这些子序列中最长的长度是4，比如子序列(1, 3, 5, 8).  你的任务，就是对于给定的序列，求出最长上升子序列的长度。</p>
+<ul>
+<li>输入</li>
+</ul>
+<p> 输入的第一行是序列的长度N (1 &lt;&#x3D; N &lt;&#x3D; 1000)。第二行给出序列中的N个整数，这些整数的取值范围都在0到10000。</p>
+<ul>
+<li>输出</li>
+</ul>
+<p> 最长上升子序列的长度。</p>
+<ul>
+<li>样例输入</li>
+</ul>
+<p> <code>7 1 7 3 5 9 4 8</code></p>
+<ul>
+<li>样例输出</li>
+</ul>
+<p> <code>4 </code></p>
+<ul>
+<li>来源</li>
+</ul>
+<p> 翻译自 Northeastern Europe 2002, Far-Eastern Subregion 的比赛试题</p>
+<p><a target="_blank" rel="noopener" href="http://noi.openjudge.cn/ch0206/1759/">noi.openjudge.cn-1759：最长上升子序列</a></p>
+</blockquote>
+<h3 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h3><p>最长上升子序列问题可以说是动态规划算法最经典的一个入门问题了，无论是在各大算法书上还是竞赛书上在讲到动态规划时往往会选择使用这个问题来入门</p>
+<p>首先我们要求解最长上升子序列，我们就必须要将该序列上的各个结点“串起来”——<strong>对于任一结点都使用一个变量来储存在该结点上的最长上升子序列中该结点的下一结点的索引</strong></p>
+<p>其次，我们不难发现，对于任一结点与其往前所有结点构成的序列，<strong>要求解该序列中的最长上升子序列，我们只需要求解该最长上升子序列中的倒数第二个结点与往前所有结点所构成的序列、再接上该序列的最后一个结点即可</strong></p>
+<h3 id="算法过程-1"><a href="#算法过程-1" class="headerlink" title="算法过程"></a>算法过程</h3><h4 id="①-状态转移方程"><a href="#①-状态转移方程" class="headerlink" title="① 状态转移方程"></a>① 状态转移方程</h4><p>对于任一数字序列a<sub>1</sub>,a<sub>2</sub>,…,a<sub>n</sub>，其最长上升子序列的长度为：<strong>f(a<sub>n</sub>) &#x3D; f(a<sub>m</sub>)+1</strong></p>
+<ul>
+<li><p>其中<strong>a<sub>m</sub>&lt;&#x3D;a<sub>n</sub></strong></p>
+</li>
+<li><p><strong>f(a<sub>m</sub>)为数字序列a<sub>1</sub>,a<sub>2</sub>,…,a<sub>n-1</sub>所能构成的最大元素a<sub>max</sub>不大于a<sub>n</sub>的上升子序列中的最大长度</strong></p>
+</li>
+</ul>
+<p>那么我们便可以使用遍历的方法<strong>逐一求出序列a<sub>1</sub>，a<sub>1</sub>、a<sub>2</sub>，a<sub>1</sub>、a<sub>2</sub>、a<sub>3</sub>，…，a<sub>1</sub>、a<sub>2</sub>、a<sub>3</sub>、…、a<sub>n</sub>中的最长上升子序列的长度</strong></p>
+<h4 id="②-具体架构"><a href="#②-具体架构" class="headerlink" title="② 具体架构"></a>② 具体架构</h4><p>状态转移方程构造出来后，接下来的代码就很好写了。</p>
+<p>我们选择采用一个<strong>三维数组</strong>来储存结点信息</p>
+<ul>
+<li>第一维：<strong>结点的值</strong></li>
+<li>第二维：<strong>结点上的最长上升子序列的长度</strong></li>
+<li>第三维：<strong>结点上的最长上升子序列中该结点的下一结点的索引</strong></li>
+</ul>
+<p>我们采用两层循环来对各个结点进行遍历:</p>
+<ul>
+<li>第一层循环遍历每一个结点</li>
+<li>第二层循环遍历初始节点到第一层循环结点的前一结点求解到该结点的最长上升子序列</li>
+</ul>
+<h4 id="③-时间复杂度"><a href="#③-时间复杂度" class="headerlink" title="③ 时间复杂度"></a>③ 时间复杂度</h4><p>两层循环嵌套，我们很容易得出时间复杂度为<strong>O（n^2）</strong></p>
+<h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><p>构造代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> n, lis[<span class="hljs-number">1010</span>][<span class="hljs-number">3</span>]=&#123;<span class="hljs-number">0</span>&#125;,_max = <span class="hljs-number">-1</span>;<br>    cin &gt;&gt; n;<br>    <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i=<span class="hljs-number">0</span>;i&lt;n;i++)<br>    &#123;<br>        cin &gt;&gt; lis[i][<span class="hljs-number">0</span>];<br>        lis[i][<span class="hljs-number">1</span>] = <span class="hljs-number">1</span>;<br>        lis[i][<span class="hljs-number">2</span>] = i;<br>    &#125;<br>    <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i=<span class="hljs-number">1</span>;i&lt;n;i++)<br>    &#123;<br>        <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> j=<span class="hljs-number">0</span>;j&lt;i;j++)<br>        &#123;<br>            <span class="hljs-keyword">if</span>(lis[i][<span class="hljs-number">0</span>]&gt;lis[j][<span class="hljs-number">0</span>])<br>            &#123;<br>                <span class="hljs-keyword">if</span>(lis[i][<span class="hljs-number">1</span>]&lt;=lis[j][<span class="hljs-number">1</span>]+<span class="hljs-number">1</span>)<br>                &#123;<br>                    lis[i][<span class="hljs-number">1</span>] = lis[j][<span class="hljs-number">1</span>]+<span class="hljs-number">1</span>;<br>                    lis[i][<span class="hljs-number">2</span>] = j;<br>                &#125;<br>            &#125;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i=<span class="hljs-number">0</span>;i&lt;n;i++)<br>    &#123;<br>        _max = lis[i][<span class="hljs-number">1</span>]&gt;_max?lis[i][<span class="hljs-number">1</span>]:_max;<br>    &#125;<br>    cout &lt;&lt; _max;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://i.loli.net/2020/08/30/ecDdL9QVxnHBl8r.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h2 id="二、0-1-背包问题"><a href="#二、0-1-背包问题" class="headerlink" title="二、0 1 背包问题"></a>二、0 1 背包问题</h2><blockquote>
+<p>咕了，下次接着更</p>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/ALGORITHM/" class="category-chain-item">ALGORITHM</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C-C/">#C&C++</a>
+      
+        <a href="/tags/Algorithm/">#Algorithm</a>
+      
+        <a href="/tags/python/">#python</a>
+      
+        <a href="/tags/Dynamic-Programming/">#Dynamic Programming</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【ALGORITHM.0x00】动态规划算法浅析</div>
+      <div>http://blog.arttnba3.cn/2020/04/21/ALGORITHM-0X00-DYNAMIC_PROGRAMMING/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年4月21日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/09/08/CTF-0X00-BUUOJ-PWN/" title="【CTF.0x00】BUUCTF/BUUOJ-Pwn WP">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【CTF.0x00】BUUCTF/BUUOJ-Pwn WP</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2000/10/12/NOTE-0XFF-PIECES_KNOWLEDGE/" title="【NOTES.0xFF】一些暂时没地方堆放的零碎知识点">
+                        <span class="hidden-mobile">【NOTES.0xFF】一些暂时没地方堆放的零碎知识点</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
