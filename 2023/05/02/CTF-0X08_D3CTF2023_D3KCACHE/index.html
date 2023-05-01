@@ -27,12 +27,12 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2023/04/13/I46vHhdniPJ1CpD.png">
 <meta property="article:published_time" content="2023-05-01T19:13:27.000Z">
-<meta property="article:modified_time" content="2023-05-01T19:26:50.677Z">
+<meta property="article:modified_time" content="2023-05-01T20:11:07.094Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
-<meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="信息安全">
+<meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="CTF">
 <meta property="article:tag" content="D^3CTF">
 <meta property="article:tag" content="Heap Overflow">
@@ -258,7 +258,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          48k 字
+          52k 字
         
       </span>
     
@@ -269,7 +269,7 @@
         
         
         
-          401 分钟
+          432 分钟
         
       </span>
     
@@ -467,12 +467,48 @@
 
 
 
-<h1 id="0x03-解题情况"><a href="#0x03-解题情况" class="headerlink" title="0x03.解题情况"></a>0x03.解题情况</h1><p>本次比赛当中一共有 2 支队伍解出了笔者的题目，这个数量倒是出乎笔者的预料（<del>既感觉好多又感觉好少</del>），不过比较巧的是<strong>刚好一支国内队伍与一支国外队伍</strong>：）</p>
+<h1 id="0x03-解题情况"><a href="#0x03-解题情况" class="headerlink" title="0x03.解题情况"></a>0x03.解题情况</h1><p>本次比赛当中一共有 2 支队伍解出了笔者的题目，这个数量倒是出乎笔者的预料又在预料之中（<del>既感觉好多又感觉好少</del>），比较巧的是 <em>刚好一支国内队伍与一支国外队伍</em> ：）</p>
 <p>NU1L 战队的解法是利用 partial overwrite 覆写 <code>msg_msg-&gt;m_list.next</code> 构造 UAF（有点像 CVE-2021-22555 的解法），分配 <code>msg_msgseg</code> 来构造 <code>fake msg_msg</code> 实现越界读，之后利用 <code>fcntl(F_SETPIPE_SZ)</code> 改小 <code>pipe_buffer</code> 后转移 UAF 到 <code>pipe_buffer</code> 上从而构造 dirty pipe 覆写 busybox，不过比较出乎笔者预料的是他们并没有用页级堆风水，而是选择<strong>直接堆喷大量 msg_msg</strong>，这样题目所在的 slub 页面与 <code>msg_msg</code> 所在 slub 页面便还是有一定几率挨到一起（由于大小 0x1000 的 <code>msg_msg</code> 所在 slab <strong>同样来自于 order-3</strong>，因此实际上仅纯堆喷也有一定的几率使得对应 slab 挨在一起）</p>
 <p>TeamGoulash 的解法前半段与官方解法的中段基本上是一致的，即利用  <code>fcntl(F_SETPIPE_SZ)</code> 改大  <code>pipe_buffer</code> 到 order-3 后通过对 page 指针的 partial overwrite 构造 page-level 的 UAF，之后在 UAF page 上分配新的 <code>pipe_buffer</code> ，不过他们并没有像笔者那样继续构造自读写管道来完成内存空间任意读写，<strong>而是将 UAF page 分配为新进程的页表页面</strong>（由于 COW 机制，<code>fork()</code> 创建新进程的过程中其实仅会分配新的页表项及其他内核结构体，这使得我们有不小的概率使 UAF 页面被复用为页表中的某一级页面），之后<strong>将 busybox 映射到 UAF 页表项对应的内存空间，从而完成越权写入</strong>，由于缺乏有效的堆风水手段以及页分配的不稳定性导致<strong>成功率较低</strong>（毕竟分配过程当中还是有非常多的噪音，据该战队自述成功率只有 5%）</p>
 <blockquote>
 <p>以及 TeamGoulash 为笔者展现了一个很有趣的操作：通过睡眠一定的时间使得旧的 TLB 无效化</p>
 <p><img src="https://s2.loli.net/2023/05/01/SFKbgnzPJdIYUZT.png" srcset="/img/loading.gif" lazyload alt="TeamGoulash 在 WP 中的表情.jpg"></p>
+</blockquote>
+<p>两只战队的解法大体上其实都在预期之内（笔者一开始想的就是利用 <code>msg_msg</code> ），同时这道题目没有出现去年那样的大面积非预期情况，可喜可贺可喜可贺👏👏👏</p>
+<h1 id="0x04-总结与反思"><a href="#0x04-总结与反思" class="headerlink" title="0x04. 总结与反思"></a>0x04. 总结与反思</h1><p>毫不谦虚地说，笔者认为自己出的这道题目在对于内核中内存损坏类型漏洞的 “通解” 的探索相比<a target="_blank" rel="noopener" href="https://arttnba3.cn/2022/03/08/CTF-0X06-D3CTF2022_D3KHEAP">去年</a>而言是有着一定距离的突破的——我们成功在一个非常极端的环境下完成了内核漏洞利用</p>
+<p>而如果将官方解在不同漏洞场景下进行推广，得益于 <code>pipe_buffer</code> 大小的可调节性以及无需 <code>bzImage</code> 信息便能完成提权的便捷性，我们不难发现的是<strong>这个方法可以被很快地应用并推广到绝大部分的漏洞上，并在真实场景下完成漏洞利用</strong>，这也是为什么笔者要魔改《eva：终》的宣传语来作为题目描述——<strong>我们或许真的为内核内存损坏型漏洞找到了一种足够强大的通法：）</strong></p>
+<p>不过这种方法并非是笔者第一个发现的（虽然笔者一开始确乎这么以为），据笔者了解类似的改写 <code>pipe_buffer.page</code> 的方法似乎早已被应用到实战的安卓攻防当中，同时<a target="_blank" rel="noopener" href="https://interruptlabs.co.uk/labs/pipe_buffer/">来自 Interrupt Labs 的研究员也在去年发现了这种方法</a></p>
+<blockquote>
+<p>该 Lab 的安全研究员一开始也以为自己独立发现了一种新方法，结果一看 <a target="_blank" rel="noopener" href="https://i.blackhat.com/USA-22/Wednesday/US-22-Jin-Monitoring-Surveillance-Vendors.pdf">BlackHat 上好像讲过在安卓上已经存在在野利用了</a>，<del>和笔者同病相怜属于是</del></p>
+</blockquote>
+<p>虽然说这种方法似乎没有被正式命名，但是既然早就存在在野利用的话那自然笔者是没有命名资格了，至少笔者不会为了所谓 “青史留名” 而擅自将这种早就出现过的利用方法冠上自己的名字（笑）</p>
+<!--glibc 利用近几年国内新出现的少数几个所谓 “house of xx” 在笔者看来真的是难以形容......这也是笔者为什么最近基本上没有在做常规的 Linux 用户态 pwn 的缘故（当然虚拟化逃逸还是挺有意思的），新出现的一些东西有点过于浮躁且浮夸了：( \n当然这并不代表笔者认为这些人或是这些事情恶心，也不代表笔者对这样的现象的一种批判-->
+
+<p>总的来说，笔者对于自己今年所出的这一道题还是挺满意的，希望未来能够给大家带来更多更有趣的内核漏洞利用手法 ：）</p>
+<h1 id="0xFF-一些小彩蛋"><a href="#0xFF-一些小彩蛋" class="headerlink" title="0xFF. 一些小彩蛋"></a>0xFF. 一些小彩蛋</h1><blockquote>
+<p>笔者个人发疯部分，这里可以不用看了（笑）</p>
+</blockquote>
+<p>最近写论文写得快疯魔了，所以笔者为这道题目也简单写了一段：）</p>
+<blockquote>
+<p>《<strong>EvilPipe: Another General Exploitation Method On Linux kernel Vulnerabilities</strong>》</p>
+<p><strong>Abstract</strong></p>
+<p>在实战中对 Linux kernel 的内存损坏漏洞进行利用往往需要面临诸多挑战，来自硬件与软件层面的诸多保护使得漏洞利用变得困难，内核镜像信息的缺失也令合法攻击载荷的构造变得不可能；现有的一些工作也在尝试寻找无需进行控制流劫持的更具有通用性的攻击手法，如 Pipe Primitive 选择将漏洞形式转换为 DirtyPipe 完成利用，DirtyCred 则将漏洞转换为对内核中的 credentials 结构体的改写以完成利用；但这些利用手法往往仍需要一定级别的权限（例如，至少需要能够读取或执行特权文件），仍然缺乏足够的通用性</p>
+<p>本文介绍 EvilPipe——一种更具有通用性的利用手法，这项技术允许我们将绝大多数的内核中的内存损坏漏洞（甚至仅是一个 ‘\0’ 字节的堆溢出），转换为无需任何特权的无限的对物理内存的任意读写能力，并能完美绕过包括 KASLR、SMEP、SMAP 在内的多项主流缓解措施；有了 EvilPipe，一个恶意的本地攻击者可以在无需内核镜像信息的情况下通过已知的内核漏洞完成提权与容器逃逸；我们在多个保护完备的 Linux 系统下对多个 <code>（此处暂定）</code> 真实世界中的漏洞完成了对这种利用手法的评估，并发现 EvilPipe 在多个 <code>（此处暂定）</code> 真实世界的漏洞上可以完成利用，这意味着这项技术的通用性；在完成可用性评估之后，我们提出了一种新的保护机制，通过在数据拷贝前添加额外的验证机制以防止 EvilPipe 类型的利用方法，经实验评估，我们所提出的新机制带来的负担是可以忽略不计的</p>
+<p><strong>KEYWORDS</strong></p>
+<p>OS Security; Kernel Exploitation; Privilege Escalation</p>
+<p><strong>1 INTRODUCTION</strong></p>
+<p>现如今 Linux 已然成为全世界最为流行的开源操作系统，得益于其开源的特性与优秀的设计，我们可以在包括云服务器、移动设备、物联网设备、网络基础设施在内的绝大部分设备上看到 Linux 内核的身影，而极高的流行性也令 Linux 吸引了无数网络攻击者与黑客们的兴趣。虽然 Linux 内核每年被爆出的漏洞高达数百个[3]，但在实战中对内核漏洞的利用往往面临着一系列困难的挑战。从内核层面而言，诸如 KASLR[1]、KPTI [2]、 CFI[4] 等保护为控制流劫持攻击增添了不少难度。从硬件层面而言， SMEP、SMAP、NX-bit 等保护也令形如 ret2usr[5]、ret2dir[5] 这样的攻击变得极为困难。内核镜像信息的缺失更是使得攻击者无法获取到内核代码片段的具体信息，从而使得类似 ROP&#x2F;JOP 这样的利用手法难以被应用。</p>
+<p>相较于劫持内核的执行流，在实战中更受人青睐的内核漏洞则是无需特定于某个内核二进制信息的逻辑类漏洞。曾经非常火热的 CVE-2016-5195（也被称为 “DirtyCOW”）便是一个非常经典的这样的逻辑漏洞，其通过 Linux 内核中的条件竞争漏洞完成对特权文件的越权写入以进行提权，而不需要直接对抗内核中的诸多安全机制，这使得这个漏洞能够适用于实战中的多个不同的复杂场景。CVE-2022-0847（也被称为“DirtyPipe”）由于其类似的通用性于去年在安全界变得流行，其为一个对 pipe 结构体中标志位的错误设置，这可以使得攻击者利用该漏洞完成对特权文件的越权写入以进行提权，而不需要直接对抗内核中的多种保护。</p>
+<p>在本文中我们提出了一种更为通用、强大的利用方法，称之为 EvilPipe。这项技术利用了内核中管道结构体的可重分配性与高度灵活性，这允许我们将绝大多数的内核中的内存损坏漏洞（甚至仅是一个 ‘\0’ 字节的堆溢出），转换为无需任何特权的近乎无限的对物理内存的任意读写能力，这意味着我们可以通过这种利用方法获取对内核的完全控制权，从而无需直接对抗任何主流的保护措施便能完成内核提权与容器逃逸的工作。同时，这项技术并不需要任何更高的系统权限（例如，读取 &#x2F;etc&#x2F;passwd），也不依赖于系统环境中的任何特权文件（例如， pkexec），且不需要任何额外的特定于内核镜像的内核信息，这意味着我们可以在绝大部分存在已知漏洞的Linux系统上直接应用这种利用手法完成攻击，因此这种方法在实战当中具有极高的可用性。</p>
+<p>相比于其他的利用技术， EvilPipe 有着如下优点。首先，EvilPipe 的核心仅是 pipe 系统调用，作为一个基础设施 pipe 系统调用在每一个基于 Linux 的系统上都是可以使用的，这意味着 EvilPipe 近乎不存在任何的使用门槛。其次，EvilPipe 有着高度的灵活性，可以完美契合多个不同大小的内核漏洞对象。对于 UAF 漏洞而言，EvilPipe 仅要求漏洞对象与通用的 GFP_KERNEL_ACCOUNT 分配标志位来自同一 kmem_cache（内核当中的大部分对象都满足该要求）。对于溢出漏洞而言，EvilPipe 的最低要求仅为一个 \0 字节（这同样适用于跨 kmem_cache 间内存页的溢出，我们将在后文使用一种名为页级堆风水的技术来完成它）。这意味着我们可以将绝大部分的内存损坏类漏洞转换为 EvilPipe 以完成利用。最后，EvilPipe 不直接与任何的内核保护措施进行对抗，也不需要关于当前内核的任何信息，且不会留下任何痕迹，这意味着 EvilPipe 可以被应用于近乎所有的攻击环境。</p>
+<p>此外，我们认为 EvilPipe 并不仅代表针对 pipe 系统调用的利用方法，而是代表了与传统的漏洞利用技术所不同的研究方向：将内核漏洞利用方法从传统的代码执行转向构造逻辑漏洞，从而无需直接与众多内核保护措施进行直接对抗，并大幅减少漏洞利用对特定于指定环境的依赖度。我们认为在漏洞利用上这是一个值得令人探索的方向。</p>
+<p>在完成概念验证之后，我们将多个 Linux 内核中的内存损坏漏洞改写为 EvilPipe，并在多个保护完备的 Linux 系统下对多个 <code>（此处暂定）</code> 真实世界中的漏洞完成了对这种利用手法的评估。我们发现 EvilPipe 在多个 <code>（此处暂定）</code> 真实世界的漏洞上可以完成利用，这意味着这项技术具有强大的能力。在完成可利用性评估之后，我们提出了一种新的保护机制，通过在数据拷贝前添加额外的验证机制以防止 EvilPipe 类型的利用方法，经实验评估，我们所提出的新机制带来的负担是可以忽略不计的。</p>
+<p>总而言之，本文做了如下工作：</p>
+<ul>
+<li>我们提出了一种新的通用利用技术——EvilPipe，这项技术允许我们将绝大多数的内核中的内存损坏漏洞（甚至仅是一个 ‘\0’ 字节的堆溢出），转换为无需任何特权的无限的对物理内存的任意读写能力</li>
+<li>我们在多个真实世界的漏洞上应用了 EvilPipe ，这展示了其强大的通用性与易用性。同时我们发现了一些可能应用类似于 EvilPipe 的逻辑攻击手法的内核对象。</li>
+<li>我们分析了 Linux 内核现有的防御机制在对抗逻辑漏洞上的不足，并提出了新的保护机制。我们对这项新机制进行了评估，发现其带来的负担是可以忽略不计的。</li>
+</ul>
 </blockquote>
 
                 
@@ -511,9 +547,9 @@
       
         <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
       
-        <a href="/tags/Pwn/">#Pwn</a>
-      
         <a href="/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/">#信息安全</a>
+      
+        <a href="/tags/Pwn/">#Pwn</a>
       
         <a href="/tags/CTF/">#CTF</a>
       
