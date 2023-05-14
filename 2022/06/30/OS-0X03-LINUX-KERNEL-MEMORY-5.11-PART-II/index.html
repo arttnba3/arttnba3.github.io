@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2022/07/06/ktV7cNlohiQCSWP.png">
 <meta property="article:published_time" content="2022-06-30T15:44:49.000Z">
-<meta property="article:modified_time" content="2023-01-20T04:58:47.801Z">
+<meta property="article:modified_time" content="2023-05-08T17:54:32.482Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
@@ -320,7 +320,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年1月20日 下午
+                    本文最后更新于：2023年5月9日 凌晨
                   
                 
               </p>
@@ -774,7 +774,7 @@
 </ul>
 <p><img src="https://s2.loli.net/2022/07/06/eCg12KJIZuw9aon.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h2 id="四、上层封装分配函数"><a href="#四、上层封装分配函数" class="headerlink" title="四、上层封装分配函数"></a>四、<em>上层封装分配函数</em></h2><p>在 <code>__alloc_pages_nodemask()</code> 上层主要有三个页面分配函数，其调用路径如下：</p>
-<figure class="highlight sqf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs sqf"><span class="hljs-variable">__alloc_pages_node</span>  <span class="hljs-comment">/*返回struct page的指针*/</span><br>    <span class="hljs-variable">__alloc_pages</span><br>    	<span class="hljs-variable">__alloc_pages_nodemask</span><br><br>alloc_pages         <span class="hljs-comment">/*返回struct page的指针*/</span><br>    alloc_pages_current<br>    	<span class="hljs-variable">__alloc_pages_nodemask</span><br>        <br><span class="hljs-variable">__get_free_pages</span>    <span class="hljs-comment">/*返回页面的虚拟地址*/</span><br>    <span class="hljs-variable">__get_free_pages</span><br>    	alloc_pages<br>            alloc_pages_current<br>            	<span class="hljs-variable">__alloc_pages_nodemask</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight sqf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs sqf"><span class="hljs-variable">__alloc_pages_node</span>  <span class="hljs-comment">/*返回struct page的指针*/</span><br>    <span class="hljs-variable">__alloc_pages</span><br>    	<span class="hljs-variable">__alloc_pages_nodemask</span><br><br>alloc_pages         <span class="hljs-comment">/*返回struct page的指针*/</span><br>    alloc_pages_current<br>    	<span class="hljs-variable">__alloc_pages_nodemask</span><br>        <br><span class="hljs-variable">__get_free_pages</span>    <span class="hljs-comment">/*返回页面的虚拟地址*/</span><br>    alloc_pages<br>        alloc_pages_current<br>            <span class="hljs-variable">__alloc_pages_nodemask</span><br></code></pre></td></tr></table></figure>
 
 <h1 id="0x03-页的释放"><a href="#0x03-页的释放" class="headerlink" title="0x03.页的释放"></a>0x03.页的释放</h1><p>前面我们讲了页面是如何分配的，现在我们来看页面是如何释放的</p>
 <h2 id="一、-free-one-page-：释放页面的核心函数"><a href="#一、-free-one-page-：释放页面的核心函数" class="headerlink" title="一、__free_one_page()：释放页面的核心函数"></a>一、__free_one_page()：释放页面的核心函数</h2><p>该函数是 buddy system 中用以进行页面释放的<strong>核心函数</strong>，所有的页面释放 API 都是基于该函数的封装</p>
