@@ -97,9 +97,9 @@
     
     <category term="漏洞挖掘" scheme="http://blog.arttnba3.cn/tags/%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/"/>
     
-    <category term="FUZZ" scheme="http://blog.arttnba3.cn/tags/FUZZ/"/>
-    
     <category term="syzkaller" scheme="http://blog.arttnba3.cn/tags/syzkaller/"/>
+    
+    <category term="FUZZ" scheme="http://blog.arttnba3.cn/tags/FUZZ/"/>
     
   </entry>
   

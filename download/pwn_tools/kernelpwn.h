@@ -2,8 +2,8 @@
  * @file kernel.h
  * @author arttnba3 (arttnba@gmail.com)
  * @brief arttnba3's personal utils for kernel pwn
- * @version 1.0
- * @date 2023-02-05
+ * @version 1.1
+ * @date 2023-05-20
  * 
  * @copyright Copyright (c) 2023 arttnba3
  * 
@@ -35,12 +35,9 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <sys/wait.h>
-#include <asm/ldt.h>
 #include <semaphore.h>
 #include <poll.h>
 #include <sched.h>
-#include <linux/keyctl.h>
-#include <linux/userfaultfd.h>
 
 /**
  * I - fundamental functions
@@ -50,6 +47,15 @@
 size_t kernel_base = 0xffffffff81000000, kernel_offset = 0;
 size_t page_offset_base = 0xffff888000000000, vmemmap_base = 0xffffea0000000000;
 size_t init_task, init_nsproxy, init_cred;
+
+size_t direct_map_addr_to_page_addr(size_t direct_map_addr)
+{
+    size_t page_count;
+
+    page_count = ((direct_map_addr & (~0xfff)) - page_offset_base) / 0x1000;
+    
+    return vmemmap_base + page_count * 0x40;
+}
 
 void err_exit(char *msg)
 {
@@ -80,13 +86,14 @@ void get_root_shell(void)
 size_t user_cs, user_ss, user_rflags, user_sp;
 void save_status()
 {
-    __asm__("mov user_cs, cs;"
-            "mov user_ss, ss;"
-            "mov user_sp, rsp;"
-            "pushf;"
-            "pop user_rflags;"
-            );
-    printf("\033[34m\033[1m[*] Status has been saved.\033[0m\n");
+    asm volatile (
+        "mov user_cs, cs;"
+        "mov user_ss, ss;"
+        "mov user_sp, rsp;"
+        "pushf;"
+        "pop user_rflags;"
+    );
+    puts("\033[34m\033[1m[*] Status has been saved.\033[0m");
 }
 
 /* bind the process to specific core */
@@ -307,18 +314,30 @@ void prepare_pgv_system(void)
  * IV - keyctl related
 */
 
-int key_alloc(char *description, char *payload, size_t plen)
+/**
+ * The MUSL also doesn't contain `keyctl.h` :( 
+ * Luckily we just need a bit of micros in exploitation, 
+ * so just define them directly is okay :)
+ */
+
+#define KEY_SPEC_PROCESS_KEYRING	-2	/* - key ID for process-specific keyring */
+#define KEYCTL_UPDATE			2	/* update a key */
+#define KEYCTL_REVOKE			3	/* revoke a key */
+#define KEYCTL_UNLINK			9	/* unlink a key from a keyring */
+#define KEYCTL_READ			11	/* read a key or keyring's contents */
+
+int key_alloc(char *description, void *payload, size_t plen)
 {
     return syscall(__NR_add_key, "user", description, payload, plen, 
                    KEY_SPEC_PROCESS_KEYRING);
 }
 
-int key_update(int keyid, char *payload, size_t plen)
+int key_update(int keyid, void *payload, size_t plen)
 {
     return syscall(__NR_keyctl, KEYCTL_UPDATE, keyid, payload, plen);
 }
 
-int key_read(int keyid, char *buffer, size_t buflen)
+int key_read(int keyid, void *buffer, size_t buflen)
 {
     return syscall(__NR_keyctl, KEYCTL_READ, keyid, buffer, buflen);
 }
@@ -454,6 +473,51 @@ void build_msg(struct msg_msg *msg, uint64_t m_list_next, uint64_t m_list_prev,
 /**
  * VII - ldt_struct related
 */
+
+/**
+ * Somethings we may want to compile the exp binary with MUSL-GCC, which
+ * doesn't contain the `asm/ldt.h` file.
+ * As the file is small, I copy that directly to here :)
+ */
+
+/* Maximum number of LDT entries supported. */
+#define LDT_ENTRIES	8192
+/* The size of each LDT entry. */
+#define LDT_ENTRY_SIZE	8
+
+#ifndef __ASSEMBLY__
+/*
+ * Note on 64bit base and limit is ignored and you cannot set DS/ES/CS
+ * not to the default values if you still want to do syscalls. This
+ * call is more for 32bit mode therefore.
+ */
+struct user_desc {
+	unsigned int  entry_number;
+	unsigned int  base_addr;
+	unsigned int  limit;
+	unsigned int  seg_32bit:1;
+	unsigned int  contents:2;
+	unsigned int  read_exec_only:1;
+	unsigned int  limit_in_pages:1;
+	unsigned int  seg_not_present:1;
+	unsigned int  useable:1;
+#ifdef __x86_64__
+	/*
+	 * Because this bit is not present in 32-bit user code, user
+	 * programs can pass uninitialized values here.  Therefore, in
+	 * any context in which a user_desc comes from a 32-bit program,
+	 * the kernel must act as though lm == 0, regardless of the
+	 * actual value.
+	 */
+	unsigned int  lm:1;
+#endif
+};
+
+#define MODIFY_LDT_CONTENTS_DATA	0
+#define MODIFY_LDT_CONTENTS_STACK	1
+#define MODIFY_LDT_CONTENTS_CODE	2
+
+#endif /* !__ASSEMBLY__ */
 
 /* this should be referred to your kernel */
 #define SECONDARY_STARTUP_64 0xffffffff81000060
@@ -605,6 +669,100 @@ size_t ldt_seeking_memory(void *(*ldt_momdifier)(void*, size_t),
  * VIII - userfaultfd related code
  */
 
+/**
+ * The MUSL also doesn't contain `userfaultfd.h` :( 
+ * Luckily we just need a bit of micros in exploitation, 
+ * so just define them directly is okay :)
+ */
+
+#define UFFD_API ((uint64_t)0xAA)
+#define _UFFDIO_REGISTER		(0x00)
+#define _UFFDIO_COPY			(0x03)
+#define _UFFDIO_API			(0x3F)
+
+/* userfaultfd ioctl ids */
+#define UFFDIO 0xAA
+#define UFFDIO_API		_IOWR(UFFDIO, _UFFDIO_API,	\
+				      struct uffdio_api)
+#define UFFDIO_REGISTER		_IOWR(UFFDIO, _UFFDIO_REGISTER, \
+				      struct uffdio_register)
+#define UFFDIO_COPY		_IOWR(UFFDIO, _UFFDIO_COPY,	\
+				      struct uffdio_copy)
+
+/* read() structure */
+struct uffd_msg {
+	uint8_t	event;
+
+	uint8_t	reserved1;
+	uint16_t	reserved2;
+	uint32_t	reserved3;
+
+	union {
+		struct {
+			uint64_t	flags;
+			uint64_t	address;
+			union {
+				uint32_t ptid;
+			} feat;
+		} pagefault;
+
+		struct {
+			uint32_t	ufd;
+		} fork;
+
+		struct {
+			uint64_t	from;
+			uint64_t	to;
+			uint64_t	len;
+		} remap;
+
+		struct {
+			uint64_t	start;
+			uint64_t	end;
+		} remove;
+
+		struct {
+			/* unused reserved fields */
+			uint64_t	reserved1;
+			uint64_t	reserved2;
+			uint64_t	reserved3;
+		} reserved;
+	} arg;
+} __attribute__((packed));
+
+#define UFFD_EVENT_PAGEFAULT	0x12
+
+struct uffdio_api {
+    uint64_t api;
+    uint64_t features;
+    uint64_t ioctls;
+};
+
+struct uffdio_range {
+    uint64_t start;
+    uint64_t len;
+};
+
+struct uffdio_register {
+	struct uffdio_range range;
+#define UFFDIO_REGISTER_MODE_MISSING	((uint64_t)1<<0)
+#define UFFDIO_REGISTER_MODE_WP		((uint64_t)1<<1)
+    uint64_t mode;
+    uint64_t ioctls;
+};
+
+
+struct uffdio_copy {
+	uint64_t dst;
+	uint64_t src;
+	uint64_t len;
+#define UFFDIO_COPY_MODE_DONTWAKE		((uint64_t)1<<0)
+	uint64_t mode;
+	int64_t copy;
+};
+
+//#include <linux/userfaultfd.h>
+
 char temp_page_for_stuck[0x1000];
 
 void register_userfaultfd(pthread_t *monitor_thread, void *addr,
@@ -617,23 +775,27 @@ void register_userfaultfd(pthread_t *monitor_thread, void *addr,
 
     /* Create and enable userfaultfd object */
     uffd = syscall(__NR_userfaultfd, O_CLOEXEC | O_NONBLOCK);
-    if (uffd == -1)
+    if (uffd == -1) {
         err_exit("userfaultfd");
+    }
 
     uffdio_api.api = UFFD_API;
     uffdio_api.features = 0;
-    if (ioctl(uffd, UFFDIO_API, &uffdio_api) == -1)
+    if (ioctl(uffd, UFFDIO_API, &uffdio_api) == -1) {
         err_exit("ioctl-UFFDIO_API");
+    }
 
     uffdio_register.range.start = (unsigned long) addr;
     uffdio_register.range.len = len;
     uffdio_register.mode = UFFDIO_REGISTER_MODE_MISSING;
-    if (ioctl(uffd, UFFDIO_REGISTER, &uffdio_register) == -1)
+    if (ioctl(uffd, UFFDIO_REGISTER, &uffdio_register) == -1) {
         err_exit("ioctl-UFFDIO_REGISTER");
+    }
 
     s = pthread_create(monitor_thread, NULL, handler, (void *) uffd);
-    if (s != 0)
+    if (s != 0) {
         err_exit("pthread_create");
+    }
 }
 
 void *uffd_handler_for_stucking_thread(void *args)
@@ -647,30 +809,33 @@ void *uffd_handler_for_stucking_thread(void *args)
 
     uffd = (long) args;
 
-    for (;;) 
-    {
+    for (;;) {
         struct pollfd pollfd;
         int nready;
         pollfd.fd = uffd;
         pollfd.events = POLLIN;
         nready = poll(&pollfd, 1, -1);
 
-        if (nready == -1)
+        if (nready == -1) {
             err_exit("poll");
+        }
 
         nread = read(uffd, &msg, sizeof(msg));
 
         /* just stuck there is okay... */
         sleep(100000000);
 
-        if (nread == 0)
+        if (nread == 0) {
             err_exit("EOF on userfaultfd!\n");
+        }
 
-        if (nread == -1)
+        if (nread == -1) {
             err_exit("read");
+        }
 
-        if (msg.event != UFFD_EVENT_PAGEFAULT)
+        if (msg.event != UFFD_EVENT_PAGEFAULT) {
             err_exit("Unexpected event on userfaultfd\n");
+        }
 
         uffdio_copy.src = (unsigned long long) temp_page_for_stuck;
         uffdio_copy.dst = (unsigned long long) msg.arg.pagefault.address &
@@ -678,8 +843,9 @@ void *uffd_handler_for_stucking_thread(void *args)
         uffdio_copy.len = 0x1000;
         uffdio_copy.mode = 0;
         uffdio_copy.copy = 0;
-        if (ioctl(uffd, UFFDIO_COPY, &uffdio_copy) == -1)
+        if (ioctl(uffd, UFFDIO_COPY, &uffdio_copy) == -1) {
             err_exit("ioctl-UFFDIO_COPY");
+        }
 
         return NULL;
     }
@@ -778,6 +944,7 @@ struct page;
 struct pipe_inode_info;
 struct pipe_buf_operations;
 
+/* read start from len to offset, write start from offset */
 struct pipe_buffer {
 	struct page *page;
 	unsigned int offset, len;
