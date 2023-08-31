@@ -1,0 +1,909 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="怎么实验室只有👴一个运维">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【OPS.0x00】在服务器上使用 Docker 创建隔离的工作环境">
+<meta property="og:url" content="http://blog.arttnba3.cn/2023/08/31/OPS-0X00-DOCKER_ON_SERVER/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="怎么实验室只有👴一个运维">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2023/08/31/gXdvoBqOLkmrpSs.png">
+<meta property="article:published_time" content="2023-08-31T11:55:24.000Z">
+<meta property="article:modified_time" content="2023-08-31T12:36:11.266Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="运维">
+<meta property="article:tag" content="Docker">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2023/08/31/gXdvoBqOLkmrpSs.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【OPS.0x00】在服务器上使用 Docker 创建隔离的工作环境 - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"blog.arttnba3.cn","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://s2.loli.net/2023/08/31/MYFEIkeyz5iR9t4.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【OPS.0x00】在服务器上使用 Docker 创建隔离的工作环境"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-08-31 21:55" pubdate>
+          2023年8月31日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          56 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【OPS.0x00】在服务器上使用 Docker 创建隔离的工作环境</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2023年8月31日 晚上
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>怎么实验室只有👴一个运维</p>
+<span id="more"></span>
+
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><blockquote>
+<p>因为笔者目前所在的实验室好像只有笔者一个人会一点点运维技术，<del>大家都喜欢在根目录和各种乱七八糟的目录到处乱拉</del>（错乱），为了保证服务器环境不会哪天用着用着给整个挂掉了，笔者写了一份《服务器安全使用指北》，并顺便拷贝过来水一篇博客（笑）</p>
+</blockquote>
+<h2 id="What-is-docker"><a href="#What-is-docker" class="headerlink" title="What is docker?"></a>What is docker?</h2><blockquote>
+<p>抄自 Wikipedia：</p>
+<p><a target="_blank" rel="noopener" href="https://www.docker.com/">Docker</a> 是一个开源的开放平台软件，用于开发应用、交付（shipping）应用和运行应用。Docker 允许用户将基础设施（Infrastructure）中的应用单独分割出来，形成更小的颗粒（容器），从而提高交付软件的速度。</p>
+</blockquote>
+<p>按照笔者的理解，Docker 可以简单理解为用于创建<strong>共享操作系统内核虚拟机隔离环境</strong>（称为容器）的工具包：</p>
+<p><img src="https://s2.loli.net/2023/08/31/MYFEIkeyz5iR9t4.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="Why-use-docker"><a href="#Why-use-docker" class="headerlink" title="Why use docker?"></a>Why use docker?</h2><p>为了解决服务器环境污染问题（例如配环境把服务器主环境搞崩了，这将同时影响到使用服务器的多个用户），在服务器多人共享的情况下，对于<strong>不涉及内核驱动更改的工作</strong>，推荐使用 docker 创建一个新的隔离环境来完成。</p>
+<h2 id="How-to-install-docker"><a href="#How-to-install-docker" class="headerlink" title="How to install docker?"></a>How to install docker?</h2><blockquote>
+<p><strong>推荐参照官网的安装教程来完成，这里笔者也是使用的官网教程进行安装</strong></p>
+<p>笔者实验室安装的是桌面版的 Ubuntu，对于没有桌面环境的服务器而言，参见<a target="_blank" rel="noopener" href="https://docs.docker.com/engine/install/ubuntu/">官网教程</a>进行安装</p>
+</blockquote>
+<p>对于非 Gnome 桌面环境而言，需要安装 <code>gnome-terminal</code>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt install gnome-terminal</span><br></code></pre></td></tr></table></figure>
+
+<p>卸载可能安装过的 docker：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt remove docker-desktop</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">rm</span> -r <span class="hljs-variable">$HOME</span>/.docker/desktop</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">rm</span> /usr/local/bin/com.docker.cli</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt purge docker-desktop</span><br></code></pre></td></tr></table></figure>
+
+<p>设置 docker 仓库：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get update</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get install ca-certificates curl gnupg</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo install -m 0755 -d /etc/apt/keyrings</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">chmod</span> a+r /etc/apt/keyrings/docker.gpg</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">echo</span> \</span><br><span class="language-bash">  <span class="hljs-string">&quot;deb [arch=&quot;</span>$(dpkg --print-architecture)<span class="hljs-string">&quot; signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \</span></span><br><span class="hljs-string"><span class="language-bash">  &quot;</span>$(. /etc/os-release &amp;&amp; <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;<span class="hljs-variable">$VERSION_CODENAME</span>&quot;</span>)<span class="hljs-string">&quot; stable&quot;</span> | \</span><br><span class="language-bash">  sudo <span class="hljs-built_in">tee</span> /etc/apt/sources.list.d/docker.list &gt; /dev/null</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get update</span><br></code></pre></td></tr></table></figure>
+
+<p>下载 docker 安装包：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">wget https://desktop.docker.com/linux/main/amd64/docker-desktop-4.22.1-amd64.deb</span><br></code></pre></td></tr></table></figure>
+
+<p>安装 docker：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get update</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get install ./docker-desktop-4.22.1-amd64.deb</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="0x01-使用-docker-搭建基本的容器环境"><a href="#0x01-使用-docker-搭建基本的容器环境" class="headerlink" title="0x01. 使用 docker 搭建基本的容器环境"></a>0x01. 使用 docker 搭建基本的容器环境</h1><p><strong>若用户未加入 docker 用户组则所有命令开头都需要添加</strong> <strong>sudo</strong> <strong>获得 root 权限</strong></p>
+<h2 id="创建-Docker-镜像"><a href="#创建-Docker-镜像" class="headerlink" title="创建 Docker 镜像"></a>创建 Docker 镜像</h2><p>首先在一个空白的文件夹中创建一个名为 <code>Dockerfile</code> 的文件，写入如下内容：</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs Dockerfile"><span class="hljs-keyword">FROM</span> ubuntu:<span class="hljs-number">22.04</span><br><br><span class="hljs-keyword">ARG</span> DEBIAN_FRONTEND=noninteractive<br><br><span class="hljs-comment"># 可以在这里预先添加想要安装的软件</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> apt-get -y update &amp;&amp; \</span><br><span class="language-bash">    apt-get install -y lib32z1 apt-transport-https python3 git \</span><br><span class="language-bash">    libglib2.0-dev libfdt-dev libpixman-1-dev zlib1g-dev \</span><br><span class="language-bash">    vim netcat openssh-server unzip make wget bison flex build-essential curl</span><br><br><span class="hljs-comment"># 开启ssh登录</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> <span class="hljs-built_in">rm</span> -f /etc/service/sshd/down</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> sed -ri <span class="hljs-string">&#x27;s/^#?PermitRootLogin\s+.*/PermitRootLogin yes/&#x27;</span> /etc/ssh/sshd_config &amp;&amp;\</span><br><span class="language-bash">    sed -ri <span class="hljs-string">&#x27;s/#UseDNS\ no/UseDNS\ no/g&#x27;</span> /etc/ssh/sshd_config &amp;&amp; \</span><br><span class="language-bash">    sed -ri <span class="hljs-string">&quot;s/StrictModes yes/StrictModes no/g&quot;</span> /etc/ssh/sshd_config &amp;&amp; \</span><br><span class="language-bash">    sed -ri <span class="hljs-string">&quot;s/UsePAM yes/UsePAM no/g&quot;</span> /etc/ssh/sshd_config</span><br><br><span class="hljs-comment"># 设置允许密码登录</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> <span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;PasswordAuthentication yes&#x27;</span> &gt;&gt; /etc/ssh/sshd_config</span><br><br><span class="hljs-comment"># 添加用户密码，这里只是一个示例，根据你的需求自己修改</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> groupadd arttnba3 &amp;&amp; \</span><br><span class="language-bash">    useradd -g arttnba3 arttnba3 -m &amp;&amp; \</span><br><span class="language-bash">    <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;arttnba3:lTaa4cqucW4zxvJswU5KH0HIRM9VmjO7&quot;</span> | chpasswd &amp;&amp; \</span><br><span class="language-bash">    <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;root:rqUHmfGUtjItWapDuv3NEqwQ9bm6GBrs&quot;</span> | chpasswd</span><br><br><span class="hljs-comment"># 添加 ssh 登录，注意换成自己新建的用户的用户名</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> <span class="hljs-built_in">mkdir</span> /home/arttnba3/.ssh &amp;&amp; \</span><br><span class="language-bash">    <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;这里写你的ssh公钥&quot;</span> &gt; /home/arttnba3/.ssh/authorized_keys</span><br><br><span class="hljs-comment"># 保持 docker 容器运行</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;#!/bin/sh\nservice ssh restart\nsleep infinity&quot;</span> &gt; /root/start.sh</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> <span class="hljs-built_in">chmod</span> +x /root/start.sh</span><br><br><span class="hljs-keyword">CMD</span><span class="language-bash"> [<span class="hljs-string">&quot;/root/start.sh&quot;</span>]</span><br><br><span class="hljs-keyword">EXPOSE</span> <span class="hljs-number">22</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来运行以下命令创建镜像：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">docker build -t <span class="hljs-string">&quot;自定义镜像名&quot;</span> .</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="创建并启动-docker-容器"><a href="#创建并启动-docker-容器" class="headerlink" title="创建并启动 docker 容器"></a>创建并启动 <strong>docker 容器</strong></h2><p>完成 docker 镜像创建之后接下来我们就可以开始使用该镜像启动一个新的容器，使用如下命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">docker run -d --privileged -p <span class="hljs-string">&quot;外部端口:22&quot;</span> -h <span class="hljs-string">&quot;容器主机名&quot;</span> --name=<span class="hljs-string">&quot;容器名&quot;</span> 自定义镜像名</span><br></code></pre></td></tr></table></figure>
+
+<p>这里添加了一个服务器端口到容器内部 <code>22</code> 端口的映射，从而使得可以从外部直接通过 ssh 连接到容器内部</p>
+<p>如果你的容器不需要主机相关的一些权限，也可以去掉 <code>--privileged</code> 参数</p>
+<h2 id="进入-docker-容器"><a href="#进入-docker-容器" class="headerlink" title="进入 docker 容器"></a>进入 docker 容器</h2><p>进入容器环境有两种办法，一种是通过 container id（可以通过 <code>docker ps</code> 查看，在创建容器时也会打印出容器id），另一种是通过自定义的容器名，这里进入容器后默认是 root 用户：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">docker <span class="hljs-built_in">exec</span> -it 容器名或容器ID /bin/bash</span><br></code></pre></td></tr></table></figure>
+
+<p>如果想要以容器内部的指定用户身份进入容器，使用如下命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">docker <span class="hljs-built_in">exec</span> -u 用户名 -it 容器名或容器ID /bin/bash</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="从外部连接-docker-容器"><a href="#从外部连接-docker-容器" class="headerlink" title="从外部连接 docker 容器"></a>从外部连接 docker 容器</h2><p>在启动容器时我们已经指定了一个外部端口映射，可以直接通过该端口进行 ssh 连接，操作和正常登录服务器基本一致，不过要手动指定该外部端口：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">ssh 容器内用户名@服务器主机名或IP -p 自定义的外部端口</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="删除-docker-容器"><a href="#删除-docker-容器" class="headerlink" title="删除 docker 容器"></a><strong>删除 docker 容器</strong></h2><p>如果 docker 内环境配崩了不想要了，可以简单通过如下命令将该容器进行删除：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">docker stop 容器ID或容器名</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">docker <span class="hljs-built_in">rm</span> 容器ID或容器名</span><br></code></pre></td></tr></table></figure>
+
+<p>重新创建新的容器环境可以直接回到第二步继续进行</p>
+<h2 id="删除-docker-镜像"><a href="#删除-docker-镜像" class="headerlink" title="删除 docker 镜像"></a>删除 docker 镜像</h2><p>如果 docker 镜像构建感觉不够好，可以通过如下命令删除对应镜像（需确保没有容器在使用该镜像）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">docker rmi 镜像名</span><br></code></pre></td></tr></table></figure>
+
+<p>后续使用则需要回到第一步从头开始</p>
+<h1 id="0x02-创建可以使用显卡的-docker-环境"><a href="#0x02-创建可以使用显卡的-docker-环境" class="headerlink" title="0x02. 创建可以使用显卡的 docker 环境"></a>0x02. 创建可以使用显卡的 docker 环境</h1><p>有的时候会存在需要在显卡上跑一些任务的需求，本节讲述如何创建一个挂载了显卡的 docker 容器</p>
+<h2 id="What-is-NVIDIA-Container-Toolkit"><a href="#What-is-NVIDIA-Container-Toolkit" class="headerlink" title="What is NVIDIA Container Toolkit ?"></a>What is <code>NVIDIA Container Toolkit</code> ?</h2><p><a target="_blank" rel="noopener" href="https://github.com/NVIDIA/nvidia-container-toolkit">NVIDIA Container Toolkit</a> 是由英伟达开发的一套对 docker 进行包装的工具，从而使得 docker 容器可以使用服务器主机上的显卡</p>
+<p><img src="https://s2.loli.net/2023/08/31/dWpAu8LJQ2bOShg.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h2 id="安装-NVIDIA-Container-Toolk"><a href="#安装-NVIDIA-Container-Toolk" class="headerlink" title="安装 NVIDIA Container Toolk"></a>安装 NVIDIA Container Toolk</h2><p>需要在服务器主机上完成，首先使用如下命令安装基本组件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get update \</span><br><span class="language-bash">    &amp;&amp; sudo apt-get install -y nvidia-container-toolkit-base</span><br></code></pre></td></tr></table></figure>
+
+<p>使用如下命令检查是否安装成功：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">nvidia-ctk --version</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来使用如下命令生成 CDI （Container Device Interface）规范文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml</span><br></code></pre></td></tr></table></figure>
+
+<p>添加 NVIDIA 仓库与 GPG 密钥：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">distribution=$(. /etc/os-release;<span class="hljs-built_in">echo</span> $ID<span class="hljs-variable">$VERSION_ID</span>) \</span><br><span class="language-bash">      &amp;&amp; curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \</span><br><span class="language-bash">      &amp;&amp; curl -s -L https://nvidia.github.io/libnvidia-container/<span class="hljs-variable">$distribution</span>/libnvidia-container.list | \</span><br><span class="language-bash">            sed <span class="hljs-string">&#x27;s#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g&#x27;</span> | \</span><br><span class="language-bash">            sudo <span class="hljs-built_in">tee</span> /etc/apt/sources.list.d/nvidia-container-toolkit.list</span><br></code></pre></td></tr></table></figure>
+
+<p>安装 toolkit：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get update</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get install -y nvidia-container-toolkit</span><br></code></pre></td></tr></table></figure>
+
+<p>配置 docker daemon 进程以识别 NVIDIA COntainer Runtime：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo nvidia-ctk runtime configure --runtime=docker</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl restart docker</span><br></code></pre></td></tr></table></figure>
+
+<p>测试是否安装成功：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo docker run --<span class="hljs-built_in">rm</span> --runtime=nvidia --gpus all nvidia/cuda:11.6.2-base-ubuntu20.04 nvidia-smi</span><br></code></pre></td></tr></table></figure>
+
+<p>最后成功输出和 <code>nvidia-smi</code> 命令一样的结果就说明安装成功了：</p>
+<p><img src="https://s2.loli.net/2023/08/31/6BVStUv9jeCuimM.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h2 id="添加-NVIDIA-Rumtime"><a href="#添加-NVIDIA-Rumtime" class="headerlink" title="添加 NVIDIA Rumtime"></a>添加 NVIDIA Rumtime</h2><p>NVIDIA Container Runtime 的添加一共有三种方法</p>
+<h4 id="方法-①"><a href="#方法-①" class="headerlink" title="方法 ①"></a>方法 ①</h4><p>首先创建配置文件夹：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">mkdir</span> -p /etc/systemd/system/docker.service.d</span><br></code></pre></td></tr></table></figure>
+
+<p>然后创建配置文件，注意这条命令一共有五行，全部复制后粘贴进去：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">tee</span> /etc/systemd/system/docker.service.d/override.conf &lt;&lt;<span class="hljs-string">EOF</span></span><br>[Service]<br>ExecStart=<br>ExecStart=/usr/bin/dockerd --host=fd:// --add-runtime=nvidia=/usr/bin/nvidia-container-runtime<br>EOF<br></code></pre></td></tr></table></figure>
+
+<p>重启 docker：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl daemon-reload &amp;&amp; sudo systemctl restart docker</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="方法-②"><a href="#方法-②" class="headerlink" title="方法 ②"></a>方法 ②</h4><p>Nvidia toolkit 安装成功之后也可以辅助我们完成这一步，通过如下两条命令其中之一完成：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo nvidia-ctk runtime configure --runtime=docker</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo nvidia-ctk runtime configure --runtime=docker --set-as-default <span class="hljs-comment"># 设置为默认</span></span><br></code></pre></td></tr></table></figure>
+
+<p>重启 docker：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl restart docker</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="方法-③"><a href="#方法-③" class="headerlink" title="方法 ③"></a>方法 ③</h4><p>也可以使用 docker 直接添加 NVIDIA Runtime：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo dockerd --add-runtime=nvidia=/usr/bin/nvidia-container-runtime [...]</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="创建并启动带显卡的-Docker-容器"><a href="#创建并启动带显卡的-Docker-容器" class="headerlink" title="创建并启动带显卡的 Docker 容器"></a>创建并启动带显卡的 Docker 容器</h2><p>与 <code>0x01</code> 中的创建 docker 容器的步骤基本相同，不过需要添加额外的参数</p>
+<blockquote>
+<p>更多用法参见 <a target="_blank" rel="noopener" href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/user-guide.html%EF%BC%8C%E6%9C%AC%E6%96%87%E4%BB%85%E5%B1%95%E7%A4%BA%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95">https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/user-guide.html，本文仅展示基本用法</a></p>
+</blockquote>
+<h3 id="使用-Nvidia-Runtime"><a href="#使用-Nvidia-Runtime" class="headerlink" title="使用 Nvidia Runtime"></a>使用 Nvidia Runtime</h3><ul>
+<li>容器内挂载所有的显卡</li>
+</ul>
+<p>通过额外添加 <code>--runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=all</code> 参数完成：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">docker run -d --privileged -p <span class="hljs-string">&quot;外部端口:22&quot;</span> -h <span class="hljs-string">&quot;容器主机名&quot;</span> --name=<span class="hljs-string">&quot;容器名&quot;</span> --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=all 自定义镜像名</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>容器内挂载指定显卡</li>
+</ul>
+<p>通过额外添加 <code>--runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=显卡标号</code> 参数完成，其中显卡标号为 <code>nvidia-smi -L</code> 命令中所展示的序号，挂载多张显卡需要用 <code>,</code> 进行隔离（<strong>显卡标号间不要加空格</strong> ），这里以挂载第一、二张显卡为例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">docker run -d --privileged -p <span class="hljs-string">&quot;外部端口:22&quot;</span> -h <span class="hljs-string">&quot;容器主机名&quot;</span> --name=<span class="hljs-string">&quot;容器名&quot;</span> --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=0,1 自定义镜像名</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="传统用法"><a href="#传统用法" class="headerlink" title="传统用法"></a>传统用法</h3><ul>
+<li>容器内挂载所有的显卡</li>
+</ul>
+<p>额外添加 <code>--gpus all</code> 参数即可：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">docker run -d --privileged -p <span class="hljs-string">&quot;外部端口:22&quot;</span> -h <span class="hljs-string">&quot;容器主机名&quot;</span> --name=<span class="hljs-string">&quot;容器名&quot;</span> --gpus all 自定义镜像名</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>容器内挂载指定显卡</li>
+</ul>
+<p>通过额外添加 <code>--gpus=&#39;&quot;device=显卡标号&quot;&#39;</code> 参数完成，其中显卡标号为 <code>nvidia-smi -L</code> 命令中所展示的序号，以下命令以第一张显卡为例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">docker run -d --privileged -p <span class="hljs-string">&quot;外部端口:22&quot;</span> -h <span class="hljs-string">&quot;容器主机名&quot;</span> --name=<span class="hljs-string">&quot;容器名&quot;</span> --gpus=<span class="hljs-string">&#x27;&quot;device=0&quot;&#x27;</span> 自定义镜像名</span><br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/OPS/" class="category-chain-item">OPS</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+        <a href="/tags/%E8%BF%90%E7%BB%B4/">#运维</a>
+      
+        <a href="/tags/Docker/">#Docker</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【OPS.0x00】在服务器上使用 Docker 创建隔离的工作环境</div>
+      <div>http://blog.arttnba3.cn/2023/08/31/OPS-0X00-DOCKER_ON_SERVER/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年8月31日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/14/CTF-0X09_CISCN_2023_HDBFQS/" title="【CTF.0x09】CISCN 2023 华东北分区赛 minidb、kkk 出题手记">
+                        <span class="hidden-mobile">【CTF.0x09】CISCN 2023 华东北分区赛 minidb、kkk 出题手记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
