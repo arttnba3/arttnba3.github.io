@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2023/08/31/gXdvoBqOLkmrpSs.png">
 <meta property="article:published_time" content="2023-08-31T11:55:24.000Z">
-<meta property="article:modified_time" content="2023-08-31T12:36:11.266Z">
+<meta property="article:modified_time" content="2023-09-01T14:15:51.978Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="运维">
@@ -252,7 +252,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          6.6k 字
+          8.2k 字
         
       </span>
     
@@ -263,7 +263,7 @@
         
         
         
-          56 分钟
+          69 分钟
         
       </span>
     
@@ -318,7 +318,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年8月31日 晚上
+                    本文最后更新于：2023年9月2日 凌晨
                   
                 
               </p>
@@ -341,7 +341,25 @@
 <h2 id="Why-use-docker"><a href="#Why-use-docker" class="headerlink" title="Why use docker?"></a>Why use docker?</h2><p>为了解决服务器环境污染问题（例如配环境把服务器主环境搞崩了，这将同时影响到使用服务器的多个用户），在服务器多人共享的情况下，对于<strong>不涉及内核驱动更改的工作</strong>，推荐使用 docker 创建一个新的隔离环境来完成。</p>
 <h2 id="How-to-install-docker"><a href="#How-to-install-docker" class="headerlink" title="How to install docker?"></a>How to install docker?</h2><blockquote>
 <p><strong>推荐参照官网的安装教程来完成，这里笔者也是使用的官网教程进行安装</strong></p>
-<p>笔者实验室安装的是桌面版的 Ubuntu，对于没有桌面环境的服务器而言，参见<a target="_blank" rel="noopener" href="https://docs.docker.com/engine/install/ubuntu/">官网教程</a>进行安装</p>
+<p>笔者实验室服务器安装了 Ubuntu，其他发行版请参见<a target="_blank" rel="noopener" href="https://docs.docker.com/engine/install/ubuntu/">官网教程</a>进行安装</p>
+</blockquote>
+<h3 id="Docker-Engine（推荐）"><a href="#Docker-Engine（推荐）" class="headerlink" title="Docker Engine（推荐）"></a>Docker Engine（推荐）</h3><p>首先通过如下命令卸载可能存在的旧版 docker：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-keyword">for</span> pkg <span class="hljs-keyword">in</span> docker.io docker-doc docker-compose podman-docker containerd runc; <span class="hljs-keyword">do</span> sudo apt-get remove <span class="hljs-variable">$pkg</span>; <span class="hljs-keyword">done</span></span><br></code></pre></td></tr></table></figure>
+
+<p>接下来添加 docker 仓库的 GPG key 并进行配置：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get update</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get install ca-certificates curl gnupg</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo install -m 0755 -d /etc/apt/keyrings</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">chmod</span> a+r /etc/apt/keyrings/docker.gpg</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">echo</span> \</span><br><span class="language-bash">  <span class="hljs-string">&quot;deb [arch=&quot;</span>$(dpkg --print-architecture)<span class="hljs-string">&quot; signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \</span></span><br><span class="hljs-string"><span class="language-bash">  &quot;</span>$(. /etc/os-release &amp;&amp; <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;<span class="hljs-variable">$VERSION_CODENAME</span>&quot;</span>)<span class="hljs-string">&quot; stable&quot;</span> | \</span><br><span class="language-bash">  sudo <span class="hljs-built_in">tee</span> /etc/apt/sources.list.d/docker.list &gt; /dev/null</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get update</span><br></code></pre></td></tr></table></figure>
+
+<p>正式安装 docker：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin</span><br></code></pre></td></tr></table></figure>
+
+<p>完成之后可以通过如下命令验证是否安装成功：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo docker run hello-world</span><br></code></pre></td></tr></table></figure>
+
+<p>将当前用户添加到 docker 用户组：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo groupadd docker</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo usermod -aG docker <span class="hljs-variable">$USER</span></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl restart docker</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="Docker-Desktop（不推荐）"><a href="#Docker-Desktop（不推荐）" class="headerlink" title="Docker Desktop（不推荐）"></a><em>Docker Desktop（不推荐）</em></h3><blockquote>
+<p> Docker Desktop 额外提供了一个 GUI，以及不同用户间的隔离机制，不过 <em>笔者用着感觉不是很 ok</em> ，所以还是推荐传统的纯 Docker Engine</p>
 </blockquote>
 <p>对于非 Gnome 桌面环境而言，需要安装 <code>gnome-terminal</code>：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt install gnome-terminal</span><br></code></pre></td></tr></table></figure>
@@ -357,6 +375,12 @@
 
 <p>安装 docker：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get update</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get install ./docker-desktop-4.22.1-amd64.deb</span><br></code></pre></td></tr></table></figure>
+
+<p>启动 docker：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">systemctl --user start docker-desktop</span><br></code></pre></td></tr></table></figure>
+
+<p>将当前用户添加到 docker 用户组：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo groupadd docker</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo usermod -aG docker <span class="hljs-variable">$USER</span></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">systemctl --user restart docker-desktop</span><br></code></pre></td></tr></table></figure>
 
 <h1 id="0x01-使用-docker-搭建基本的容器环境"><a href="#0x01-使用-docker-搭建基本的容器环境" class="headerlink" title="0x01. 使用 docker 搭建基本的容器环境"></a>0x01. 使用 docker 搭建基本的容器环境</h1><p><strong>若用户未加入 docker 用户组则所有命令开头都需要添加</strong> <strong>sudo</strong> <strong>获得 root 权限</strong></p>
 <h2 id="创建-Docker-镜像"><a href="#创建-Docker-镜像" class="headerlink" title="创建 Docker 镜像"></a>创建 Docker 镜像</h2><p>首先在一个空白的文件夹中创建一个名为 <code>Dockerfile</code> 的文件，写入如下内容：</p>
@@ -390,7 +414,8 @@
 <h1 id="0x02-创建可以使用显卡的-docker-环境"><a href="#0x02-创建可以使用显卡的-docker-环境" class="headerlink" title="0x02. 创建可以使用显卡的 docker 环境"></a>0x02. 创建可以使用显卡的 docker 环境</h1><p>有的时候会存在需要在显卡上跑一些任务的需求，本节讲述如何创建一个挂载了显卡的 docker 容器</p>
 <h2 id="What-is-NVIDIA-Container-Toolkit"><a href="#What-is-NVIDIA-Container-Toolkit" class="headerlink" title="What is NVIDIA Container Toolkit ?"></a>What is <code>NVIDIA Container Toolkit</code> ?</h2><p><a target="_blank" rel="noopener" href="https://github.com/NVIDIA/nvidia-container-toolkit">NVIDIA Container Toolkit</a> 是由英伟达开发的一套对 docker 进行包装的工具，从而使得 docker 容器可以使用服务器主机上的显卡</p>
 <p><img src="https://s2.loli.net/2023/08/31/dWpAu8LJQ2bOShg.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h2 id="安装-NVIDIA-Container-Toolk"><a href="#安装-NVIDIA-Container-Toolk" class="headerlink" title="安装 NVIDIA Container Toolk"></a>安装 NVIDIA Container Toolk</h2><p>需要在服务器主机上完成，首先使用如下命令安装基本组件：</p>
+<h2 id="安装-NVIDIA-Container-Toolk"><a href="#安装-NVIDIA-Container-Toolk" class="headerlink" title="安装 NVIDIA Container Toolk"></a>安装 NVIDIA Container Toolk</h2><p>有两种方法：</p>
+<h4 id="方法①"><a href="#方法①" class="headerlink" title="方法①"></a>方法①</h4><p>需要在服务器主机上完成，首先使用如下命令安装基本组件：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get update \</span><br><span class="language-bash">    &amp;&amp; sudo apt-get install -y nvidia-container-toolkit-base</span><br></code></pre></td></tr></table></figure>
 
 <p>使用如下命令检查是否安装成功：</p>
@@ -413,6 +438,12 @@
 
 <p>最后成功输出和 <code>nvidia-smi</code> 命令一样的结果就说明安装成功了：</p>
 <p><img src="https://s2.loli.net/2023/08/31/6BVStUv9jeCuimM.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h4 id="方法-②"><a href="#方法-②" class="headerlink" title="方法 ②"></a>方法 ②</h4><blockquote>
+<p>参见 <a target="_blank" rel="noopener" href="https://github.com/NVIDIA/nvidia-docker/issues/1238">Github 上的这个 issue</a></p>
+</blockquote>
+<p>若方法 ① 没法成功进行，可以使用如下命令进行安装：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">distribution=$(. /etc/os-release;<span class="hljs-built_in">echo</span> $ID<span class="hljs-variable">$VERSION_ID</span>)</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">curl -s -L https://nvidia.github.io/nvidia-docker/<span class="hljs-variable">$distribution</span>/nvidia-docker.list | sudo <span class="hljs-built_in">tee</span> /etc/apt/sources.list.d/nvidia-docker.list</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get update &amp;&amp; sudo apt-get install -y nvidia-container-toolkit</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl restart docker</span><br></code></pre></td></tr></table></figure>
+
 <h2 id="添加-NVIDIA-Rumtime"><a href="#添加-NVIDIA-Rumtime" class="headerlink" title="添加 NVIDIA Rumtime"></a>添加 NVIDIA Rumtime</h2><p>NVIDIA Container Runtime 的添加一共有三种方法</p>
 <h4 id="方法-①"><a href="#方法-①" class="headerlink" title="方法 ①"></a>方法 ①</h4><p>首先创建配置文件夹：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">mkdir</span> -p /etc/systemd/system/docker.service.d</span><br></code></pre></td></tr></table></figure>
@@ -423,7 +454,7 @@
 <p>重启 docker：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl daemon-reload &amp;&amp; sudo systemctl restart docker</span><br></code></pre></td></tr></table></figure>
 
-<h4 id="方法-②"><a href="#方法-②" class="headerlink" title="方法 ②"></a>方法 ②</h4><p>Nvidia toolkit 安装成功之后也可以辅助我们完成这一步，通过如下两条命令其中之一完成：</p>
+<h4 id="方法-②-1"><a href="#方法-②-1" class="headerlink" title="方法 ②"></a>方法 ②</h4><p>Nvidia toolkit 安装成功之后也可以辅助我们完成这一步，通过如下两条命令其中之一完成：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo nvidia-ctk runtime configure --runtime=docker</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo nvidia-ctk runtime configure --runtime=docker --set-as-default <span class="hljs-comment"># 设置为默认</span></span><br></code></pre></td></tr></table></figure>
 
 <p>重启 docker：</p>
