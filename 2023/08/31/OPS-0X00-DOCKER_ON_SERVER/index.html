@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2023/08/31/gXdvoBqOLkmrpSs.png">
 <meta property="article:published_time" content="2023-08-31T11:55:24.000Z">
-<meta property="article:modified_time" content="2023-09-01T14:15:51.978Z">
+<meta property="article:modified_time" content="2023-09-02T13:25:22.879Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="运维">
@@ -318,7 +318,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年9月2日 凌晨
+                    本文最后更新于：2023年9月2日 晚上
                   
                 
               </p>
@@ -415,7 +415,7 @@
 <h2 id="What-is-NVIDIA-Container-Toolkit"><a href="#What-is-NVIDIA-Container-Toolkit" class="headerlink" title="What is NVIDIA Container Toolkit ?"></a>What is <code>NVIDIA Container Toolkit</code> ?</h2><p><a target="_blank" rel="noopener" href="https://github.com/NVIDIA/nvidia-container-toolkit">NVIDIA Container Toolkit</a> 是由英伟达开发的一套对 docker 进行包装的工具，从而使得 docker 容器可以使用服务器主机上的显卡</p>
 <p><img src="https://s2.loli.net/2023/08/31/dWpAu8LJQ2bOShg.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h2 id="安装-NVIDIA-Container-Toolk"><a href="#安装-NVIDIA-Container-Toolk" class="headerlink" title="安装 NVIDIA Container Toolk"></a>安装 NVIDIA Container Toolk</h2><p>有两种方法：</p>
-<h4 id="方法①"><a href="#方法①" class="headerlink" title="方法①"></a>方法①</h4><p>需要在服务器主机上完成，首先使用如下命令安装基本组件：</p>
+<h4 id="方法-①"><a href="#方法-①" class="headerlink" title="方法 ①"></a>方法 ①</h4><p>需要在服务器主机上完成，首先使用如下命令安装基本组件：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get update \</span><br><span class="language-bash">    &amp;&amp; sudo apt-get install -y nvidia-container-toolkit-base</span><br></code></pre></td></tr></table></figure>
 
 <p>使用如下命令检查是否安装成功：</p>
@@ -445,7 +445,7 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">distribution=$(. /etc/os-release;<span class="hljs-built_in">echo</span> $ID<span class="hljs-variable">$VERSION_ID</span>)</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">curl -s -L https://nvidia.github.io/nvidia-docker/<span class="hljs-variable">$distribution</span>/nvidia-docker.list | sudo <span class="hljs-built_in">tee</span> /etc/apt/sources.list.d/nvidia-docker.list</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get update &amp;&amp; sudo apt-get install -y nvidia-container-toolkit</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl restart docker</span><br></code></pre></td></tr></table></figure>
 
 <h2 id="添加-NVIDIA-Rumtime"><a href="#添加-NVIDIA-Rumtime" class="headerlink" title="添加 NVIDIA Rumtime"></a>添加 NVIDIA Rumtime</h2><p>NVIDIA Container Runtime 的添加一共有三种方法</p>
-<h4 id="方法-①"><a href="#方法-①" class="headerlink" title="方法 ①"></a>方法 ①</h4><p>首先创建配置文件夹：</p>
+<h4 id="方法-①-1"><a href="#方法-①-1" class="headerlink" title="方法 ①"></a>方法 ①</h4><p>首先创建配置文件夹：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">mkdir</span> -p /etc/systemd/system/docker.service.d</span><br></code></pre></td></tr></table></figure>
 
 <p>然后创建配置文件，注意这条命令一共有五行，全部复制后粘贴进去：</p>
@@ -463,7 +463,7 @@
 <h4 id="方法-③"><a href="#方法-③" class="headerlink" title="方法 ③"></a>方法 ③</h4><p>也可以使用 docker 直接添加 NVIDIA Runtime：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo dockerd --add-runtime=nvidia=/usr/bin/nvidia-container-runtime [...]</span><br></code></pre></td></tr></table></figure>
 
-<h2 id="创建并启动带显卡的-Docker-容器"><a href="#创建并启动带显卡的-Docker-容器" class="headerlink" title="创建并启动带显卡的 Docker 容器"></a>创建并启动带显卡的 Docker 容器</h2><p>与 <code>0x01</code> 中的创建 docker 容器的步骤基本相同，不过需要添加额外的参数</p>
+<h2 id="配置带-CUDA-的-docker-镜像"><a href="#配置带-CUDA-的-docker-镜像" class="headerlink" title="配置带 CUDA 的 docker 镜像"></a>配置带 CUDA 的 docker 镜像</h2><h2 id="创建并启动带显卡的-Docker-容器"><a href="#创建并启动带显卡的-Docker-容器" class="headerlink" title="创建并启动带显卡的 Docker 容器"></a>创建并启动带显卡的 Docker 容器</h2><p>与 <code>0x01</code> 中的创建 docker 容器的步骤基本相同，不过需要添加额外的参数</p>
 <blockquote>
 <p>更多用法参见 <a target="_blank" rel="noopener" href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/user-guide.html%EF%BC%8C%E6%9C%AC%E6%96%87%E4%BB%85%E5%B1%95%E7%A4%BA%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95">https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/user-guide.html，本文仅展示基本用法</a></p>
 </blockquote>
