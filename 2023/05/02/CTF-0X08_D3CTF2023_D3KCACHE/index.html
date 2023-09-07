@@ -27,15 +27,15 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2023/04/13/I46vHhdniPJ1CpD.png">
 <meta property="article:published_time" content="2023-05-01T17:13:27.000Z">
-<meta property="article:modified_time" content="2023-09-05T17:50:23.153Z">
+<meta property="article:modified_time" content="2023-09-07T07:55:46.722Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="信息安全">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
 <meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="CTF">
-<meta property="article:tag" content="Heap Overflow">
 <meta property="article:tag" content="D^3CTF">
+<meta property="article:tag" content="Heap Overflow">
 <meta property="article:tag" content="Cross-Cache Overflow">
 <meta property="article:tag" content="Page-level Heap Fengshui">
 <meta name="twitter:card" content="summary_large_image">
@@ -324,7 +324,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年9月6日 凌晨
+                    本文最后更新于：2023年9月7日 下午
                   
                 
               </p>
@@ -485,7 +485,7 @@
 <p>虽然说这种方法似乎没有被正式命名，但是既然早就存在在野利用的话那自然笔者是没有命名资格了，至少笔者不会为了所谓 “青史留名” 而擅自将这种早就出现过的利用方法冠上自己的名字（笑）</p>
 <!--glibc 利用近几年国内新出现的少数几个所谓 “house of xx” 在笔者看来真的是难以形容......这也是笔者为什么最近基本上没有在做常规的 Linux 用户态 pwn 的缘故（当然虚拟化逃逸还是挺有意思的），新出现的一些东西有点过于浮躁且浮夸了：( \n当然这并不代表笔者认为这些人或是这些事情恶心，也不代表笔者对这样的现象的一种批判-->
 
-<h2 id="page-level-UAF"><a href="#page-level-UAF" class="headerlink" title="page-level UAF?"></a>page-level UAF?</h2><p>不过虽然说利用 <code>pipe_buffer</code> 进行内存任意读写的操作并非作者首创，但是<strong>在内存页这一级进行 double free 以及 UAF 利用据笔者所知应该是笔者首创</strong>，有了 page-level UAF，我们可以很轻易地在不同的 <code>kmem_cache</code> 之间进行跨 <code>kmem_cache</code> 的 UAF 利用，从而打破 <code>kmem_cache</code> 甚至是直接进行内存页分配的其他子系统之间的间隔（例如页表），目前笔者所设想的利用手法有：</p>
+<h2 id="page-level-UAF"><a href="#page-level-UAF" class="headerlink" title="page-level UAF?"></a>page-level UAF?</h2><p>不过虽然说利用 <code>pipe_buffer</code> 进行内存任意读写的操作并非作者首创，但是 <em>在内存页这一级进行 double free 以及 UAF 利用据笔者所知应该是笔者首创</em> ，有了 page-level UAF，我们可以很轻易地在不同的 <code>kmem_cache</code> 之间进行跨 <code>kmem_cache</code> 的 UAF 利用，从而打破 <code>kmem_cache</code> 甚至是直接进行内存页分配的其他子系统之间的间隔（例如页表），目前笔者所设想的利用手法有：</p>
 <ul>
 <li>将一张 page 释放成为另一张 page，从而完成对指定内核对象的 UAF利用（这便是本题的做法）<ul>
 <li>可以是针对 page 进行 double free</li>
@@ -569,9 +569,9 @@
       
         <a href="/tags/CTF/">#CTF</a>
       
-        <a href="/tags/Heap-Overflow/">#Heap Overflow</a>
-      
         <a href="/tags/D-3CTF/">#D^3CTF</a>
+      
+        <a href="/tags/Heap-Overflow/">#Heap Overflow</a>
       
         <a href="/tags/Cross-Cache-Overflow/">#Cross-Cache Overflow</a>
       
