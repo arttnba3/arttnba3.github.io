@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/03/03/JXPaRGtvIKU3rzk.png">
 <meta property="article:published_time" content="2021-03-03T07:36:24.000Z">
-<meta property="article:modified_time" content="2023-09-07T08:02:09.586Z">
+<meta property="article:modified_time" content="2023-09-14T06:27:25.083Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="Use After Free">
@@ -320,7 +320,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年9月7日 晚上
+                    本文最后更新于：2023年9月14日 下午
                   
                 
               </p>
@@ -616,7 +616,7 @@
 </blockquote>
 <p>因此为了保证漏洞利用的稳定，<strong>我们需要将我们的进程绑定到特定的某个 CPU 核心上</strong>，这样 slub allocator 的模型对我们而言便简化成了 <code>kmem_cache_node + kmem_cache_cpu</code> ，我们也能更加方便地进行漏洞利用</p>
 <p>现笔者给出如下将 exp 进程绑定至指定核心的模板：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sched.h&gt;</span></span><br><br><span class="hljs-comment">/* to run the exp on the specific core only */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">bind_cpu</span><span class="hljs-params">(<span class="hljs-type">int</span> core)</span><br>&#123;<br>    <span class="hljs-type">cpu_set_t</span> cpu_set;<br><br>    CPU_ZERO(&amp;cpu_set);<br>    CPU_SET(core, &amp;cpu_set);<br>    sched_setaffinity(getpid(), <span class="hljs-keyword">sizeof</span>(cpu_set), &amp;cpu_set);<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> _GNU_SOURCE</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sched.h&gt;</span></span><br><br><span class="hljs-comment">/* to run the exp on the specific core only */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">bind_cpu</span><span class="hljs-params">(<span class="hljs-type">int</span> core)</span><br>&#123;<br>    <span class="hljs-type">cpu_set_t</span> cpu_set;<br><br>    CPU_ZERO(&amp;cpu_set);<br>    CPU_SET(core, &amp;cpu_set);<br>    sched_setaffinity(getpid(), <span class="hljs-keyword">sizeof</span>(cpu_set), &amp;cpu_set);<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <h2 id="Pre2-通用-kmalloc-flag"><a href="#Pre2-通用-kmalloc-flag" class="headerlink" title="Pre2. 通用 kmalloc flag"></a>Pre2. 通用 kmalloc flag</h2><p><code>GFP_KERNEL</code> 与 <code>GFP_KERNEL_ACCOUNT</code>  是内核中最为常见与通用的分配 flag，常规情况下他们的分配都来自同一个 <code>kmem_cache</code> ——即通用的 <code>kmalloc-xx</code> </p>
 <p>这两种 flag 的区别主要在于 <code>GFP_KERNEL_ACCOUNT</code> 比 <code>GFP_KERNEL</code> 多了一个属性——<strong>表示该对象与来自用户空间的数据相关联</strong>，因此我们可以看到诸如 <code>msg_msg</code> 、<code>pipe_buffer</code>、<code>sk_buff的数据包</code> 的分配使用的都是 <code>GFP_KERNEL_ACCOUNT</code> ，而 <code>ldt_struct</code> 、<code>packet_socket</code> 等与用户空间数据没有直接关联的结构体则使用 <code>GFP_KERNEL</code></p>

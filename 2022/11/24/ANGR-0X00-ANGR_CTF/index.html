@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2022/11/24/QCpmXeUbcNdozOB.png">
 <meta property="article:published_time" content="2022-11-23T15:48:35.000Z">
-<meta property="article:modified_time" content="2022-12-02T18:23:54.271Z">
+<meta property="article:modified_time" content="2023-09-14T14:44:15.343Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="angr">
 <meta property="article:tag" content="信息安全">
@@ -320,7 +320,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2022年12月3日 凌晨
+                    本文最后更新于：2023年9月15日 凌晨
                   
                 
               </p>
@@ -553,7 +553,7 @@
 <p>我们可以通过 <code>angr.SimFile()</code> 来创建一个模拟文件，创建带有具体值与符号变量的 SimFile 🌰如下：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">import</span> angr, claripy<br><span class="hljs-meta">&gt;&gt;&gt; </span>sim_file = angr.SimFile(<span class="hljs-string">&#x27;a_file&#x27;</span>, content = <span class="hljs-string">&quot;flag&#123;F4k3_f1@9!&#125;\n&quot;</span>)<br><span class="hljs-meta">&gt;&gt;&gt; </span>bvs = claripy.BVS(<span class="hljs-string">&#x27;bvs&#x27;</span>, <span class="hljs-number">64</span>)<br><span class="hljs-meta">&gt;&gt;&gt; </span>sim_file2 = angr.SimFile(<span class="hljs-string">&#x27;another_file&#x27;</span>, bvs, size=<span class="hljs-number">8</span>) <span class="hljs-comment"># size in bytes there</span><br></code></pre></td></tr></table></figure>
 
-<p>模拟文件需要与特定的状态进行关联，通过 <code>state.fs.insert(sim_file)</code> 或 <code>sim_file.set_state(state)</code> 我们可以将 SimFile 插入到一个状态的文件系统中：</p>
+<p>模拟文件需要与特定的状态进行关联，通过 <code>state.fs.insert(sim_file)</code>  我们可以将 SimFile 插入到一个状态的文件系统中：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-meta">&gt;&gt;&gt; </span>state.fs.insert(<span class="hljs-string">&#x27;test_file&#x27;</span>, sim_file)<br></code></pre></td></tr></table></figure>
 
 <p>我们还可以从文件中读取内容：</p>
