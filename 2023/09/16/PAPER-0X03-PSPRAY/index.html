@@ -27,15 +27,15 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2023/09/16/rN5SQ2sTVZDut6h.png">
 <meta property="article:published_time" content="2023-09-15T18:02:37.000Z">
-<meta property="article:modified_time" content="2023-09-15T18:06:23.651Z">
+<meta property="article:modified_time" content="2023-09-15T18:43:48.606Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
-<meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="信息安全">
+<meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="Use After Free">
-<meta property="article:tag" content="Kernel UAF">
 <meta property="article:tag" content="Heap Overflow">
+<meta property="article:tag" content="Kernel UAF">
 <meta property="article:tag" content="论文笔记">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://s2.loli.net/2023/09/16/rN5SQ2sTVZDut6h.png">
@@ -257,7 +257,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          9.1k 字
+          9k 字
         
       </span>
     
@@ -268,7 +268,7 @@
         
         
         
-          76 分钟
+          75 分钟
         
       </span>
     
@@ -379,7 +379,10 @@
 <p><img src="https://s2.loli.net/2023/09/13/E9hJxTW1ajNmvYe.png" srcset="/img/loading.gif" lazyload></p>
 <h4 id="Failure-cases"><a href="#Failure-cases" class="headerlink" title="Failure cases"></a>Failure cases</h4><p>但因为地址随机化的存在，我们的被溢出目标对象不一定能恰好落在漏洞对象后面，中间可能隔了几个对象或者直接就错位了：(</p>
 <p><img src="https://s2.loli.net/2023/09/13/ZpbTYHlzVqhLmO5.png" srcset="/img/loading.gif" lazyload></p>
-<h4 id="Probability-model"><a href="#Probability-model" class="headerlink" title="Probability model"></a>Probability model</h4><p>在开启 freelist 随机化之后的漏洞利用成功率如下，基于 Linux kernel 使用 <code>Fisher-Yates shuffle</code> 算法来进行随机化这个前提计算的，其中 $N$ 为一张 slub 上的总对象数，同时我们假设在同一张 slab 上分配了 1 个漏洞对象与 $k$ 个 victim 对象：<br>$$<br>\frac{<em>{N-1}C_k*<em>kC_1}{<em>NC_k*</em>{N-k}C_1}&#x3D;\frac{k}{N}<br>$$<br>总体而言，我们从 $N$ 个空闲对象中选择 $k$ 个 victim 对象 与 1 个漏洞对象，在进行利用时 victim 对象与漏洞对象必须相邻，因此我们从 $N-1$ 个对象中取出 $k$ 个对象（剩余一个作为漏洞对象），喷射的 victim 对象数量可以从 0 到 $N-1$ ，因此对于带有 random slab freelist 的 OOB 利用而言的成功率计算如下：<br>$$<br>P</em>{OOB}^{Baseline}&#x3D;\frac{\sum</em>{k&#x3D;0}^{N-1}\frac{k}{N}}{N}&#x3D;\frac{N-1}{2N}<br>$$</p>
+<h4 id="Probability-model"><a href="#Probability-model" class="headerlink" title="Probability model"></a>Probability model</h4><p>在开启 freelist 随机化之后的漏洞利用成功率如下，基于 Linux kernel 使用 <code>Fisher-Yates shuffle</code> 算法来进行随机化这个前提计算的，其中 $N$ 为一张 slub 上的总对象数，同时我们假设在同一张 slab 上分配了 1 个漏洞对象与 $k$ 个 victim 对象：</p>
+<p>$$<br>\frac{ _{N-1} C _{k}* _{k} C _{1}}{ _{N} C _{k} * _{N-k} C _{1}} &#x3D; \frac{k}{N}<br>$$</p>
+<p>总体而言，我们从 $N$ 个空闲对象中选择 $k$ 个 victim 对象 与 1 个漏洞对象，在进行利用时 victim 对象与漏洞对象必须相邻，因此我们从 $N-1$ 个对象中取出 $k$ 个对象（剩余一个作为漏洞对象），喷射的 victim 对象数量可以从 0 到 $N-1$ ，因此对于带有 random slab freelist 的 OOB 利用而言的成功率计算如下：</p>
+<p>$$<br>P_{OOB}^{Baseline}&#x3D;\frac{\sum_{k&#x3D;0}^{N-1}\frac{k}{N}}{N}&#x3D;\frac{N-1}{2N}<br>$$</p>
 <h2 id="3-2-Use-After-Free-and-Double-Free"><a href="#3-2-Use-After-Free-and-Double-Free" class="headerlink" title="3.2 Use-After-Free and Double-Free"></a>3.2 Use-After-Free and Double-Free</h2><h4 id="UAF-exploitation-method"><a href="#UAF-exploitation-method" class="headerlink" title="UAF exploitation method"></a>UAF exploitation method</h4><p>UAF 漏洞的利用通常是要将漏洞对象与 victim 对象放在同一内存地址，图 6 展示了对 CVE-2019-2215 的利用过程，首先用 <code>epoll_ctl()</code> 分配漏洞对象，接下来用 <code>ioctl()</code> 释放漏洞对象，随后用 <code>msgsnd()</code> 取回刚刚释放的对象，最后再用 <code>close()</code> 将该对象释放</p>
 <p><img src="https://s2.loli.net/2023/09/15/mP3yD9Yq2lKIgWQ.png" srcset="/img/loading.gif" lazyload></p>
 <h4 id="DF-exploitation-method"><a href="#DF-exploitation-method" class="headerlink" title="DF exploitation method"></a>DF exploitation method</h4><blockquote>
@@ -392,7 +395,12 @@
 <p>笔者注：比如说 <a target="_blank" rel="noopener" href="https://arttnba3.cn/2021/11/29/PWN-0X02-LINUX-KERNEL-PWN-PART-II/#0x0A-%E5%86%85%E6%A0%B8%E5%AF%86%E9%92%A5%E7%AE%A1%E7%90%86%EF%BC%9A%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E2%80%9C%E8%8F%9C%E5%8D%95%E5%A0%86%E2%80%9D">key_ctl</a> 这样的</p>
 </blockquote>
 <p><img src="https://s2.loli.net/2023/09/15/revXByanRGVKmS1.png" srcset="/img/loading.gif" lazyload></p>
-<h4 id="Probability-model-1"><a href="#Probability-model-1" class="headerlink" title="Probability model"></a>Probability model</h4><p>UAF 与 DF 漏洞利用的成功率如下，$N$ 为每张 slab 上的对象数量， $A$ 为系统调用所分配的对象数量（即分配的漏洞对象数量与额外结构体的数量之和）：<br>$$<br>P_{UAF&amp;DF}^{Baseline}&#x3D;\left{<br>\begin{aligned}<br>    &amp;\frac{N-A+1}{N}&amp;(if\ A&lt;N) \<br>    &amp;\frac{1}{N}&amp;(if\ A\geq N)<br>\end{aligned}<br>\right.<br>$$<br>有两种情况：当 <code>A &lt; N</code> 时，成功率决定于漏洞对象与额外对象是否在同一张 slab 上；当 <code>A &gt;= N</code> 时，当分配漏洞对象的系统调用所分配的最后一个对象完全填充 CPU page 时利用将会成功，若一张 slab 被耗尽，对应的 slab 会被移动到 full 链表上，CPU page 便变为空，此时若对象被释放，则包含该对象的 slab 将重新变为 CPU page</p>
+<h4 id="Probability-model-1"><a href="#Probability-model-1" class="headerlink" title="Probability model"></a>Probability model</h4><p>UAF 与 DF 漏洞利用的成功率如下，$N$ 为每张 slab 上的对象数量， $A$ 为系统调用所分配的对象数量（即分配的漏洞对象数量与额外结构体的数量之和）：</p>
+<p><img src="https://s2.loli.net/2023/09/16/so5iPEvlCcuBtjN.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>这里用 Latex 打不出来只能上图了，因为笔者博客的 latex 支持非常残疾（悲</p>
+</blockquote>
+<p>有两种情况：当 <code>A &lt; N</code> 时，成功率决定于漏洞对象与额外对象是否在同一张 slab 上；当 <code>A &gt;= N</code> 时，当分配漏洞对象的系统调用所分配的最后一个对象完全填充 CPU page 时利用将会成功，若一张 slab 被耗尽，对应的 slab 会被移动到 full 链表上，CPU page 便变为空，此时若对象被释放，则包含该对象的 slab 将重新变为 CPU page</p>
 <h1 id="0x04-Our-Approach-PSPRAY"><a href="#0x04-Our-Approach-PSPRAY" class="headerlink" title="0x04. Our Approach : PSPRAY"></a>0x04. Our Approach : PSPRAY</h1><p>漏洞利用失败的主要原因是对 slab 信息的缺失，本文找到了一种能够获取 slab 的部分分配信息的时序侧信道方法，从而提高利用成功概率</p>
 <h2 id="4-1-Timing-Side-Channel-on-SLUB-allocator"><a href="#4-1-Timing-Side-Channel-on-SLUB-allocator" class="headerlink" title="4.1 Timing Side-Channel on SLUB allocator"></a>4.1 Timing Side-Channel on SLUB allocator</h2><p>如图 2.1 所示，SLUB 有五条不同深度的分配路径以优化性能表现，为了弄清不同路径的表现，作者通过 <code>msgsnd()</code> 系统调用（如图 4.3 所示其仅分配一个对象）测试了从 <code>kmalloc()</code> 的核心函数 <code>slab_alloc_node()</code> 的开始到结尾的性能，经过多轮测试发现 <code>slow-path</code> 与其他路径相比存在明显的表现差距，因此攻击者可以通过测量分配时间得知内存分配所经历的路径</p>
 <h2 id="4-2-Inferring-Allocation-Status"><a href="#4-2-Inferring-Allocation-Status" class="headerlink" title="4.2 Inferring Allocation Status"></a>4.2 Inferring Allocation Status</h2><p> <code>slow-path</code> 以外的分配路径的分配状态都是难以确定的，但 <code>slow-path</code> 的行为与其他路径不同，此时内核会从 buddy system 分配一张新 slab，由此我们可以知道当前的 slab 刚被分配且仅分配了一个对象</p>
@@ -425,7 +433,8 @@
 <p>👴寻思好像没啥可讲的</p>
 </blockquote>
 <p><img src="https://s2.loli.net/2023/09/15/wLO8TNY4Q1e7zn5.png" srcset="/img/loading.gif" lazyload></p>
-<p>利用成功率为：<br>$$<br>P_{UAF&amp;DF}^{PSPRAY}&#x3D;100%<br>$$</p>
+<p>利用成功率为：</p>
+<p><img src="https://s2.loli.net/2023/09/16/V6jo4yT2OSLMBAk.png" srcset="/img/loading.gif" lazyload></p>
 <h1 id="0x06-Attack-Evaluation"><a href="#0x06-Attack-Evaluation" class="headerlink" title="0x06. Attack Evaluation"></a>0x06. Attack Evaluation</h1><p>论文里这一节主要是做测试</p>
 <h2 id="6-1-Synthetic-Vulnerability"><a href="#6-1-Synthetic-Vulnerability" class="headerlink" title="6.1 Synthetic Vulnerability"></a>6.1 Synthetic Vulnerability</h2><p>主要是作者自己开发漏洞自己打，测试用的 OOB 洞长这个样子：</p>
 <p><img src="https://s2.loli.net/2023/09/15/CAsp71oLIZPBykf.png" srcset="/img/loading.gif" lazyload></p>
@@ -525,15 +534,15 @@
       
         <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
       
-        <a href="/tags/Pwn/">#Pwn</a>
-      
         <a href="/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/">#信息安全</a>
+      
+        <a href="/tags/Pwn/">#Pwn</a>
       
         <a href="/tags/Use-After-Free/">#Use After Free</a>
       
-        <a href="/tags/Kernel-UAF/">#Kernel UAF</a>
-      
         <a href="/tags/Heap-Overflow/">#Heap Overflow</a>
+      
+        <a href="/tags/Kernel-UAF/">#Kernel UAF</a>
       
         <a href="/tags/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">#论文笔记</a>
       
