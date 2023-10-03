@@ -21,7 +21,7 @@
     <meta name="description" content="刷题针不戳（">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【CTF.0x00】BUUCTF&#x2F;BUUOJ-Pwn WP">
-<meta property="og:url" content="http://blog.arttnba3.cn/2020/09/08/CTF-0X00-BUUOJ-PWN/index.html">
+<meta property="og:url" content="https://arttnba3.github.io/2020/09/08/CTF-0X00-BUUOJ-PWN/index.html">
 <meta property="og:site_name" content="arttnba3&#39;s blog">
 <meta property="og:description" content="刷题针不戳（">
 <meta property="og:locale" content="zh_CN">
@@ -40,8 +40,6 @@
 <meta property="article:tag" content="ROP">
 <meta property="article:tag" content="栈溢出">
 <meta property="article:tag" content="shellcode">
-<meta property="article:tag" content="Heap Overflow">
-<meta property="article:tag" content="ret2shellcode">
 <meta property="article:tag" content="堆风水">
 <meta property="article:tag" content="got表劫持">
 <meta property="article:tag" content="栈迁移">
@@ -49,6 +47,7 @@
 <meta property="article:tag" content="canary">
 <meta property="article:tag" content="Fastbin Attack">
 <meta property="article:tag" content="FSOP">
+<meta property="article:tag" content="Heap Overflow">
 <meta property="article:tag" content="House of Force">
 <meta property="article:tag" content="House of Orange">
 <meta property="article:tag" content="House of Spirit">
@@ -57,6 +56,7 @@
 <meta property="article:tag" content="off by null">
 <meta property="article:tag" content="one_gadget">
 <meta property="article:tag" content="ret2csu">
+<meta property="article:tag" content="ret2shellcode">
 <meta property="article:tag" content="SROP">
 <meta property="article:tag" content="Stack Smashing Protect leak">
 <meta property="article:tag" content="Unlink">
@@ -106,7 +106,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"blog.arttnba3.cn","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+    var CONFIG = {"hostname":"arttnba3.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -2784,10 +2784,6 @@
       
         <a href="/tags/shellcode/">#shellcode</a>
       
-        <a href="/tags/Heap-Overflow/">#Heap Overflow</a>
-      
-        <a href="/tags/ret2shellcode/">#ret2shellcode</a>
-      
         <a href="/tags/%E5%A0%86%E9%A3%8E%E6%B0%B4/">#堆风水</a>
       
         <a href="/tags/got%E8%A1%A8%E5%8A%AB%E6%8C%81/">#got表劫持</a>
@@ -2801,6 +2797,8 @@
         <a href="/tags/Fastbin-Attack/">#Fastbin Attack</a>
       
         <a href="/tags/FSOP/">#FSOP</a>
+      
+        <a href="/tags/Heap-Overflow/">#Heap Overflow</a>
       
         <a href="/tags/House-of-Force/">#House of Force</a>
       
@@ -2817,6 +2815,8 @@
         <a href="/tags/one-gadget/">#one_gadget</a>
       
         <a href="/tags/ret2csu/">#ret2csu</a>
+      
+        <a href="/tags/ret2shellcode/">#ret2shellcode</a>
       
         <a href="/tags/SROP/">#SROP</a>
       
@@ -2837,7 +2837,7 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>【CTF.0x00】BUUCTF/BUUOJ-Pwn WP</div>
-      <div>http://blog.arttnba3.cn/2020/09/08/CTF-0X00-BUUOJ-PWN/</div>
+      <div>https://arttnba3.github.io/2020/09/08/CTF-0X00-BUUOJ-PWN/</div>
     </div>
     <div class="license-meta">
       
