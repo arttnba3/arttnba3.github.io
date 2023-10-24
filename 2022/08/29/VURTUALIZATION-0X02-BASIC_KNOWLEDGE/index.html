@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2022/08/05/GUxVBYWnbdzA6KD.png">
 <meta property="article:published_time" content="2022-08-28T18:39:22.000Z">
-<meta property="article:modified_time" content="2022-09-04T16:44:45.982Z">
+<meta property="article:modified_time" content="2023-10-16T02:51:57.000Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="学习札记">
 <meta property="article:tag" content="虚拟化">
@@ -317,7 +317,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2022年9月5日 凌晨
+                    本文最后更新于：2023年10月16日 下午
                   
                 
               </p>
@@ -617,7 +617,10 @@
 </tr>
 </tbody></table>
 <p>VT-x 中将 VMCS 定义为一个<strong>最大不超过 4KB 的内存块，且应与 4KB 对齐</strong>，其内容格式如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">VMCS</span> &#123;</span><br>    <span class="hljs-comment">/* 版本号，4字节 */</span><br>	<span class="hljs-type">uint32_t</span> vmcs_revision_identifier:<span class="hljs-number">31</span>, shadow_vmcs_indicator:<span class="hljs-number">1</span>;<br>    <br>    <span class="hljs-comment">/* 中止标识，4字节</span><br><span class="hljs-comment">     * 当 VM-Exit 失败时便会产生 VMX 中止，并在此处存放原因</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-type">uint32_t</span> 	vmx_abort_indicator;<br>    <br>    <span class="hljs-comment">/* 数据域 */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">VMCSData</span> <span class="hljs-title">vmcs_data</span>;</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>来自 Linux kernel <code>/arch/x86/kvm/vmx/vmcs.h </code> ，注释来自笔者</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">vmcs_hdr</span> &#123;</span><br>	u32 revision_id:<span class="hljs-number">31</span>;<br>	u32 shadow_vmcs:<span class="hljs-number">1</span>;<br>&#125;;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">vmcs</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">vmcs_hdr</span> <span class="hljs-title">hdr</span>;</span>  <span class="hljs-comment">/* 版本号，4字节 */</span><br>	u32 <span class="hljs-built_in">abort</span>;  <span class="hljs-comment">/*  当 VM-Exit 失败时便会产生 VMX 中止，并在此处存放原因 */</span><br>	<span class="hljs-type">char</span> data[];  <span class="hljs-comment">/* 数据域 */</span><br>&#125;;<br></code></pre></td></tr></table></figure>
 
 <p>VMCS 数据域 存放着 VMCS 主要的信息，分为以下六个子域：</p>
 <ul>

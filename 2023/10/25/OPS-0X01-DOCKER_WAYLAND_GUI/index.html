@@ -1,0 +1,832 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="这一日，Docker 再入桌面 GUI 境界">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【OPS.0x01】为 Docker 连接 Wayland 图形环境">
+<meta property="og:url" content="https://arttnba3.github.io/2023/10/25/OPS-0X01-DOCKER_WAYLAND_GUI/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="这一日，Docker 再入桌面 GUI 境界">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2023/10/25/4nrEeVhf876YtAC.png">
+<meta property="article:published_time" content="2023-10-24T17:02:45.000Z">
+<meta property="article:modified_time" content="2023-10-24T17:52:06.983Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="运维">
+<meta property="article:tag" content="Docker - GUI - Wayland">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2023/10/25/4nrEeVhf876YtAC.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【OPS.0x01】为 Docker 连接 Wayland 图形环境 - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"arttnba3.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://s2.loli.net/2023/10/25/fKS5bQUizjakCAr.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【OPS.0x01】为 Docker 连接 Wayland 图形环境"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-10-25 04:02" pubdate>
+          2023年10月25日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          49 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【OPS.0x01】为 Docker 连接 Wayland 图形环境</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2023年10月25日 凌晨
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>这一日，Docker 再入桌面 GUI 境界</p>
+<span id="more"></span>
+
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><blockquote>
+<p>如果你只是寻求 docker 接通 Wayland 跑图形界面的解决方案，请直接跳过这一小节 ：）</p>
+<p>如果你想要的是 docker 接通显卡的解决方案，那你走错路了，这个方案在<a target="_blank" rel="noopener" href="https://arttnba3.cn/2023/08/31/OPS-0X00-DOCKER_ON_SERVER/#0x02-%E5%88%9B%E5%BB%BA%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8%E6%98%BE%E5%8D%A1%E7%9A%84-docker-%E7%8E%AF%E5%A2%83">隔壁</a></p>
+</blockquote>
+<p>笔者大一刚开始学 Pwn 的时候就因环境问题而感到苦手，上一题的环境可能是 <code>Ubuntu 16.04</code> 带个 <code>glibc-2.23</code> 只有 <code>fastbin</code>，下一题可能又变成 <code>Ubuntu 18.04</code> 带个 <code>glibc-2.27</code> 又多一个 <code>tcache</code> ，然后笔者本地环境又是 <code>Ubuntu 20.04</code> 带个 <code>glibc-2.31</code> 的同时 <code>tcache</code> 又多带一个 key，对于那时候以 glibc heap 利用作为主流的 Pwn 题而言若是本地 libc 版本不同则根本没有办法很好地调试好打远程</p>
+<p>通过 <code>LD_PRELOAD</code> 参数在程序执行前 <em>预先加载 libc</em> 或许某些程度上是一个可行的办法，至少 libc 大版本相同的情况下载入不同的小版本基本上是没问题的，但是由于不同系统环境中 ld 版本不同的缘故，对于跨 ld 版本加载不同版本的 libc 则又可能直接 segmentation fault 了</p>
+<p>虽然 Linux 的用户环境并不似 Windows 那样有着强壮的前向兼容性，但是用户环境依托于内核环境、依托于内核向用户态暴露的接口——系统调用，而这并不是会轻易发生变动以及兼容性破坏的一个东西，由此，通过<strong>重新开辟一个对应的新的用户环境的方式</strong>—— 即形如 <code>Docker</code> 这样的<strong>操作系统层上的虚拟化方案</strong>，我们便能非常简单地搭建不同的 Pwn 题所对应的原始环境</p>
+<blockquote>
+<p><del>当然，这里就不得不提<a target="_blank" rel="noopener" href="https://arttnba3.cn/2021/05/20/PIECES-0X00-SHELL_OUTSIDE-0-LOST_UMBRELLA/#arttnba3-arttnba3-cn-x2F-cat-flag">某些连 libc 都不给的是人是鬼全靠猜的比赛</a>的含金量了</del></p>
+</blockquote>
+<p>但是 Docker 一直有一个问题就是<strong>默认是没有图形环境的</strong>，这意味着我们没法直接在 Docker 当中运行 GUI 程序，对于需要复杂堆风水等多次调试的 Pwn 题目而言则没办法像直接运行在主机上那样直接通过 <code>gdb.attach()</code> 弹一个伪终端窗口出来：</p>
+<p><img src="https://s2.loli.net/2023/10/24/ogN4EqIUx9TVm6u.jpg" srcset="/img/loading.gif" lazyload alt="感觉不如 lldb"></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/tmux/tmux/wiki">TMUX</a> 为我们提供了一个比较好的 docker 中的多终端解决方案，当你在 tmux 中运行 exploit 执行到 <code>gdb.attach()</code> 这样需要一个新终端的命令时，tmux 可以无缝分割出一个新的窗口，通过额外指定 pwntools 中的 <code>context.terminal</code> 环境变量可以控制新窗口的分割位置：</p>
+<p><img src="https://s2.loli.net/2023/10/24/i2XEPgZGlVse1W8.jpg" srcset="/img/loading.gif" lazyload alt="是新终端吗？如新"></p>
+<p>但是 tmux 的翻页终究依赖于命令行去完成，不像图形化界面那样可以很方便地用滚轮滚来滚去，使用手感终究差点意思，同时基于 GUI 窗口的跨行文本复制也会跨多个 tmux 窗口，打破了不同窗口的隔离性：</p>
+<p><img src="https://s2.loli.net/2023/10/24/uaZ1VEfeXFDCshq.jpg" srcset="/img/loading.gif" lazyload alt="更重要的一点是笔者当时非常 sb 认为 tmux 不能翻页"></p>
+<p>笔者当年的解决方案是直接开多个虚拟机，但用起来总感觉差点意思不说，还占用了大量的物理磁盘空间——笔者本科阶段前两年所用的电脑是<strong>机身只搭载了一块 512GB SSD 的 surface book 2</strong>——为什么这里要特别讲一下这个机型并不是因为笔者想要炫富，虽然说从价格而言 surface 系统产品和 MacBook 系列产品一样同属价格极高性价比极低的“高端产品”，但笔者当时是在某海鲜市场买的可能大于二手的机子，所以其实没有花太多钱，但和 MacBook 一样的是 surface 全系列产品<strong>没有办法自行更换包括内存与硬盘在内的任何部件</strong>，而即便是在海鲜市场寻宝的情况下笔者也买不起更大容量的版本，再加上笔者当时除了是个计算机科学爱好者以及网络空间安全专业本科生的身份以外还是半个画师加十六分之一个平面设计师（当然现在已经不是本科生了），装个 visual studio 加个 matlab 加上 jetbrains 全家桶再装个 adobe 半家桶（主要就用 PS 和 AI 还有个剪视频的叫啥👴已经记不得了）就已经把硬盘填得满满当当的了，各种杂七杂八的资料照片音乐视频啥的又要吃掉少说几十 GB，这个时候再塞几个平均十几 GB 的各种虚拟机（主力虚拟机所占用的硬盘空间超过100GB）无疑更是让本就不富裕的 <strong>512GB SSD</strong> 雪上加霜</p>
+<blockquote>
+<p>而笔者为什么选择买这样一台中看不中用的电脑是因为在初中的时候笔者看一本不知道叫啥的电子硬件相关的杂志中看到 <code>surface book</code> 的 <em>屏幕键盘可分离、独显放置在键盘中</em> 的这样一个前所未有的解决方案感到十分惊人加非常的帅气，于是就一直心心念念想要买一台这样的本子，高中时期笔者换过三台不同的平板电脑二合一产品（当然，都是从某海鲜市场淘来的，且基本上是卖了上一台才买下一台），其中第一台是 surface 3 而第三台是 surface pro 3，当时的主要用途是拿来日常刷刷 OI 、写点小说<del>（那么这里就不得不简单帮忙推广一下某不知名作家所写的<a target="_blank" rel="noopener" href="https://www.qidian.com/book/1027074530/">《从零开始的 CTFer 生活》</a> 这部小说了虽然一直在咕咕咕） ~~、玩玩 MC ~~顺便在 mcmod wiki 上写小说</del> 和一些轻量游戏，体感其实还行</p>
+<blockquote>
+<p>当然现在微软的 surface 系列产品已经能够初步地自行更换硬盘，虽然是充满槽点的 <code>2230</code> 规格，但是和隔壁某水果品牌相比已经好得不得了了</p>
+</blockquote>
+<p>以及 surface 系统产品一直有一个噱头就是有个触控笔可以画画，也就是自带数位屏，这也是这个产品一直以来最吸引笔者的一点，虽然微软最初给大家呈上来的只是一坨闻着香吃着臭的答辩，但笔者一直希望随着产品不断迭代，微软能够把这个功能给真正做好，就算达不到 wacom 上万块钱的数位屏相的高度至少也要和国产的一千出头的数位屏掰个手腕的程度，可惜<strong>哪怕是一直到今天最新的 surface pro 9 这一代产品，其绘画手感依旧比不过几千块钱的 iPad ，甚至比不过200块出头的国产数位板</strong>（当然笔者只买了 surface pro 8 没有买 surface pro 9 因为微软非常 SB 地把 3.5mm 耳机接口这个天顶星科技给砍掉了并且性能和续航和 8 代相比并没有什么提升简而言之又是挤牙膏的一代，但笔者有去微软线下门店亲自尝试过最新一代，绘画手感依旧一坨答辩）</p>
+</blockquote>
+<p>虽然 surface book 2 无法更换硬盘的特性让笔者非常痛苦，但仔细想来还是老罗的那句名言——<code>又不是不能用</code>，硬盘空间想办法腾一腾多开好几个虚拟机其实没什么不好，毕竟省去了折腾 docker 的麻烦就一万个值，于是笔者日渐习惯每天在不同虚拟机之间跳来跳去</p>
+<p><img src="https://s2.loli.net/2023/10/25/4nrEeVhf876YtAC.png" srcset="/img/loading.gif" lazyload alt="你知道我要说什么.png"></p>
+<p>不过这个问题并没有折磨笔者太长的时间，在玩了将近一个学期的用户态 Pwn 学了各种不同的 house 之后笔者感觉 glibc pwn 在技术上基本上已经玩不出什么新的有意思的花样了，于是选择了 all in Linux kernel pwn，只需要用 QEMU 去跑虚拟机，gdb 可以直接连上 QEMU 的端口进行调试，也不依赖于某些特定的 glibc 环境（虽然后面玩虚拟机逃逸又用到了不过这是后话了），于是当初搭建的几个用户态 Pwn 环境的虚拟机就慢慢用不到了， <em>现在已经被笔者逐一打包扔到备份硬盘当中</em></p>
+<p>而在 2023 年的今天，笔者又想趁着闲暇时间再业余小玩一下用户态的 Pwn（比赛大概率不一定会专门打了，最多就看到 corCTF 这样的优质比赛会去做做他们的内核题，一些比较有意思的的用户态 Pwn 题最多可能赛后会复现之类的），那么环境以及各种 libc（包括 glibc 、tclibc、musl，<del>👴其实没想明白 musl 为啥会在 CTF 里流行起来，是没活了🐎</del>）又重新变为笔者需要面对的问题之一，而彼时同时跑好几个虚拟机的解决方案未免太过于小丑🤡，因此笔者决定找到一个能够在 docker 当中执行 <code>gdb.attach()</code> 时直接在宿主机中弹出一个窗口的办法</p>
+<blockquote>
+<p>写了这么多没用的批话，突然感觉这一篇其实应该放到 <a target="_blank" rel="noopener" href="https://arttnba3.cn/categories/PIECES/">PIECES</a> 分类 而非 <a target="_blank" rel="noopener" href="https://arttnba3.cn/categories/OPS/">OPS</a> ，但仔细想想其实笔者真正要讲的核心内容其实是 docker 的一个小知识，所以还是放 OPS 分类下或许会更加合适一些</p>
+</blockquote>
+<h1 id="0x01-为-Docker-接入-Wayland-环境"><a href="#0x01-为-Docker-接入-Wayland-环境" class="headerlink" title="0x01. 为 Docker 接入 Wayland 环境"></a>0x01. 为 Docker 接入 Wayland 环境</h1><blockquote>
+<p>笔者所用的图形服务为 Wayland，因此本篇不会讲 X11 该怎么配置（毕竟已经有很多讲这个的<a target="_blank" rel="noopener" href="https://gist.github.com/turekt/71f6950bc9f048daaeb69479845b672b">文章</a>了，<del>，以及都什么年代了还在用传统图形服务</del>）</p>
+</blockquote>
+<p>配置的办法其实很简单，我们只需要在启动容器时额外添加一些参数即可，下面是一个简单的例子：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">docker build -t pwnenv_ubuntu20 .</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">docker run -d -p <span class="hljs-string">&quot;2222:22&quot;</span> \</span><br><span class="language-bash">	--name=pwnenv_ubuntu20 \</span><br><span class="language-bash">	-e XDG_RUNTIME_DIR=/tmp \</span><br><span class="language-bash">	-e DISPLAY=<span class="hljs-variable">$DISPLAY</span> \</span><br><span class="language-bash">	-e WAYLAND_DISPLAY=<span class="hljs-variable">$WAYLAND_DISPLAY</span> \</span><br><span class="language-bash">	-v <span class="hljs-variable">$XDG_RUNTIME_DIR</span>/<span class="hljs-variable">$WAYLAND_DISPLAY</span>:/tmp/<span class="hljs-variable">$WAYLAND_DISPLAY</span> \</span><br><span class="language-bash">	-e QT_QPA_PLATFORM=wayland \</span><br><span class="language-bash">	pwnenv_ubuntu20</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p><del>别问👴这些参数是什么意思，自己查嗷</del></p>
+</blockquote>
+<p>启动之后容器其实就完成对 Wayland 服务的接入了，这里我们简单写一个 QT 小程序看看实力：</p>
+<p><img src="https://s2.loli.net/2023/10/25/bsER7NLVfD3Oq28.png" srcset="/img/loading.gif" lazyload alt="libEGL 的报错懒得管了，反正日常使用没啥影响"></p>
+<p>现在我们的 docker 就已经成功接入 Host 侧的图形服务了：）</p>
+<h1 id="0x02-让-gdb-attach-弹出一个新的图形窗口"><a href="#0x02-让-gdb-attach-弹出一个新的图形窗口" class="headerlink" title="0x02. 让 gdb.attach() 弹出一个新的图形窗口"></a>0x02. 让 gdb.attach() 弹出一个新的图形窗口</h1><p>这个其实也很简单，笔者用的是 KDE 桌面，所以先在容器里装一个 <code>konsole</code> ，如果你用的是 Gnome 则可以装个 <code>gnome-terminal</code>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt install konsole</span><br></code></pre></td></tr></table></figure>
+
+<p>之后在 pwntools 调用 gdb 之前将全局变量 <code>context.terminal</code> 的值设为如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">context.terminal = [<span class="hljs-string">&#x27;konsole&#x27;</span>, <span class="hljs-string">&#x27;-e&#x27;</span>, <span class="hljs-string">&#x27;sh&#x27;</span>, <span class="hljs-string">&#x27;-c&#x27;</span>]<br></code></pre></td></tr></table></figure>
+
+<p>之后就能像调试本地原生进程那样在调试 docker 里的进程的时候弹出一个新的 gdb 图形窗口了 ：）</p>
+<p><img src="https://s2.loli.net/2023/10/25/fKS5bQUizjakCAr.jpg" srcset="/img/loading.gif" lazyload alt="yattaze"></p>
+<h1 id="0xFF-What’s-more…"><a href="#0xFF-What’s-more…" class="headerlink" title="0xFF. What’s more…"></a>0xFF. What’s more…</h1><p>最后给出一个笔者自用的开箱即用的 docker pwn 环境的 Dockerfile，有需要的可以自取：</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><code class="hljs dockerfile"><span class="hljs-keyword">FROM</span> ubuntu:<span class="hljs-number">20.04</span><br><br><span class="hljs-keyword">ARG</span> DEBIAN_FRONTEND=noninteractive<br><br><span class="hljs-comment"># pre-install softwares</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> apt-get -y update &amp;&amp; \</span><br><span class="language-bash">    apt-get install -y lib32z1 apt-transport-https python3 python3-pip git \</span><br><span class="language-bash">    libglib2.0-dev libfdt-dev libpixman-1-dev zlib1g-dev \</span><br><span class="language-bash">    vim nano netcat openssh-server unzip make wget bison flex build-essential \</span><br><span class="language-bash">    curl qemu qemu-system-x86 gcc gdb clang lldb tmux konsole</span><br><br><span class="hljs-comment"># enable ssh login</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> <span class="hljs-built_in">rm</span> -f /etc/service/sshd/down</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> sed -ri <span class="hljs-string">&#x27;s/^#?PermitRootLogin\s+.*/PermitRootLogin yes/&#x27;</span> /etc/ssh/sshd_config &amp;&amp;\</span><br><span class="language-bash">    sed -ri <span class="hljs-string">&#x27;s/#UseDNS\ no/UseDNS\ no/g&#x27;</span> /etc/ssh/sshd_config &amp;&amp; \</span><br><span class="language-bash">    sed -ri <span class="hljs-string">&quot;s/StrictModes yes/StrictModes no/g&quot;</span> /etc/ssh/sshd_config &amp;&amp; \</span><br><span class="language-bash">    sed -ri <span class="hljs-string">&quot;s/UsePAM yes/UsePAM no/g&quot;</span> /etc/ssh/sshd_config</span><br><br><span class="hljs-comment"># enable login with password</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> <span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;PasswordAuthentication yes&#x27;</span> &gt;&gt; /etc/ssh/sshd_config</span><br><br><span class="hljs-comment"># set username and password</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> groupadd arttnba3 &amp;&amp; \</span><br><span class="language-bash">    useradd -g arttnba3 arttnba3 -m -s /bin/bash &amp;&amp; \</span><br><span class="language-bash">    <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;arttnba3:123456&quot;</span> | chpasswd &amp;&amp; \</span><br><span class="language-bash">    <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;root:root123456&quot;</span> | chpasswd</span><br><br><span class="hljs-comment"># enable ssh key login</span><br><span class="hljs-comment">#RUN mkdir /home/arttnba3/.ssh &amp;&amp; \</span><br><span class="hljs-comment">#    echo &quot;Your ssh key&quot; &gt; /home/arttnba3/.ssh/authorized_keys</span><br><br><span class="hljs-comment"># keep container running</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;#!/bin/sh\nservice ssh restart\nsleep infinity&quot;</span> &gt; /root/start.sh</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> <span class="hljs-built_in">chmod</span> +x /root/start.sh</span><br><br><span class="hljs-comment"># enable sudo</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> apt-get install -y sudo &amp;&amp; \</span><br><span class="language-bash">       usermod -aG sudo arttnba3</span><br><br><span class="hljs-comment"># pwn-related tools</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> python3 -m pip config <span class="hljs-built_in">set</span> global.index-url http://pypi.tuna.tsinghua.edu.cn/simple &amp;&amp; \</span><br><span class="language-bash">    python3 -m pip config <span class="hljs-built_in">set</span> global.trusted-host pypi.tuna.tsinghua.edu.cn &amp;&amp; \</span><br><span class="language-bash">    python3 -m pip install -U pip &amp;&amp; \</span><br><span class="language-bash">    python3 -m pip install --no-cache-dir \</span><br><span class="language-bash">    pwntools \</span><br><span class="language-bash">    ropgadget \</span><br><span class="language-bash">    z3-solver \</span><br><span class="language-bash">    smmap2 \</span><br><span class="language-bash">    apscheduler \</span><br><span class="language-bash">    ropper \</span><br><span class="language-bash">    unicorn \</span><br><span class="language-bash">    keystone-engine \</span><br><span class="language-bash">    capstone \</span><br><span class="language-bash">    angr \</span><br><span class="language-bash">    pebble \</span><br><span class="language-bash">    r2pipe</span><br><br><span class="hljs-keyword">RUN</span><span class="language-bash"> git <span class="hljs-built_in">clone</span> https://github.com/pwndbg/pwndbg &amp;&amp; \</span><br><span class="language-bash">    <span class="hljs-built_in">cd</span> pwndbg &amp;&amp; <span class="hljs-built_in">chmod</span> +x setup.sh &amp;&amp; ./setup.sh</span><br><br><span class="hljs-keyword">CMD</span><span class="language-bash"> [<span class="hljs-string">&quot;/root/start.sh&quot;</span>]</span><br><br><span class="hljs-keyword">EXPOSE</span> <span class="hljs-number">22</span><br><br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/OPS/" class="category-chain-item">OPS</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+        <a href="/tags/%E8%BF%90%E7%BB%B4/">#运维</a>
+      
+        <a href="/tags/Docker-GUI-Wayland/">#Docker - GUI - Wayland</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【OPS.0x01】为 Docker 连接 Wayland 图形环境</div>
+      <div>https://arttnba3.github.io/2023/10/25/OPS-0X01-DOCKER_WAYLAND_GUI/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年10月25日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/09/27/FUZZ-0X03-SYZKALLER-III_SOURCE_SYZFUZZER/" title="【FUZZ.0x03】syzkaller - III：syz-fuzzer 源码分析">
+                        <span class="hidden-mobile">【FUZZ.0x03】syzkaller - III：syz-fuzzer 源码分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
