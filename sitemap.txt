@@ -156,7 +156,6 @@ https://arttnba3.github.io/tags/ptmalloc/
 https://arttnba3.github.io/tags/glibc/
 https://arttnba3.github.io/tags/%E5%A0%86-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/
 https://arttnba3.github.io/tags/%E8%BF%90%E7%BB%B4/
-https://arttnba3.github.io/tags/Docker-GUI-Wayland/
 https://arttnba3.github.io/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/
 https://arttnba3.github.io/tags/Docker/
 https://arttnba3.github.io/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/
@@ -176,6 +175,8 @@ https://arttnba3.github.io/tags/House-of-Rabbit/
 https://arttnba3.github.io/tags/House-of-Roman/
 https://arttnba3.github.io/tags/House-of-Storm/
 https://arttnba3.github.io/tags/VNC/
+https://arttnba3.github.io/tags/GUI/
+https://arttnba3.github.io/tags/Wayland/
 https://arttnba3.github.io/categories/ARCH/
 https://arttnba3.github.io/categories/ALGORITHM/
 https://arttnba3.github.io/categories/CODE/
