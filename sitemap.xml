@@ -2,6 +2,141 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://arttnba3.github.io/2021/04/08/CVE-0X00-CVE-2016-5195/</loc>
+    
+    <lastmod>2023-10-27</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://arttnba3.github.io/2021/06/24/CODE-0X00-A3OS/</loc>
+    
+    <lastmod>2023-10-27</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://arttnba3.github.io/2021/11/28/OS-0X02-LINUX-KERNEL-MEMORY-5.11-PART-I/</loc>
+    
+    <lastmod>2023-10-27</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://arttnba3.github.io/2022/06/30/OS-0X03-LINUX-KERNEL-MEMORY-5.11-PART-II/</loc>
+    
+    <lastmod>2023-10-27</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://arttnba3.github.io/2023/02/24/OS-0X04-LINUX-KERNEL-MEMORY-6.2-PART-III/</loc>
+    
+    <lastmod>2023-10-27</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://arttnba3.github.io/2021/02/21/OS-0X01-LINUX-KERNEL-PART-II/</loc>
+    
+    <lastmod>2023-10-27</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://arttnba3.github.io/2021/02/21/OS-0X00-LINUX-KERNEL-PART-I/</loc>
+    
+    <lastmod>2023-10-27</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://arttnba3.github.io/2021/11/29/PWN-0X02-LINUX-KERNEL-PWN-PART-II/</loc>
+    
+    <lastmod>2023-10-27</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://arttnba3.github.io/2022/07/15/VIRTUALIZATION-0X00-QEMU-PART-I/</loc>
+    
+    <lastmod>2023-10-27</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://arttnba3.github.io/2022/08/29/VURTUALIZATION-0X02-BASIC_KNOWLEDGE/</loc>
+    
+    <lastmod>2023-10-27</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://arttnba3.github.io/2022/07/22/VIRTUALIZATION-0X01-QEMU-PART-II/</loc>
+    
+    <lastmod>2023-10-27</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://arttnba3.github.io/2022/08/30/HARDWARE-0X00-PCI_DEVICE/</loc>
+    
+    <lastmod>2023-10-27</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://arttnba3.github.io/2021/01/15/GLIBC-0X00-MALLOC-2.23-PART-I/</loc>
+    
+    <lastmod>2023-10-27</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://arttnba3.github.io/2021/01/15/GLIBC-0X01-MALLOC-2.23-PART-II/</loc>
+    
+    <lastmod>2023-10-27</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://arttnba3.github.io/2023/10/27/PAPER-0X04-HYPER_CUBE/</loc>
+    
+    <lastmod>2023-10-27</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://arttnba3.github.io/2023/10/25/OPS-0X01-DOCKER_WAYLAND_GUI/</loc>
     
     <lastmod>2023-10-24</lastmod>
@@ -14,24 +149,6 @@
     <loc>https://arttnba3.github.io/2023/04/14/PAPER-0X02_VTW/</loc>
     
     <lastmod>2023-10-20</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://arttnba3.github.io/2022/08/29/VURTUALIZATION-0X02-BASIC_KNOWLEDGE/</loc>
-    
-    <lastmod>2023-10-16</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://arttnba3.github.io/2023/02/24/OS-0X04-LINUX-KERNEL-MEMORY-6.2-PART-III/</loc>
-    
-    <lastmod>2023-10-05</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -93,15 +210,6 @@
   
   <url>
     <loc>https://arttnba3.github.io/2000/10/12/hello-world/</loc>
-    
-    <lastmod>2023-09-14</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://arttnba3.github.io/2021/11/29/PWN-0X02-LINUX-KERNEL-PWN-PART-II/</loc>
     
     <lastmod>2023-09-14</lastmod>
     
@@ -182,15 +290,6 @@
   </url>
   
   <url>
-    <loc>https://arttnba3.github.io/2022/06/30/OS-0X03-LINUX-KERNEL-MEMORY-5.11-PART-II/</loc>
-    
-    <lastmod>2023-05-08</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://arttnba3.github.io/2023/01/29/PAPER-0X01-HUNTING_THE_HAUNTER-EFFICIENT_RELATIONAL_SYMBOLIC_EXECUTION_FOR_SPECTRE_WITH_HAUNTED_RELSE/</loc>
     
     <lastmod>2023-04-23</lastmod>
@@ -227,33 +326,6 @@
   </url>
   
   <url>
-    <loc>https://arttnba3.github.io/2022/07/15/VIRTUALIZATION-0X00-QEMU-PART-I/</loc>
-    
-    <lastmod>2023-04-13</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://arttnba3.github.io/2022/08/30/HARDWARE-0X00-PCI_DEVICE/</loc>
-    
-    <lastmod>2023-04-12</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://arttnba3.github.io/2021/02/21/OS-0X01-LINUX-KERNEL-PART-II/</loc>
-    
-    <lastmod>2023-03-17</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://arttnba3.github.io/2021/07/07/CODE-0X01-ROOTKIT/</loc>
     
     <lastmod>2023-03-02</lastmod>
@@ -284,15 +356,6 @@
     <loc>https://arttnba3.github.io/2021/02/01/FUZZ-0X00-AFL-I/</loc>
     
     <lastmod>2023-03-01</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://arttnba3.github.io/2021/02/21/OS-0X00-LINUX-KERNEL-PART-I/</loc>
-    
-    <lastmod>2023-02-20</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -344,54 +407,9 @@
   </url>
   
   <url>
-    <loc>https://arttnba3.github.io/2021/04/08/CVE-0X00-CVE-2016-5195/</loc>
-    
-    <lastmod>2022-10-12</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://arttnba3.github.io/2021/11/28/OS-0X02-LINUX-KERNEL-MEMORY-5.11-PART-I/</loc>
-    
-    <lastmod>2022-08-28</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://arttnba3.github.io/2022/05/28/ALGORITHM-0X04-RED_BLACK_TREE/</loc>
     
     <lastmod>2022-08-28</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://arttnba3.github.io/2022/07/22/VIRTUALIZATION-0X01-QEMU-PART-II/</loc>
-    
-    <lastmod>2022-08-19</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://arttnba3.github.io/2021/01/15/GLIBC-0X00-MALLOC-2.23-PART-I/</loc>
-    
-    <lastmod>2022-08-18</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://arttnba3.github.io/2021/01/15/GLIBC-0X01-MALLOC-2.23-PART-II/</loc>
-    
-    <lastmod>2022-08-18</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -488,15 +506,6 @@
   </url>
   
   <url>
-    <loc>https://arttnba3.github.io/2021/06/24/CODE-0X00-A3OS/</loc>
-    
-    <lastmod>2022-03-20</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://arttnba3.github.io/2021/10/31/CTF-0X05-TCTF2021_FINAL/</loc>
     
     <lastmod>2022-03-18</lastmod>
@@ -571,7 +580,7 @@
 
   <url>
     <loc>https://arttnba3.github.io/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -579,805 +588,791 @@
   
   <url>
     <loc>https://arttnba3.github.io/tags/Linux/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Arch-Linux/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/C-C/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Algorithm/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/python/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Dynamic-Programming/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/design-pattern/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Pwn/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/ByteCTF/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E5%A0%86/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/CTF/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/tcache-poisoning/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/null-by-any-address/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Use-After-Free/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/double-free/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/ret2libc/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/ret2text/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/ROP/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E6%A0%88%E6%BA%A2%E5%87%BA/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/angr/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Tree/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Binary-Search-Tree/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/AVL-Tree/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Red-Black-Tree/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/ROOTKIT/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Linux-Kernel/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E2%AD%90CTF/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/shellcode/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/CISCN/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/TCTF-0CTF/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Kernel-BROP/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Kernel-UAF/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E5%BC%80%E5%8F%91%E6%89%8B%E8%AE%B0/</loc>
-    <lastmod>2023-10-24</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://arttnba3.github.io/tags/Operating-System/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Assembly-Language/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/D-3CTF/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/QEMU-escape/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/CVE/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E6%8F%90%E6%9D%83/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/UAF/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Heap-Overflow/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Cross-Cache-Overflow/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Page-level-Heap-Fengshui/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E5%A0%86%E9%A3%8E%E6%B0%B4/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/got%E8%A1%A8%E5%8A%AB%E6%8C%81/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E6%A0%88%E8%BF%81%E7%A7%BB/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/IO-FILE-hijack/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/canary/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Fastbin-Attack/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/FSOP/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/House-of-Force/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/House-of-Orange/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/House-of-Spirit/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Integer-Overflow/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/off-by-one/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/off-by-null/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/one-gadget/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/ret2csu/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/ret2shellcode/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/SROP/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Stack-Smashing-Protect-leak/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Unlink/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Unsorted-bin-Attack/</loc>
-    <lastmod>2023-10-24</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://arttnba3.github.io/tags/%E8%84%8F%E7%89%9B/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Netgear/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Remote-Code-Execute/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Command-Injection/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Fortigate/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/ptrace/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E5%AE%B9%E5%99%A8%E9%80%83%E9%80%B8/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/eBPF/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Linux-kernel/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E5%AE%9E%E9%AA%8C%E7%AC%94%E8%AE%B0/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/MIT/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Concolic-Execution/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/syzkaller/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/FUZZ/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/AFL-FUZZ/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/XV6/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E5%AD%A6%E4%B9%A0%E6%9C%AD%E8%AE%B0/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/PCI/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Linux-Driver/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/ptmalloc/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/glibc/</loc>
-    <lastmod>2023-10-24</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://arttnba3.github.io/tags/%E5%A0%86-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E8%BF%90%E7%BB%B4/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Docker/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E8%99%9A%E6%8B%9F%E5%8C%96/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/buddy-system/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/%E7%A2%8E%E7%A2%8E%E5%BF%B5/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Spectre/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/slub-allocator/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Qemu/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/House-of-Botcake/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/House-of-Einherjar/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/House-of-Husk/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/House-of-Kiwi/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/House-of-Lore/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/House-of-Rabbit/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/House-of-Roman/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/House-of-Storm/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/VNC/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/GUI/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/tags/Wayland/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://arttnba3.github.io/tags/%E7%B3%BB%E7%BB%9F%E8%99%9A%E6%8B%9F%E5%8C%96/</loc>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
@@ -1386,133 +1381,133 @@
   
   <url>
     <loc>https://arttnba3.github.io/categories/ARCH/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/categories/ALGORITHM/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/categories/CODE/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/categories/CTF/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/categories/ANGR/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/categories/CVE/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/categories/EBPF/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/categories/EXPERIMENTS/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/categories/FUZZ/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/categories/HARDWARE/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/categories/GLIBC/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/categories/NOTES/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/categories/OPS/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/categories/NETWORK/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/categories/OS/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/categories/PAPER/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/categories/PIECES/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/categories/VIRTUALIZATION/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>https://arttnba3.github.io/categories/PWN/</loc>
-    <lastmod>2023-10-24</lastmod>
+    <lastmod>2023-10-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>

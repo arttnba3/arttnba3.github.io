@@ -27,13 +27,12 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/02/22/eX5h7aRdOrCkb9j.png">
 <meta property="article:published_time" content="2021-02-21T10:02:14.000Z">
-<meta property="article:modified_time" content="2023-02-20T17:18:07.000Z">
+<meta property="article:modified_time" content="2023-10-27T11:52:52.883Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="Linux Kernel">
-<meta property="article:tag" content="Operating System">
-<meta property="article:tag" content="学习札记">
+<meta property="article:tag" content="操作系统">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://i.loli.net/2021/02/22/eX5h7aRdOrCkb9j.png">
   
@@ -265,7 +264,7 @@
         
         
         
-          155 分钟
+          157 分钟
         
       </span>
     
@@ -320,7 +319,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年2月21日 凌晨
+                    本文最后更新于：2023年10月27日 晚上
                   
                 
               </p>
@@ -772,6 +771,15 @@
 <p><img src="https://s2.loli.net/2022/03/11/wQzINfhXV3gpGxJ.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h4 id="CONFIG-INIT-ON-ALLOC-DEFAULT-ON"><a href="#CONFIG-INIT-ON-ALLOC-DEFAULT-ON" class="headerlink" title="CONFIG_INIT_ON_ALLOC_DEFAULT_ON"></a>CONFIG_INIT_ON_ALLOC_DEFAULT_ON</h4><p>当编译内核时开启了这个选项时，在内核进行“堆内存”分配时（包括 buddy system 和 slab allocator），<strong>会将被分配的内存上的内容进行清零</strong>，从而防止了利用未初始化内存进行数据泄露的情况</p>
 <p>据悉性能损耗在 <code>1%~7%</code> 之间</p>
+<h1 id="0xFF-Reference"><a href="#0xFF-Reference" class="headerlink" title="0xFF. Reference"></a>0xFF. Reference</h1><p>《Linux Kernel Development》Robert Love 著</p>
+<p><a target="_blank" rel="noopener" href="https://docs.kernel.org/">The Linux Kernel Documentation</a></p>
+<p>《linux技术内幕》罗秋明 著</p>
+<p>《Operating System Concepts》 Abraham Silberschatz, Greg Gagne, and Peter Baer Galvin 著</p>
+<p><a target="_blank" rel="noopener" href="https://richardweiyang-2.gitbook.io/kernel-exploring/">Kernel Exploring</a></p>
+<p><a target="_blank" rel="noopener" href="https://linux-kernel-labs.github.io/refs/heads/master/">Linux Kernel Teaching</a></p>
+<p><a target="_blank" rel="noopener" href="http://www.wowotech.net/memory_management/memory_model.html">Linux 内存模型</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/LoyenWang/">LoyenWang - 博客园</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html">Intel® 64 and IA-32 Architectures Software Developer Manuals</a></p>
 
                 
               </div>
@@ -811,9 +819,7 @@
       
         <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
       
-        <a href="/tags/Operating-System/">#Operating System</a>
-      
-        <a href="/tags/%E5%AD%A6%E4%B9%A0%E6%9C%AD%E8%AE%B0/">#学习札记</a>
+        <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>
       
     </div>
   
