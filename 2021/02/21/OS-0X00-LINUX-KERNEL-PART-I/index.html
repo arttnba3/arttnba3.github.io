@@ -25,16 +25,16 @@
 <meta property="og:site_name" content="arttnba3&#39;s blog">
 <meta property="og:description" content="Big Linus is watching you!">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://i.loli.net/2021/02/22/eX5h7aRdOrCkb9j.png">
+<meta property="og:image" content="https://i.loli.net/2021/02/24/IYaievPRZpAVMH7.png">
 <meta property="article:published_time" content="2021-02-21T10:02:14.000Z">
-<meta property="article:modified_time" content="2023-10-27T11:52:52.883Z">
+<meta property="article:modified_time" content="2023-11-09T10:57:53.352Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="Linux Kernel">
 <meta property="article:tag" content="操作系统">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://i.loli.net/2021/02/22/eX5h7aRdOrCkb9j.png">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/24/IYaievPRZpAVMH7.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
@@ -264,7 +264,7 @@
         
         
         
-          157 分钟
+          158 分钟
         
       </span>
     
@@ -319,7 +319,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年10月27日 晚上
+                    本文最后更新于：2023年11月9日 晚上
                   
                 
               </p>
@@ -350,7 +350,7 @@
 <li>用户态：CPU 运行在 ring3 + 用户进程运行环境上下文</li>
 <li>内核态：CPU 运行在 ring0 + 内核代码运行环境上下文</li>
 </ul>
-<h3 id="III-运行状态切换"><a href="#III-运行状态切换" class="headerlink" title="III.运行状态切换"></a>III.运行状态切换</h3><p>那么 CPU 如何在不同的特权级间进行切换呢？主要有两个途径：</p>
+<h3 id="III-运行状态切换"><a href="#III-运行状态切换" class="headerlink" title="III.运行状态切换"></a>III.运行状态切换</h3><p>那么操作系统如何使得 CPU 在不同的特权级间进行切换以进行调度呢？主要有两个途径：</p>
 <ul>
 <li><p>中断（interrupt）：当 CPU 收到一个外部中断时，会切换到 ring0，并根据中断描述符表索引对应的中断处理代码以执行</p>
 <blockquote>
@@ -365,16 +365,16 @@
 <p>接下来我们引入一个新的概念——<strong>页表</strong>（page table）。这通常是一个多级结构，用以对应表示一个虚拟地址空间中存在的每张内存页所对应的物理内存，下图是一张经典的二级页表结构：</p>
 <p><img src="https://s2.loli.net/2022/03/15/bnYKURW1xPg7CHN.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>当开启分页模式之后，我们对内存的访问都需要通过页表进行，利用多级页表将对应的虚拟地址转化为物理地址后才能进行内存访问，因此<strong>当前页表集所表示的物理地址空间为我们当前所能访问的物理地址空间</strong></p>
-<p>我们想要让我们的计算机真正变成一个多任务系统，让其运行多个不同的进程，则我们<strong>需要实现不同进程间的虚拟地址空间的隔离</strong>，因此就有：</p>
+<p>我们想要让我们的计算机真正变成一个多任务系统，让其运行多个不同的进程，则我们<strong>需要实现不同进程间的虚拟地址空间的隔离</strong>，因此：</p>
 <ul>
-<li>每个进程都有自己独立的一组页表集</li>
+<li><strong>每个进程都有自己独立的一组页表集</strong></li>
 </ul>
 <p>那么现在我们可以对抽象出来的进程的概念下一个定义了：进程 &#x3D; 寄存器上下文 + 虚拟地址空间，<strong>这便是进程最核心的本质</strong></p>
 <p>但是有了这些还不够，因为需要运行的进程数量<strong>往往大于 CPU 核心数量</strong>，因此我们不能够让某几个进程占据所有的 CPU 时间，而应当对进程进行调度，让每个进程都有机会在 CPU 上运行——<strong>进程调度</strong>（schedule）的概念就出来了</p>
 <p>那么我们如何知道什么时候该调度一个进程？这里我们就需要借助到硬件的辅助了——<strong>时钟中断</strong>用来帮助我们实现进程的调度</p>
-<p>什么是时钟中断？这里笔者不深入介绍，你可以理解为在 CPU 上有个定时器，每隔一段时间就会向 CPU 发送一个中断，这个中断便是我们所说的时钟中断，而前面我们讲到：当 CPU 收到一个外部中断时，会切换到 ring0，并根据中断描述符表索引对应的中断处理代码以执行，<strong>因为时钟中断是会不断定时触发的，我们可以在时钟中断对应的处理代码中加入属于进程调度的部分</strong>：</p>
+<p>什么是时钟中断？这里笔者不深入介绍，你可以理解为在 CPU 上有个定时器，每隔一段时间就会向 CPU 发送一个中断，这个中断便是我们所说的时钟中断，而前面我们讲到：当 CPU 收到一个外部中断时，会切换到 ring0，并根据中断描述符表索引对应的中断处理代码以执行，<strong>因为时钟中断是会不断定时触发的，我们可以在时钟中断对应的处理代码中加入属于进程调度的部分</strong>，由此我们得知：</p>
 <ul>
-<li>操作系统利用时钟中断完成进程调度</li>
+<li><strong>操作系统利用时钟中断完成进程调度</strong></li>
 </ul>
 <p>那么我们怎么知道当前运行的这个进程是否需要被调度呢？我们又如何切换到另一个进程呢？为了解决这个问题，<strong>对于每一个进程，我们在内核地址空间中都会对应创建一个新的数据结构实体，在其中保存着该进程上次运行的环境上下文、运行的总时间等信息</strong>——我们称之为<strong>进程控制块</strong>（process control block，PCB）</p>
 <p>在需要进行进程调度时，我们便能将当前进程的上下文保存到其在内核空间中对应的 PCB 中，记录其运行时间，并取出要运行的下一个进程对应的 PCB，从其中恢复待运行进程的环境上下文，因此：</p>
@@ -389,35 +389,34 @@
 </blockquote>
 <p>最后，有了以上这些概念之后，我们来为<strong>进程</strong>（process）下一个定义：</p>
 <ul>
-<li>进程 &#x3D; 进程运行环境上下文 + 内核数据结构</li>
+<li><strong>进程 &#x3D; 进程运行环境上下文 + 内核数据结构</strong></li>
 </ul>
 <p>好了，现在我们可以重新从头开始看操作系统的基本知识了</p>
 <h1 id="0x01-内核"><a href="#0x01-内核" class="headerlink" title="0x01.内核"></a>0x01.内核</h1><h2 id="一、Introduction"><a href="#一、Introduction" class="headerlink" title="一、Introduction"></a>一、Introduction</h2><p><strong>操作系统</strong>（Operation System）本质上也是一种软件，可以看作是普通应用程式与硬件之间的一层中间层，其主要作用便是调度系统资源、控制IO设备、操作网络与文件系统等，并为上层应用提供便捷、抽象的应用接口</p>
 <p>而运行在内核态的<strong>内核</strong>（<strong>kernel</strong>）则是<strong>一个操作系统最为核心的部分</strong>，提供着一个操作系统最为基础的功能</p>
 <p>这张十分经典的图片说明了Kernel在计算机体系结构中的位置：</p>
 <p><img src="https://i.loli.net/2021/02/22/eX5h7aRdOrCkb9j.png" srcset="/img/loading.gif" lazyload></p>
-<p>kernel的主要功能可以归为以下三点：</p>
+<p>kernel 的主要功能可以归为以下三点：</p>
 <ul>
 <li><strong>控制并与硬件进行交互</strong></li>
 <li><strong>提供应用程式运行环境</strong></li>
 <li><strong>调度系统资源</strong></li>
 </ul>
 <p>包括 I&#x2F;O，权限控制，系统调用，进程管理，内存管理等多项功能都可以归结到以上三点中</p>
-<p>与一般的应用程式不同，kernel的crash通常会引起重启</p>
+<p>但与一般的应用程式不同，系统内核的发生 crash 通常会引起系统重启</p>
 <h2 id="二、内核架构：微内核-amp-宏内核-amp-混合内核"><a href="#二、内核架构：微内核-amp-宏内核-amp-混合内核" class="headerlink" title="二、内核架构：微内核 &amp; 宏内核 &amp; 混合内核"></a>二、内核架构：微内核 &amp; 宏内核 &amp; 混合内核</h2><p>通常来说我们可以把内核架构分为两种：<code>宏内核</code>和<code>微内核</code>，现在还有一种内核是混合了宏内核与微内核的特性，称为 <code>混合内核</code> ，三种内核的大致架构如下图所示：</p>
 <p><img src="https://i.loli.net/2021/02/22/eQlyv3DszOjXPuw.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h3 id="I-宏内核（Monolithic-Kernel）"><a href="#I-宏内核（Monolithic-Kernel）" class="headerlink" title="I.宏内核（Monolithic Kernel）"></a>I.宏内核（Monolithic Kernel）</h3><blockquote>
 <p> <strong>宏内核</strong>（英语：Monolithic kernel），也译为<strong>集成式内核</strong>、<strong>单体式内核</strong>，一种<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%86%85%E6%A0%B8">操作系统内核</a>架构，此架构的特性是整个内核程序是一个单一二进制可执行文件，在<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%A0%B8%E5%BF%83%E7%A9%BA%E9%96%93">内核态</a>以监管者模式（Supervisor Mode）来运行。相对于其他类型的操作系统架构，如<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%BE%AE%E6%A0%B8%E5%BF%83">微内核</a>架构或<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%B7%B7%E6%A0%B8%E5%BF%83">混合内核</a>架构等，这些内核会定义出一个高端的虚拟接口，由该接口来涵盖描述整个电脑硬件，这些描述会集合成一组硬件描述用词，有时还会附加一些<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8">系统调用</a>，如此可以用一个或多个模块来实现各种操作系统服务，如<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%A1%8C%E7%A8%8B">进程</a>管理、并发（Concurrency）控制、<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%A8%98%E6%86%B6%E9%AB%94%E7%AE%A1%E7%90%86">存储器管理</a>等。 </p>
 <p><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%95%B4%E5%A1%8A%E6%80%A7%E6%A0%B8%E5%BF%83">Wikipedia: 整塊性核心</a></p>
-<blockquote>
-<p>台湾这什么鬼译名</p>
 </blockquote>
-</blockquote>
-<p>通俗地说，宏内核几乎将一切都集成到了内核当中，并向上层应用程式提供抽象API（通常是以系统调用的形式）</p>
-<p>Unix与类Unix便是宏内核</p>
+<p>通俗地说，宏内核几乎将一切都集成到了内核当中，并向上层应用程式提供抽象API（通常是以系统调用的形式），例如 Unix 与类 Unix 便通常都是宏内核</p>
 <p><img src="https://i.loli.net/2021/02/22/fSwY9R4KHZLnkbl.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<blockquote>
+<p>以 Linux 为例，其操作系统内核的二进制文件通常位于 <code>/boot/vmlinuz</code></p>
+</blockquote>
 <h3 id="II-微内核（Micro-Kernel）"><a href="#II-微内核（Micro-Kernel）" class="headerlink" title="II.微内核（Micro Kernel）"></a>II.微内核（Micro Kernel）</h3><p>对于微内核而言，大部分的系统服务（如文件管理等）都被剥离于内核之外，内核仅仅提供最为基本的一些功能：底层的寻址空间管理、线程管理、进程间通信等</p>
-<p>Windows NT与Mach都宣称采用了微内核架构，不过本质上他们更贴近于混合内核（Hybrid Kernel）——在内核中集成了部分需要具备特权的服务组件 </p>
+<p>Windows NT 与 Mach 都宣称采用了微内核架构，不过本质上他们更贴近于混合内核（Hybrid Kernel）——在内核中集成了部分需要具备特权的服务组件 </p>
 <p><img src="https://i.loli.net/2021/02/22/eZY4WcMJytUNCuF.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <blockquote>
 <p> 本文中我们主要讨论Linux内核</p>
@@ -426,100 +425,103 @@
 <p> 在一些硬件或者微代码级别上提供不同特权态模式的 CPU 架构上，保护环通常都是硬件强制的。Rings是从最高特权级（通常被叫作0级）到最低特权级（通常对应最大的数字）排列的</p>
 <p>在大多数操作系统中，Ring0 拥有最高特权，并且可以和最多的硬件直接交互（比如CPU，内存）</p>
 <p>内层ring可以任意调用外层ring的资源</p>
-<h2 id="一、Intel-Ring-Model"><a href="#一、Intel-Ring-Model" class="headerlink" title="一、Intel Ring Model"></a>一、Intel Ring Model</h2><p>Intel的CPU将权限分为四个等级：<strong>Ring0</strong>、Ring1、Ring2、<strong>Ring3</strong>，权限等级依次降低</p>
+<h2 id="一、Intel-Ring-Model"><a href="#一、Intel-Ring-Model" class="headerlink" title="一、Intel Ring Model"></a>一、Intel Ring Model</h2><p>Intel 的 CPU 将权限分为四个等级：<strong>Ring0</strong>、Ring1、Ring2、<strong>Ring3</strong>，权限等级依次降低，<strong>大部分现代操作系统只用到了ring0 和 ring3，其中 kernel 运行在 ring0，用户态程序运行在 ring3</strong></p>
 <p><img src="https://i.loli.net/2021/02/22/yQXZhLEHVn1b3uC.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<p><strong>大部分现代操作系统只用到了ring0 和 ring3，其中 kernel 运行在 ring0，用户态程序运行在 ring3</strong></p>
 <blockquote>
 <p> 使用 Ring Model 是为了提升系统安全性，例如某个间谍软件作为一个在 Ring 3 运行的用户程序，在不通知用户的时候打开摄像头会被阻止，因为访问硬件需要使用 being 驱动程序保留的 Ring 1 的方法 </p>
 </blockquote>
-<p>操作系统本身便是一个运行在内核态的程序，当计算机通电之后处于实模式下，从磁盘上载入第一个扇区（MBR）执行，之后载入第二引导程序（Linux通常用 GNU Grub），由第二引导程序来将操作内核载入到内存当中并跳转到内核入口点，将控制权移交内核</p>
+<p>操作系统本身便是一个运行在内核态的程序，当计算机通电之后首先会载入 ROM（BIOS&#x2F;UEFI），之后载入第二引导程序（Linux 通常用 GNU Grub），由第二引导程序来将操作内核载入到内存当中并跳转到内核入口点，将控制权移交内核</p>
 <p>内核在完成一系列的初始化过程之后，会启动一些低权限（ring3）的进程以向我们提供用户界面</p>
-<h2 id="二、用户空间-amp-内核空间"><a href="#二、用户空间-amp-内核空间" class="headerlink" title="二、用户空间 &amp; 内核空间"></a>二、用户空间 &amp; 内核空间</h2><p>在现代操作系统中，计算机的虚拟内存地址空间通常被分为两块——供用户进程使用的用户空间（user space）与供操作系统内核使用的内核空间（kernel space）</p>
-<p>32位下的虚拟内存空间布局如下：</p>
+<h2 id="二、虚拟内存空间"><a href="#二、虚拟内存空间" class="headerlink" title="二、虚拟内存空间"></a>二、虚拟内存空间</h2><p>在现代操作系统中，计算机的虚拟内存地址空间通常被分为两块——供用户进程使用的用户空间（user space）与供操作系统内核使用的内核空间（kernel space），对于 Linux 而言，通常位于较高虚拟地址的虚拟内存空间被分配给内核使用，而位于较低虚拟地址的虚拟内存空间责备分配给用户进程使用</p>
+<ul>
+<li>32 位下的虚拟内存空间布局如下：</li>
+</ul>
 <p><img src="https://i.loli.net/2021/11/09/qLsr8xECYNpRbAI.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<p>64位下的虚拟内存空间布局如下：</p>
+<ul>
+<li>64位下的虚拟内存空间布局如下：</li>
+</ul>
 <p><img src="https://i.loli.net/2021/11/09/k8NHa1ljMEfXQbh.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h2 id="三、用户态-amp-内核态"><a href="#三、用户态-amp-内核态" class="headerlink" title="三、用户态 &amp; 内核态"></a>三、用户态 &amp; 内核态</h2><p>抛开华丽的辞藻，这两个词最本质的含义是：</p>
 <ul>
 <li>用户态：CPU 运行在 ring3 + 用户进程运行环境上下文</li>
 <li>内核态：CPU 运行在 ring0 + 内核代码运行环境上下文</li>
 </ul>
-<h2 id="四、进程运行态切换"><a href="#四、进程运行态切换" class="headerlink" title="四、进程运行态切换"></a>四、进程运行态切换</h2><p>应用程式运行时总会经历无数次的用户态与内核态之间的转换，这是因为用户进程往往需要使用内核所提供的各种功能（如IO等），此时就需要陷入（trap）内核，待完成之后再“着陆”回用户态</p>
-<p>这里我们讲到一个概念叫<strong>进入内核态</strong>，本质上其实是将进程的控制权限转交给操作系统内核，当内核完成其工作后控制权又重新回到用户进程</p>
-<h3 id="I-中断"><a href="#I-中断" class="headerlink" title="I.中断"></a>I.中断</h3><p>中断即硬件&#x2F;软件向 CPU 发送的特殊信号，CPU 接收到中断后会停下当前工作转而执行中断处理程序，完成后恢复原工作流程</p>
-<p>中断向量表（interrupt vector table）类似一个虚表，该表通常位于物理地址 0~1k处，其中存放着不同中断号对应的中断处理程序的地址</p>
-<p>自保护模式起引入<strong>中断描述符表</strong>（Interrupt Descriptor Table）用以存放 <strong>「门描述符」</strong>（gate descriptor），中断描述符表地址存放在 IDTR 寄存器中，CPU 通过中断描述符表访问对应门</p>
+<p>通常情况下，不同用户进程间的用户地址空间是隔离的，但都共享着相同的内核地址空间，<strong>即不同的用户进程在相同的内核虚拟地址空间上都有着一致的对内核物理地址空间的映射</strong></p>
+<h1 id="0x03-运行状态切换与控制流转移"><a href="#0x03-运行状态切换与控制流转移" class="headerlink" title="0x03. 运行状态切换与控制流转移"></a>0x03. 运行状态切换与控制流转移</h1><p>计算机运行时总会经历无数次的用户态与内核态之间的转换，进行无数次的控制流转移</p>
+<ul>
+<li>用户进程往往需要使用内核所提供的各种功能，此时就需要通过系统调用等接口陷入内核，待任务完成之后再“着陆”回用户态</li>
+<li>操作系统往往也需要“主动地”暂停当前进程的运行，让 CPU 陷入到内核态并获取控制权，这通常是因为有需要内核主动处理的事件（如外部中断）</li>
+</ul>
+<p>通常而言，CPU 由用户态陷入到内核态主要有以下几种途径：</p>
+<ul>
+<li><strong>系统调用</strong>（通常通过 int 0x80&#x2F;syscall&#x2F;sysenter 指令）</li>
+<li><strong>异常</strong> （例如进行了除 0 操作）</li>
+<li><strong>外设产生中断</strong> （例如时钟中断）</li>
+<li>…</li>
+</ul>
+<p>主要的一个过程如下：</p>
+<ul>
+<li><p>切换 GS 段寄存器：通过 <code>swapgs</code> 切换 GS 段寄存器，将 GS 寄存器值和一个特定位置的值进行交换，目的是保存 GS 值，同时将该位置的值作为内核执行时的 GS 值使用</p>
+</li>
+<li><p>保存用户态栈帧信息：将当前栈顶（用户空间栈顶）记录在 CPU 独占变量区域里（由 GS 寄存器所指定的<code>percpu</code> 段），将 CPU 独占区域里记录的内核栈顶放入 rsp&#x2F;esp </p>
+</li>
+<li><p>保存用户态寄存器信息： 通过 push 保存各寄存器值到栈上，以便后续“着陆”回用户态</p>
+</li>
+<li><p>通过汇编指令判断是否为32位</p>
+</li>
+<li><p>控制权转交内核，执行相应的操作</p>
+</li>
+</ul>
+<p>由内核态重新“着陆”回用户态只需要恢复用户空间信息即可：</p>
+<ul>
+<li><code>swapgs</code> 指令恢复用户态GS寄存器</li>
+<li><code>sysretq</code> 或者<code>iretq</code> 系列指令让 CPU 运行模式回到 ring 3，恢复用户空间程序的继续运行</li>
+</ul>
+<h2 id="一、中断"><a href="#一、中断" class="headerlink" title="一、中断"></a>一、中断</h2><p>中断即硬件&#x2F;软件向 CPU 发送的特殊信号，CPU 接收到中断后会<strong>停下当前工作转而执行中断处理程序</strong>，完成中断处理后再重新恢复原工作流程</p>
+<p>实模式下使用中断向量表（interrupt vector table，该表通常位于物理地址 0~1k 处）存放不同中断号对应的中断处理程序的地址，自保护模式起引入<strong>中断描述符表</strong>（Interrupt Descriptor Table）用以存放 <strong>「门描述符」</strong>（gate descriptor），中断描述符表地址存放在 IDTR 寄存器中，CPU 通过中断描述符表访问对应门</p>
 <p><strong>「门」</strong>（gate）可以理解为中断的前置检查物件，当中断发生时会先通过这些「门」，主要有如下三种门：</p>
 <ul>
 <li>中断门（Interrupt gate）：用以进行<strong>硬</strong>中断处理，其类型码为 110；中断门的 DPL（Descriptor Priviledge Level）为 0，故只能在内核态下访问，即中断处理程序应当由内核激活；进入中断门会清除 IF 标志位以关闭中断，防止中断嵌套的发生</li>
 <li>陷阱门（Trap gate）：类型码为 111，类似于中断门，主要用以处理 CPU 异常，但不会清除 IF 标志位</li>
 <li><strong>系统门</strong>（System gate）：Linux 特有门，类型码为 3、4、5、128；其 DPL 为 3，用以供用户进程访问，主要用以<strong>进行系统调用</strong>（int 0x80）</li>
 </ul>
-<h3 id="II-信号机制"><a href="#II-信号机制" class="headerlink" title="II.信号机制"></a>II.信号机制</h3><p>Signals机制（又称之为软中断信号）是UNIX及类UNIX系统中的一种<strong>异步</strong>的进程间通信方式，用以通知一个进程发生了某个事件，通常情况下常见的流程如下图所示：</p>
-<p><img src="https://i.loli.net/2021/03/11/DbsyXV3huR2FmQJ.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<ul>
-<li>Pre. 内核代替进程接受信号，将信号放入对应进程的信号队列中，同时将对应进程<strong>挂起</strong>，让进程陷入内核态</li>
-<li>① 进程陷入内核态后，在返回用户态前会检测信号队列，若存在新信号则开始进入信号处理流程：内核会<strong>将用户态进程的寄存器逐一压入【用户态进程的栈上】</strong>，形成一个<code>sigcontext</code>结构体，接下来压入 SIGNALINFO 以及<strong>指向系统调用 sigreturn 的代码</strong>，用以在后续返回时恢复用户态进程上下文；压入栈上的这一大块内容称之为一个 <code>SigreturnFrame</code>，同时也是一个<code>ucontext_t</code>结构体；接下来就是内核内部的工作了</li>
-<li>② 控制权回到用户态进程，<strong>用户态进程</strong>跳转到相应的 signal handler 函数以处理不同的信号，完成之后将会执行位于其栈上的第一条指令——<code>sigreturn系统调用</code></li>
-<li>③ 进程重新陷入内核，通过 sigreturn 系统调用恢复用户态上下文信息</li>
-<li>④ 控制权重新返还给用户态进程，恢复进程原上下文</li>
-</ul>
-<h3 id="III-用户态-—-gt-内核态"><a href="#III-用户态-—-gt-内核态" class="headerlink" title="III.用户态 —&gt; 内核态"></a>III.用户态 —&gt; 内核态</h3><p>由用户态陷入到内核态主要有以下几种途径：</p>
-<ul>
-<li><strong>系统调用</strong>（int 0x80&#x2F;sysenter）</li>
-<li><strong>异常</strong></li>
-<li><strong>外设产生中断</strong></li>
-<li>…</li>
-</ul>
-<p>主要的一个过程如下：</p>
-<ul>
-<li><p>切换GS段寄存器</p>
-<p>通过 <code>swapgs</code> 切换 GS 段寄存器，将 GS 寄存器值和一个特定位置的值进行交换，目的是保存 GS 值，同时将该位置的值作为内核执行时的 GS 值使用</p>
-</li>
-<li><p>保存用户态栈帧信息</p>
-<p> 将当前栈顶（用户空间栈顶）记录在 CPU 独占变量区域里，将 CPU 独占区域里记录的内核栈顶放入 rsp&#x2F;esp </p>
-</li>
-<li><p>保存用户态寄存器信息</p>
-</li>
-</ul>
-<p> 通过 push 保存各寄存器值到栈上，以便后续“着陆”回用户态</p>
-<ul>
-<li><p>通过汇编指令判断是否为32位</p>
-</li>
-<li><p>控制权转交内核，执行系统调用</p>
-<p>在这里用到一个全局函数表<code>sys_call_table</code>，其中保存着系统调用的函数指针</p>
-</li>
-</ul>
-<h3 id="IV-内核态-—-gt-用户态"><a href="#IV-内核态-—-gt-用户态" class="headerlink" title="IV.内核态 —&gt; 用户态"></a>IV.内核态 —&gt; 用户态</h3><p>由内核态重新“着陆”回用户态只需要恢复用户空间信息即可：</p>
-<ul>
-<li><code>swapgs</code>指令恢复用户态GS寄存器</li>
-<li><code>sysretq</code>或者<code>iretq</code>恢复到用户空间</li>
-</ul>
-<h1 id="0x03-系统调用"><a href="#0x03-系统调用" class="headerlink" title="0x03.系统调用"></a>0x03.系统调用</h1><p><strong>系统调用</strong>（<strong>system call</strong>）是由操作系统内核向上层应用程式提供的应用接口，操作系统负责调度一切的资源，当用户进程想要请求更高权限的服务时，便需要通过由系统提供的应用接口，使用系统调用以<strong>陷入内核态，再由操作系统完成请求</strong></p>
-<p>系统调用本质上与一般的C库函数没有区别，不同的是系统调用位于内核空间，以内核态运行</p>
-<p><img src="https://i.loli.net/2021/02/24/IYaievPRZpAVMH7.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/arttnba3/BlogPic@master/20231109210238.png" srcset="/img/loading.gif" lazyload alt="中断描述符表"></p>
+<h2 id="二、系统调用"><a href="#二、系统调用" class="headerlink" title="二、系统调用"></a>二、系统调用</h2><p><strong>系统调用</strong>（<strong>system call</strong>）是由操作系统内核向上层应用程式提供的应用接口，操作系统负责调度一切的资源，当用户进程想要请求更高权限的服务时，便需要通过由系统提供的应用接口，使用系统调用以<strong>陷入内核态，再由操作系统完成请求</strong></p>
 <blockquote>
 <p> Windows系统下将系统调用封装在win32 API中，不过本篇博文主要讨论Linux</p>
 </blockquote>
-<h2 id="一、系统调用表"><a href="#一、系统调用表" class="headerlink" title="一、系统调用表"></a>一、系统调用表</h2><p>所有的系统调用被声明于内核源码<code>arch/x86/entry/syscalls/syscall_64.tbl</code>中，在该表中声明了系统调用的标号、类型、名称、内核态函数名称</p>
-<p>在内核中使用<code>系统调用表（System Call Table）</code>对系统调用进行索引，该表中储存了不同标号的系统调用函数的地址</p>
-<h2 id="二、进行系统调用"><a href="#二、进行系统调用" class="headerlink" title="二、进行系统调用"></a>二、进行系统调用</h2><p>Linux 下进入系统调用有两种主要的方式：</p>
+<h3 id="I-系统调用表"><a href="#I-系统调用表" class="headerlink" title="I. 系统调用表"></a>I. 系统调用表</h3><p>所有的系统调用被声明于内核源码<code>arch/x86/entry/syscalls/syscall_64.tbl</code> 中，在该表中声明了系统调用的标号、类型、名称、内核态函数名称</p>
+<p>在内核中使用 <code>系统调用表（System Call Table）</code> 对系统调用进行索引，该表中储存了不同标号的系统调用函数的地址，当进程进行系统调用时会根据该表寻找到不同系统调用对应的处理函数</p>
+<h3 id="II-进行系统调用"><a href="#II-进行系统调用" class="headerlink" title="II. 进行系统调用"></a>II. 进行系统调用</h3><p>Linux下的系统调用以<code>eax/rax</code>寄存器作为<strong>系统调用号</strong>，参数传递约束如下：</p>
 <ul>
-<li>32位：执行 <code>int 0x80 </code>汇编指令（80号中断）</li>
-<li>64位：执行 <code>syscall</code> 汇编指令 &#x2F; 执行 <code>sysenter</code> 汇编指令（only intel）</li>
+<li>32 位：<code>ebx、ecx、edx、esi、edi、ebp</code> 作为第一个参数、第二个参数…进行参数传递</li>
+<li>64 位：<code>rdi、rsi、rdx、rcx、r8、r9 </code>作为第一个参数、第二个参数…进行参数传递</li>
 </ul>
-<p>接下来就是由用户态进入到内核态的流程</p>
-<p>Linux下的系统调用以<code>eax/rax</code>寄存器作为<strong>系统调用号</strong>，参数传递约束如下：</p>
+<p>对于 32 位系统调用而言，Linux 实际上通过 0x80 号软中断实现系统调用的基本功能，即用户态程序通过 <code>int 0x80</code> 指令触发一个软中断陷入内核题，对应的中断处理程序会根据系统调用号在系统调用表中调用对应的处理</p>
+<p><img src="https://cdn.jsdelivr.net/gh/arttnba3/BlogPic@master/20231109205928.png" srcset="/img/loading.gif" lazyload alt="0x80 号中断：系统调用"></p>
+<p>对于 64 位系统调用而言，CPU 提供了 <code>syscall/sysenter</code> 指令来替代开销巨大的中断，内核启动时会将系统调用函数入口（<code>entry_SYSCALL_64</code>）写入 MSR 寄存器组中，当执行 <code>syscall/sysenter</code> 指令时 CPU 会进入 ring0 并自动跳转到 MSR 寄存器所指定的系统调用入口中：</p>
 <ul>
-<li>32 位：<code>ebx、ecx、edx、esi、edi、ebp</code>作为第一个参数、第二个参数…进行参数传递</li>
-<li>64 位：<code>rdi、rsi、rdx、rcx、r8、r9</code>作为第一个参数、第二个参数…进行参数传递</li>
+<li>通过 <code>swapgs</code> 指令将 GS 寄存器值和一个特定位置的值进行交换，目的是保存 GS 值，同时将该位置的值作为内核执行时的 GS 值使用</li>
+<li>将当前栈顶（用户空间栈顶）记录在 CPU 独占变量区域里（由 GS 寄存器所指定的 <code>percpu</code> 段），将 CPU 独占区域里记录的内核栈顶赋给 rsp&#x2F;esp 寄存器</li>
+<li>将用户态各寄存器值到栈上形成一个 <code>pt_regs</code> 结构体，以便后续“着陆”回用户态</li>
+<li>根据系统调用号在系统调用表中取出对应的系统调用函数指针执行</li>
 </ul>
-<h2 id="三、退出系统调用"><a href="#三、退出系统调用" class="headerlink" title="三、退出系统调用"></a>三、退出系统调用</h2><p>同样地，内核执行完系统调用后退出系统调用也有对应的两种方式：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/arttnba3/BlogPic@master/20231109205309.png" srcset="/img/loading.gif" lazyload alt="64 位系统调用：syscall 指令"></p>
+<h3 id="III-系统调用返回"><a href="#III-系统调用返回" class="headerlink" title="III. 系统调用返回"></a>III. 系统调用返回</h3><p>同样地，内核执行完系统调用后退出系统调用也有对应的两种方式：</p>
 <ul>
-<li>执行<code>iret</code>汇编指令</li>
-<li>执行 <code>sysret</code> 汇编指令 &#x2F; 执行<code>sysexit</code>汇编指令（only Intel）</li>
+<li>执行 <code>iret</code> 汇编指令（其实就是中断返回的方式）</li>
+<li>执行 <code>sysret</code> 汇编指令 &#x2F; 执行 <code>sysexit</code> 汇编指令（only Intel）</li>
 </ul>
-<p>接下来就是由内核态回退至用户态的流程</p>
+<h2 id="三、信号机制"><a href="#三、信号机制" class="headerlink" title="三、信号机制"></a>三、信号机制</h2><p>Signals 机制（又称之为软中断信号）是UNIX及类UNIX系统中的一种<strong>异步</strong>的进程间通信方式，用以通知一个进程发生了某个事件，通常情况下常见的流程如下图所示：</p>
+<p><img src="https://i.loli.net/2021/03/11/DbsyXV3huR2FmQJ.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<ul>
+<li>源程序通过 <code>kill()</code> 系统调用向目标程序发送信号，该信号会被存储到进程描述符的信号队列当中</li>
+<li>① 当目标进程<strong>重新被调度时</strong>内核首先会检查该进程的信号队列，若存在未处理信号则会进行信号处理流程：内核会<strong>将用户态进程的寄存器逐一压入【用户态进程的栈上】</strong>，形成一个 <code>sigcontext</code> 结构体，接下来压入 SIGNALINFO 以及<strong>指向系统调用 sigreturn 的代码</strong>，用以在后续返回时恢复用户态进程上下文；压入栈上的这一大块内容称之为一个 <code>SigreturnFrame</code>，同时也是一个<code>ucontext_t</code>结构体</li>
+<li>② 控制权回到用户态进程，<strong>用户态进程</strong>跳转到相应的 signal handler 函数以处理不同的信号，完成之后将会执行位于其栈上的第一条指令——<code>sigreturn系统调用</code></li>
+<li>③ 进程通过 sigreturn 系统调用重新陷入内核，恢复原有工作的用户态上下文信息</li>
+<li>④ 控制权重新返还给用户态进程，恢复进程原上下文</li>
+</ul>
+<p>需要注意的是信号处理机制并不是即时的，即<strong>发送信号并不能直接中断一个正在运行中的进程</strong>，但 Linux 进程调度的频率是非常频繁的，因此信号通常都能很快被处理</p>
 <h1 id="0x04-进程权限管理"><a href="#0x04-进程权限管理" class="headerlink" title="0x04.进程权限管理"></a>0x04.进程权限管理</h1><p>前面我们讲到，kernel 调度着一切的系统资源，并为用户应用程式提供运行环境，相应地，应用程式的权限也都是由 kernel 进行管理的</p>
 <h2 id="一、进程描述符（process-descriptor）"><a href="#一、进程描述符（process-descriptor）" class="headerlink" title="一、进程描述符（process descriptor）"></a>一、进程描述符（process descriptor）</h2><p>在内核中使用结构体 <code>task_struct</code> 表示一个进程，该结构体定义于内核源码<code>include/linux/sched.h</code>中，代码比较长就不在这里贴出了</p>
 <p>一个进程描述符的结构应当如下图所示：</p>
@@ -551,23 +553,19 @@
 </ul>
 <p>在通常情况下这几个ID应当都是相同的</p>
 <p>用户组ID同样分为四个：<code>真实组ID</code>、<code>保存组ID</code>、<code>有效组ID</code>、<code>文件系统组ID</code>，与用户ID是类似的，这里便不再赘叙</p>
-<h2 id="二、进程权限改变"><a href="#二、进程权限改变" class="headerlink" title="二、进程权限改变"></a>二、进程权限改变</h2><p>前面我们讲到，一个进程的权限是由位于内核空间的<code>cred</code>结构体进行管理的，那么我们不难想到：只要改变一个进程的<code>cred</code>结构体，就能改变其执行权限</p>
-<p>在内核空间有如下两个函数，都位于<code>kernel/cred.c</code>中：</p>
+<h2 id="二、进程权限改变"><a href="#二、进程权限改变" class="headerlink" title="二、进程权限改变"></a>二、进程权限改变</h2><p>前面我们讲到，一个进程的权限是由位于内核空间的 <code>cred</code> 结构体进行管理的，那么我们不难想到：只要改变一个进程的 <code>cred</code> 结构体，就能改变其执行权限</p>
+<p>在内核空间有如下两个函数，都位于 <code>kernel/cred.c</code> 中：</p>
 <ul>
-<li><code>struct cred* prepare_kernel_cred(struct task_struct* daemon)</code>：该函数用以拷贝一个进程的cred结构体，并返回一个新的cred结构体，需要注意的是<code>daemon</code>参数应为<strong>有效的进程描述符地址或NULL</strong></li>
+<li><code>struct cred* prepare_kernel_cred(struct task_struct* daemon)</code>：该函数用以拷贝一个进程的cred结构体，并返回一个新的cred结构体，需要注意的是<code>daemon</code>参数应为<strong>有效的进程描述符地址</strong></li>
 <li><code>int commit_creds(struct cred *new)</code>：该函数用以将一个新的<code>cred</code>结构体应用到进程</li>
 </ul>
-<h3 id="提权"><a href="#提权" class="headerlink" title="*提权"></a><em>*提权</em></h3><p>查看<code>prepare_kernel_cred()</code>函数源码，观察到如下逻辑：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">struct</span> cred *<span class="hljs-title function_">prepare_kernel_cred</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> task_struct *daemon)</span><br>&#123;<br>    <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cred</span> *<span class="hljs-title">old</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cred</span> *<span class="hljs-title">new</span>;</span><br><br>    new = kmem_cache_alloc(cred_jar, GFP_KERNEL);<br>    <span class="hljs-keyword">if</span> (!new)<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br><br>    kdebug(<span class="hljs-string">&quot;prepare_kernel_cred() alloc %p&quot;</span>, new);<br><br>    <span class="hljs-keyword">if</span> (daemon)<br>        old = get_task_cred(daemon);<br>    <span class="hljs-keyword">else</span><br>        old = get_cred(&amp;init_cred);<br>...<br></code></pre></td></tr></table></figure>
-
-<p>在<code>prepare_kernel_cred()</code>函数中，若传入的参数为NULL，则会缺省使用<code>init</code>进程的<code>cred</code>作为模板进行拷贝，<strong>即可以直接获得一个标识着root权限的cred结构体</strong></p>
-<p>那么我们不难想到，只要我们能够在内核空间执行<code>commit_creds(prepare_kernel_cred(NULL))</code>，那么就能够将当前进程的权限提升到<code>root</code></p>
 <h1 id="0x05-I-x2F-O"><a href="#0x05-I-x2F-O" class="headerlink" title="0x05.I&#x2F;O"></a>0x05.I&#x2F;O</h1><p>*NIX&#x2F;Linux追求高层次抽象上的统一，其设计哲学之一便是<code>万物皆文件</code></p>
 <h2 id="一、“万物皆文件”"><a href="#一、“万物皆文件”" class="headerlink" title="一、“万物皆文件”"></a>一、“万物皆文件”</h2><p><em>NIX&#x2F;Linux设计的哲学之一——<code>万物皆文件</code>，在Linux系统的视角下，无论是文件、设备、管道，还是目录、进程，甚至是磁盘、套接字等等，*<em>一切都可以被抽象为文件，一切都可以使用访问文件的方式进行操作</em></em></p>
 <p>通过这样一种哲学，Linux予开发者以高层次抽象的统一性，提供了<code>操作的一致性</code>：</p>
 <ul>
-<li><strong>所有的读取操作都可以通过read进行</strong></li>
-<li><strong>所有的更改操作都可以通过write进行</strong></li>
+<li><strong>所有的读取操作都可以通过对文件进行 read 系统调用完成</strong></li>
+<li><strong>所有的更改操作都可以通过对文件进行 write 系统调用完成</strong></li>
+<li><strong>所有的配置操作都可以通过对文件进行 ioctl 系统调用完成</strong></li>
 </ul>
 <p>对于开发者而言，将一切的操作都统一于一个高层次抽象的应用接口，无疑是十分美妙的一件事情——<strong>我们不需要去理解实现的细节，只需要对”文件”完成简单的读写操作</strong></p>
 <blockquote>
