@@ -1,3 +1,4 @@
+https://arttnba3.github.io/about/index.html
 https://arttnba3.github.io/2023/09/25/DISTRO-0X00-INSTALL_ARCH_WINDOWS/
 https://arttnba3.github.io/2023/11/24/DISTRO-0X01-INSTALL_TUMBLEWEED_WINDOWS/
 https://arttnba3.github.io/2022/10/28/PIECES-0X04-SHELL_OUTSIDE-4-XIANG_WAN/
@@ -31,7 +32,6 @@ https://arttnba3.github.io/2022/11/24/ANGR-0X00-ANGR_CTF/
 https://arttnba3.github.io/2000/10/12/hello-world/
 https://arttnba3.github.io/2021/03/03/PWN-0X00-LINUX-KERNEL-PWN-PART-I/
 https://arttnba3.github.io/2023/05/02/CTF-0X08_D3CTF2023_D3KCACHE/
-https://arttnba3.github.io/about/index.html
 https://arttnba3.github.io/2023/06/04/CVE-0X0A-CVE-2021-3490/
 https://arttnba3.github.io/2023/05/31/EBPF_0X00/
 https://arttnba3.github.io/2022/12/25/EXPR-0X01-MIT_6_858/
