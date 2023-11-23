@@ -1,0 +1,912 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="你说🉐对，但是 Arch Linux 是由 Arch 社区开发的一个 Linux 发行版…">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【DISTRO.0x01】如何正确打开 OpenSUSE Tumbleweed">
+<meta property="og:url" content="https://arttnba3.github.io/2023/11/24/DISTRO-0X01-INSTALL_TUMBLEWEED_WINDOWS/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="你说🉐对，但是 Arch Linux 是由 Arch 社区开发的一个 Linux 发行版…">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231124021010.png">
+<meta property="article:published_time" content="2023-11-23T14:22:31.000Z">
+<meta property="article:modified_time" content="2023-11-23T15:40:18.781Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="OpenSUSE">
+<meta property="article:tag" content="OpenSUSE Tumbleweed">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231124021010.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【DISTRO.0x01】如何正确打开 OpenSUSE Tumbleweed - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"arttnba3.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/img_v3_025f_b217ee22-634c-432b-95ad-8c5569d0081g.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【DISTRO.0x01】如何正确打开 OpenSUSE Tumbleweed"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-24 01:22" pubdate>
+          2023年11月24日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          47 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【DISTRO.0x01】如何正确打开 OpenSUSE Tumbleweed</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2023年11月24日 凌晨
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>你说🉐对，但是 Arch Linux 是由 Arch 社区开发的一个 Linux 发行版…</p>
+<span id="more"></span>
+
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><p>笔者此前一直在用 Arch Linux，但是最近在帮中国大陆的一些 CTF 赛事出题时遇到了一些比较奇怪的问题：在使用 Docker 启动的 Ubuntu 环境中，用来启动题目服务的 <code>xinetd</code> <strong>无法正常工作</strong>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231124010554.png" srcset="/img/loading.gif" lazyload></p>
+<p>不过也不是完全连不上，但是要等很久，笔者怀疑可能是内核安全策略的缘故（因为在容器内部用 <code>nc</code> 也连不上），于是笔者测试了市面上比较主流的口碑比较好的几个 Linux 发行版，除了原生 Ubuntu 以外<strong>也就只有 OpenSUSE 能够正常运行</strong>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231124010630.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>当然， <em>有一个发行版是完全连不上，是谁呢</em> ： </p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231124010725.png" srcset="/img/loading.gif" lazyload></p>
+</blockquote>
+<p>这样的话笔者完全没有办法在本地测试题目，再加上 Arch Linux 用起来 <em>总是感觉有哪里没有配好的怪异感</em> ，只适合比较闲的时候折腾玩玩，日常使用或许还是一个常规点的发行版会更加安心一些，于是笔者在 Fedora Workstation 短期驻留了一段时间之后选择转向 OpenSUSE Tumbleweed ，和 Arch 一样是一个滚动发行版，但是据说 <em>德国工艺比较值得令人信赖，SUSE 在企业市场的份额似乎也不小</em> ：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231124011110.png" srcset="/img/loading.gif" lazyload></p>
+<p>事实证明，OpenSUSE Tumbleweed 给笔者一种<strong>又好又烂的感觉</strong>，好就好在德国工艺的 YaST 确实方便易用，对 KDE 的高适配性让笔者在 Fedora 上的各种自定义美化工作 <em>不需要任何修改便能无缝进行偏移，仿佛自己从来没有换过系统一般令人安心</em> ，不好就在于官方自带的中文安装依托答辩，不仅安装界面蹦方块，切换到 Wayland 后自带的 fcitx5 直接罢工（与此同时<strong>先装英文系统再装中文语言包与输入法却能正常使用</strong>）</p>
+<p>但这并非是最要命的点，<strong>用的人少、社区活跃度不足才是最致命的</strong>，OpenSUSE 早期在中国大陆宣传不足，RHEL 和 Ubuntu 近乎蚕食掉所有的 Linux 市场后才姗姗来迟，<strong>现在在中国大陆能用的镜像站似乎都不剩几个</strong>，<a target="_blank" rel="noopener" href="https://forum.suse.org.cn/">中文论坛</a>活跃度还比不上一些快死了的贴吧（<a target="_blank" rel="noopener" href="https://forums.opensuse.org/c/english/6">英文论坛</a>的活跃度还可以，但其实也差点意思），Wiki 建设度也不太足，这就导致很多问题只能参照其他发行版的类似情况自己再缝缝补补</p>
+<blockquote>
+<p>最直接的后果就是在缺乏指引的情况下，笔者第一次在物理机上尝试 Tumbleweed 时 docker 直接无法正常拉镜像，第二次在物理机上尝试 Tumbleweed 时由于未更新 GRUB 配置导致几次在几次重新启动系统之后<strong>登录界面直接进不去了，只有一个鼠标能动</strong>，切进 tty 以后也一筹莫展（根本找不到使用 OpenSUSE 出现类似问题的案例与解决方案），在重装了七八次系统后按照第三方社区 ASUS Linux 的配置教程无意中解决了这个问题</p>
+</blockquote>
+<p>但是 <del>抛开事实不谈</del>  <em>抛开这些小毛病不谈，OpenSUSE 依旧是做得不错的发行版</em> ，Leap 有着超乎想象的稳定性与维护周期，Tumbleweed 在保证了其稳定性的同时依旧能紧追最前沿的技术，虽然国内没啥人用但在国外其实还是有着不错的口碑，因此笔者最终选择尝试在 OpenSUSE Tumbleweed 上开始自己新的旅程</p>
+<blockquote>
+<p>至于为什么不用 Ubuntu 是因为 Ubuntu Desktop 依托答辩，经常能卡出各种玄学问题，软件包旧且难配，snap 这样混沌邪恶的东西更是让人谔谔，只适合放服务器上或是放在虚拟机里玩</p>
+<p>至于为什么不用 Debian 则是因为在笔者感受起来这也是一个更适合在服务器上稳定跑应用的系统，能折腾的空间也不多（<del>年轻人自己用的电脑当然要滚动发行版天天滚，我每天稳定在 Arch 上滚 114 次在centos stream 上滚 514 次在 tumbleweed 上滚 1919 次并用 Gentoo 自行编译 810 次</del>）， <em>更重要的是</em> 笔者没有<a target="_blank" rel="noopener" href="https://github.com/moesoha/debian-media-box">Debian 盒装安装媒介</a> （笑</p>
+</blockquote>
+<h1 id="0x01-安装前的准备工作"><a href="#0x01-安装前的准备工作" class="headerlink" title="0x01. 安装前的准备工作"></a>0x01. 安装前的准备工作</h1><blockquote>
+<p>如果要和笔者一样安装 Windows + Linux 双系统的话<strong>建议先安装 Windows</strong>，因为如果先安装 Linux 的话 Windows 会对 Linux 空间乱动：(</p>
+</blockquote>
+<blockquote>
+<p>因为安装的时候没有拍屏所以用虚拟机进行截图，<del>毕竟总不能让👴把现在安好的系统再重新安一遍吧，那闲得没事做属于是</del></p>
+</blockquote>
+<p>首先还是在 Windows 上打开 <code>磁盘管理→压缩卷</code> 划出来一块未分配空间，后面我们将在这块空间上安装 OpenSUSE Tumbleweed：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231123234639.png" srcset="/img/loading.gif" lazyload></p>
+<p>然后在<a target="_blank" rel="noopener" href="https://get.opensuse.org/tumbleweed/#download">官网</a>下载镜像，并烧录到 U 盘中（大家应该都和笔者一样使用 U 盘进行安装吧），这里笔者选择使用 <a target="_blank" rel="noopener" href="https://etcher.balena.io/#download-etcher">balenaEtcher</a> 进行烧录，直接选择镜像和 U 盘就行：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231123235028.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="0x02-安装-OpenSUSE-Tumbleweed"><a href="#0x02-安装-OpenSUSE-Tumbleweed" class="headerlink" title="0x02. 安装 OpenSUSE Tumbleweed"></a>0x02. 安装 OpenSUSE Tumbleweed</h1><p>OpenSUSE 系统使用 <code>YaST</code> 进行安装，非常地舒适简便的同时也提供给我们许多可以客制化的地方</p>
+<blockquote>
+<p>和前面一样都是在虚拟机中重新截的图，因为笔者安装时忘了拍了：）</p>
+</blockquote>
+<p>惯例重启进入 UEFI 界面关闭安全启动将 U 盘设为第一个启动项进入 OpenSUSE Tumbleweed 的安装界面：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231124003638.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>如果你是物理机安装而且没插网线会有一个额外的配置网络的环节，按照指引正常选择无线网卡连 WiFi 就行</p>
+</blockquote>
+<p>这里注意<strong>安装语言选择 English</strong>，因为自带的中文安装有些小问题（<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1F7411G7jH/?t=2095">他们那个是有点差的.avi</a>），系统安装结束后我们再手动在系统中去安装中文相关的东西：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231124004125.png" srcset="/img/loading.gif" lazyload></p>
+<p>Online Repositories 建议全选：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231124004637.png" srcset="/img/loading.gif" lazyload></p>
+<p>桌面就按需选择了，笔者推荐选择 OpenSUSE 默认的 KDE Plasma ：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231124005130.png" srcset="/img/loading.gif" lazyload></p>
+<p>硬盘分区的话笔者建议还是<strong>手动分区</strong>（选择下方的 <code>Expert Partitioner</code> 按钮中的 <code>Start with Existing Partitions</code>，之后直接选中对应硬盘并 <code>Add Partion...</code> 就会有非常细致的分区创建引导），因为他自动分区的逻辑有点怪怪的（之前自动分区差点把笔者原本的数据盘给抹了），主要是两个分区：</p>
+<ul>
+<li>EFI 分区（<code>EFI Boot Partion</code>，<strong>必须为 fat32 格式</strong>）：放 GRUB 和内核的地方，用来启动系统，需要挂载在 <code>/boot/efi</code> 下边</li>
+<li>系统分区（<code>Operating System</code>，推荐还是 ext4，brtfs 强制重启会炸）：系统基本环境，需要挂载在 <code>/</code> 下边</li>
+</ul>
+<blockquote>
+<p>这里笔者<strong>不推荐和 Windows 混用同一个 EFI 分区</strong>，最好自己自立门户，一是 Win 原本的 EFI 分区实在太小随便塞点东西就爆了，二是独立分区干啥都方便不会影响到隔壁的 Win</p>
+</blockquote>
+<p>当然，也可以像笔者一样额外分一个分区做数据分区挂在 <code>/home</code> 下边，后面重装各种其他发行版都方便， <em>因为这里是虚拟机演示所以就只分了两个分区</em> ：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231124005751.png" srcset="/img/loading.gif" lazyload></p>
+<p>时区设置和创建用户这种常规操作笔者就不截图了，最后来到安装前的最后确认环节，这里笔者建议把 Secure Boot 给关了，不然后面升级闭源显卡驱动可能会比较麻烦，<del>以及笔者觉得这个特性在个人电脑上完全没必要，真有人会来打吗</del></p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231124010003.png" srcset="/img/loading.gif" lazyload></p>
+<p>安装好后会自动重启，这个时候默认进的就是 GRUB 界面了，可以选择进入 Windows 还是 Linux：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231124013040.png" srcset="/img/loading.gif" lazyload></p>
+<p>这里不得不夸的一点是<strong>OpenSUSE 无缝地将笔者之前的 KDE 美化给迁移了过来</strong>（当笔者从 Arch 往 Fedora 上迁移时、重新安装 Fedora 时，这块都没太能处理好），把 <code>latte-dock</code> 给安装上之后笔者就像没换过系统一样：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/img_v3_025f_b217ee22-634c-432b-95ad-8c5569d0081g.jpg" srcset="/img/loading.gif" lazyload></p>
+<h1 id="0x03-安装-N-卡闭源驱动"><a href="#0x03-安装-N-卡闭源驱动" class="headerlink" title="0x03. 安装 N 卡闭源驱动"></a>0x03. 安装 N 卡闭源驱动</h1><blockquote>
+<p>如果你用的是 A 卡或者仅有核显，则可以跳过这一章节</p>
+</blockquote>
+<p>YaST 是很好很强大的一个综合性工具，这也是 SUSE 系发行版的魅力之一，通过 YaST可以非常方便地管理包括软件安装在内的各项系统配置</p>
+<p>首先用 zypper 引入 Nvidia 驱动仓库：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo zypper addrepo --refresh https://download.nvidia.com/opensuse/tumbleweed NVIDIA<br></code></pre></td></tr></table></figure>
+
+<p>然后打开 <code>YaST-&gt;Software Management</code>，她会直接帮你选好需要安装的包，直接安就完事了：）</p>
+<p>当然，你也可以手动进入 <code>YaST-&gt;Software Management-&gt;View-&gt;Repositories-&gt;NVIDIA</code> 选择要安装哪些包，一般来说最新的 NVIDIA 显卡直接选择最新的 <code>G06</code> 相关套件即可，其他的老显卡建议参考 <a target="_blank" rel="noopener" href="https://en.opensuse.org/SDB:NVIDIA_drivers">OpenSUSE Wiki</a>，以笔者的电脑为例安装了以下这些包：</p>
+<p><img src="https://s2.loli.net/2023/11/23/dbWQVyqU7Z1A9SN.png" srcset="/img/loading.gif" lazyload></p>
+<p>安装过程中 YaST 会自动帮你把 <code>nouveau</code> 给禁用了，完成之后直接重启，在终端输入 <code>nvidia-smi</code> 就可以看到显卡相关信息：</p>
+<p><img src="https://s2.loli.net/2023/11/23/t9Qak3RJx7Yq4Xu.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>接下来更新 Grub 配置，不更新的话多重启几次可能桌面就会莫名其妙寄了：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo vim /etc/default/grub<br></code></pre></td></tr></table></figure>
+
+<p>在这个文件中找到 <code>GRUB_CMDLINE_LINUX</code> ，在其中加入如下内容：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">modprobe.<span class="hljs-attribute">blacklist</span>=nouveau rd.driver.<span class="hljs-attribute">blacklist</span>=nouveau nvidia-drm.<span class="hljs-attribute">modeset</span>=1<br></code></pre></td></tr></table></figure>
+
+<p>应用新的 GRUB 配置：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo grub2-mkconfig -o /boot/grub2/grub.cfg<br></code></pre></td></tr></table></figure>
+
+<h1 id="0x04-安装中文与输入法"><a href="#0x04-安装中文与输入法" class="headerlink" title="0x04. 安装中文与输入法"></a>0x04. 安装中文与输入法</h1><p>OpenSUSE Tumbleweed 安装媒介中自带的中文有些问题，因此我们需要安装 English 系统后手动将中文给安装上</p>
+<p>首先是将简体中文添加为第二语言（笔者不推荐作为第一语言，否则万一系统崩了以后进入 tty 抢救的时候会让你感到很崩溃），打开 <code>YaST-&gt;System-&gt;Language</code>，勾上 <code>Simplified Chinese</code> 后直接点 <code>OK</code> 就可以自动安装了：</p>
+<p><img src="https://s2.loli.net/2023/11/23/pe6DK84kNB3cSZj.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>需要注意的是这里的进度条会莫名其妙变成负数，<strong>不影响正常安装</strong>，只是我们不能看到正确的进度罢了，慢慢等就行了：</p>
+<p><img src="https://s2.loli.net/2023/11/23/AWh6xErjFi8XVTN.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>完成中文的安装之后接下来我们来安装输入法，目前 Linux 下最火的中文输入法之一为 <code>fcitx</code>，直接通过 zypper 进行安装：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo zypper in fcitx5<br></code></pre></td></tr></table></figure>
+
+<p>之后直接重启就 ok 了，就像在其他发行版上那样正常直接使用 fcitx 即可：</p>
+<p><img src="https://s2.loli.net/2023/11/23/MPsnu5im38qRI2G.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h1 id="0x05-ASUS-Laptop-相关的一些配置"><a href="#0x05-ASUS-Laptop-相关的一些配置" class="headerlink" title="0x05. ASUS Laptop 相关的一些配置"></a>0x05. ASUS Laptop 相关的一些配置</h1><blockquote>
+<p>如果你的电脑不是华硕笔记本，可以直接跳过这一部分</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://asus-linux.org/">ASUS Linux</a> 是一个为 ASUS Laptop 提供额外支持的民间社区，通过 <code>asusctl</code> 与 <code>supergfxctl</code> 这两个工具我们可以非常方便地配置笔记本的各种配置</p>
+<p>首先引入 ASUS Linux 的仓库：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo zypper ar --priority 50 --refresh https://download.opensuse.org/repositories/home:/luke_nukem:/asus/openSUSE_Tumbleweed/ asus-linux<br></code></pre></td></tr></table></figure>
+
+<p>安装 <code>asusctl</code>，并用 <code>power-profiles-daemon</code> 替换掉 <code>tlp</code> 作为默认的电源管理服务：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo zypper rm tlp<br>sudo zypper in asusctl<br>sudo zypper in power-profiles-daemon<br>sudo systemctl enable --now power-profiles-daemon.service<br>sudo systemctl start asusd<br></code></pre></td></tr></table></figure>
+
+<p>为了保养电池，可以用 <code>asusctl</code> 将最大充电限制在 80：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo asusctl -c 80<br></code></pre></td></tr></table></figure>
+
+<p>然后安装 <code>supergfxctl</code> 用以管理显卡，并替换掉过时的 <code>suse-prime</code>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo zypper rm suse-prime<br>sudo zypper in supergfxctl<br>sudo systemctl enable --now supergfxd<br></code></pre></td></tr></table></figure>
+
+<p>例如外出时可以用 <code>supergfxctl</code> 切换到集显输出以省电：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo supergfxctl -s # 查看笔记本支持的视频输出模式<br>sudo supergfxctl -g # 查看当前的视频输出模式<br>sudo supergfxctl -m Integrated # 设置为集显输出<br>sudo supergfxctl -m Hybrid # 设置为混合输出<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>社区其实还提供了一个图形化配置界面 <code>asusctl-rog-gui</code>，但是笔者电脑上不能成功启动，不过其实功能都是一样的：）</p>
+</blockquote>
+<h1 id="0x06-常用的一些软件安装"><a href="#0x06-常用的一些软件安装" class="headerlink" title="0x06. 常用的一些软件安装"></a>0x06. 常用的一些软件安装</h1><p>比如说大家都喜欢的代码编辑器 <code>vscode</code> ：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc<br>sudo zypper addrepo https://packages.microsoft.com/yumrepos/vscode vscode<br>sudo zypper refresh<br>sudo zypper install code<br></code></pre></td></tr></table></figure>
+
+<p>Chrome 浏览器的安装需要借助 <a target="_blank" rel="noopener" href="https://en.opensuse.org/SDB:OBS_Package_Installer">OPI</a>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo zypper in opi<br>sudo opi chrome<br></code></pre></td></tr></table></figure>
+
+<p>Docker 的安装直接按照 <a target="_blank" rel="noopener" href="https://en.opensuse.org/Docker">wiki</a> 即可：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo zypper install docker docker-compose docker-compose-switch<br>sudo systemctl enable docker<br>sudo usermod -G docker -a $USER # 将当前用户添加到 docker,后面就不用总是 sudo docker 了<br>sudo reboot # 重启就完事了<br></code></pre></td></tr></table></figure>
+
+<p>OpenSUSE 是 RPM 系，因此大部分软件其实也可以直接将 rpm 包下载下来用 zypper 安装即可，以<a target="_blank" rel="noopener" href="https://www.feishu.cn/download">飞书 Linux 版</a>为例：</p>
+<p><img src="https://s2.loli.net/2023/11/23/3xMHfgpuzaDsXrQ.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>笔者在海外，有的时候会用到 Discord、Telegram 这样的软件，他们都是有 Linux 原生版本的（这里就不得不吐槽国内的一些软件迟迟不出 Linux 版了），直接用 zypper 安装即可：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo zypper in discord telegram-desktop<br></code></pre></td></tr></table></figure>
+
+<p>一些只有 Windows 版本的软件（例如微信）可以尝试用 <code>wine</code> 打开，使用 zypper 可以直接安装 <code>wine</code>，<code>winetricks</code> 则是用来进行功能补充的小工具：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo zypper in wine winetricks<br></code></pre></td></tr></table></figure>
+
+<h1 id="0x07-个人配置优化"><a href="#0x07-个人配置优化" class="headerlink" title="0x07. 个人配置优化"></a>0x07. 个人配置优化</h1><h3 id="单击选中而非打开"><a href="#单击选中而非打开" class="headerlink" title="单击选中而非打开"></a>单击选中而非打开</h3><p>KDE Dolphin 经典配置了，不过笔者更习惯 Windows 那样的单击选择双击打开的模式，这里只需要在系统设置中的 <code>Workspace Behaviour-&gt;General Behaviour</code> 中勾选 <code>Selects them</code> 即可</p>
+<!--0x08. 使用 Docker 搭建深度学习环境 很多时候我们希望保证计算机主环境的整洁与完整性，毕竟万一某一天配各种软件把依赖给搞崩了就比较尴尬了，因此很多任务我们其实可以直接通过 Docker 来完成，虽然 OpenSUSE 自己也有深度学习框架，但是真用 OpenSUSE 来搞深度学习的终究是少数（国人就更少了），相对应地在网上的资料也比较少，因此我们这里选择使用 Ubuntu 镜像来搭建容器环境，毕竟搞机器学习的最重要的**就是那张卡**，而不是各种奇怪的系统环境-->
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/DISTRO/" class="category-chain-item">DISTRO</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+        <a href="/tags/OpenSUSE/">#OpenSUSE</a>
+      
+        <a href="/tags/OpenSUSE-Tumbleweed/">#OpenSUSE Tumbleweed</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【DISTRO.0x01】如何正确打开 OpenSUSE Tumbleweed</div>
+      <div>https://arttnba3.github.io/2023/11/24/DISTRO-0X01-INSTALL_TUMBLEWEED_WINDOWS/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年11月24日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/10/27/PAPER-0X04-HYPER_CUBE/" title="【PAPER.0x04】论文笔记：HYPER-CUBE: High-Dimensional Hypervisor Fuzzing">
+                        <span class="hidden-mobile">【PAPER.0x04】论文笔记：HYPER-CUBE: High-Dimensional Hypervisor Fuzzing</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

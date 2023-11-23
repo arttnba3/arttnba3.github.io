@@ -1,0 +1,951 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="不好用，在安装界面睡了三个小时">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【DISTRO.0x00】从零开始的 Arch Linux 生活">
+<meta property="og:url" content="https://arttnba3.github.io/2023/09/25/DISTRO-0X00-INSTALL_ARCH_WINDOWS/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="不好用，在安装界面睡了三个小时">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2023/09/25/YpLXq8BdcIFThgO.png">
+<meta property="article:published_time" content="2023-09-24T15:25:17.000Z">
+<meta property="article:modified_time" content="2023-11-23T15:40:29.819Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Arch Linux">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2023/09/25/YpLXq8BdcIFThgO.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【DISTRO.0x00】从零开始的 Arch Linux 生活 - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"arttnba3.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://s2.loli.net/2023/09/20/3bdIi6KA9c2ulNV.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【DISTRO.0x00】从零开始的 Arch Linux 生活"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-09-25 01:25" pubdate>
+          2023年9月25日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          52 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【DISTRO.0x00】从零开始的 Arch Linux 生活</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2023年11月24日 凌晨
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>不好用，在安装界面睡了三个小时</p>
+<span id="more"></span>
+
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><p>本科阶段笔者一直用的 Windows 作为主力系统并使用 VMWare Workstation 运行 Linux 虚拟机，但总感觉不够得劲，可惜笔者有一些硬性需求只能在 Windows 上完成（比如说游戏、绘图等），由于仅有一台电脑的缘故，所以一直没有机会在真机上安装 Linux 操作系统 ：(</p>
+<p>开始读 Phd 之后老板比较阔气大手一挥直接配了一个新的笔记本用来工作，于是笔者决定这一次直接在真机上安装 Linux ，专门用来做工作上的事情</p>
+<p>关于发行版的选择，笔者决定选择安装 <a target="_blank" rel="noopener" href="https://archlinux.org/">Arch Linux</a>，因为其有着较为完备的各类文档及驱动适配等，同时笔者的新笔记本的牌子为华硕，其同样有一个较为完善的<a target="_blank" rel="noopener" href="https://asus-linux.org/">第三方社区</a>支持</p>
+<p>不过考虑到有些工作可能还是在 Windows 上做会比较方便（例如调试 Windows 程序），再加上原装的 Windows 系统毕竟是收了笔者的钱的，直接抹掉的话未免有点可惜（笑），所以笔者最终的策略是<strong>安装 Windows + Linux 双系统，日常主力还是使用 Linux 系统</strong></p>
+<h1 id="0x01-安装前的准备工作"><a href="#0x01-安装前的准备工作" class="headerlink" title="0x01. 安装前的准备工作"></a>0x01. 安装前的准备工作</h1><h3 id="制作-Arch-Linux-物理安装媒介"><a href="#制作-Arch-Linux-物理安装媒介" class="headerlink" title="制作 Arch Linux 物理安装媒介"></a>制作 Arch Linux 物理安装媒介</h3><p>首先在 <a target="_blank" rel="noopener" href="https://archlinux.org/download/">https://archlinux.org/download/</a> 下载最新的 Arch Linux 镜像，这里提供了几个镜像站，可以直接选离你最近的那一个：）</p>
+<p>完成镜像下载之后直接烧录到 U 盘上即可，这里笔者用的是 <a target="_blank" rel="noopener" href="https://etcher.balena.io/">balenaEtcher</a> ：</p>
+<p><img src="https://s2.loli.net/2023/09/18/5lqvTSMEXz4xmQr.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="关闭-Secure-Boot"><a href="#关闭-Secure-Boot" class="headerlink" title="关闭 Secure Boot"></a>关闭 Secure Boot</h3><p>由于 Arch Linux 的安装媒介暂不支持安全启动，因此这里我们需要将电脑的这个特性暂且关闭</p>
+<p>华硕笔记本进入 BIOS 的方法为：首先摁住 <code>F2</code>，然后按一下开机键，一直到 BIOS 界面出现后松开 <code>F2</code> 即可</p>
+<p>点击 <code>进阶设置→安全性</code>，把 <code>安全启动控制</code> 改为 <code>关闭</code> 即可：</p>
+<p><img src="https://s2.loli.net/2023/09/18/wsMylQKgk9XA4WR.jpg" srcset="/img/loading.gif" lazyload alt="关闭安全启动"></p>
+<h3 id="分配-Linux-磁盘空间"><a href="#分配-Linux-磁盘空间" class="headerlink" title="分配 Linux 磁盘空间"></a>分配 Linux 磁盘空间</h3><p>直接右键 <code>我的电脑→显示更多选项→管理→磁盘管理</code> 拉一块空的区域出来就行：</p>
+<p><img src="https://s2.loli.net/2023/09/18/tn92KjiBeLA7Zv8.jpg" srcset="/img/loading.gif" lazyload></p>
+<h1 id="0x02-安装-Arch-Linux"><a href="#0x02-安装-Arch-Linux" class="headerlink" title="0x02. 安装 Arch Linux"></a>0x02. 安装 Arch Linux</h1><blockquote>
+<p>主要还是参照<a target="_blank" rel="noopener" href="https://wiki.archlinux.org/title/installation_guide">官方文档</a>来弄</p>
+</blockquote>
+<h3 id="事前准备"><a href="#事前准备" class="headerlink" title="事前准备"></a>事前准备</h3><p>首先还是进 BIOS 改启动顺序把安装介质调到第一位：</p>
+<p><img src="https://s2.loli.net/2023/09/18/dTlZOjgPWbvE18z.png" srcset="/img/loading.gif" lazyload></p>
+<p>然后就来到了 <code>GRUB</code>，正常情况下直接选第一个就行：</p>
+<p><img src="https://s2.loli.net/2023/09/18/og6ebnwTvEcGkHs.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>如果你需要使用无线网络，可以输入如下命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">iwctl       <span class="hljs-comment"># 进入无线网络控制界面</span></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">device list <span class="hljs-comment"># 查看无线网卡信息</span></span><br></code></pre></td></tr></table></figure>
+
+<p>笔者这里显示的网卡设备名是 <code>wlan0</code> ，接下来输入如下命令扫描附近的的无线网络：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">station wlan0 scan <span class="hljs-comment"># 扫描</span></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">station wlan0 get-networks <span class="hljs-comment"># 显示结果</span></span><br></code></pre></td></tr></table></figure>
+
+<p>接下来使用 <code>connect</code> 参数进行连接，例如这里假设网络名为 <code>BeastSenbei</code> ：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">station wlan0 connect BeastSenbei <span class="hljs-comment"># 如果有密码则会要求你输入</span></span><br></code></pre></td></tr></table></figure>
+
+<p>之后直接输入 <code>exit</code> 即可退出该界面</p>
+<blockquote>
+<p>你可以使用 <code>pacman -Syyy</code> 命令测试网络是否联通，若要换源则直接编辑 <code>/etc/pacman.d/mirrorlist</code> 文件即可</p>
+</blockquote>
+<h3 id="建立磁盘分区"><a href="#建立磁盘分区" class="headerlink" title="建立磁盘分区"></a>建立磁盘分区</h3><p>首先使用 <code>lsblk</code> 查看磁盘分区，这里看不到我们之前新划分的区域，因为还没划分一个新的分区：</p>
+<p><img src="https://s2.loli.net/2023/09/18/ram95FjtBEIuD7p.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>接下来我们使用如下命令进行新分区的建立，注意根据你自己的磁盘设备名进行输入：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">cfdisk /dev/nvme0n1</span><br></code></pre></td></tr></table></figure>
+
+<p>可以看到一个 <code>Free Space</code>，选中并选择 <code>[New]</code> 即可，默认直接敲两下回车就是用所有的空间，你也可以选择手动输入自己想要划分的分区大小，完成之后在下面选择 <code>[Write]</code> 然后输入 <code>yes</code> 即可：</p>
+<p><img src="https://s2.loli.net/2023/09/18/EX81wkHmfjbWMF6.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>接下来将该分区格式化为 <code>ext4</code> 格式，这里注意分区别选错了，不记得的就重新再看看 <code>lsblk</code>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">mkfs.ext4 /dev/nvme0n1p6</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="正式安装"><a href="#正式安装" class="headerlink" title="正式安装"></a>正式安装</h3><p>接下来首先挂载新分区，之后在内部创建 <code>/boot</code> 目录，并将 Windows 原有的 EFI 分区挂载到 <code>/boot</code> 目录下，这里注意看自己对应的分区名：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">mount /dev/nvme0n1p6 /mnt</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">mkdir</span> /mnt/boot</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">mount /dev/nvme0n1p1 /mnt/boot</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来使用该命令进行安装基本的环境，这里笔者安装默认的内核版本 <code>linux</code>，你也可以在 <a target="_blank" rel="noopener" href="https://wiki.archlinuxcn.org/wiki/%E5%86%85%E6%A0%B8">Wiki</a> 上选择自己想要的内核（比如说带有安全加固的 <code>linux-hardened</code>）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">pacstrap /mnt base linux linux-firmware</span><br></code></pre></td></tr></table></figure>
+
+<p>安装完成之后接下来我们来对系统进行一些基本配置，首先是生成 fstab（文件系统表）文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">genfstab -U /mnt &gt;&gt; /mnt/etc/fstab</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来使用 <code>arch-chroot</code> 命令切换到新的系统环境中：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">arch-chroot /mnt</span><br></code></pre></td></tr></table></figure>
+
+<p>然后是设置时区，笔者现在在墨尔本所以时区设置为墨尔本，如果你在中国大陆则需要设置为 <code>Asia/Shanghai</code>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">ln</span> -sf /usr/share/zoneinfo/Australia/Melbourne /etc/localtime</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来生成 <code>/etc/adjtime</code> 文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">hwclock --systohc</span><br></code></pre></td></tr></table></figure>
+
+<p>然后创建主机名，这里就随便了：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;arttnba3-Arch&quot;</span> &gt; /etc/hostname</span><br></code></pre></td></tr></table></figure>
+
+<p>在 <code>/etc/hosts</code> 中写入如下内容，这里注意改成自己的 hostname：</p>
+<p><img src="https://s2.loli.net/2023/09/18/hdjHysTvP8KlqA4.png" srcset="/img/loading.gif" lazyload></p>
+<p>设置 root 密码：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">passwd</span><br></code></pre></td></tr></table></figure>
+
+<p>安装一些基本的软件包，这里我们选择使用 <code>grub</code> 作为启动器：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">pacman -S grub efibootmgr networkmanager network-manager-applet dialog wireless_tools wpa_supplicant os-prober mtools dosfstools ntfs-3g base-devel linux-headers reflector git sudo vim</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">pacman -S intel-ucode <span class="hljs-comment"># 如果你是 AMD 则需要改成 amd-ucode</span></span><br></code></pre></td></tr></table></figure>
+
+<p>配置 GRUB 自动启用 <code>os-prober</code>，这里只需要在 <code>/etc/default/grub</code> 中加入一行 <code>GRUB_DISABLE_OS_PROBER=false</code> ，并输入如下命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=Arch</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">grub-mkconfig -o /boot/grub/grub.cfg</span><br></code></pre></td></tr></table></figure>
+
+<p>到这一步一个基本的 Arch 环境就安装好了，完成之后输入如下命令进行重启进入系统，别忘了拔出移动安装介质：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">exit</span>        <span class="hljs-comment"># 退出 arch-chroot</span></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">umount -a   <span class="hljs-comment"># 取消分区挂载</span></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">reboot      <span class="hljs-comment"># 重启</span></span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>后面如果想再进入 Windows 只需要进 BIOS 调整启动顺序即可</p>
+</blockquote>
+<h1 id="0x03-常规系统配置"><a href="#0x03-常规系统配置" class="headerlink" title="0x03. 常规系统配置"></a>0x03. 常规系统配置</h1><p>接下来是一些常规系统配置，包括新建用户、配置 GUI 等</p>
+<h3 id="启动网络"><a href="#启动网络" class="headerlink" title="启动网络"></a>启动网络</h3><p>通过如下命令启动网络并连接 WiFi：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">systemctl <span class="hljs-built_in">enable</span> --now NetworkManager</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">nmtui</span><br></code></pre></td></tr></table></figure>
+
+<p>进入这个界面后选 <code>Activate a connection</code>，然后就正常选 WiFi 输密码连接就行，这个只用最开始的时候弄一次：</p>
+<p><img src="https://s2.loli.net/2023/09/18/34f1eJYGojnX2xq.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>DHCP 相关的一些配置：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo pacman -S dhcpcd</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="bash-自动补全"><a href="#bash-自动补全" class="headerlink" title="bash 自动补全"></a>bash 自动补全</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">pacman -S bash-completion</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="设置-Locale-进行本地化"><a href="#设置-Locale-进行本地化" class="headerlink" title="设置 Locale 进行本地化"></a>设置 Locale 进行本地化</h3><p>去掉 <code>/etc/locale.gen</code> 中 <code>en_US.UTF-8</code> 所在行以及 <code>zh_CN.UTF-8</code> 所在行开头的 <code>#</code>，然后在 <code>/etc/locale.conf</code> 中写入一行 <code>LANG=en_US.UTF-8</code> 即可</p>
+<h3 id="创建新用户"><a href="#创建新用户" class="headerlink" title="创建新用户"></a>创建新用户</h3><p>没啥好说的，老一套东西，这里别忘了改成自己的用户名：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">groupadd arttnba3</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">useradd -m -s /bin/bash -g arttnba3 arttnba3</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">passwd arttnba3</span><br></code></pre></td></tr></table></figure>
+
+<p>授予 sudo 权限，这里注意我们<strong>应当且仅应当使用 visudo，而非直接编辑 &#x2F;etc&#x2F;sudoers 文件</strong>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">usermod -aG wheel arttnba3 <span class="hljs-comment"># arch 下的 sudo 组</span></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">EDITOR=vim visudo</span><br></code></pre></td></tr></table></figure>
+
+<p>去掉如下图所示这一行的前面的 <code>#</code> 注释即可，笔者这里是已经修改过后的版本：</p>
+<p><img src="https://s2.loli.net/2023/09/18/dpNtu5qs4hCGSmD.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="配置桌面环境"><a href="#配置桌面环境" class="headerlink" title="配置桌面环境"></a>配置桌面环境</h3><p>笔者选择安装 <code>XWayland + KDE Plasma</code>，首先安装基本的 KDE Plasma 桌面组件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo pacman -S plasma-meta konsole dolphin</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">systemctl <span class="hljs-built_in">enable</span> sddm</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo pacman -S egl-wayland kde-applications-meta sway alacritty waybar wofi xorg-xwayland xorg-xlsclients qt5-wayland glfw-wayland</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里会有一些不同的 provider 供选择，按自己喜欢的选就好：</p>
+<p><img src="https://s2.loli.net/2023/09/19/XRjHPuoTIzFxUdB.png" srcset="/img/loading.gif" lazyload></p>
+<p>需要注意的是 KDE <a target="_blank" rel="noopener" href="https://community.kde.org/Distributions/Packaging_Recommendations#Non-Plasma_packages">仅推荐VLC后端</a>，因为GStreamer<a target="_blank" rel="noopener" href="https://invent.kde.org/libraries/phonon-gstreamer/-/issues/1">不再维护</a>：</p>
+</blockquote>
+<p>之后重启就能进图形化的桌面了，说实话有点丑 ：(</p>
+<p><img src="https://s2.loli.net/2023/09/19/W1q4dgVSibDeF2t.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>配置默认开启小键盘只需要在 <code>/etc/sddm.conf</code> 文件中添加如下内容：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">[General]<br>Numlock=on<br></code></pre></td></tr></table></figure>
+
+<h3 id="开启-32-位支持库"><a href="#开启-32-位支持库" class="headerlink" title="开启 32 位支持库"></a>开启 32 位支持库</h3><p>将 <code>/etc/pacman.conf</code> 中 <code>[multilib]</code> 所在的那两行开头的 <code>#</code>去掉，然后 <code>pacman -Syyu</code> 即可</p>
+<h3 id="更换包管理器为-AUR"><a href="#更换包管理器为-AUR" class="headerlink" title="更换包管理器为 AUR"></a>更换包管理器为 AUR</h3><p>照着文档做就行，这里笔者就懒得自己编译了：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">pacman -S --needed git base-devel</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">git <span class="hljs-built_in">clone</span> https://aur.archlinux.org/yay-bin.git</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cd</span> yay-bin</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">makepkg -si</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="禁用-iwd"><a href="#禁用-iwd" class="headerlink" title="禁用 iwd"></a>禁用 iwd</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl <span class="hljs-built_in">disable</span> iwd</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl stop iwd</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl <span class="hljs-built_in">enable</span> --now NetworkManager</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="基础功能包与中文字体安装"><a href="#基础功能包与中文字体安装" class="headerlink" title="基础功能包与中文字体安装"></a>基础功能包与中文字体安装</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">yay -S sof-firmware alsa-firmware alsa-ucm-conf          <span class="hljs-comment"># 一些可能需要的声音固件</span></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">yay -S adobe-source-han-serif-cn-fonts wqy-zenhei        <span class="hljs-comment"># 开源中文字体</span></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">yay -S noto-fonts-cjk noto-fonts-emoji noto-fonts-extra  <span class="hljs-comment"># 谷歌开源字体及表情</span></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">yay -S ark</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">yay -S p7zip unrar unarchiver lzop lrzip                 <span class="hljs-comment"># ark 的可选依赖</span></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">yay -S google-chrome</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">yay -S packagekit-qt5 packagekit appstream-qt appstream gwenview wget kate <span class="hljs-built_in">bind</span> <span class="hljs-comment"># 图片查看器和其他工具等</span></span><br></code></pre></td></tr></table></figure>
+
+<h3 id="安装中文输入法"><a href="#安装中文输入法" class="headerlink" title="安装中文输入法"></a>安装中文输入法</h3><p>笔者用的 fcitx：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">yay -S fcitx5-im</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">yay -S fcitx5-chinese-addons <span class="hljs-comment"># 中文输入引擎</span></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">yay -S fcitx5-pinyin-zhwiki  <span class="hljs-comment"># 中文维基百科词库</span></span><br></code></pre></td></tr></table></figure>
+
+<p>之后使用 <code>EDITOR=vim sudoedit /etc/environment</code> 命令在对应文件中添加如下内容：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">GTK_IM_MODULE=fcitx<br>QT_IM_MODULE=fcitx<br>XMODIFIERS=@im=fcitx<br>SDL_IM_MODULE=fcitx<br></code></pre></td></tr></table></figure>
+
+<p>之后在系统设置里便可进行相应的配置</p>
+<h3 id="启用蓝牙并安装蓝牙音频设备"><a href="#启用蓝牙并安装蓝牙音频设备" class="headerlink" title="启用蓝牙并安装蓝牙音频设备"></a>启用蓝牙并安装蓝牙音频设备</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">yay -S bluez bluez-utils</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl <span class="hljs-built_in">enable</span> --now bluetooth</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">yay -S pulseaudio-bluetooth</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">pulseaudio -k</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="安装显卡驱动"><a href="#安装显卡驱动" class="headerlink" title="安装显卡驱动"></a>安装显卡驱动</h3><p>首先安装 Intel 核显驱动：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo pacman -S mesa lib32-mesa vulkan-intel lib32-vulkan-intel</span><br></code></pre></td></tr></table></figure>
+
+<p>如果你和笔者一样还有一张 N 卡则使用如下命令安装驱动：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo pacman -S nvidia nvidia-settings lib32-nvidia-utils</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里笔者没有安装 <code>optimus-manager</code>， 因为一安就进不去桌面了，看了半天日志找了半天解决方案都没能解决（悲）</p>
+<p>因为目前对续航其实没有过于极限的要求，独显集显混合输出的情况下还是能轻度工作3h左右的，因此暂时不考虑继续整这玩意了：）</p>
+</blockquote>
+<h1 id="0x04-桌面美化"><a href="#0x04-桌面美化" class="headerlink" title="0x04. 桌面美化"></a>0x04. 桌面美化</h1><h3 id="启动界面美化"><a href="#启动界面美化" class="headerlink" title="启动界面美化"></a>启动界面美化</h3><p>直接在 <code>System Settings-&gt;Startup and Shutdown-&gt;Login Screen(SDDM)</code> 里就能改，笔者这里直接选了 <code>Breeze</code></p>
+<h3 id="桌面风格美化"><a href="#桌面风格美化" class="headerlink" title="桌面风格美化"></a>桌面风格美化</h3><p>直接在 <code>System Settings-&gt;Appearance-&gt;Global Theme</code> 里选择自己喜欢的主题安装上然后再 apply 就行，或者也可以自己去 <a target="_blank" rel="noopener" href="https://store.kde.org/">https://store.kde.org</a> 进行下载，笔者选择的是国人设计师 <a target="_blank" rel="noopener" href="https://github.com/vinceliuice">vinceliuice</a> 开发的 <a target="_blank" rel="noopener" href="https://github.com/vinceliuice/MacVentura-kde">MacVentura KDE theme</a> 主题</p>
+<h3 id="安装-Dock"><a href="#安装-Dock" class="headerlink" title="安装 Dock"></a>安装 Dock</h3><p>在底下有个 Mac 样式的 Dock 还是相对来说比较养眼一些，这里笔者安装的是 <code>latte-dock</code>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">yay -S latte-dock</span><br></code></pre></td></tr></table></figure>
+
+<p>然后 <code>alt + f2</code> 输入 <code>latte</code> 就 ok 了</p>
+<p>最后再摆放各种 widgets 调一调 panel 位置啥的差不多就 ok 了，整体效果如下：</p>
+<p><img src="https://s2.loli.net/2023/09/20/3bdIi6KA9c2ulNV.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="0x05-一些报错的解决"><a href="#0x05-一些报错的解决" class="headerlink" title="0x05. 一些报错的解决"></a>0x05. 一些报错的解决</h1><h3 id="pcieport-报错"><a href="#pcieport-报错" class="headerlink" title="pcieport 报错"></a>pcieport 报错</h3><p>启动起来发现内核莫名其妙吐了一大堆的奇怪的东西：</p>
+<p><img src="https://s2.loli.net/2023/09/18/m71oVX2g489Or5s.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>在 <code>/boot/grub/grub.cfg</code> 中找到内核启动参数，添加上 <code>pci=nommconf</code> 即可</p>
+<h3 id="chrome-无法播放视频"><a href="#chrome-无法播放视频" class="headerlink" title="chrome 无法播放视频"></a>chrome 无法播放视频</h3><p>就一直卡在加载界面不动，参见 <a target="_blank" rel="noopener" href="https://wiki.archlinux.org/title/PulseAudio/Troubleshooting#Browsers_load_videos_but_do_no_play">Wiki</a> 使用如下命令可以临时解决：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">pulseaudio --<span class="hljs-built_in">kill</span> &amp;&amp; pulseaudio --start</span><br></code></pre></td></tr></table></figure>
+
+<p>完美的解决方案是是用 <code>pipewire-pulse</code> 替换掉 <code>pluseaudio</code> 与 <code>pluseaudio-bluetooth</code>，然后重启：</p>
+<blockquote>
+<p>安装这个包的时候会自动把另外两个包给卸了</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">yay -S pipewire-pulse</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="0x06-个人配置优化"><a href="#0x06-个人配置优化" class="headerlink" title="0x06. 个人配置优化"></a>0x06. 个人配置优化</h1><h3 id="触摸板开启点按即单击"><a href="#触摸板开启点按即单击" class="headerlink" title="触摸板开启点按即单击"></a>触摸板开启点按即单击</h3><p>触摸板习惯性的操作应当是按一下就是单击，而非按下机械左键才是单击， KDE 默认是关闭了这个选项，不过我们在系统设置中的 <code>Hardware→Input Devices→Touchpad</code> 里将 <code>Tap-to-click</code> 勾选上即可</p>
+<h3 id="触摸板上下滑动方向改变"><a href="#触摸板上下滑动方向改变" class="headerlink" title="触摸板上下滑动方向改变"></a>触摸板上下滑动方向改变</h3><p>笔者的使用习惯中双指滑动是上下反向，KDE 中默认是上下同向，这里只需要在系统设置中的 <code>Hardware→Input Devices→Touchpad</code> 里将 <code>Invert scroll direction (Natual scrolling)</code> 勾选上即可</p>
+<h3 id="设置双击打开文件"><a href="#设置双击打开文件" class="headerlink" title="设置双击打开文件"></a>设置双击打开文件</h3><p>Dolphin 中默认单击就打开文件了，而对于笔者来说更习惯 Windows 那样的单击选择双击打开的模式，这里只需要在系统设置中的 <code>Workspace Behaviour-&gt;General Behaviour</code> 中勾选 <code>Selects them</code> 即可</p>
+<h3 id="使用-zsh-替换-bash"><a href="#使用-zsh-替换-bash" class="headerlink" title="使用 zsh 替换 bash"></a>使用 zsh 替换 bash</h3><p><code>Z Shell</code> 是一个比默认自带的 <code>bash</code> 更加强大的 shell，这里我们通过如下命令即可将当前用户的默认 shell 替换为 zsh：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">yay -S zsh</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sh -c <span class="hljs-string">&quot;<span class="hljs-subst">$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)</span>&quot;</span></span><br><br></code></pre></td></tr></table></figure>
+
+<p>后面各种主题啥的配置可以参照<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/58073103">知乎上的这篇文章</a>，笔者用的是 <code>gnzh</code> 主题</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/DISTRO/" class="category-chain-item">DISTRO</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+        <a href="/tags/Arch-Linux/">#Arch Linux</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【DISTRO.0x00】从零开始的 Arch Linux 生活</div>
+      <div>https://arttnba3.github.io/2023/09/25/DISTRO-0X00-INSTALL_ARCH_WINDOWS/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年9月25日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/09/27/FUZZ-0X03-SYZKALLER-III_SOURCE_SYZFUZZER/" title="【FUZZ.0x03】syzkaller - III：syz-fuzzer 源码分析">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【FUZZ.0x03】syzkaller - III：syz-fuzzer 源码分析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/09/16/PAPER-0X03-PSPRAY/" title="【PAPER.0x03】论文笔记：Pspray: Timing Side-Channel based Linux Kernel Heap Exploitation Technique ">
+                        <span class="hidden-mobile">【PAPER.0x03】论文笔记：Pspray: Timing Side-Channel based Linux Kernel Heap Exploitation Technique </span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
