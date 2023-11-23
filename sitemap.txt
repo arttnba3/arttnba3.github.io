@@ -1,3 +1,5 @@
+https://arttnba3.github.io/2023/09/25/DISTRO-0X00-INSTALL_ARCH_WINDOWS/
+https://arttnba3.github.io/2023/11/24/DISTRO-0X01-INSTALL_TUMBLEWEED_WINDOWS/
 https://arttnba3.github.io/2022/10/28/PIECES-0X04-SHELL_OUTSIDE-4-XIANG_WAN/
 https://arttnba3.github.io/2021/12/31/PIECES-0X02-SHELL_OUTSIDE-2-DEEP_INTO_THE_SEA/
 https://arttnba3.github.io/2022/03/18/PIECES-0X03-SHELL_OUTSIDE-3-IDEALIST_DEATH/
@@ -24,7 +26,6 @@ https://arttnba3.github.io/2023/04/14/PAPER-0X02_VTW/
 https://arttnba3.github.io/2023/09/27/FUZZ-0X03-SYZKALLER-III_SOURCE_SYZFUZZER/
 https://arttnba3.github.io/2023/07/14/CTF-0X09_CISCN_2023_HDBFQS/
 https://arttnba3.github.io/2023/08/31/OPS-0X00-DOCKER_ON_SERVER/
-https://arttnba3.github.io/2023/09/25/ARCH-0X00-INSTALL_ARCH_WINDOWS/
 https://arttnba3.github.io/2023/09/16/PAPER-0X03-PSPRAY/
 https://arttnba3.github.io/2022/11/24/ANGR-0X00-ANGR_CTF/
 https://arttnba3.github.io/2000/10/12/hello-world/
@@ -177,7 +178,8 @@ https://arttnba3.github.io/tags/VNC/
 https://arttnba3.github.io/tags/GUI/
 https://arttnba3.github.io/tags/Wayland/
 https://arttnba3.github.io/tags/%E7%B3%BB%E7%BB%9F%E8%99%9A%E6%8B%9F%E5%8C%96/
-https://arttnba3.github.io/categories/ARCH/
+https://arttnba3.github.io/tags/OpenSUSE/
+https://arttnba3.github.io/tags/OpenSUSE-Tumbleweed/
 https://arttnba3.github.io/categories/ALGORITHM/
 https://arttnba3.github.io/categories/CODE/
 https://arttnba3.github.io/categories/CTF/
@@ -196,3 +198,4 @@ https://arttnba3.github.io/categories/PAPER/
 https://arttnba3.github.io/categories/PIECES/
 https://arttnba3.github.io/categories/VIRTUALIZATION/
 https://arttnba3.github.io/categories/PWN/
+https://arttnba3.github.io/categories/DISTRO/
