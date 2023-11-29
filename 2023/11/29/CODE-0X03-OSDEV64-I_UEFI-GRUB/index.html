@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129232638.png">
 <meta property="article:published_time" content="2023-11-29T12:21:47.000Z">
-<meta property="article:modified_time" content="2023-11-29T12:34:25.402Z">
+<meta property="article:modified_time" content="2023-11-29T12:53:35.341Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="开发手记">
 <meta property="article:tag" content="Assembly Language">
@@ -388,7 +388,7 @@
 </blockquote>
 </blockquote>
 <blockquote>
-<p>也有人会问：那为什么不用 <a target="_blank" rel="noopener" href="https://github.com/limine-bootloader/limine">Limine</a> 或是 <a target="_blank" rel="noopener" href="https://gitlab.com/bztsrc/bootboot">BOOTBOOT</a> 这样更加现代的且<strong>支持直接引导 64 位内核</strong>的更现代的 boot loader 呢？一个原因就是因为 GRUB 相对有着更好的兼容性，能够在更多设备上运行，教程资料也比较多，不过相应的代价就是<strong>我们只能从 32 位开始</strong>（GRUB2 对于 64 位的支持不是很好）</p>
+<p>也有人会问：那为什么不用 <a target="_blank" rel="noopener" href="https://github.com/limine-bootloader/limine">Limine</a> 或是 <a target="_blank" rel="noopener" href="https://gitlab.com/bztsrc/bootboot">BOOTBOOT</a> 这样更加现代的 boot loader 呢？一个原因就是因为 GRUB 相对有着更好的兼容性，能够在更多设备上运行，教程资料也比较多</p>
 </blockquote>
 <h2 id="Multiboot2-规范"><a href="#Multiboot2-规范" class="headerlink" title="Multiboot2 规范"></a>Multiboot2 规范</h2><p>那么我们如何让 GNU GRUB 知道他该怎么引导一个什么样的内核呢？答案是通过<a target="_blank" rel="noopener" href="https://www.gnu.org/software/grub/manual/multiboot/multiboot.html">多重引导规范</a>（Multiboot Specification），该规范制定的目的是使得遵循该规范的操作系统可以被同样遵循该规范的 boot loader 引导，而无需编写特定于 OS 的 boot loader</p>
 <p>GNU GRUB 第二版进行了完全的重写，多重引导规范也有个<a target="_blank" rel="noopener" href="https://www.gnu.org/software/grub/manual/multiboot2/multiboot.html">第二版</a>，不过好在 GRUB2 同时支持两版引导规范——这里我们使用<strong>第二版</strong>的规范</p>
@@ -626,7 +626,7 @@
 </blockquote>
 <p>简而言之就是进入 64 位模式之后正常运行 64 位应用就在纯 64 位模式，但也可以通过兼容模式来像 32 位保护模式那样运行以前的 32 位应用，这两种子模式间的切换<strong>通过 CS 段选择子对应的段描述符的 L 位决定</strong>：</p>
 <p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129171602.png" srcset="/img/loading.gif" lazyload alt="AMD64 处理器运行模式切换"></p>
-<p>我们的 64 位操作系统自然是运行在纯 64 位这一子模式下的，而 GRUB 引导进入我们的内核时我们仍出于 32 位模式下，因此我们需要编写 32 位汇编来将处理器切换到 64 位模式，具体需要进行如下工作：</p>
+<p>我们的 64 位操作系统自然是运行在纯 64 位这一子模式下的，而 GRUB 引导进入我们的内核时我们仍处于 32 位模式下，因此我们需要编写 32 位汇编来将处理器切换到 64 位模式，具体需要进行如下工作：</p>
 <ul>
 <li>将 **Model Specific Register **这一寄存器组中的 <strong>Extended Feature Enable Register</strong> 寄存器的 LME 位置为 1（参见 Intel SDM 卷 3 A Chapter 2 的 2.2.1 节，Table 2-1）</li>
 <li>配置好相应的全局段描述符表，并将 CS 段选择子对应的段描述符的 L 位置为 1</li>
