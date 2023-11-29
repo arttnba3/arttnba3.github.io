@@ -1,0 +1,1165 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="遥遥领先！遥遥领先！遥遥领先！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【CODE.0x03】现代 64 位 OS 开发手记 I：UEFI 启动与 GRUB 引导">
+<meta property="og:url" content="https://arttnba3.github.io/2023/11/29/CODE-0X03-OSDEV64-I_UEFI-GRUB/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="遥遥领先！遥遥领先！遥遥领先！">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129232638.png">
+<meta property="article:published_time" content="2023-11-29T12:21:47.000Z">
+<meta property="article:modified_time" content="2023-11-29T12:34:25.402Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="开发手记">
+<meta property="article:tag" content="Assembly Language">
+<meta property="article:tag" content="操作系统">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129232638.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【CODE.0x03】现代 64 位 OS 开发手记 I：UEFI 启动与 GRUB 引导 - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"arttnba3.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 95vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129041505.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【CODE.0x03】现代 64 位 OS 开发手记 I：UEFI 启动与 GRUB 引导"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-29 23:21" pubdate>
+          2023年11月29日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          25k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          210 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【CODE.0x03】现代 64 位 OS 开发手记 I：UEFI 启动与 GRUB 引导</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2023年11月29日 晚上
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>遥遥领先！遥遥领先！遥遥领先！</p>
+<span id="more"></span>
+
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00.一切开始之前"></a>0x00.一切开始之前</h1><p>很久以前在知乎上曾经有过一个“程序员的三大浪漫”的讲法：「编译原理」、「操作系统」、「图形学」——当然这个似乎是某些知名答主杜撰的并没有任何的由头神必说法，笔者自己也不认为所谓的“程序员的浪漫”就仅是这几个东西，但对于笔者而言，“自己动手编写一个可以正常运行的操作系统”确乎是一件<strong>非常炫酷的事情</strong></p>
+<p>笔者此前在大二下学期的时候曾参照《操作系统真象还原》编写过一个非常简陋的只有打印功能的 32 位操作系统——严格来说笔者仅仅完成了一个高度客制化的 boot loader 加上一点点的 kernel（因为懒而不是时间不够，天天摆烂躺平打游戏😥），也没有在真机上测试过，完全算不上一个能用的操作系统；在大三寒假期间笔者花了将近一周的时间<a target="_blank" rel="noopener" href="https://arttnba3.cn/2022/02/21/EXPR-0X00-MIT_6_828/">刷完了 MIT 6.828 的前四个 lab</a>，但那严格意义上来说也并不是笔者从零开始写的一个内核——大框架基本都是 MIT 搭好的，笔者仅仅只用补足非常微小的一部分；在大三下学期笔者想与喜欢的妹子一起参加一个<a target="_blank" rel="noopener" href="https://os.educg.net/">写操作系统内核的比赛</a>，但是由于<a target="_blank" rel="noopener" href="https://arttnba3.cn/2022/10/28/PIECES-0X04-SHELL_OUTSIDE-4-XIANG_WAN/">一些缘故</a>笔者一直拖到了比赛结束都还没有开始动手写第一行代码，最后也就不了了之了；在大四上学期笔者又重新写了一个<a target="_blank" rel="noopener" href="https://github.com/arttnba3/SumiOS">用 Grub2 引导的 64 位内核</a>，但是写完内存分配之后也烂尾了 😅</p>
+<blockquote>
+<p>仔细想来对于笔者来说似乎很少存在“万事开头难”的阶段，但往往一切事物都会滑向无底的大坑永久无法填上：）</p>
+</blockquote>
+<p>因此趁着现在时间尚且充足，笔者想要<strong>真正地从零写一个可用的 64 位操作系统内核</strong>，算是满足自己多年来的一个梦想吧，名字的话笔者决定叫 <code>ClosureOS</code> ——这个名字的由来比较简单，笔者一直很难想出比较好听的名字，看了看市面上有各种操作系统都叫 <code>Open*</code> ，那笔者就叫 <code>Close</code> 好了，但是 <code>Close</code> 这个单词长得又不好看，于是笔者最终选择了 <code>Closure</code> 作为这个操作系统的名字——虽然似乎不是特别好听，但反正是否能写完都还是个未知数，所以也无所谓了（笑）</p>
+<p>本项目代码开源在 <a target="_blank" rel="noopener" href="https://github.com/arttnba3/ClosureOS">https://github.com/arttnba3/ClosureOS</a></p>
+<h1 id="0x01-Boot-Firmware"><a href="#0x01-Boot-Firmware" class="headerlink" title="0x01. Boot Firmware"></a>0x01. Boot Firmware</h1><p>现代计算机的上电过程比较复杂，不过对于操作系统开发而言我们其实只需要关注<strong>当我们按下开机键之后所发生的事情</strong>，实际上无论是古老的 Legacy BIOS 启动还是逐渐成为主流的 UEFI 启动而言，其不外乎都遵循以下三个大阶段：</p>
+<ul>
+<li><strong>ROM Stage</strong>：经历了一些基本的初始化工作后 CPU 被重置，主核心被唤醒，指令指针寄存器指向 <code>reset vector</code>（固件入口点）并由此开始执行，此时尚未进行内存探测，需要直接在 ROM 上执行</li>
+<li><strong>RAM Stage</strong>：内存探测完成，此时可以进行主板上各芯片组、CPU 等模块的初始化等工作</li>
+<li><strong>Boot Stage</strong>：找到启动设备，完成启动设备前的依赖项的准备，将控制权移交给设备上的下一阶段的启动器</li>
+</ul>
+<p>现有的固件通常分为两类：BIOS 与 UEFI</p>
+<h2 id="Legacy-BIOS"><a href="#Legacy-BIOS" class="headerlink" title="Legacy BIOS"></a>Legacy BIOS</h2><p><strong>基本输入输出系统</strong>（<strong>Basic Input&#x2F;Output System</strong>，BIOS）是用来为计算机提供初始化服务与运行时服务的一组固件，其被预装在主板的 ROM&#x2F;FLASH 芯片上，不同的 BIOS 通常仅能在特定的主板型号上运行</p>
+<p>当计算机启动后 BIOS 为第一个被运行的软件，此时计算机处于实模式下，仅能访问 1MB 内存的空间，其中物理内存 <code>0xF0000 ~ 0xFFFFF</code> 这 64KB 空间被映射到 BIOS ROM 当中，并以 <code>0xFFFF0</code> 处作为 BIOS 程序的入口点开始执行</p>
+<blockquote>
+<p>对于支持且开启了 BIOS shadowing 特性的计算机而言，BIOS 会被先从固件当中拷贝到内存中，而非直接在 ROM 空间上执行</p>
+</blockquote>
+<p>BIOS 会从南桥的 CMOS 芯片中读取 BIOS 程序的设置值、硬件参数侦测值等信息，在完成加电自检、设备测试等工作之后，会从启动设备中读取第一个扇区到物理内存 <code>0x7c00</code> 的位置，该扇区被称为<strong>主引导记录</strong>（<strong>Master Boot Recode</strong>，MBR），随后 BIOS 会跳转到 <code>0x7c00</code> 处继续执行，控制权转交给 MBR</p>
+<p>MBR 的结构如下图所示，其中<strong>不仅包含有 440 字节的第一阶段引导代码，同时还包含有磁盘的分区表信息</strong>，MBR 以末尾的两个字符 <code>0x55, 0xaa</code> 作为其标识：</p>
+<blockquote>
+<p>这里我们可以看到 MBR 分区表仅支持不超过四个主分区，多余的分区则需要依赖操作系统在其上建立虚拟分区，此外 MBR 也不支持管理硬盘 2TB 以外的存储空间，因此这种分区方式 <em>其实已经正在逐渐地被淘汰</em> </p>
+</blockquote>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231113212038.png" srcset="/img/loading.gif" lazyload></p>
+<p>由于 MBR 仅有 512 字节，无法完成过多的任务，因此通常的设计是由 MBR 从硬盘上读取第二阶段的 boot loader，由其来完成后续的系统环境初始化、载入操作系统内核等工作</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231113211739.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="Unified-Extensible-Firmware-Interface"><a href="#Unified-Extensible-Firmware-Interface" class="headerlink" title="Unified Extensible Firmware Interface"></a>Unified Extensible Firmware Interface</h2><p><strong>统一可扩展固件接口</strong>（<strong>Unified Extensible Firmware Interface</strong>，UEFI）为一套<strong>固件接口规范，用以初始化硬件、引导操作系统，并向操作系统提供一套统一的功能接口，解决不同厂牌 BIOS 分裂的现状</strong>，其最初起源于 Intel 开发的 EFI，在 2005 年由 Intel 交由 UEFI 论坛进行推广，<strong>UEFI 固件本质上与 BIOS 固件没有区别</strong>（都是封装在 ROM&#x2F;FLASH 固件里的程序）</p>
+<blockquote>
+<p>例如 BIOS 厂商 A 提供的某个功能接口的使用方式是 X，BIOS 厂商 B 提供的相似功能接口使用方式是 Y，那操作系统就得为不同厂商的不同功能编写多套代码</p>
+<p>而有了 UEFI 规范，厂商 A、B 的 UEFI 固件都需要向上层提供统一的接口，从而使得操作系统可以用相同的方式调用某个功能，避免了代码分裂的情况</p>
+</blockquote>
+<p>这里引用一张非常经典的图片简述 UEFI 启动的基本过程：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231113191232.png" srcset="/img/loading.gif" lazyload></p>
+<p>相应地，UEFI 启动不再使用老旧的 MBR 分区表，而是使用 <strong>GUID Partion Table</strong> （GPT 分区表），以 512 字节为单位作为一个<strong>逻辑块</strong>（Logic Block，相对应的区块地址便称为 LBA），前 34 个 LBA 用来记录分区信息，其中 LBA0 为了兼容性保留给 MBR 使用，LBA1 记录分区表自身的信息、备份用 GPT 分区（最后 34 个 LBA 的位置）、分区的 CRC 校验码等，LBA2 ~ LBA 33 则用来记录分区信息，每个 LBA 可以记录四个条目：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129220808.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<h4 id="扩展阅读：兼容支持模块（Compatibility-Support-Module）"><a href="#扩展阅读：兼容支持模块（Compatibility-Support-Module）" class="headerlink" title="扩展阅读：兼容支持模块（Compatibility Support Module）"></a>扩展阅读：兼容支持模块（Compatibility Support Module）</h4><p>在 UEFI 逐渐替换掉计算机底层固件的风潮涌动之时，尚有大量的设备仍旧使用传统的 MBR 分区表，为了进行兼容，CSM 这一兼容支持模块会模拟传统 BIOS 的功能，为这些设备系统按照传统的 BIOS + MBR 方式进行引导，并提供传统 BIOS 的 0x10 等中断服务</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129203153.png" srcset="/img/loading.gif" lazyload></p>
+</blockquote>
+<h2 id="Coreboot"><a href="#Coreboot" class="headerlink" title="Coreboot"></a><em>Coreboot</em></h2><p><strong>Coreboot</strong> 起源于 <strong>LinuxBIOS</strong>，最初的思路是 <em>既然 Linux 有比较好的硬件支持，那计算机启动以后直接跳 Linux就完事了</em>  ， 于是 <em>使用 20 行汇编完成初始化并将 Flash 中的 Linux 拷贝至内存后直接跳过去</em> 的 LinuxBIOS 诞生于 1999年，随后经过不断发展，引导 Linux 所用的程序越来越大，于是项目在 2008 年改名为 coreboot，项目结构变为 <code>coreboot + payload</code>，Linux 则成为了 <em>可选的一段 payload</em> ，通过这样的模式，Coreboot 可以通过引入不同的 payload 来支持多种不同的启动规范，包括 Legacy BIOS 和 UEFI</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129222934.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>目前市面上正在使用 Coreboot 的主流产品有 Google Chromebook 和 System76 旗下的笔记本等</p>
+</blockquote>
+<h1 id="0x02-多重引导规范-amp-GNU-GRUB"><a href="#0x02-多重引导规范-amp-GNU-GRUB" class="headerlink" title="0x02. 多重引导规范 &amp; GNU GRUB"></a>0x02. 多重引导规范 &amp; GNU GRUB</h1><h2 id="Why-GRUB？"><a href="#Why-GRUB？" class="headerlink" title="Why GRUB？"></a>Why GRUB？</h2><p>现今的大部分所谓“教你自行编写操作系统”的无论是教程也好书籍也好，都存在着一个小小的问题：<strong>对 Legacy BIOS 的内核引导阶段大书特书</strong>——诚然，了解一台计算机从启动开始到内核真正运作这段期间的实现细节无疑是十分重要的一件事情，对于操作系统学习而言或许也有不小的帮助，但很容易让初学者陷入到与各种硬件博弈的苦战当中，同时对于实际的开发而言手动编写一个<strong>仅适用于我们自己的内核</strong>的客制化 <code>MBR + boot loader</code> 意义并不算特别大</p>
+<blockquote>
+<p> <del>再说都什么时代了还在用 Legacy BIOS，Wintel 联盟都宣布这玩意已经彻底成为历史了，👴🚪就没有必要再深究了，大概了解一下差不多得了</del></p>
+</blockquote>
+<p>而 UEFI 规范虽然给了我们更为方便地通过 UEFI 的各种接口实现不同的功能，但<strong>UEFI 的大部分功能在 Runtime 阶段是不可用的</strong>，同时这也少不了编写设备识别、文件系统解析等工作，再配上编写各种基础设施，一套写下来一个EFI 程序其实差不多就已经是一个完整的小内核了——当然， <em>直接用 EFI 程序作为操作系统内核不是不行，看着也确实像个样子</em> ，<strong>就是不太优雅，也不太现代</strong></p>
+<p>因此，对于内核引导阶段，我们暂时选择<strong>直接复用现有的成熟的方案</strong>——例如「GNU GRUB」，其同时支持 Legacy BIOS 与 UEFI 引导，让我们不用在一开始就陷入到与各种存储设备斗争的泥潭当中</p>
+<p><img src="https://s2.loli.net/2022/09/07/eTCVOtlpE7PYFXq.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<blockquote>
+<p>当然，如果说仅从「学习」的角度而言自己亲手写一个 <code>MBR + boot loader</code> &#x2F; <code>EFI</code> 并亲身体会到其载入内核的整个过程其实是一件非常有益处的事情（笑）</p>
+<blockquote>
+<p>先挖个坑：我们将在操作系统内核开发完成之后的后续补充文章中<strong>自行开发一个 EFI 程序以引导符合 multiboot2 规范的内核</strong></p>
+</blockquote>
+</blockquote>
+<blockquote>
+<p>也有人会问：那为什么不用 <a target="_blank" rel="noopener" href="https://github.com/limine-bootloader/limine">Limine</a> 或是 <a target="_blank" rel="noopener" href="https://gitlab.com/bztsrc/bootboot">BOOTBOOT</a> 这样更加现代的且<strong>支持直接引导 64 位内核</strong>的更现代的 boot loader 呢？一个原因就是因为 GRUB 相对有着更好的兼容性，能够在更多设备上运行，教程资料也比较多，不过相应的代价就是<strong>我们只能从 32 位开始</strong>（GRUB2 对于 64 位的支持不是很好）</p>
+</blockquote>
+<h2 id="Multiboot2-规范"><a href="#Multiboot2-规范" class="headerlink" title="Multiboot2 规范"></a>Multiboot2 规范</h2><p>那么我们如何让 GNU GRUB 知道他该怎么引导一个什么样的内核呢？答案是通过<a target="_blank" rel="noopener" href="https://www.gnu.org/software/grub/manual/multiboot/multiboot.html">多重引导规范</a>（Multiboot Specification），该规范制定的目的是使得遵循该规范的操作系统可以被同样遵循该规范的 boot loader 引导，而无需编写特定于 OS 的 boot loader</p>
+<p>GNU GRUB 第二版进行了完全的重写，多重引导规范也有个<a target="_blank" rel="noopener" href="https://www.gnu.org/software/grub/manual/multiboot2/multiboot.html">第二版</a>，不过好在 GRUB2 同时支持两版引导规范——这里我们使用<strong>第二版</strong>的规范</p>
+<blockquote>
+<p>然而 Linux kernel 使用的<strong>并不是 multiboot  规范</strong>，而是其<a target="_blank" rel="noopener" href="https://www.kernel.org/doc/Documentation/x86/boot.txt">自定义的协议</a></p>
+</blockquote>
+<p>多重引导规范要求我们的内核映像的前 <code>32768</code> 字节中一个任意的 <strong>64位对齐的位置</strong> 必须要有一个 <a target="_blank" rel="noopener" href="https://www.gnu.org/software/grub/manual/multiboot2/multiboot.html#Header-layout"><code>multiboot2 header</code></a> 来记录相应的信息，格式如下：</p>
+<table>
+<thead>
+<tr>
+<th>Offset</th>
+<th>Type</th>
+<th>Field Name</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>u32</td>
+<td>magic</td>
+<td>required</td>
+</tr>
+<tr>
+<td>4</td>
+<td>u32</td>
+<td>architecture</td>
+<td>required</td>
+</tr>
+<tr>
+<td>8</td>
+<td>u32</td>
+<td>header_length</td>
+<td>required</td>
+</tr>
+<tr>
+<td>12</td>
+<td>u32</td>
+<td>checksum</td>
+<td>required</td>
+</tr>
+<tr>
+<td>16-XX</td>
+<td></td>
+<td>tags</td>
+<td>required</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p><code>magic</code>：multiboot2 header 的标识，必须为 <code>0xE85250D6</code></p>
+</li>
+<li><p><code>architecture</code>：标识指令集架构，0 表示 32 位 i386 保护模式，4 表示 32 位 MIPS</p>
+</li>
+<li><p><code>header_length</code> ：包含 tags 在内的整个 multiboot2 header 的大小</p>
+</li>
+<li><p><code>checksum</code>：该域与前三个域相加的和为无符号 0</p>
+</li>
+<li><p><code>tags</code>：补充域，其格式通常如下，以类似数组的形式跟在后边，<strong>每个 tag 的起始地址8 字节对齐</strong>，<strong>整个 tag 数组以一个 type 为 0 及 size 为 8 的 tag 结尾</strong>，关于不同类型的 tag 格式，参见<a target="_blank" rel="noopener" href="https://www.gnu.org/software/grub/manual/multiboot2/multiboot.html#Header-tags">此处</a>：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">        +-------------------+<br>u16     |<span class="hljs-string"> type              </span>|<br>u16     |<span class="hljs-string"> flags             </span>|<br>u32     |<span class="hljs-string"> size              </span>|<br>        +-------------------+<br></code></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="在-U-盘上安装-GRUB2"><a href="#在-U-盘上安装-GRUB2" class="headerlink" title="在 U 盘上安装 GRUB2"></a>在 U 盘上安装 GRUB2</h2><p>虽然很多操作系统编写教程都是在虚拟机当中运行的，毕竟 <em>对于操作系统初学者而言更重要的是了解整个操作系统的运行机理</em> ，但是<strong>在物理机上运行自己写的操作系统是非常令人感到愉悦的一件事情</strong>，所以这里我们将会介绍如何在 U 盘上安装 GRUB 来引导自己的操作系统内核</p>
+<blockquote>
+<p>如果你不想弄这一部分，也可以跳转到下一节，直接开始安全地使用 QEMU，我们后面的各种开发调试其实主要也是在 QEMU 上完成的 ：）</p>
+</blockquote>
+<ul>
+<li><p>如果你在物理机上使用 Linux 作业系统，请找到你的 U 盘对应的设备节点，如果你的计算机仅有一块固态硬盘，则新插入的 U 盘 <em>通常</em> 是 <code>/dev/sda</code></p>
+</li>
+<li><p>如果你在物理机上使用 Windows 操作系统，出于易用性考虑，请在 Vmware 虚拟机中安装一个 Ubuntu 操作系统，并通过如下方式将 U 盘连接到虚拟机中（请先确定好你的 U 盘对应的设备名称），在你的虚拟机处在默认配置且不存在外部存储设备的情况下，U 盘对应的设备节点通常是 <code>/dev/sdb</code>：</p>
+</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231114214055.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p> 也可以通过重新拔插可移动设备以让 Vmware 自行截获：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231114214205.png" srcset="/img/loading.gif" lazyload></p>
+<p>如果你是其他情况，请自行进行判断 ：)</p>
+</blockquote>
+<p>首先安装一些依赖：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt install -y dosfstools mtools gparted gcc cmake git bison libopts25 libselinux1-dev m4 help2man libopts25-dev flex libfont-freetype-perl automake make autotools-dev autopoint libfreetype6-dev texinfo python3 autogen autoconf libtool libfuse3-3 unifont gettext binutils pkg-config liblzma5 libdevmapper-dev</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来我们对 U 盘进行分区，<strong>请确保你已经将所有重要数据完成备份</strong>，这里笔者选择使用 <code>GParted</code> 进行分区，我们首先通过 <code>Device→Create Partion Table...</code> 建立一个 GPT 分区表：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231114214927.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>此时可能会提示无法重建分区表，这是因为 Ubuntu 可能偷偷帮你把分区挂载在 <code>/run/你的用户名</code> ，请使用 <code>umount</code> 卸载所有活动分区，之后重新启动 <code>GParted</code></p>
+</blockquote>
+<p>然后右键新建分区，这里笔者选择建立一个大小为 512MB 的 EFI 分区，注意<strong>该分区必须为 fat32 格式</strong>，剩余的空间作为一个文件系统分区， <em>我们将在后续开发文件系统时用到她</em> ，划分好后点绿色的✅然后 <code>Apply</code>：</p>
+<blockquote>
+<p>这里 GParted 会在 U 盘末尾留下 1MB 的空间，用来放 MBR 分区表，主要是出于兼容目的</p>
+</blockquote>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231127160626.png" srcset="/img/loading.gif" lazyload></p>
+<p>接下来我们从源码编译 GRUB，首先从 <a target="_blank" rel="noopener" href="https://ftp.gnu.org/gnu/grub/">GNU GRUB 的 FTP 服务器</a>进行下载源码，然后在单独的文件夹中进行编译，这里我们三种 GRUB 都编译上：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">wget https://ftp.gnu.org/gnu/grub/grub-2.06.tar.xz</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">也可以从这里获取： git <span class="hljs-built_in">clone</span> git://git.savannah.gnu.org/grub.git</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">tar -xf grub-2.06.tar.xz</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cd</span> grub-2.06/</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">mkdir</span> EFI32 EFI64 BIOS</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cd</span> EFI64</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">../configure --target=x86_64 --with-platform=efi &amp;&amp; make -j$(<span class="hljs-built_in">nproc</span>)</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cd</span> ../EFI32</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">../configure --target=i386 --with-platform=efi &amp;&amp; make -j$(<span class="hljs-built_in">nproc</span>)</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cd</span> ../BIOS</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">../configure --target=i386 --with-platform=pc --disable-nls &amp;&amp; make -j$(<span class="hljs-built_in">nproc</span>)</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注：如果你使用的是 Arch&#x2F;Fedora&#x2F;OpenSUSE 这样更新比较快的系统，在编译的时候可能会出错（<del>GCC 背大锅</del>），那么这个时候可能就需要使用更新版本的源码，笔者物理机此前使用的是 Fedora Workstation 38，编译 2.06 时爆了莫名其妙的问题，所以后来笔者选择了 <a target="_blank" rel="noopener" href="https://git.savannah.gnu.org/cgit/grub.git/tag/?h=grub-2.12-rc1">2.12 rc1</a> 版本的 GRUB2</p>
+</blockquote>
+<p>然后将 GRUB2 安装到 U 盘的 EFI 分区上：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo mount /dev/sdb1 /mnt <span class="hljs-comment"># 注意替换成自己的 U 盘对应的设备节点</span></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cd</span> ../EFI64/grub-core</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo ../grub-install -d <span class="hljs-variable">$PWD</span> --force --removable --no-floppy --target=x86_64-efi --boot-directory=/mnt/boot --efi-directory=/mnt</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cd</span> ../../EFI32/grub-core</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo ../grub-install -d <span class="hljs-variable">$PWD</span> --force --removable --no-floppy --target=i386-efi --boot-directory=/mnt/boot --efi-directory=/mnt</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cd</span> ../../BIOS/grub-core</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo ../grub-install -d <span class="hljs-variable">$PWD</span> --force --no-floppy --target=i386-pc --boot-directory=/mnt/boot /dev/sdb</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里直接用系统自带的 <code>grub-install</code> 也可以直接安装，但是笔者在 Fedora 系统上使用自带的 <code>grub2-install</code> 时出现了这样一个错误：</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs applescript">grub2-install: <span class="hljs-keyword">error</span>: this utility cannot be used <span class="hljs-keyword">for</span> EFI platforms because <span class="hljs-keyword">it</span> <span class="hljs-keyword">does</span> <span class="hljs-keyword">not</span> support UEFI Secure Boot.<br></code></pre></td></tr></table></figure>
+
+<p>网上也没有找到什么比较好的解决方案，笔者只好从源码进行编译</p>
+<blockquote>
+<p>但是 Ubuntu 自带的 <code>grub-install</code> 就能正常使用，<del>t新系统的苦逼.txt</del></p>
+</blockquote>
+</blockquote>
+<p>接下来我们新建一个文件 <code>/mnt/boot/grub/grub.cfg</code> （假设你的 U 盘 EFI 分区和笔者一样挂载在 <code>/mnt</code> 下），其为 GRUB 的配置文件，编写内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs cfg">set timeout=10  # waiting time befo automatic booting<br>set default=0   # default menu entry index<br><br>insmod all_video<br><br>menuentry &quot;Boot ClosureOS v0.0.1&quot; &#123;<br>	multiboot2 /boot/kernel.bin # use multiboot2 spec to boot<br>	boot<br>&#125;<br><br>if [ $&#123;grub_platform&#125; == &quot;efi&quot; ]; then<br>	menuentry &quot;UEFI Setting&quot; &#123;<br>		fwsetup<br>	&#125;<br>fi<br><br>menuentry &quot;System Reboot&quot; --class=reboot &#123;<br>	reboot<br>&#125;<br><br>menuentry &quot;System Shutdown&quot; --class=halt &#123;<br>	halt<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>卸载 U 盘，重新启动计算机，进入你的 BIOS&#x2F;UEFI 配置界面，关闭安全启动（<code>Secure Boot</code>），将 U 盘配置为第一个启动项（通常开头会有一个 <code>UEFI: </code> 的标识），重新启动计算机，接下来——</p>
+<p><strong>GNU GRUB，启动！！！</strong></p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129040634.png" srcset="/img/loading.gif" lazyload></p>
+<p>当然，现在我们还没有开始编写操作系统内核，所以想要直接启动会报错，不过后面我们编写的内核直接放到 U 盘 EFI 分区的<code>boot/kernel.bin</code> 这个位置就可以直接启动了：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231114235156.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="创建包含-GRUB2-的启动镜像文件并使用-QEMU-UEFI-启动"><a href="#创建包含-GRUB2-的启动镜像文件并使用-QEMU-UEFI-启动" class="headerlink" title="创建包含 GRUB2 的启动镜像文件并使用 QEMU UEFI 启动"></a>创建包含 GRUB2 的启动镜像文件并使用 QEMU UEFI 启动</h2><p>首先安装一些依赖：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt install -y qemu qemu-system-x86 ovmf xorriso</span><br></code></pre></td></tr></table></figure>
+
+<p>然后使用如下脚本在 QEMU 中从 U 盘启动 GRUB，注意替换成你自己的 U 盘设备节点路径：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-meta">#!/bin/sh</span><br>sudo qemu-system-x86_64 \<br>	-bios /usr/share/ovmf/OVMF.fd \<br>	-cpu kvm64,+smep,+smap \<br>	-smp sockets=1,dies=1,cores=4,threads=2 \<br>	-m 4G \<br>	--machine q35 \<br>	-drive file=/dev/sdb,format=raw,index=0,media=disk<br>	-s<br></code></pre></td></tr></table></figure>
+
+<p>各参数说明如下：</p>
+<ul>
+<li><code>-bios</code> ：指定使用的启动固件，这里是 OVMF，源自于 <a target="_blank" rel="noopener" href="https://github.com/tianocore/edk2">EDK2</a> 的 UEFI 固件</li>
+<li><code>-cpu</code>：指定 CPU 类型及特性，<code>kvm64</code> 是一种常规的 CPU 类型，<code>+smep</code> 和 <code>+smap</code> 表示开启阻止内核空间执行&#x2F;访问用户空间数据的保护</li>
+<li><code>-smp</code>：指定 CPU 插槽数、单个插槽上 DIE 的数量、每个 DIE 的核心数、每个核心的线程数</li>
+<li><code>-m</code>：内存大小</li>
+<li><code>--machine</code> ：机器设备类型，QEMU 支持两种设备，另外一种是比较老的 <code>i440fx</code></li>
+<li><code>-drive</code>：添加一个设备，这里添加了 <code>/dev/sdc</code> 设备</li>
+<li><code>-s</code>：支持通过使用 gdb 连接 <code>0.0.0.0:1234</code> 进行调试</li>
+</ul>
+<p>简单测试一下，成功进入 GRUB 界面：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129040935.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>如果未指定 <code>-bios</code> 参数，则默认会使用 SeaBIOS 进行启动，此时便是传统的 BIOS + MBR 启动方式：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129041009.png" srcset="/img/loading.gif" lazyload></p>
+</blockquote>
+<p>不过可能也有同学手上暂时没有闲置的 U 盘或其他外部存储设备，此时我们也可以使用 <code>grub-mkrescue</code> 创建一个专门用来调试的镜像，首先创建如下目录结构：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">tree target/</span><br>target/<br>└── x86_64<br>    └── iso<br>        └── boot<br>            └── grub<br>                └── grub.cfg<br><br>4 directories, 1 file<br></code></pre></td></tr></table></figure>
+
+<p>接下来使用  <code>grub-mkrescue</code> 创建镜像：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">grub-mkrescue /usr/lib/grub/x86_64-efi -o kernel.iso target/x86_64/iso</span><br></code></pre></td></tr></table></figure>
+
+<p>把启动脚本中的设备节点路径改成文件路径即可成功启动：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/sh</span><br>qemu-system-x86_64 \<br>	-bios /usr/share/ovmf/OVMF.fd \<br>	-cpu kvm64,+smep,+smap \<br>	-smp sockets=1,dies=1,cores=4,threads=2 \<br>	-m 4G \<br>	--machine q35 \<br>	-drive file=./kernel.iso,format=raw,index=0,media=disk<br></code></pre></td></tr></table></figure>
+
+<h1 id="0x03-启动一个空白内核"><a href="#0x03-启动一个空白内核" class="headerlink" title="0x03. 启动一个空白内核"></a>0x03. 启动一个空白内核</h1><p>接下来我们终于要正式开始进行内核的编写了，过去绝大部分的操作系统内核都是用 <code>汇编 + C 语言</code> 编写的，不过最近也有使用 Rust 替换 C 语言的内核实现（例如国产操作系统 <a target="_blank" rel="noopener" href="https://dragonos.org/">DragonOS</a> ，<strong>与绝大多数 Linux 系统调用兼容，目前已经完成了 musl-gcc 的移植</strong>，笔者觉得非常🐂🍺），Rust 也在逐渐进入 Linux 内核，包括<a target="_blank" rel="noopener" href="https://os.educg.net/#/">计算机系统能力大赛</a> 主推的也是 Rust 内核</p>
+<p>但是对于新手而言 Rust 终归是有些难以让人绷得住，在笔者看来<strong>不能像 C 语言那样提供足够贴近于硬件底层的直接抽象</strong>，因此笔者这里还是先选择自己最喜欢的 C 语言来进行内核的编写：）</p>
+<blockquote>
+<p>算下来已经是笔者用 C 写的第四个内核了，希望这次能够达到比较高的一个完成度</p>
+</blockquote>
+<h2 id="代码基本结构"><a href="#代码基本结构" class="headerlink" title="代码基本结构"></a>代码基本结构</h2><p>最初的代码结构如下所示，包含一个空白内核：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">tree .</span><br>.<br>├── code<br>│   ├── arch<br>│   │   ├── Makefile<br>│   │   └── x86<br>│   │       ├── boot<br>│   │       │   ├── boot_main.c<br>│   │       │   ├── boot.S<br>│   │       │   ├── boot_tty.c<br>│   │       │   └── font.psf<br>│   │       ├── include<br>│   │       │   └── asm<br>│   │       │       ├── cpu_types.h<br>│   │       │       └── page_types.h<br>│   │       └── Makefile<br>│   ├── include<br>│   │   ├── boot<br>│   │   │   └── multiboot2.h<br>│   │   ├── closureos<br>│   │   │   └── types.h<br>│   │   └── graphics<br>│   │       └── font<br>│   │           └── psf.h<br>│   ├── kernel<br>│   │   ├── main.c<br>│   │   └── Makefile<br>│   ├── linker.ld<br>│   └── Makefile<br>├── repack_iso.sh<br>├── run.sh<br>└── target<br>    └── x86_64<br>        └── iso<br>            └── boot<br>                └── grub<br>                    └── grub.cfg<br><br>17 directories, 18 files<br><br></code></pre></td></tr></table></figure>
+
+<p>我们使用 <code>Make</code> 来进行项目管理，根目录的 <code>Makefile</code> 编写如下，主要作用就是准备统一的编译参数、进入不同文件夹进行 make、链接所有的目标文件：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-comment"># Author: arttnba3</span><br><span class="hljs-comment"># 2023.11</span><br><br>CC	:= <span class="hljs-variable">$(GCCPREFIX)</span>gcc<br>AS	:= <span class="hljs-variable">$(GCCPREFIX)</span>as<br>AR	:= <span class="hljs-variable">$(GCCPREFIX)</span>ar<br>LD	:= <span class="hljs-variable">$(GCCPREFIX)</span>ld<br>CFLAGS := -pipe -ffreestanding -nostdlib -fno-pie -fno-stack-protector -mcmodel=large<br>LDFLAGS := -nostdlib -z max-page-size=0x1000<br><br><span class="hljs-keyword">export</span> CC<br><span class="hljs-keyword">export</span> AS<br><span class="hljs-keyword">export</span> AR<br><span class="hljs-keyword">export</span> LD<br><span class="hljs-keyword">export</span> CFLAGS<br><br>INCLUDE := <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> pwd)</span>/<span class="hljs-keyword">include</span>/<br>ARCH := <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> uname -m)</span><br>OUT := <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> pwd)</span>/out/<br>ARCH_OUT := <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> pwd)</span>/out/arch/<br><br><span class="hljs-keyword">export</span> INCLUDE<br><span class="hljs-keyword">export</span> ARCH<br><span class="hljs-keyword">export</span> OUT<br><span class="hljs-keyword">export</span> ARCH_OUT<br><br><span class="hljs-section">all: prepare kernel.bin</span><br><br><span class="hljs-section">prepare:</span><br>	mkdir -p <span class="hljs-variable">$(OUT)</span><br>	mkdir -p <span class="hljs-variable">$(ARCH_OUT)</span><br><br><span class="hljs-section">kernel.bin: kernel_file arch_file</span><br>	<span class="hljs-variable">$(LD)</span> -T linker.ld -o <span class="hljs-variable">$(OUT)</span>/<span class="hljs-variable">$@</span> <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> find <span class="hljs-variable">$(OUT)</span> -name *.o)</span><br><br><span class="hljs-section">kernel_file:</span><br>	make -C kernel/<br><br><span class="hljs-section">arch_file:</span><br>	make -C arch/<br><br><span class="hljs-section">clean:</span><br>	rm -rf ./out<br><br><span class="hljs-meta"><span class="hljs-keyword">.PHONY</span>: all</span><br><br></code></pre></td></tr></table></figure>
+
+<p><code>include</code> 目录下是用于各个子系统的各种头文件，与 multiboot2 规范相关的一些定义放在 <code>include/boot/multiboot2.h</code> 中，该头文件来自于<a target="_blank" rel="noopener" href="https://www.gnu.org/software/grub/manual/multiboot2/html_node/multiboot2_002eh.html">Multiboot 2 spec</a>，比较长，这里就不贴出来了</p>
+<p>内核主体放在 <code>kernel</code> 目录下，其中 <code>kernel/Makefile</code> 编写如下，主要就是编译完放到输出文件夹中：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs makefile">src_files = <span class="hljs-variable">$(<span class="hljs-built_in">wildcard</span> *.c)</span><br>obj_files = <span class="hljs-variable">$(<span class="hljs-built_in">notdir</span> $(<span class="hljs-built_in">patsubst</span> %c, %o, <span class="hljs-variable">$(src_files)</span>)</span>)<br><br><span class="hljs-section">all:</span><br>	<span class="hljs-variable">$(CC)</span> <span class="hljs-variable">$(CFLAGS)</span> -c <span class="hljs-variable">$(src_files)</span> -I <span class="hljs-variable">$(INCLUDE)</span><br>	mkdir <span class="hljs-variable">$(OUT)</span>/kernel<br>	mv <span class="hljs-variable">$(obj_files)</span> -t <span class="hljs-variable">$(OUT)</span>/kernel<br></code></pre></td></tr></table></figure>
+
+<p><code>kernel/main.c</code> 暂时就先放一个空的函数， <em>本篇博客暂时还用不到这块</em> ：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-comment">// do nothing</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>arch</code> 目录下是与架构相关的代码，目前暂时还是只支持 x86，不过后续如果有机会的话笔者希望能够让他在更多架构上跑起来，所以这里设计了一个通用的 <code>arch/Makefile</code>：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">all:</span><br><span class="hljs-keyword">ifeq</span> (<span class="hljs-variable">$(ARCH)</span>,x86_64)<br>	make -C x86/<br><span class="hljs-keyword">else</span><br>	@echo <span class="hljs-string">&quot;unsupported arch&quot;</span><br>	@false<br><span class="hljs-keyword">endif</span><br></code></pre></td></tr></table></figure>
+
+<p><code>arch/x86/Makefile</code> 主要就是编译汇编和 C 文件以及启动阶段临时用的字体文件放到 <code>out/arch</code> 目录下，这里我们将启动阶段所需的代码都放在 <code>arch/x86/boot</code> 目录下：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-comment"># Author: arttnba3</span><br><span class="hljs-comment"># 2023.11</span><br><br>boot_dir = boot<br>X86_INCLUDE = <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> pwd)</span>/<span class="hljs-keyword">include</span>/<br><br>src_asm = <span class="hljs-variable">$(<span class="hljs-built_in">wildcard</span> *.S)</span><br>src_asm += <span class="hljs-variable">$(<span class="hljs-built_in">wildcard</span> <span class="hljs-variable">$(boot_dir)</span>/*.S)</span><br><br>src_c = <span class="hljs-variable">$(<span class="hljs-built_in">wildcard</span> *.c)</span><br>src_c += <span class="hljs-variable">$(<span class="hljs-built_in">wildcard</span> <span class="hljs-variable">$(boot_dir)</span>/*.c)</span><br><br>src_files = <span class="hljs-variable">$(src_asm)</span><br>src_files += <span class="hljs-variable">$(src_c)</span><br><br>obj_files = <span class="hljs-variable">$(<span class="hljs-built_in">notdir</span> $(<span class="hljs-built_in">patsubst</span> %S, %o, <span class="hljs-variable">$(src_asm)</span>)</span>)<br>obj_files += <span class="hljs-variable">$(<span class="hljs-built_in">notdir</span> $(<span class="hljs-built_in">patsubst</span> %c, %o, <span class="hljs-variable">$(src_c)</span>)</span>)<br>obj_files += boot_font.o<br><br><span class="hljs-section">all: <span class="hljs-variable">$(src_files)</span></span><br>	<span class="hljs-variable">$(CC)</span> <span class="hljs-variable">$(CFLAGS)</span> -c <span class="hljs-variable">$(src_files)</span> -I <span class="hljs-variable">$(INCLUDE)</span> -I <span class="hljs-variable">$(X86_INCLUDE)</span><br>	objcopy -O elf64-x86-64 -B i386 -I binary <span class="hljs-variable">$(boot_dir)</span>/font.psf boot_font.o<br>	mv <span class="hljs-variable">$(obj_files)</span> -t <span class="hljs-variable">$(ARCH_OUT)</span><br><br></code></pre></td></tr></table></figure>
+
+<h2 id="boot-S：BIOS-amp-UEFI-兼容-32-位汇编入口，跳转进入-64-位-C-语言"><a href="#boot-S：BIOS-amp-UEFI-兼容-32-位汇编入口，跳转进入-64-位-C-语言" class="headerlink" title="boot.S：BIOS &amp; UEFI 兼容 32 位汇编入口，跳转进入 64 位 C 语言"></a>boot.S：BIOS &amp; UEFI 兼容 32 位汇编入口，跳转进入 64 位 C 语言</h2><p><code>arch/x86/boot.S</code> 中则是我们实际的内核入口点，我们的 multiboot2 header 也可以放在这个地方，这里除了最基本的结构以外笔者还引入了一个指示入口点的 tag，以及一个指示让 GRUB 帮我们设置好指定大小的 frame buffer 的 tag，GRUB2 会根据这个 tag 自动帮我们设置显示模式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs assembly">#define ASM_FILE 1<br>#include &lt;boot/multiboot2.h&gt;<br>#include &lt;asm/cpu_types.h&gt;<br>#include &lt;asm/page_types.h&gt;<br><br>#define GRUB_MULTIBOOT_ARCHITECTURE_I386 (0)<br>#define MULTIBOOT2_HEADER_LEN (multiboot_header_end - multiboot_header)<br>#define MULTIBOOT2_HEADER_CHECKSUM \<br>    -(MULTIBOOT2_HEADER_MAGIC \<br>    + GRUB_MULTIBOOT_ARCHITECTURE_I386 \<br>    + MULTIBOOT2_HEADER_LEN)<br><br>.section .boot.header<br>    .align 8<br><br>    multiboot_header:<br>        .long   MULTIBOOT2_HEADER_MAGIC<br>        .long   GRUB_MULTIBOOT_ARCHITECTURE_I386<br>        .long   MULTIBOOT2_HEADER_LEN<br>        .long   MULTIBOOT2_HEADER_CHECKSUM<br><br>    tag_entry:<br>        .align 8<br>        .short MULTIBOOT_HEADER_TAG_ENTRY_ADDRESS<br>        .short 0<br>        .long 12<br>        .long _start<br>    <br>    tag_frame_buffer:<br>        .align 8<br>        .short MULTIBOOT_HEADER_TAG_FRAMEBUFFER<br>        .short 0<br>        .long 20<br>        .long 1024<br>        .long 768<br>        .long 32<br><br>    tags_end:<br>        .align 8<br>        .short  MULTIBOOT_HEADER_TAG_END<br>        .short  0<br>        .long   8<br>    multiboot_header_end:<br></code></pre></td></tr></table></figure>
+
+<p>ELF 文件默认的入口点是 <code>_start</code> 函数，因此我们在这里声明一个 <code>_start</code> 函数并导出该符号，从而使得 GRUB 在完成内核的装载之后会从此处开始执行，不过我们也可以通过在 header 中添加一个 <code>entry address tag</code> 来为 GRUB 指定我们的内核入口点：</p>
+<p>不过在正式开始之前，我们首先看看当前的机器状态，这里笔者打算<strong>同时兼容 Legacy BIOS 启动与 UEFI 启动</strong>，因此这两种机器状态我们都得看看如何处理</p>
+<h3 id="①-Legacy-BIOS-启动"><a href="#①-Legacy-BIOS-启动" class="headerlink" title="① Legacy BIOS 启动"></a>① Legacy BIOS 启动</h3><p>当我们使用 Legay BIOS 启动遵循 Multiboot2 规范的 32 位内核时，在进入内核时机器应当有如下<a target="_blank" rel="noopener" href="https://www.gnu.org/software/grub/manual/multiboot2/multiboot.html#Machine-state">状态</a>：</p>
+<ul>
+<li><code>eax</code>：必定为 Magic Number <code>0x36d76289</code>，该值的存在表明其为符合 multiboot2 标准的引导程序加载的</li>
+<li><code>ebx</code>：必定为引导加载程序提供的 Multiboot2 信息结构的 32 位物理地址（参见<a target="_blank" rel="noopener" href="https://www.gnu.org/software/grub/manual/multiboot2/multiboot.html#Boot-information-format">这里</a>）</li>
+<li><code>cs</code>：权限为 <code>读|执行</code>，偏移为 <code>0</code>，界限为 <code>0xFFFFFFFF</code></li>
+<li><code>ds、es、fs、gs、ss</code>：权限为 <code>读|写</code>，偏移为 <code>0</code>，界限为 <code>0xFFFFFFFF</code></li>
+<li><code>A20 gate</code>：已开启</li>
+<li><code>cr0</code>：分页（PG）关闭，保护模式（PE）开启</li>
+<li><code>eflags</code>：VM、IF 两个位清空</li>
+</ul>
+<p>剩下的工作都需要我们的内核自行完成，包括段描述符表的设置、堆栈、中断描述符表的设置等</p>
+<h3 id="②-UEFI-启动"><a href="#②-UEFI-启动" class="headerlink" title="② UEFI 启动"></a>② UEFI 启动</h3><p>当我们使用 UEFI 启动遵循 Multiboot2 规范的 32 位内核时，在进入内核时机器应当有如下<a target="_blank" rel="noopener" href="https://www.gnu.org/software/grub/manual/multiboot2/multiboot.html#Machine-state">状态</a>：</p>
+<ul>
+<li><code>eax</code>：必定为 Magic Number <code>0x36d76289</code>，该值的存在表明其为符合 multiboot2 标准的引导程序加载的</li>
+<li><code>ebx</code>：必定为引导加载程序提供的 Multiboot2 信息结构的 32 位物理地址</li>
+</ul>
+<p>根据 <a target="_blank" rel="noopener" href="https://uefi.org/sites/default/files/resources/UEFI%20Spec%202_6.pdf">UEFI 规范 v2.6</a> 第 2.3.2 节，此时机器有如下状态：</p>
+<ul>
+<li>单处理器模式（Uniprocessor，仅有一个核心被唤醒，参见 <a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html">Intel SDM</a> 卷 3）</li>
+<li>处在保护模式下</li>
+<li><strong>可能</strong>开启了分页，若是，则 UEFI 内存映射定义的任何内存空间都是恒等映射的（虚拟地址等于物理地址），对其他区域的映射是未定义的，可能因实现而异</li>
+<li>选择子（selector）设为“平坦模式”（flat model）或未使用</li>
+<li>中断开启，不过仅支持 UEFI 引导服务计时器（所有加载的设备驱动都通过“轮询”进行同步服务）</li>
+<li>EFLAGS 中的方向标志位被清除</li>
+<li>其他通用标志寄存器未定义</li>
+<li>128 KB 或更多的可用栈空间</li>
+<li>栈为 16 字节对齐，可能在页表中被标记为不可执行</li>
+<li><code>floating-point control word</code> 被初始化为 <code>0x027F</code>（all exceptions masked, double-extended-precision, round-to-nearest）</li>
+<li><code>Multimedia-extensions control word</code> 被初始化为 <code>0x1F80</code> (all exceptions masked, roundto-nearest, flush to zero for masked underflow)</li>
+<li><code>CR0.EM == 0</code></li>
+<li><code>CR0.TS == 0</code></li>
+</ul>
+<blockquote>
+<p>选择子的平坦模式示意如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231115220200.png" srcset="/img/loading.gif" lazyload></p>
+</blockquote>
+<h3 id="③-初始化栈与临时页表"><a href="#③-初始化栈与临时页表" class="headerlink" title="③ 初始化栈与临时页表"></a>③ 初始化栈与临时页表</h3><p>我们不难看出 BIOS 启动与 UEFI 启动后的机器状态在 32 位下差别并不大，大家都在保护模式下，只是 UEFI 启动<strong>可能</strong>会额外多一个栈和页表的配置，不过我们完全可以 <em>抛弃 UEFI 帮我们预设好的页表与栈，自己从头开始初始化一个</em></p>
+<p>首先是页表的初始化，由于现在尚未完成内存管理器的构建，因此笔者选择仅构建一个临时的页表，待到进入 64 位长模式完成内存探测与内存分配器的建立之后再重新建立一个正式的新页表，64 位模式下所用的通常是四级页表，虚拟地址有效长度为 48 位，在控制寄存器组（control registers）中的 CR3 寄存器中存放顶层页表的地址：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231115214456.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>页表所使用的模式由 CR4 寄存器决定，具体可以参见 Intel SDM 的 3102 页 4.1.1 Four Paging Modes</p>
+</blockquote>
+<p>不过启动阶段若是我们的临时页表也采用 4 级页表的结构的话，或许会需要占用过多的内存空间来保证对所有内存的映射，因为这个页表只是在内存管理器建立起来之前临时一用，因此这里我们使用 <strong>1GB 的大页</strong>，这样只需要两张页面组成的二级页表便能撑起我们初期所需的所有的内存空间，<strong>待到完成最基本的内存管理器的初始化之后再重新进行页表的动态初始化</strong></p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231127203951.png" srcset="/img/loading.gif" lazyload></p>
+<p>1 GB 大页的开启需要我们进入 64 位，并在页表项中设置 <code>PS</code> 位，此外，进入 64 位模式要求我们启用<strong>物理地址扩展</strong>（Physical Address Extension），这项特性将页表项从 4 字节扩展为 8 字节，我们需要在进入 64 位之前通过设置 CR4 寄存器的 PAE 位来启用该特性，并在提前在预先准备好的二级页表中设置 <code>PS</code> 位</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><code class="hljs assembly">.section .boot.text32:<br>    .code32<br>    .align 0x1000<br>    .extern boot_main<br><br>    .globl _start<br><br>    _start:<br>        # turn off the interrupt temporarily,<br>        # and we should turn it on after our own IDT has been built.<br>        cli<br><br>        # check for multiboot2 header<br>        cmp $MULTIBOOT2_BOOTLOADER_MAGIC, %eax<br>        jne .loop<br><br>        # temporary stack<br>        mov     $boot_stack_top, %esp<br><br>        # set the boot information as parameters for boot_main()<br>        mov     %eax, %edi<br>        mov     %ebx, %esi<br><br>        # clear eflags<br>        pushl   $0<br>        popf<br><br>        # disable paging (UEFI may turn it on)<br>        mov     %cr0, %eax<br>        mov     $CR0_PG, %ebx<br>        not     %ebx<br>        and     %ebx, %eax<br>        mov     %eax, %cr0<br><br>        # set up page table for booting stage<br>        # it&#x27;s okay to write only 32bit here :)<br>        mov     $boot_pud, %eax<br>        or      $(PAGE_ATTR_P | PAGE_ATTR_RW), %eax<br>        mov     %eax, boot_pgd<br><br>        xor     %eax, %eax<br>        or      $(PAGE_ATTR_P | PAGE_ATTR_RW | PAGE_ATTR_PS), %eax<br>        movl    %eax, boot_pud<br><br>        xor     %eax, %eax<br>        mov     %eax, (boot_pgd + 4)<br>        mov     %eax, (boot_pud + 4)<br><br>        # load page table<br>        mov     $boot_pgd, %eax<br>        mov     %eax, %cr3<br><br>#......<br><br>.section .boot.data<br>    .section .boot.data:<br>    .align 0x1000<br><br>    .globl boot_stack, boot_stack_top<br><br>    #<br>    # When the system is booted under legacy BIOS, there&#x27;s no stack<br>    # So we reserve a page there as a temporary stack for booting<br>    #<br>    boot_stack:<br>        .space 0x1000<br>    boot_stack_top:<br><br>    boot_pgd:<br>        .space 0x1000<br>    boot_pud:<br>        .space 0x1000<br><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="④-进入-64-位模式"><a href="#④-进入-64-位模式" class="headerlink" title="④ 进入 64 位模式"></a>④ 进入 64 位模式</h3><p>64 位运行模式（Intel 称为 <code>IA-32e mode</code>，AMD 称为 <code>long mode</code>）是进入 64 位时代后 x64 处理器引入的<strong>新的运行模式</strong>，其有着两个子模式：</p>
+<ul>
+<li>兼容模式（Compatibility mode）：传统的 16&#x2F;32 位应用程序仍能正常运行，类似于 32 位保护模式，其使用 16&#x2F;32 位地址与操作数，仅能访问线性地址空间的前 4 GB，通过 PAE 可以访问更多的物理内存</li>
+<li>纯 64 位模式（64-bit mode）：该模式下可以访问 64 位线性地址空间， <em>通常</em> 不再使用分段，通用寄存器与 SIMD 扩展寄存器从 8 个扩展至 16 个，通用寄存器扩展至 64 位，默认地址大小为 64 位，默认操作数大小为 32 位，新增的 opcode 前缀 <code>REX</code> 用以进行 64 位下的扩展访问</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129170947.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>参见 Intel SDM 卷 1 Chapter 3、卷 3A Chapter 2 与 AMD64 PM 卷 1 Chapter 2、卷 2 Chapter 1</p>
+<blockquote>
+<p><del>翻大砖头全英手册真给👴整麻了</del></p>
+</blockquote>
+</blockquote>
+<p>简而言之就是进入 64 位模式之后正常运行 64 位应用就在纯 64 位模式，但也可以通过兼容模式来像 32 位保护模式那样运行以前的 32 位应用，这两种子模式间的切换<strong>通过 CS 段选择子对应的段描述符的 L 位决定</strong>：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129171602.png" srcset="/img/loading.gif" lazyload alt="AMD64 处理器运行模式切换"></p>
+<p>我们的 64 位操作系统自然是运行在纯 64 位这一子模式下的，而 GRUB 引导进入我们的内核时我们仍出于 32 位模式下，因此我们需要编写 32 位汇编来将处理器切换到 64 位模式，具体需要进行如下工作：</p>
+<ul>
+<li>将 **Model Specific Register **这一寄存器组中的 <strong>Extended Feature Enable Register</strong> 寄存器的 LME 位置为 1（参见 Intel SDM 卷 3 A Chapter 2 的 2.2.1 节，Table 2-1）</li>
+<li>配置好相应的全局段描述符表，并将 CS 段选择子对应的段描述符的 L 位置为 1</li>
+<li>开启控制寄存器组中 CR4 寄存器的 <strong>物理地址扩展</strong>（Physical Address Extension）</li>
+<li>开启控制寄存器组中 CR0 寄存器的 <strong>分页</strong>（Paging），这要求我们预先装载一份页表</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs assembly">        # enable PAE and PGE<br>        mov     %cr4, %eax<br>        or      $(CR4_PAE | CR4_PGE), %eax<br>        mov     %eax, %cr4<br><br>        # enter long mode by enabling EFER.LME<br>        mov     $0xC0000080, %ecx<br>        rdmsr<br>        or      $(1 &lt;&lt; 8), %eax<br>        wrmsr<br><br>        # enable paging<br>        mov     %cr0, %eax<br>        or      $CR0_PG, %eax<br>        mov     %eax, %cr0<br><br>        # set up GDT<br>        mov     $gdt64_ptr, %eax<br>        lgdt    0(%eax)<br><br>#......<br><br>.section .boot.data<br>    #......<br><br>    # global segment descriptor table<br>    .align 0x1000   # it should be aligned to page<br>    .globl gdt64, gdt64_ptr<br>    gdt64:<br>        .quad 0 # first one must be zero<br>    gdt64_code_segment:<br>        .quad 0x00209A0000000000 # exec/read<br>    gdt64_data_segment:<br>        .quad 0x0000920000000000 # read/write<br>    gdt64_ptr:<br>        .short gdt64_ptr - gdt64 - 1    # GDT limit<br>        .long gdt64                     # GDT Addr<br></code></pre></td></tr></table></figure>
+
+<p>此时我们便来到了 64 位<strong>兼容模式</strong>，而要进入纯 64 位模式，则需要我们<strong>手动更新 CS 段选择子</strong>，这里笔者通过一个远跳转 <code>jmp</code> 指令<strong>手动指定段选择子的方式来刷新 CS 段选择子</strong>：</p>
+<blockquote>
+<p>除了通过 <code>jmp 选择子:目标地址</code> 的方式以外，我们也可以通过 <code>lretq</code> 指令刷新 CS 段选择子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs assembly">.code64<br>    pushq   $(1 &lt;&lt; SELECTOR_INDEX)<br>    pushq   $boot_main<br>    lretq<br></code></pre></td></tr></table></figure>
+</blockquote>
+<blockquote>
+<p>以及别忘了刷新数据段选择子和其他段选择子，这些选择子可以直接通过寄存器进行重新赋值，<strong>但是 CS 段选择子必须通过指令进行刷新</strong></p>
+</blockquote>
+<p>从 <code>boot_main()</code> 开始我们就可以进入 C 语言的世界了：）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs assembly">    # reload all the segment registers<br>    mov $(2 &lt;&lt; SELECTOR_INDEX), %ax<br>    mov     %ax, %ds<br>    mov     %ax, %ss<br>    mov     %ax, %es<br>    mov     %ax, %fs<br>    mov     %ax, %gs<br><br>    # enter the 64-bit world within a long jmp<br>    jmp $(1 &lt;&lt; SELECTOR_INDEX), $boot_main<br><br>    # we shouldn&#x27;t get here...<br>.loop:<br>    hlt<br>    jmp .loop<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<h4 id="Extra-分段内存简介"><a href="#Extra-分段内存简介" class="headerlink" title="Extra. 分段内存简介"></a>Extra. 分段内存简介</h4><p>在古老的 16 位与 32 位运行模式下，x86 有一种管理内存的办法叫做<strong>分段</strong>（Segment），一个段便是一段连续内存，相应地有 cs、ds 等段寄存器用来指示不同用途的段，经过分段映射的地址称为逻辑地址（logical address）</p>
+<p>16 位下段寄存器中直接存放段基址与段界限信息，32 位下段描述符扩展为 8 字节，存放在内存中一个名为段描述符表的结构中，GDTR 寄存器用来存放全局段描述符表的地址，相应地段寄存器中存放的变为段选择子（segment selector），指示了该段寄存器对应的段在段描述符表中的索引、权限等信息</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129183708.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129184644.png" srcset="/img/loading.gif" lazyload alt="32 位下的段描述符"></p>
+<p>不过分段内存模式过于鸡肋，现代操作系统通常会选择把所有段都初始化为整个内存，因此 CPU 厂商更改了设计，在 64 位下默认不使用分段特性，不过 <em>也不是完全弃用分段这一特性</em> （尾大不掉属于是）</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129184734.png" srcset="/img/loading.gif" lazyload alt="64 位下的段描述符"></p>
+</blockquote>
+<h2 id="boot-tty-c：读写-frame-buffer-进行文字输出"><a href="#boot-tty-c：读写-frame-buffer-进行文字输出" class="headerlink" title="boot_tty.c：读写 frame buffer 进行文字输出"></a>boot_tty.c：读写 frame buffer 进行文字输出</h2><p>熟悉各类操作系统开发教程的小伙伴肯定知道非常经典的读写 <code>0xB8000</code> 这块内存便能在屏幕上进行字体输出， <strong>但是在 UEFI 启动下这个方法已经不在可用</strong> ，那么我们该怎么进行字体输出呢？最简单的办法自然是——<strong>把像素点直接画在屏幕上</strong></p>
+<h3 id="①-Frame-Buffer"><a href="#①-Frame-Buffer" class="headerlink" title="① Frame Buffer"></a>① Frame Buffer</h3><p><strong>帧缓冲区</strong> （ <strong>frame buffer</strong> ）为内存&#x2F;显存中的一块自定义区域，可以简单理解为屏幕上所显示内容的缓存，显卡会定期从这块区域搬运数据到显示设备上，因此我们可以通过读写 frame buffer 的方式来在显示器的指定位置显示指定的像素点</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129185224.png" srcset="/img/loading.gif" lazyload></p>
+<p>有了 Multiboot2 规范，我们可以指示 GRUB2 帮我们准备 Frame buffer 的相关信息并传递给我们的内核，接下来我们便能通过直接读写 frame buffer 对应内存的方式来直接在屏幕上进行显示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* frame buffer info */</span><br><span class="hljs-type">static</span> <span class="hljs-type">uint32_t</span> *framebuffer_base; <span class="hljs-comment">/* 32 bit color */</span><br><span class="hljs-type">static</span> <span class="hljs-type">uint32_t</span> framebuffer_width;<br><span class="hljs-type">static</span> <span class="hljs-type">uint32_t</span> framebuffer_height;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">boot_clear_screen</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">uint32_t</span> y = <span class="hljs-number">0</span>; y &lt; framebuffer_height; y++) &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">uint32_t</span> x = <span class="hljs-number">0</span>; x &lt; framebuffer_width; x++) &#123;<br>            framebuffer_base[y * framebuffer_width + x] = <span class="hljs-number">0</span>;<br>        &#125;<br>    &#125;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">boot_get_frame_buffer</span><span class="hljs-params">(<span class="hljs-type">multiboot_uint8_t</span> *mbi)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">multiboot_tag_framebuffer</span> *<span class="hljs-title">fb_info</span> =</span> <span class="hljs-literal">NULL</span>;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">multiboot_tag</span> *<span class="hljs-title">tag</span> =</span> (<span class="hljs-keyword">struct</span> multiboot_tag *) (mbi + <span class="hljs-number">8</span>);<br><br>    <span class="hljs-comment">/* find framebuffer tag */</span><br>    <span class="hljs-keyword">if</span> (tag == <span class="hljs-literal">NULL</span>) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">while</span> (tag-&gt;type != MULTIBOOT_TAG_TYPE_END) &#123;<br>        <span class="hljs-keyword">if</span> (tag-&gt;type == MULTIBOOT_TAG_TYPE_FRAMEBUFFER) &#123;<br>            fb_info = (<span class="hljs-keyword">struct</span> multiboot_tag_framebuffer*) tag;<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br><br>        tag = (<span class="hljs-keyword">struct</span> multiboot_tag *) \<br>              ((<span class="hljs-type">multiboot_uint8_t</span> *) tag + ((tag-&gt;size + <span class="hljs-number">7</span>) &amp; ~<span class="hljs-number">7</span>));<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (fb_info == <span class="hljs-literal">NULL</span>) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>    &#125;<br><br>    framebuffer_base = (<span class="hljs-type">uint32_t</span>*) fb_info-&gt;common.framebuffer_addr;<br>    framebuffer_height = fb_info-&gt;common.framebuffer_height;<br>    framebuffer_width = fb_info-&gt;common.framebuffer_width;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="②-字体解析绘制"><a href="#②-字体解析绘制" class="headerlink" title="② 字体解析绘制"></a>② 字体解析绘制</h3><p>虽然我们现在可以通过直接操作 Frame buffer 来绘制图形，但是每个字体都要从零开始绘制的话未免就太麻烦了一点，因此我们选择载入现有的 <strong>PC Screen Font</strong> 格式的字体文件，从中读取相应的字体信息进行绘制</p>
+<blockquote>
+<p>这里字体笔者选择了 <a target="_blank" rel="noopener" href="https://github.com/talamus/solarize-12x29-psf/">solarize-12x29</a>，clone 到本地后将 <code>Solarize.12x29.psf</code> 拷贝为 <code>arch/x86/boot/font.psf</code> 即可</p>
+</blockquote>
+<p>由于我们还没建立文件系统，因此我们需要将字体文件直接链接到内核当中，这里可以使用 <code>objcopy</code> 这一工具来将字体文件转换为可链接文件：</p>
+<blockquote>
+<p>需要注意的是，<strong>objcopy 会非常 sb 地把路径名也放进去</strong>，笔者暂时没有找到好的解决方案 :（</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">objcopy -O elf64-x86-64 -B i386 -I binary boot/font.psf boot_font.o</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">objdump -t boot_font.o</span> <br><br>boot_font.o:     file format elf64-x86-64<br><br>SYMBOL TABLE:<br>0000000000000000 g       .data	0000000000000000 _binary_boot_font_psf_start<br>0000000000007420 g       .data	0000000000000000 _binary_boot_font_psf_end<br>0000000000007420 g       *ABS*	0000000000000000 _binary_boot_font_psf_size<br></code></pre></td></tr></table></figure>
+
+<p>现在我们来看如何解析这一格式的字体，PSF 有两版规范，由一个 header 来指示字体基本信息， header 之后便是字体的位图信息：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> PSF1_FONT_MAGIC 0x0436</span><br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">psf1_header</span> &#123;</span><br>    <span class="hljs-type">uint16_t</span> magic;     <span class="hljs-comment">/* magic number for identification */</span><br>    <span class="hljs-type">uint8_t</span> font_mode;  <span class="hljs-comment">/* PSF font mode */</span><br>    <span class="hljs-type">uint8_t</span> char_size;  <span class="hljs-comment">/* PSF char size */</span><br>&#125;;<br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PSF2_FONT_MAGIC 0x864ab572</span><br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">psf2_header</span> &#123;</span><br>    <span class="hljs-type">uint32_t</span> magic;             <span class="hljs-comment">/* magic number for PSF */</span><br>    <span class="hljs-type">uint32_t</span> version;           <span class="hljs-comment">/* zero */</span><br>    <span class="hljs-type">uint32_t</span> header_size;       <span class="hljs-comment">/* offset of bitmaps in file, 32 */</span><br>    <span class="hljs-type">uint32_t</span> flags;             <span class="hljs-comment">/* 0 if there&#x27;s no unicode table */</span><br>    <span class="hljs-type">uint32_t</span> glyph_nr;          <span class="hljs-comment">/* number of glyphs */</span><br>    <span class="hljs-type">uint32_t</span> bytes_per_glyph;   <span class="hljs-comment">/* size of each glyph */</span><br>    <span class="hljs-type">uint32_t</span> height;            <span class="hljs-comment">/* height in pixels */</span><br>    <span class="hljs-type">uint32_t</span> width;             <span class="hljs-comment">/* width in pixels */</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>字体位图有着其固定的宽度与高度，虽然字体的宽度并不一定对齐到 8 bit，但是存储空间需要对齐到 8 bit 也就是 1 字节，因此<strong>位图数据中会有空数据填充段</strong>，以一个 12x12 的 PSF 位图为示例：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs dns">           padding<br> Font data    |<br>+----------+ +--+<br><span class="hljs-number">000001100000</span> <span class="hljs-number">0000</span><br><span class="hljs-number">000011110000</span> <span class="hljs-number">0000</span><br><span class="hljs-number">000110011000</span> <span class="hljs-number">0000</span><br><span class="hljs-number">001100001100</span> <span class="hljs-number">0000</span><br><span class="hljs-number">011000000110</span> <span class="hljs-number">0000</span><br><span class="hljs-number">110000000011</span> <span class="hljs-number">0000</span><br><span class="hljs-number">111111111111</span> <span class="hljs-number">0000</span><br><span class="hljs-number">111111111111</span> <span class="hljs-number">0000</span><br><span class="hljs-number">110000000011</span> <span class="hljs-number">0000</span><br><span class="hljs-number">110000000011</span> <span class="hljs-number">0000</span><br><span class="hljs-number">110000000011</span> <span class="hljs-number">0000</span><br><span class="hljs-number">110000000011</span> <span class="hljs-number">0000</span><br></code></pre></td></tr></table></figure>
+
+<p>由此我们可以通过如下代码来解析字体文件并在屏幕上显示文字（二代规范）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">extern</span> <span class="hljs-type">char</span> _binary_boot_font_psf_start[];<br><span class="hljs-keyword">extern</span> <span class="hljs-type">char</span> _binary_boot_font_psf_end[];<br><br><span class="hljs-comment">/* char output info */</span><br><span class="hljs-type">static</span> <span class="hljs-type">uint32_t</span> cursor_x, cursor_y;    <span class="hljs-comment">/* count by chars */</span><br><span class="hljs-type">static</span> <span class="hljs-type">uint32_t</span> max_ch_nr_x, max_ch_nr_y;<br><br><span class="hljs-comment">/* font info */</span><br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">psf2_header</span> *<span class="hljs-title">boot_font</span>;</span><br><span class="hljs-type">static</span> <span class="hljs-type">uint32_t</span> font_width, font_height;<br><span class="hljs-type">static</span> <span class="hljs-type">uint32_t</span> font_width_bytes;<br><span class="hljs-type">static</span> <span class="hljs-type">uint8_t</span> *glyph_table;<br><span class="hljs-type">static</span> <span class="hljs-type">uint32_t</span> bytes_per_glyph, glyph_nr;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">boot_putchar_raw</span><span class="hljs-params">(<span class="hljs-type">uint16_t</span> ch, <span class="hljs-type">uint32_t</span> fg, <span class="hljs-type">uint32_t</span> bg)</span><br>&#123;<br>    <span class="hljs-type">uint8_t</span> *glyph = glyph_table;<br>    <span class="hljs-type">size_t</span> loc;<br><br>    <span class="hljs-keyword">if</span> (ch == <span class="hljs-string">&#x27;\n&#x27;</span>) &#123;<br>        <span class="hljs-keyword">goto</span> new_line;<br>    &#125;<br><br>    <span class="hljs-comment">/* if char out of range, output null */</span><br>    <span class="hljs-keyword">if</span> (ch &lt; glyph_nr) &#123;<br>        glyph += ch * bytes_per_glyph;<br>    &#125;<br><br>    loc =  cursor_y * font_height * framebuffer_width;<br>    loc += cursor_x * font_width;<br><br>    <span class="hljs-comment">/* output the font to frame buffer */</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">uint32_t</span> ch_y = <span class="hljs-number">0</span>; ch_y &lt; font_height; ch_y++) &#123;<br>        <span class="hljs-type">uint8_t</span> mask = <span class="hljs-number">1</span> &lt;&lt; <span class="hljs-number">7</span>;<br><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">uint32_t</span> ch_x = <span class="hljs-number">0</span>; ch_x &lt; font_width; ch_x++) &#123;<br>            <span class="hljs-keyword">if</span> ((*(glyph + ch_x / <span class="hljs-number">8</span>) &amp; mask) != <span class="hljs-number">0</span>) &#123;<br>                framebuffer_base[loc + ch_y * framebuffer_width + ch_x] = fg;<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                framebuffer_base[loc + ch_y * framebuffer_width + ch_x] = bg;<br>            &#125;<br><br>            mask &gt;&gt;= <span class="hljs-number">1</span>;<br>            <span class="hljs-keyword">if</span> (ch_x % <span class="hljs-number">8</span> == <span class="hljs-number">0</span>) &#123;<br>                mask = <span class="hljs-number">1</span> &lt;&lt; <span class="hljs-number">7</span>;<br>            &#125;<br>        &#125;<br><br>        glyph += font_width_bytes;<br>    &#125;<br><br>    <span class="hljs-comment">/* move cursor */</span><br>    cursor_x++;<br><br>    <span class="hljs-comment">/* we may need to move to new line */</span><br>    <span class="hljs-keyword">if</span> (cursor_x &gt;= max_ch_nr_x) &#123;<br>    new_line:<br>        cursor_x = <span class="hljs-number">0</span>;<br>        cursor_y++;<br>        <br>        <span class="hljs-comment">/* we may need to scroll up */</span><br>        <span class="hljs-keyword">if</span> (cursor_y &gt;= max_ch_nr_y) &#123;<br>            <span class="hljs-keyword">for</span> (<span class="hljs-type">uint32_t</span> y = <span class="hljs-number">0</span>; y &lt; ((max_ch_nr_y - <span class="hljs-number">1</span>) * font_height); y++) &#123;<br>                <span class="hljs-keyword">for</span> (<span class="hljs-type">uint32_t</span> x = <span class="hljs-number">0</span>; x &lt; framebuffer_width; x++) &#123;<br>                    framebuffer_base[x + y * framebuffer_width] = <br>                    framebuffer_base[x + (y + font_height) * framebuffer_width];<br>                &#125;<br>            &#125;<br><br>            <span class="hljs-keyword">for</span> (<span class="hljs-type">uint32_t</span> y = <span class="hljs-number">0</span>; y &lt; font_height; y++) &#123;<br>                <span class="hljs-keyword">for</span> (<span class="hljs-type">uint32_t</span> x = <span class="hljs-number">0</span>; x &lt; framebuffer_width; x++) &#123;<br>                    <span class="hljs-type">size_t</span> lines = (y + (max_ch_nr_y - <span class="hljs-number">1</span>) * font_height);<br>                    <span class="hljs-type">size_t</span> loc = lines * framebuffer_width + x;<br>                    framebuffer_base[loc] = bg;<br>                &#125;<br>            &#125;<br><br>            cursor_y--;<br>        &#125;<br>    &#125;<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">boot_init_font</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    boot_font = (<span class="hljs-keyword">struct</span> psf2_header*) _binary_boot_font_psf_start;<br><br>    font_width_bytes = (boot_font-&gt;width + <span class="hljs-number">7</span>) / <span class="hljs-number">8</span>;<br>    font_width = font_width_bytes * <span class="hljs-number">8</span>;<br>    font_height = boot_font-&gt;height;<br><br>    glyph_table = (<span class="hljs-type">uint8_t</span>*)_binary_boot_font_psf_start+boot_font-&gt;header_size;<br>    glyph_nr = boot_font-&gt;glyph_nr;<br>    bytes_per_glyph = boot_font-&gt;bytes_per_glyph;<br><br>    cursor_x = cursor_y = <span class="hljs-number">0</span>;<br>    max_ch_nr_x = framebuffer_width / font_width;<br>    max_ch_nr_y = framebuffer_height / font_height;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="Extra：-串口输出"><a href="#Extra：-串口输出" class="headerlink" title="Extra： 串口输出"></a><em>Extra： 串口输出</em></h3><blockquote>
+<p>TO BE 🕊🕊🕊</p>
+</blockquote>
+<h2 id="链接脚本"><a href="#链接脚本" class="headerlink" title="链接脚本"></a>链接脚本</h2><blockquote>
+<p>什么，你不知道什么事链接脚本？还不<a target="_blank" rel="noopener" href="https://ftp.gnu.org/old-gnu/Manuals/ld-2.9.1/html_chapter/ld_3.html">赶快学</a>！</p>
+</blockquote>
+<p>需要注意的一点是，<strong>GNU GRUB 会默认将内核载入到物理地址高 1MB 起始</strong>，因此我们需要在链接脚本中进行指定，同时作为一个不成文的规范，<strong>内核应当被装载到高地址处</strong>，那么我们的内核应当分为如下两个部分：</p>
+<ul>
+<li>boot：由 GRUB 引导，负责进行页表重映射、内存管理初始化等预备工作，完成后跳转至内核</li>
+<li>kernel：实际的内核主体，位于虚拟地址的高地址处</li>
+</ul>
+<p>笔者选择将 boot 阶段的所有代码全都放在一个大的名为 <code>boot</code> 的段当中，将 kernel 的 <code>.text</code> 等段重新从高地址处计算起始地址，因此链接脚本如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><code class="hljs ld">OUTPUT_FORMAT(&quot;elf64-x86-64&quot;)<br>OUTPUT_ARCH(i386:x86-64)<br>ENTRY(_start)<br><br>SECTIONS<br>&#123;<br>    /* boot loader will load the kernel there */<br>    . = 1M;<br>	__boot_start = .;<br><br>    .boot :<br>	&#123;<br>		KEEP(*(.boot.header))<br>		*(.boot.*)<br>		. = ALIGN(4096);<br><br>		/* C part boot kernel */<br>		*arch/boot*.o<br>	&#125;<br><br>	__boot_end = .;<br><br>	/* now it comes to the real kernel */<br>	KERM_VADDR = 0xffffffff81000000;<br>	. = KERM_VADDR;<br><br>	/* we use AT() there to make it loaded on phys correctly */<br>	.text ALIGN(4096) : AT (ADDR (.text) - KERM_VADDR)<br>	&#123;<br>		*(.text)<br>	&#125;<br><br>	. = ALIGN(4096);<br><br>	.rodata ALIGN(4096) : AT (ADDR (.rodata) - KERM_VADDR)<br>	&#123;<br>		*(.rodata)<br>	&#125;<br><br>	. = ALIGN(4096);<br><br>	__roseg_end = .;<br><br>	.data ALIGN(4096) : AT (ADDR (.data) - KERM_VADDR)<br>	&#123;<br>		*(.data)<br>	&#125;<br><br>	. = ALIGN(4096);<br><br>	.bss ALIGN(4096) : AT (ADDR (.bss) - KERM_VADDR)<br>	&#123;<br>		*(COMMON)<br>		*(.bss)<br>	&#125;<br><br>	. = ALIGN(4096);<br><br>	__kernel_end = .;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="真机启动"><a href="#真机启动" class="headerlink" title="真机启动"></a>真机启动</h2><p>接下来我们使用 <code>make</code> 命令编译代码，将 <code>out</code> 目录下的 <code>kernel.bin</code> 文件放到 U 盘 EFI 分区中的 <code>boot</code> 目录下，重启计算机并选择 U 盘启动，接下来——</p>
+<p><strong>ClosureOS，启动——！！！</strong></p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129041505.png" srcset="/img/loading.gif" lazyload></p>
+<p>我们成功制作完成了一个<strong>能够在真机上运行的操作系统，而并非大部分教科书上的那些只能在虚拟机里跑的小玩具</strong>，虽然目前仅有最基本的雏形 ：）</p>
+<blockquote>
+<p>我们将在后续博客当中逐步完善这个操作系统（🕊🕊🕊）</p>
+</blockquote>
+<h1 id="0xFF-Reference"><a href="#0xFF-Reference" class="headerlink" title="0xFF. Reference"></a>0xFF. Reference</h1><p><a target="_blank" rel="noopener" href="https://elixir.bootlin.com/linux/latest/source">Linux source code - Bootlin</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.gnu.org/software/grub/manual/multiboot2/multiboot.html">Multiboot2 Specification version 2.0</a></p>
+<p><a target="_blank" rel="noopener" href="https://wiki.osdev.org/Main_Page">OSDev wiki</a> ← 非常好维基，使我OS运行，爱来自瓷器❤</p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/UEFIBlog">UEFI 和 BIOS 探秘</a></p>
+<p><a target="_blank" rel="noopener" href="https://wiki.osdev.org/PC_Screen_Font">PC Screen Font</a></p>
+<p><a target="_blank" rel="noopener" href="https://os.phil-opp.com/">Writing an OS in Rust</a></p>
+<p><a target="_blank" rel="noopener" href="https://pendrivelinux.com/install-grub2-on-usb-from-ubuntu-linux/">https://pendrivelinux.com/install-grub2-on-usb-from-ubuntu-linux/</a></p>
+<p><a target="_blank" rel="noopener" href="https://oscarcx.com/tech/usb-boot-winpe-and-linux-via-grub2.html">用grub2制作多重引导的WinPE&amp;Linux启动U盘</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/CODE/" class="category-chain-item">CODE</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%BC%80%E5%8F%91%E6%89%8B%E8%AE%B0/">#开发手记</a>
+      
+        <a href="/tags/Assembly-Language/">#Assembly Language</a>
+      
+        <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【CODE.0x03】现代 64 位 OS 开发手记 I：UEFI 启动与 GRUB 引导</div>
+      <div>https://arttnba3.github.io/2023/11/29/CODE-0X03-OSDEV64-I_UEFI-GRUB/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年11月29日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/24/DISTRO-0X01-INSTALL_TUMBLEWEED_WINDOWS/" title="【DISTRO.0x01】如何正确打开 OpenSUSE Tumbleweed">
+                        <span class="hidden-mobile">【DISTRO.0x01】如何正确打开 OpenSUSE Tumbleweed</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
