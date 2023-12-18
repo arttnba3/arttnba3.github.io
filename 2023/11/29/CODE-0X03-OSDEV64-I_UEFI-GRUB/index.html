@@ -20,14 +20,14 @@
   
     <meta name="description" content="遥遥领先！遥遥领先！遥遥领先！">
 <meta property="og:type" content="article">
-<meta property="og:title" content="【CODE.0x03】现代 64 位 OS 开发手记 I：UEFI 启动与 GRUB 引导">
+<meta property="og:title" content="【CODE.0x03】现代 64 位 OS 开发手记 I：UEFI 启动、GRUB 引导、Frame buffer 文字输出">
 <meta property="og:url" content="https://arttnba3.github.io/2023/11/29/CODE-0X03-OSDEV64-I_UEFI-GRUB/index.html">
 <meta property="og:site_name" content="arttnba3&#39;s blog">
 <meta property="og:description" content="遥遥领先！遥遥领先！遥遥领先！">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129232638.png">
 <meta property="article:published_time" content="2023-11-29T12:21:47.000Z">
-<meta property="article:modified_time" content="2023-11-29T12:53:35.341Z">
+<meta property="article:modified_time" content="2023-12-12T07:11:42.220Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="开发手记">
 <meta property="article:tag" content="Assembly Language">
@@ -39,7 +39,7 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>【CODE.0x03】现代 64 位 OS 开发手记 I：UEFI 启动与 GRUB 引导 - arttnba3&#39;s blog</title>
+  <title>【CODE.0x03】现代 64 位 OS 开发手记 I：UEFI 启动、GRUB 引导、Frame buffer 文字输出 - arttnba3&#39;s blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -229,7 +229,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="【CODE.0x03】现代 64 位 OS 开发手记 I：UEFI 启动与 GRUB 引导"></span>
+            <span id="subtitle" data-typed-text="【CODE.0x03】现代 64 位 OS 开发手记 I：UEFI 启动、GRUB 引导、Frame buffer 文字输出"></span>
           
         </div>
 
@@ -313,12 +313,12 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">【CODE.0x03】现代 64 位 OS 开发手记 I：UEFI 启动与 GRUB 引导</h1>
+            <h1 style="display: none">【CODE.0x03】现代 64 位 OS 开发手记 I：UEFI 启动、GRUB 引导、Frame buffer 文字输出</h1>
             
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年11月29日 晚上
+                    本文最后更新于：2023年12月12日 晚上
                   
                 
               </p>
@@ -330,7 +330,7 @@
 <span id="more"></span>
 
 <h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00.一切开始之前"></a>0x00.一切开始之前</h1><p>很久以前在知乎上曾经有过一个“程序员的三大浪漫”的讲法：「编译原理」、「操作系统」、「图形学」——当然这个似乎是某些知名答主杜撰的并没有任何的由头神必说法，笔者自己也不认为所谓的“程序员的浪漫”就仅是这几个东西，但对于笔者而言，“自己动手编写一个可以正常运行的操作系统”确乎是一件<strong>非常炫酷的事情</strong></p>
-<p>笔者此前在大二下学期的时候曾参照《操作系统真象还原》编写过一个非常简陋的只有打印功能的 32 位操作系统——严格来说笔者仅仅完成了一个高度客制化的 boot loader 加上一点点的 kernel（因为懒而不是时间不够，天天摆烂躺平打游戏😥），也没有在真机上测试过，完全算不上一个能用的操作系统；在大三寒假期间笔者花了将近一周的时间<a target="_blank" rel="noopener" href="https://arttnba3.cn/2022/02/21/EXPR-0X00-MIT_6_828/">刷完了 MIT 6.828 的前四个 lab</a>，但那严格意义上来说也并不是笔者从零开始写的一个内核——大框架基本都是 MIT 搭好的，笔者仅仅只用补足非常微小的一部分；在大三下学期笔者想与喜欢的妹子一起参加一个<a target="_blank" rel="noopener" href="https://os.educg.net/">写操作系统内核的比赛</a>，但是由于<a target="_blank" rel="noopener" href="https://arttnba3.cn/2022/10/28/PIECES-0X04-SHELL_OUTSIDE-4-XIANG_WAN/">一些缘故</a>笔者一直拖到了比赛结束都还没有开始动手写第一行代码，最后也就不了了之了；在大四上学期笔者又重新写了一个<a target="_blank" rel="noopener" href="https://github.com/arttnba3/SumiOS">用 Grub2 引导的 64 位内核</a>，但是写完内存分配之后也烂尾了 😅</p>
+<p>笔者此前在大二下学期的时候曾参照《操作系统真象还原》编写过一个非常简陋的只有打印功能的 32 位操作系统——严格来说笔者仅仅完成了一个高度客制化的 boot loader 加上一点点的 kernel（因为懒而不是时间不够，天天摆烂躺平打游戏😥），也没有在真机上测试过，完全算不上一个能用的操作系统；在大三寒假期间笔者花了将近一周的时间<a target="_blank" rel="noopener" href="https://arttnba3.cn/2022/02/21/EXPR-0X00-MIT_6_828/">刷完了 MIT 6.828 的前四个 lab</a>，但那严格意义上来说也并不是笔者从零开始写的一个内核——大框架基本都是 MIT 搭好的，笔者仅仅只用补足非常微小的一部分；在大三下学期笔者想与曾经喜欢过的妹子一起参加一个<a target="_blank" rel="noopener" href="https://os.educg.net/">写操作系统内核的比赛</a>，但是由于<a target="_blank" rel="noopener" href="https://arttnba3.cn/2022/10/28/PIECES-0X04-SHELL_OUTSIDE-4-XIANG_WAN/">一些缘故</a>笔者一直拖到了比赛结束都还没有开始动手写第一行代码，最后也就不了了之了；在大四上学期笔者又重新写了一个<a target="_blank" rel="noopener" href="https://github.com/arttnba3/SumiOS">用 Grub2 引导的 64 位内核</a>，但是写完内存分配之后也烂尾了 😅</p>
 <blockquote>
 <p>仔细想来对于笔者来说似乎很少存在“万事开头难”的阶段，但往往一切事物都会滑向无底的大坑永久无法填上：）</p>
 </blockquote>
@@ -763,7 +763,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>【CODE.0x03】现代 64 位 OS 开发手记 I：UEFI 启动与 GRUB 引导</div>
+      <div>【CODE.0x03】现代 64 位 OS 开发手记 I：UEFI 启动、GRUB 引导、Frame buffer 文字输出</div>
       <div>https://arttnba3.github.io/2023/11/29/CODE-0X03-OSDEV64-I_UEFI-GRUB/</div>
     </div>
     <div class="license-meta">
