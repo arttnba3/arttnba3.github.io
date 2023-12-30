@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2023/10/25/4nrEeVhf876YtAC.png">
 <meta property="article:published_time" content="2023-10-24T17:02:45.000Z">
-<meta property="article:modified_time" content="2023-11-25T11:29:21.972Z">
+<meta property="article:modified_time" content="2023-12-29T14:26:42.160Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="运维">
@@ -254,7 +254,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          5.8k 字
+          5.9k 字
         
       </span>
     
@@ -320,7 +320,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年11月25日 晚上
+                    本文最后更新于：2023年12月30日 凌晨
                   
                 
               </p>
@@ -332,12 +332,12 @@
 <span id="more"></span>
 
 <h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><blockquote>
-<p>如果你只是寻求 docker 接通 Wayland 跑图形界面的解决方案，请直接跳过这一小节 ：）</p>
+<p>如果你只是寻求 docker 接通 Wayland 跑图形界面的解决方案，不想看笔者吐槽的各种批话，请直接跳过这一小节 ：）</p>
 <p>如果你想要的是 docker 接通显卡的解决方案，那你走错路了，这个方案在<a target="_blank" rel="noopener" href="https://arttnba3.cn/2023/08/31/OPS-0X00-DOCKER_ON_SERVER/#0x02-%E5%88%9B%E5%BB%BA%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8%E6%98%BE%E5%8D%A1%E7%9A%84-docker-%E7%8E%AF%E5%A2%83">隔壁</a></p>
 </blockquote>
 <p>笔者大一刚开始学 Pwn 的时候就因环境问题而感到苦手，上一题的环境可能是 <code>Ubuntu 16.04</code> 带个 <code>glibc-2.23</code> 只有 <code>fastbin</code>，下一题可能又变成 <code>Ubuntu 18.04</code> 带个 <code>glibc-2.27</code> 又多一个 <code>tcache</code> ，然后笔者本地环境又是 <code>Ubuntu 20.04</code> 带个 <code>glibc-2.31</code> 的同时 <code>tcache</code> 又多带一个 key，对于那时候以 glibc heap 利用作为主流的 Pwn 题而言若是本地 libc 版本不同则根本没有办法很好地调试好打远程</p>
 <p>通过 <code>LD_PRELOAD</code> 参数在程序执行前 <em>预先加载 libc</em> 或许某些程度上是一个可行的办法，至少 libc 大版本相同的情况下载入不同的小版本基本上是没问题的，但是由于不同系统环境中 ld 版本不同的缘故，对于跨 ld 版本加载不同版本的 libc 则又可能直接 segmentation fault 了</p>
-<p>虽然 Linux 的用户环境并不似 Windows 那样有着强壮的前向兼容性，但是用户环境依托于内核环境、依托于内核向用户态暴露的接口——系统调用，而这并不是会轻易发生变动以及兼容性破坏的一个东西，由此，通过<strong>重新开辟一个对应的新的用户环境的方式</strong>—— 即形如 <code>Docker</code> 这样的<strong>操作系统层上的虚拟化方案</strong>，我们便能非常简单地搭建不同的 Pwn 题所对应的原始环境</p>
+<p>虽然 Linux 的用户环境并不似 Windows 那样有着强壮的二进制前向兼容性，但是用户环境依托于内核环境、依托于内核向用户态暴露的接口——系统调用，而这并不是会轻易发生变动以及兼容性破坏的一个东西，由此，通过<strong>重新开辟一个对应的新的用户环境的方式</strong>—— 即形如 <code>Docker</code> 这样的<strong>操作系统层上的虚拟化方案</strong>，我们便能非常简单地搭建不同的 Pwn 题所对应的原始环境</p>
 <blockquote>
 <p><del>当然，这里就不得不提<a target="_blank" rel="noopener" href="https://arttnba3.cn/2021/05/20/PIECES-0X00-SHELL_OUTSIDE-0-LOST_UMBRELLA/#arttnba3-arttnba3-cn-x2F-cat-flag">某些连 libc 都不给的是人是鬼全靠猜的比赛</a>的含金量了</del></p>
 </blockquote>
@@ -349,11 +349,12 @@
 <p><img src="https://s2.loli.net/2023/10/24/uaZ1VEfeXFDCshq.jpg" srcset="/img/loading.gif" lazyload alt="更重要的一点是笔者当时非常 sb 认为 tmux 不能翻页"></p>
 <p>笔者当年的解决方案是直接开多个虚拟机，但用起来总感觉差点意思不说，还占用了大量的物理磁盘空间——笔者本科阶段前两年所用的电脑是<strong>机身只搭载了一块 512GB SSD 的 surface book 2</strong>——为什么这里要特别讲一下这个机型并不是因为笔者想要炫富，虽然说从价格而言 surface 系统产品和 MacBook 系列产品一样同属价格极高性价比极低的“高端产品”，但笔者当时是在某海鲜市场买的可能大于二手的机子，所以其实没有花太多钱，但和 MacBook 一样的是 surface 全系列产品<strong>没有办法自行更换包括内存与硬盘在内的任何部件</strong>，而即便是在海鲜市场寻宝的情况下笔者也买不起更大容量的版本，再加上笔者当时除了是个计算机科学爱好者以及网络空间安全专业本科生的身份以外还是半个画师加十六分之一个平面设计师（当然现在已经不是本科生了），装个 visual studio 加个 matlab 加上 jetbrains 全家桶再装个 adobe 半家桶（主要就用 PS 和 AI 还有个剪视频的叫啥👴已经记不得了）就已经把硬盘填得满满当当的了，各种杂七杂八的资料照片音乐视频啥的又要吃掉少说几十 GB，这个时候再塞几个平均十几 GB 的各种虚拟机（主力虚拟机所占用的硬盘空间超过100GB）无疑更是让本就不富裕的 <strong>512GB SSD</strong> 雪上加霜</p>
 <blockquote>
-<p>而笔者为什么选择买这样一台中看不中用的电脑是因为在初中的时候笔者看一本不知道叫啥的电子硬件相关的杂志中看到 <code>surface book</code> 的 <em>屏幕键盘可分离、独显放置在键盘中</em> 的这样一个前所未有的解决方案感到十分惊人加非常的帅气，于是就一直心心念念想要买一台这样的本子，高中时期笔者换过三台不同的平板电脑二合一产品（当然，都是从某海鲜市场淘来的，且基本上是卖了上一台才买下一台），其中第一台是 surface 3 而第三台是 surface pro 3，当时的主要用途是拿来日常刷刷 OI 、写点小说<del>（那么这里就不得不简单帮忙推广一下某不知名作家所写的<a target="_blank" rel="noopener" href="https://www.qidian.com/book/1027074530/">《从零开始的 CTFer 生活》</a> 这部小说了虽然一直在咕咕咕） ~~、玩玩 MC ~~顺便在 mcmod wiki 上写小说</del> 和一些轻量游戏，体感其实还行</p>
+<p>而笔者为什么选择买这样一台中看不中用的电脑是因为在初中的时候笔者看一本不知道叫啥的电子硬件相关的杂志中看到 <code>surface book</code> 的 <em>屏幕键盘可分离、独显放置在键盘中</em> 的这样一个前所未有的解决方案感到十分惊人加非常的帅气，于是就一直心心念念想要买一台这样的本子，高中时期笔者换过三台不同的平板电脑二合一产品（当然，都是从某海鲜市场淘来的，且基本上是卖了上一台才买下一台），其中第一台是 surface 3 而第三台是 surface pro 3，当时的主要用途是拿来日常刷刷 OI 、写点小说 <del>（那么这里就不得不简单帮忙推广一下某不知名墨姓作家所写的<a target="_blank" rel="noopener" href="https://www.qidian.com/book/1027074530/">《从零开始的 CTFer 生活》</a> 这部小说了虽然一直在咕咕咕）</del> 玩一些轻量游戏，体感其实还行</p>
 <blockquote>
 <p>当然现在微软的 surface 系列产品已经能够初步地自行更换硬盘，虽然是充满槽点的 <code>2230</code> 规格，但是和隔壁某水果品牌相比已经好得不得了了</p>
 <blockquote>
 <p>但是各项性能又被隔壁秒成渣渣了，微软你在干什么啊微软（恼）</p>
+<p><del>但其实仔细一想这不应该是Intel的锅么，wintel联盟依托答辩了👊</del></p>
 </blockquote>
 </blockquote>
 <p>以及 surface 系统产品一直有一个噱头就是有个触控笔可以画画，也就是自带数位屏，这也是这个产品一直以来最吸引笔者的一点，虽然微软最初给大家呈上来的只是一坨闻着香吃着臭的答辩，但笔者一直希望随着产品不断迭代，微软能够把这个功能给真正做好，就算达不到 wacom 上万块钱的数位屏相的高度至少也要和国产的一千出头的数位屏掰个手腕的程度，可惜<strong>哪怕是一直到今天最新的 surface pro 9 这一代产品，其绘画手感依旧比不过几千块钱的 iPad ，甚至比不过200块出头的国产数位板</strong>（当然笔者只买了 surface pro 8 没有买 surface pro 9 因为微软非常 SB 地把 3.5mm 耳机接口这个天顶星科技给砍掉了并且性能和续航和 8 代相比并没有什么提升简而言之又是挤牙膏的一代，但笔者有去微软线下门店亲自尝试过最新一代，绘画手感依旧一坨答辩）</p>
