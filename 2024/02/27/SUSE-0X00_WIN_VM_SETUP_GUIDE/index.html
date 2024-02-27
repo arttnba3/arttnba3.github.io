@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2024/02/21/MRftUv7gSXDbn8I.png">
 <meta property="article:published_time" content="2024-02-27T03:22:58.000Z">
-<meta property="article:modified_time" content="2024-02-27T17:35:00.358Z">
+<meta property="article:modified_time" content="2024-02-27T18:00:15.622Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="虚拟化">
@@ -463,7 +463,7 @@
 <blockquote>
 <p>如果重启后你的 VM 无法连上网，可能是防火墙禁止了转发（通过 <code>iptables -A FORWARD -j ACCEPT</code> 命令启用转发），也可能是 libvirtd 莫名其妙挂了，<del>也可能是玄学问题多重启几遍就莫名其妙好了</del></p>
 </blockquote>
-<h2 id="Extra-同一物理磁盘分区直通-（not-recommend）"><a href="#Extra-同一物理磁盘分区直通-（not-recommend）" class="headerlink" title="_Extra. 同一物理磁盘分区直通_（not recommend）"></a>_Extra. 同一物理磁盘分区直通_（not recommend）</h2><blockquote>
+<h2 id="Extra-同一物理磁盘分区直通-（not-so-recommend）"><a href="#Extra-同一物理磁盘分区直通-（not-so-recommend）" class="headerlink" title="_Extra. 同一物理磁盘分区直通_（not so recommend）"></a>_Extra. 同一物理磁盘分区直通_（not so recommend）</h2><blockquote>
 <p>参考<a target="_blank" rel="noopener" href="https://jianmin.dev/2020/jul/19/boot-your-windows-partition-from-linux-using-kvm/">这篇文章</a></p>
 </blockquote>
 <blockquote>
@@ -521,6 +521,8 @@
 <p>QEMU 虽然可以模拟 vTPM，但是与物理机 TPM 的非一致性会让系统在 Win 物理机与虚拟机间切换时造成一定的问题（在 Windows 看来这破坏了系统的完整性），由于在 Linux PC 上我们通常并不使用 TPM 特性，因此这里我们可以选择直接将 TPM 模块直通给虚拟机</p>
 <p>TPM 模块的设备路径通常为 <code>/dev/tpm0</code> （v1.2）与 <code>/dev/tpmrm0</code> （v2.0），通常我们应当将前者进行直通才能达到完整直通的效果：</p>
 <p><img src="https://s2.loli.net/2024/02/26/wnPzW97uJxqKXFI.png" srcset="/img/loading.gif" lazyload alt="真是简简又单单，你们有没有这样的 virt-manager 啊">)</p>
+<p>然后就能用 pin 登录了：</p>
+<p><img src="https://s2.loli.net/2024/02/28/GFo179iyWNLetIX.png" srcset="/img/loading.gif" lazyload></p>
 <h1 id="0x02-在-Host-侧配置-RDP-连接"><a href="#0x02-在-Host-侧配置-RDP-连接" class="headerlink" title="0x02. 在 Host 侧配置 RDP 连接"></a>0x02. 在 Host 侧配置 RDP 连接</h1><h2 id="配置-RDP-硬体加速"><a href="#配置-RDP-硬体加速" class="headerlink" title="配置 RDP 硬体加速"></a>配置 RDP 硬体加速</h2><p>运行 <code>gpedit.msc</code> 找到 <code>*计算机配置-&gt;管理模板-&gt;Windows组件-&gt;远程桌面服务-&gt;远程桌面会话主机-&gt;远程会话环境</code>，在其中配置 RDP 硬体加速，以此获得更好的 RDP 性能：</p>
 <p><img src="https://s2.loli.net/2024/02/26/ILEM9OrqKZFApou.png" srcset="/img/loading.gif" lazyload></p>
 <p>然后打开注册表编辑器路径 <code>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations</code> ，新建一个名为 <code>DWMFRAMEINTERVAL</code> 的 DWORD 值并设为 <code>15</code>：</p>
@@ -617,7 +619,7 @@
 <p>之后就完成直通了：</p>
 <p><img src="https://s2.loli.net/2024/02/26/9Ycy386z1DJwiWB.png" srcset="/img/loading.gif" lazyload></p>
 <p><img src="https://s2.loli.net/2024/02/25/LVaHAEvjuQZhdqy.png" srcset="/img/loading.gif" lazyload></p>
-<p>如果你和笔者一样电脑自带的视频输出口都走独显，则可以通过外接显示器直接输出虚拟机内容，这样就不需要忍受 virtio 那极其底下的性能了：</p>
+<p>如果你和笔者一样电脑自带的视频输出口都走独显，则可以通过外接显示器直接输出虚拟机内容，这样就不需要忍受 virtio&#x2F;qxl 那极其底下的性能了：</p>
 <p><img src="https://s2.loli.net/2024/02/28/5mcCALesxZbzUfq.jpg" srcset="/img/loading.gif" lazyload></p>
 <h3 id="配置-libvirt-hook-动态装载显卡"><a href="#配置-libvirt-hook-动态装载显卡" class="headerlink" title="配置 libvirt hook 动态装载显卡"></a>配置 libvirt hook 动态装载显卡</h3><p>我们只需要将前面的两个脚本写到  <code>/etc/libvirt/hooks/qemu</code> 脚本中即可：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-meta">#!/bin/bash</span><br><br>VM_NAME=<span class="hljs-string">&quot;Windows11PhysVM&quot;</span><br><br><span class="hljs-keyword">if</span> [[ <span class="hljs-variable">$1</span> == <span class="hljs-variable">$VM_NAME</span> ]] &amp;&amp; [[ <span class="hljs-variable">$2</span> == <span class="hljs-string">&quot;prepare&quot;</span> || <span class="hljs-variable">$2</span> == <span class="hljs-string">&quot;stopped&quot;</span> ]] ; <span class="hljs-keyword">then</span><br>   <span class="hljs-keyword">if</span> [[ <span class="hljs-variable">$2</span> == <span class="hljs-string">&quot;prepare&quot;</span> ]] ; <span class="hljs-keyword">then</span><br>     sudo modprobe -r nvidia_drm<br>     sudo modprobe -r nvidia_uvm<br>     sudo modprobe -r nvidia_modeset<br>     sudo modprobe -r nvidia<br>     virsh nodedev-detach pci_0000_01_00_0<br>     sudo modprobe vfio-pci<br>   <span class="hljs-keyword">else</span><br>     sudo modprobe -r vfio-pci<br>     virsh nodedev-reattach pci_0000_01_00_0<br>     sudo modprobe nvidia<br>     sudo modprobe nvidia_modeset<br>     sudo modprobe nvidia_uvm<br>     sudo modprobe nvidia_drm<br>   <span class="hljs-keyword">fi</span><br><span class="hljs-keyword">fi</span><br></code></pre></td></tr></table></figure>
