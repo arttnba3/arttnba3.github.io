@@ -1,8 +1,13 @@
+https://arttnba3.github.io/2024/01/01/VIRUS-0X00-LINUX_ROOTKIT/
+https://arttnba3.github.io/2024/02/27/SUSE-0X00_WIN_VM_SETUP_GUIDE/
+https://arttnba3.github.io/2023/11/24/DISTRO-0X01-INSTALL_TUMBLEWEED_WINDOWS/
+https://arttnba3.github.io/2023/10/25/OPS-0X01-DOCKER_WAYLAND_GUI/
+https://arttnba3.github.io/2021/11/24/FUZZ-0X01-SYZKALLER-I/
+https://arttnba3.github.io/2021/02/01/FUZZ-0X00-AFL-I/
 https://arttnba3.github.io/2023/12/21/PIECES-0X05-NEEDY_A3_OVERDOSE-0-GOODBYE_XDU/
 https://arttnba3.github.io/2023/09/27/FUZZ-0X03-SYZKALLER-III_SOURCE_SYZFUZZER/
 https://arttnba3.github.io/2023/12/31/PAPER-0X05-DIRTY_CRED/
 https://arttnba3.github.io/about/index.html
-https://arttnba3.github.io/2023/10/25/OPS-0X01-DOCKER_WAYLAND_GUI/
 https://arttnba3.github.io/2021/09/07/PIECES-0X01-SHELL_OUTSIDE-1-WINDY_SUMMER/
 https://arttnba3.github.io/2021/12/31/PIECES-0X02-SHELL_OUTSIDE-2-DEEP_INTO_THE_SEA/
 https://arttnba3.github.io/2021/05/20/PIECES-0X00-SHELL_OUTSIDE-0-LOST_UMBRELLA/
@@ -14,11 +19,9 @@ https://arttnba3.github.io/2023/05/02/CTF-0X08_D3CTF2023_D3KCACHE/
 https://arttnba3.github.io/2023/02/24/OS-0X04-LINUX-KERNEL-MEMORY-6.2-PART-III/
 https://arttnba3.github.io/2022/11/24/ANGR-0X00-ANGR_CTF/
 https://arttnba3.github.io/2023/07/14/CTF-0X09_CISCN_2023_HDBFQS/
-https://arttnba3.github.io/2021/02/01/FUZZ-0X00-AFL-I/
 https://arttnba3.github.io/2020/09/08/CTF-0X00-BUUOJ-PWN/
 https://arttnba3.github.io/2023/11/29/CODE-0X03-OSDEV64-I_UEFI-GRUB/
 https://arttnba3.github.io/2022/01/04/CODE-0X02-DESIGN_PATTERN/
-https://arttnba3.github.io/2023/11/24/DISTRO-0X01-INSTALL_TUMBLEWEED_WINDOWS/
 https://arttnba3.github.io/2023/09/25/DISTRO-0X00-INSTALL_ARCH_WINDOWS/
 https://arttnba3.github.io/2021/02/21/OS-0X00-LINUX-KERNEL-PART-I/
 https://arttnba3.github.io/2021/04/08/CVE-0X00-CVE-2016-5195/
@@ -48,7 +51,6 @@ https://arttnba3.github.io/2021/04/24/CVE-0X01-CVE-2021-3156/
 https://arttnba3.github.io/2020/04/21/ALGORITHM-0X00-DYNAMIC_PROGRAMMING/
 https://arttnba3.github.io/2021/07/07/CODE-0X01-ROOTKIT/
 https://arttnba3.github.io/2023/03/02/FUZZ-0X02-SYZKALLER-II_SOURCE_SYZMANAGER/
-https://arttnba3.github.io/2021/11/24/FUZZ-0X01-SYZKALLER-I/
 https://arttnba3.github.io/2022/03/08/CTF-0X06-D3CTF2022_D3KHEAP/
 https://arttnba3.github.io/2022/04/01/CVE-0X07-CVE-2021-22555/
 https://arttnba3.github.io/2022/09/30/CTF-0X07-BYTECTF2022_BYTERUN/
@@ -178,9 +180,9 @@ https://arttnba3.github.io/tags/VNC/
 https://arttnba3.github.io/tags/GUI/
 https://arttnba3.github.io/tags/Wayland/
 https://arttnba3.github.io/tags/%E7%B3%BB%E7%BB%9F%E8%99%9A%E6%8B%9F%E5%8C%96/
-https://arttnba3.github.io/tags/OpenSUSE/
-https://arttnba3.github.io/tags/OpenSUSE-Tumbleweed/
 https://arttnba3.github.io/tags/AFL/
+https://arttnba3.github.io/tags/openSUSE/
+https://arttnba3.github.io/tags/openSUSE-Tumbleweed/
 https://arttnba3.github.io/categories/ALGORITHM/
 https://arttnba3.github.io/categories/CODE/
 https://arttnba3.github.io/categories/CTF/
@@ -200,3 +202,5 @@ https://arttnba3.github.io/categories/PIECES/
 https://arttnba3.github.io/categories/VIRTUALIZATION/
 https://arttnba3.github.io/categories/PWN/
 https://arttnba3.github.io/categories/DISTRO/
+https://arttnba3.github.io/categories/SUSE/
+https://arttnba3.github.io/categories/VIRUS/
