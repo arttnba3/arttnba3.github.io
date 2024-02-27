@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/11/11/LxNvdhpEX2sBjYc.png">
 <meta property="article:published_time" content="2021-11-23T16:09:11.000Z">
-<meta property="article:modified_time" content="2023-03-01T20:34:19.000Z">
+<meta property="article:modified_time" content="2024-01-04T21:32:24.242Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="漏洞挖掘">
 <meta property="article:tag" content="syzkaller">
@@ -252,7 +252,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          21k 字
+          23k 字
         
       </span>
     
@@ -263,7 +263,7 @@
         
         
         
-          179 分钟
+          190 分钟
         
       </span>
     
@@ -318,7 +318,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年3月2日 早上
+                    本文最后更新于：2024年1月5日 早上
                   
                 
               </p>
@@ -881,7 +881,27 @@
 <li><strong>check</strong>：进行语义分析</li>
 <li><strong>genSyscalls</strong>：从 AST 生成 prog 对象</li>
 </ul>
-<h1 id="0x04-实战：用-syzkaller-挖掘出-CVE-20"><a href="#0x04-实战：用-syzkaller-挖掘出-CVE-20" class="headerlink" title="0x04.实战：用 syzkaller 挖掘出 CVE-20??-????"></a><del>0x04.实战：用 syzkaller 挖掘出 CVE-20??-????</del></h1><p><del>CVE-20??-???? 是由于 ?? 原因造成的内核空间中的 ??，笔者接下来将尝试使用 syzkaller 来挖掘出该漏洞</del></p>
+<h1 id="0x04-实战：使用-syzkaller-测试-CTF-中的闭源内核驱动"><a href="#0x04-实战：使用-syzkaller-测试-CTF-中的闭源内核驱动" class="headerlink" title="0x04. 实战：使用 syzkaller 测试 CTF 中的闭源内核驱动"></a>0x04. 实战：使用 syzkaller 测试 CTF 中的闭源内核驱动</h1><p>首先我们需要将 CTF 中的内核模块文件放到 syzkaller 所使用的磁盘镜像中（而非使用题目原有的磁盘镜像，因为通常那环境里啥都没有），我们需要挂载磁盘镜像并 chroot 到里边：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo mount ./bullseye.img ./tmp</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">chroot</span> ./tmp</span><br></code></pre></td></tr></table></figure>
+
+<p>创建 <code>/etc/systemd/system/ctf-chall.service</code> 文件写入如下内容：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell">[Unit]<br>Description=CTF Challenge<br><br>[Service]<br>ExecStart=/root/ctf-service.sh start<br>Restart=always<br><br>[Install]<br>WantedBy=multi-user.target<br></code></pre></td></tr></table></figure>
+
+<p>之后创建 <code>/root/ctf-service.sh</code> 文件，添加可执行权限，并写入如下内容（这里以<a href="">这道题</a>为例）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-meta">#!/bin/sh</span><br><br><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;<span class="hljs-variable">$1</span>&quot;</span> <span class="hljs-keyword">in</span><br>	start)<br>		insmod /root/d3kheap.ko<br>		<span class="hljs-built_in">chmod</span> 666 /dev/d3kheap<br>		;;<br>	stop)<br>		rmmod d3kheap.ko<br>		;;<br>	restart)<br>		rmmod d3kheap.ko<br>		insmod /root/d3kheap.ko<br>		<span class="hljs-built_in">chmod</span> 666 /dev/d3kheap<br>		;;<br>	*)<br>		<span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;Usage: <span class="hljs-variable">$0</span> &#123;start|stop|restart&#125;&quot;</span><br>		<span class="hljs-built_in">exit</span> 1<br>		;;<br><span class="hljs-keyword">esac</span><br><br><span class="hljs-built_in">exit</span> 0<br></code></pre></td></tr></table></figure>
+
+<p>使用如下命令启用自启动：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">systemctl <span class="hljs-built_in">enable</span> ctf-chall.service</span><br></code></pre></td></tr></table></figure>
+
+<p>之后退出 chroot，umount 磁盘镜像，使用该磁盘镜像启动虚拟机我们便能看到题目服务已经启动起来了</p>
+<p>接下来我们还需要修改 syzkaller 的源码，以记录 dmesg 信息，这里将 <code>vm/qemu/qemu.go</code> 中 <code>Run()</code> 函数的开头修改为如下即可：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(inst *instance)</span></span> Run(timeout time.Duration, stop &lt;-<span class="hljs-keyword">chan</span> <span class="hljs-type">bool</span>, command <span class="hljs-type">string</span>) (<br>	&lt;-<span class="hljs-keyword">chan</span> []<span class="hljs-type">byte</span>, &lt;-<span class="hljs-keyword">chan</span> <span class="hljs-type">error</span>, <span class="hljs-type">error</span>) &#123;<br>	argsDmesg := <span class="hljs-built_in">append</span>(vmimpl.SSHArgs(inst.debug, inst.sshkey, inst.port), inst.sshuser+<span class="hljs-string">&quot;@localhost&quot;</span>)<br>	dmesg, err := vmimpl.OpenRemoteConsole(<span class="hljs-string">&quot;ssh&quot;</span>, argsDmesg...)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, <span class="hljs-literal">nil</span>, err<br>	&#125;<br><br>	rpipe, wpipe, err := osutil.LongPipe()<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		dmesg.Close()<br>		<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, <span class="hljs-literal">nil</span>, err<br>	&#125;<br><br>	inst.merger.Add(<span class="hljs-string">&quot;ssh&quot;</span>, rpipe)<br>	inst.merger.Add(<span class="hljs-string">&quot;dmesg&quot;</span>, dmesg)<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h1 id="0x05-实战：用-syzkaller-挖掘出-CVE-20"><a href="#0x05-实战：用-syzkaller-挖掘出-CVE-20" class="headerlink" title="0x05.实战：用 syzkaller 挖掘出 CVE-20??-????"></a><del>0x05.实战：用 syzkaller 挖掘出 CVE-20??-????</del></h1><p><del>CVE-20??-???? 是由于 ?? 原因造成的内核空间中的 ??，笔者接下来将尝试使用 syzkaller 来挖掘出该漏洞</del></p>
 <blockquote>
 <p>🕊🕊🕊</p>
 </blockquote>
