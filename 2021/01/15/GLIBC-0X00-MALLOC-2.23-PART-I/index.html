@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2020/12/18/MAmvtL1zrpo9sFV.png">
 <meta property="article:published_time" content="2021-01-15T08:17:03.000Z">
-<meta property="article:modified_time" content="2023-10-27T11:40:11.256Z">
+<meta property="article:modified_time" content="2023-10-27T00:41:20.000Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="堆">
 <meta property="article:tag" content="ptmalloc">
@@ -91,8 +91,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
-</head>
+<meta name="generator" content="Hexo 7.1.1"></head>
 
 
 <body>
@@ -319,7 +318,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年10月27日 晚上
+                    本文最后更新于：2023年10月27日 中午
                   
                 
               </p>
@@ -872,7 +871,7 @@
 <p>随后<strong>检查arena数量是否达到上限</strong>（narenas &#x3D;&#x3D; narena_limit），<strong>若否</strong>，则接下来会调用宏<code>catomic_compare_and_exchange_bool_acq</code><strong>将narenas的值加1</strong>，随后调用<code>_int_new_arena()</code>函数<strong>创建一个新的arena</strong>，若成功则返回，<strong>否则重新将narenas的值减1</strong></p>
 <p>若<strong>arena数量已经达到上限</strong>，则会调用<code>reused_arena()</code>函数尝试从现有arena中寻找可用的arena上锁后返回，需要注意的是该函数遍历arena时会过滤掉传入的avoid_arena</p>
 <blockquote>
-<h5 id="glibc-likely-expr-amp-amp-glibc-unlikely-expr-：分支预测优化（封装宏）"><a href="#glibc-likely-expr-amp-amp-glibc-unlikely-expr-：分支预测优化（封装宏）" class="headerlink" title="__glibc_likely(expr) &amp;&amp; __glibc_unlikely(expr)：分支预测优化（封装宏）"></a>__glibc_likely(expr) &amp;&amp; __glibc_unlikely(expr)：分支预测优化（封装宏）</h5><p>对__builtin_expect宏的封装，定义于misc&#x2F;sys&#x2F;cdefs.h中，如下：</p>
+<h5 id="glibc-likely-expr-glibc-unlikely-expr-：分支预测优化（封装宏）"><a href="#glibc-likely-expr-glibc-unlikely-expr-：分支预测优化（封装宏）" class="headerlink" title="__glibc_likely(expr) &amp;&amp; __glibc_unlikely(expr)：分支预测优化（封装宏）"></a>__glibc_likely(expr) &amp;&amp; __glibc_unlikely(expr)：分支预测优化（封装宏）</h5><p>对__builtin_expect宏的封装，定义于misc&#x2F;sys&#x2F;cdefs.h中，如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">if</span> __GNUC__ &gt;= 3</span><br><span class="hljs-meta"># <span class="hljs-keyword">define</span> __glibc_unlikely(cond)	__builtin_expect ((cond), 0)</span><br><span class="hljs-meta"># <span class="hljs-keyword">define</span> __glibc_likely(cond)	__builtin_expect ((cond), 1)</span><br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br><span class="hljs-meta"># <span class="hljs-keyword">define</span> __glibc_unlikely(cond)	(cond)</span><br><span class="hljs-meta"># <span class="hljs-keyword">define</span> __glibc_likely(cond)	(cond)</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
 
 <p>只有宏__GNUC__的值大于3时才会启用该宏，其核心是宏__bulltin_expect(expr, var)</p>

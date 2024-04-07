@@ -27,11 +27,11 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2022/02/21/UwuF2BlSxKCRAyH.png">
 <meta property="article:published_time" content="2022-02-20T15:57:25.000Z">
-<meta property="article:modified_time" content="2022-10-20T16:30:13.000Z">
+<meta property="article:modified_time" content="2023-08-13T08:31:06.000Z">
 <meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="操作系统">
 <meta property="article:tag" content="实验笔记">
 <meta property="article:tag" content="MIT">
-<meta property="article:tag" content="操作系统">
 <meta property="article:tag" content="XV6">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://s2.loli.net/2022/02/21/UwuF2BlSxKCRAyH.png">
@@ -91,8 +91,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
-</head>
+<meta name="generator" content="Hexo 7.1.1"></head>
 
 
 <body>
@@ -319,7 +318,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2022年10月21日 凌晨
+                    本文最后更新于：2023年8月13日 晚上
                   
                 
               </p>
@@ -381,7 +380,7 @@
 
 <p>参照 <a target="_blank" rel="noopener" href="http://patchwork.ozlabs.org/patch/709415/">[v3] build: include sys&#x2F;sysmacros.h for major() and minor() - Patchwork</a> ，在 qemu 源码目录下的 <code>qga/commands-posix.c</code> 加上一个 <code>#include &lt;sys/sysmacros.h&gt;</code></p>
 <p>继续 make install，之后还可能出现这样一个错误：</p>
-<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs gradle">...<br>  Building optionrom/kvmvapic.img<br>  Building optionrom/kvmvapic.raw<br>  Signing optionrom/kvmvapic.bin<br>install -d -m <span class="hljs-number">0755</span> <span class="hljs-string">&quot;/usr/local/share/qemu&quot;</span><br>install: cannot change permissions of ‘<span class="hljs-regexp">/usr/</span>local<span class="hljs-regexp">/share/</span>qemu’: No such <span class="hljs-keyword">file</span> or directory<br>make: *** [Makefile:<span class="hljs-number">382</span>: install-datadir] Error <span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">...<br>  Building optionrom/kvmvapic.img<br>  Building optionrom/kvmvapic.raw<br>  Signing optionrom/kvmvapic.bin<br>install -d -m 0755 <span class="hljs-string">&quot;/usr/local/share/qemu&quot;</span><br>install: cannot change permissions of ‘/usr/local/share/qemu’: No such file or directory<br>make: *** [Makefile:382: install-datadir] Error 1<br></code></pre></td></tr></table></figure>
 
 <p>我们手动创建 <code>/usr/local/share/qemu</code> 这个目录即可</p>
 <p>之后继续 make install，又报缺一个目录的错误（不能一次报完嘛 - - ）</p>
@@ -1960,11 +1959,11 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
+        <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>
+      
         <a href="/tags/%E5%AE%9E%E9%AA%8C%E7%AC%94%E8%AE%B0/">#实验笔记</a>
       
         <a href="/tags/MIT/">#MIT</a>
-      
-        <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>
       
         <a href="/tags/XV6/">#XV6</a>
       

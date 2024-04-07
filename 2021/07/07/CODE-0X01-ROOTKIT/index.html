@@ -27,10 +27,10 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/07/22/ZdT69sECcyPrW4f.png">
 <meta property="article:published_time" content="2021-07-06T22:53:52.000Z">
-<meta property="article:modified_time" content="2023-03-02T18:52:42.000Z">
+<meta property="article:modified_time" content="2023-08-13T08:31:08.000Z">
 <meta property="article:author" content="arttnba3">
-<meta property="article:tag" content="Linux">
 <meta property="article:tag" content="ROOTKIT">
+<meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://i.loli.net/2021/07/22/ZdT69sECcyPrW4f.png">
@@ -90,8 +90,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
-</head>
+<meta name="generator" content="Hexo 7.1.1"></head>
 
 
 <body>
@@ -318,7 +317,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年3月3日 凌晨
+                    本文最后更新于：2023年8月13日 晚上
                   
                 
               </p>
@@ -442,7 +441,7 @@
 <p>虽然说我们可以把 rootkit 的名字改为「very_important_module_not_root_kit_please_donot_remove_it」一类的名字进行伪装从而通过_社会工程学手段_让用户难以发现异常，但是哪怕看起来再“正常”的名字也不能够保证不会被发现，因此我们需要<strong>让用户无法直接发现我们的 rootkit</strong></p>
 <h2 id="PRE-内核中的内核模块：module-结构体"><a href="#PRE-内核中的内核模块：module-结构体" class="headerlink" title="PRE.内核中的内核模块：module 结构体"></a>PRE.内核中的内核模块：module 结构体</h2><p>这里仅简要叙述，在内核当中使用结构体 <code>module</code> 来表示一个内核模块（定义于 <code>/include/linux/module.h</code>），多个内核模块通过成员 <code>list</code> （内核双向链表结构<code>list_head</code>，定义于<code>/include/linux/types.h</code> 中，仅有 next 与 prev 指针成员）构成双向链表结构</p>
 <p>在内核模块编程中，我们可以通过宏 <code>THIS_MODULE</code> （定义于 <code>include/linux/export.h</code>）或者直接用其宏展开 <code>&amp;__list_module</code> 来获取当前内核模块的 module 结构体，</p>
-<h2 id="Step-I-x2F-proc-x2F-modules-信息隐藏"><a href="#Step-I-x2F-proc-x2F-modules-信息隐藏" class="headerlink" title="Step-I. &#x2F;proc&#x2F;modules 信息隐藏"></a>Step-I. &#x2F;proc&#x2F;modules 信息隐藏</h2><p>Linux 下用以查看模块的命令 <code>lsmod</code> 其实是从 <code>/proc/modules</code> 这个文件中读取并进行整理，该文件的内容来自于内核中的 module 双向链表，那么我们只需要将 rootkit 从双向链表中移除即可完成 procfs 中的隐藏</p>
+<h2 id="Step-I-proc-modules-信息隐藏"><a href="#Step-I-proc-modules-信息隐藏" class="headerlink" title="Step-I. &#x2F;proc&#x2F;modules 信息隐藏"></a>Step-I. &#x2F;proc&#x2F;modules 信息隐藏</h2><p>Linux 下用以查看模块的命令 <code>lsmod</code> 其实是从 <code>/proc/modules</code> 这个文件中读取并进行整理，该文件的内容来自于内核中的 module 双向链表，那么我们只需要将 rootkit 从双向链表中移除即可完成 procfs 中的隐藏</p>
 <p>熟悉内核编程的同学应该都知道 <code>list_del_init()</code> 函数用以进行内核双向链表脱链操作，该函数定义于 <code>/include/linux/list.h</code> 中，多重套娃展开后其核心<strong>主要是常规的双向链表脱链</strong>，那么在这里我们其实可以直接手写双向链表的脱链工作</p>
 <p>我们还需要考虑到多线程操作的影响，阅读 <code>rmmod</code> 背后的系统调用 <code>delete_module</code> 源码（位于 <code>kernel/module.c</code> 中），观察到其进入临界区前使用了一个互斥锁变量名为 <code>module_mutex</code>，我们的 unlink 操作也将使用该互斥锁以保证线程安全（毕竟我们进来不是直接搞破坏的hhh）</p>
 <p>在模块初始化函数末尾添加如下：</p>
@@ -451,7 +450,7 @@
 <p>将我们的 rootkit 重新 make 后加载到内核中，我们会发现 <strong>lsmod 命令已经无法发现我们的 rootkit，在 &#x2F;proc&#x2F;modules 文件中已经没有我们 rootkit 的信息</strong>，与此同时我们的 rootkit <strong>所提供的功能一切正常</strong></p>
 <p>但同样地，无论是载入还是卸载内核模块都需要对双向链表进行操作，由于我们的 rootkit 已经脱链故<strong>我们无法将其卸载</strong>（不过 rootkit 一次载入后应当是要长久驻留在内核中的）</p>
 <p><img src="https://i.loli.net/2021/07/07/XkE79CKGZBnepW2.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h2 id="Step-II-x2F-sys-x2F-module-x2F-信息隐藏"><a href="#Step-II-x2F-sys-x2F-module-x2F-信息隐藏" class="headerlink" title="Step-II. &#x2F;sys&#x2F;module&#x2F; 信息隐藏"></a>Step-II. &#x2F;sys&#x2F;module&#x2F; 信息隐藏</h2><p>sysfs 与 procfs 相类似，同样是一个基于 RAM 的虚拟文件系统，它的作用是将内核信息以文件的方式提供给用户程序使用，其中便包括我们的 rootkit 模块信息，sysfs 会动态读取内核中的 kobject 层次结构并在 <code>/sys/module/</code> 目录下生成文件</p>
+<h2 id="Step-II-sys-module-信息隐藏"><a href="#Step-II-sys-module-信息隐藏" class="headerlink" title="Step-II. &#x2F;sys&#x2F;module&#x2F; 信息隐藏"></a>Step-II. &#x2F;sys&#x2F;module&#x2F; 信息隐藏</h2><p>sysfs 与 procfs 相类似，同样是一个基于 RAM 的虚拟文件系统，它的作用是将内核信息以文件的方式提供给用户程序使用，其中便包括我们的 rootkit 模块信息，sysfs 会动态读取内核中的 kobject 层次结构并在 <code>/sys/module/</code> 目录下生成文件</p>
 <p>这里简单讲一下 kobject：Kobject 是 Linux 中的设备数据结构基类，在内核中为 <code>struct kobject</code> 结构体，通常内嵌在其他数据结构中；每个设备都有一个 kobject 结构体，多个 kobject 间通过内核双向链表进行链接；kobject 之间构成层次结构</p>
 <blockquote>
 <p>kobject 更多信息参见<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/104834616">https://zhuanlan.zhihu.com/p/104834616</a></p>
@@ -491,7 +490,7 @@
 <p>这里用 qemu 起一个虚拟机跑我们的 rootkit，用 busybox 构建一个文件系统</p>
 <p>简单测试一下，当我们将要隐藏的文件在 VFS 中对应的 dentry 从其 d_child 链表中摘除之后，我们便无法通过 <code>ls</code> 或是 <code>find</code> 命令找到这个文件，<strong>但是该文件仍能被正常访问</strong>，由此我们成功地将一个文件隐藏了起来</p>
 <p><img src="https://i.loli.net/2021/07/23/zkT3X6xEnMtbhaf.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h4 id="x2F-dev-设备文件隐藏"><a href="#x2F-dev-设备文件隐藏" class="headerlink" title="&#x2F;dev 设备文件隐藏"></a>&#x2F;dev 设备文件隐藏</h4><p>同样地，我们用以与 rootkit 进行通信的设备文件基于 <code>devtmpfs</code>，为基于 ram 的文件系统，因此我们可以直接在 VFS 中将其 dentry 从其 d_child 链表脱链，完成该设备文件的隐藏</p>
+<h4 id="dev-设备文件隐藏"><a href="#dev-设备文件隐藏" class="headerlink" title="&#x2F;dev 设备文件隐藏"></a>&#x2F;dev 设备文件隐藏</h4><p>同样地，我们用以与 rootkit 进行通信的设备文件基于 <code>devtmpfs</code>，为基于 ram 的文件系统，因此我们可以直接在 VFS 中将其 dentry 从其 d_child 链表脱链，完成该设备文件的隐藏</p>
 <p>简单测试一下，我们在 <code>/dev</code> 目录下已经无法找到该设备文件，但是我们仍能与我们的 rootkit 正常通信</p>
 <p><img src="https://i.loli.net/2021/07/23/UIDQ41CKMBNhEWu.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <blockquote>
@@ -606,9 +605,9 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/Linux/">#Linux</a>
-      
         <a href="/tags/ROOTKIT/">#ROOTKIT</a>
+      
+        <a href="/tags/Linux/">#Linux</a>
       
         <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
       

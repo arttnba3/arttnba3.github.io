@@ -27,17 +27,17 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/03/03/JXPaRGtvIKU3rzk.png">
 <meta property="article:published_time" content="2021-03-03T07:36:24.000Z">
-<meta property="article:modified_time" content="2023-12-18T07:03:43.076Z">
+<meta property="article:modified_time" content="2023-12-17T20:04:48.000Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Linux Kernel">
 <meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="Use After Free">
 <meta property="article:tag" content="ROP">
 <meta property="article:tag" content="栈溢出">
-<meta property="article:tag" content="Linux Kernel">
 <meta property="article:tag" content="Kernel UAF">
-<meta property="article:tag" content="Heap Overflow">
 <meta property="article:tag" content="栈迁移">
+<meta property="article:tag" content="Heap Overflow">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://i.loli.net/2021/03/03/JXPaRGtvIKU3rzk.png">
   
@@ -96,8 +96,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
-</head>
+<meta name="generator" content="Hexo 7.1.1"></head>
 
 
 <body>
@@ -324,7 +323,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年12月18日 晚上
+                    本文最后更新于：2023年12月18日 早上
                   
                 
               </p>
@@ -400,7 +399,7 @@
 </ul>
 <p>那么我们只需要在内核中找到相应的gadget并执行<code>swapgs;iretq</code>就可以成功着陆回用户态</p>
 <p>通常来说，我们应当构造如下rop链以返回用户态并获得一个shell：</p>
-<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs awk">↓   swapgs<br>    iretq<br>    user_shell_addr<br>    user_cs<br>    user_eflags <span class="hljs-regexp">//</span><span class="hljs-number">64</span>bit user_rflags<br>    user_sp<br>    user_ss<br></code></pre></td></tr></table></figure>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs x86asm">↓   <span class="hljs-keyword">swapgs</span><br>    <span class="hljs-keyword">iretq</span><br>    user_shell_addr<br>    user_cs<br>    user_eflags //64bit user_rflags<br>    user_sp<br>    user_ss<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>内核ROP和用户态的ROP本质上没有太大区别，细节便不在此赘叙了</p>
@@ -488,7 +487,7 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs assembly">mov  rdi, cr3<br>or rdi, 0x1000<br>mov  cr3, rdi<br>pop rax<br>pop rdi<br>swapgs<br>iretq<br></code></pre></td></tr></table></figure>
 
 <p>因此我们只需要布置出如下栈布局即可：</p>
-<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs awk">↓   swapgs_restore_regs_and_return_to_usermode<br>    <span class="hljs-number">0</span> <span class="hljs-regexp">//</span> padding<br>    <span class="hljs-number">0</span> <span class="hljs-regexp">//</span> padding<br>    user_shell_addr<br>    user_cs<br>    user_rflags<br>    user_sp<br>    user_ss<br></code></pre></td></tr></table></figure>
+<figure class="highlight ceylon"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs ceylon">↓   swapgs<span class="hljs-number">_</span>restore<span class="hljs-number">_</span>regs<span class="hljs-number">_</span>and<span class="hljs-number">_</span><span class="hljs-keyword">return</span><span class="hljs-number">_</span>to<span class="hljs-number">_u</span>sermode<br>    <span class="hljs-number">0</span> <span class="hljs-comment">// padding</span><br>    <span class="hljs-number">0</span> <span class="hljs-comment">// padding</span><br>    user<span class="hljs-number">_</span>shell<span class="hljs-number">_</span>addr<br>    user<span class="hljs-number">_</span>cs<br>    user<span class="hljs-number">_</span>rflags<br>    user<span class="hljs-number">_</span>sp<br>    user<span class="hljs-number">_</span>ss<br></code></pre></td></tr></table></figure>
 
 <p>我们同时也可以看出这是一个极好的用来进行调栈的函数</p>
 <blockquote>
@@ -510,7 +509,7 @@
 
 <p>重新打包，运行，成功获取root权限</p>
 <p><img src="https://i.loli.net/2021/03/10/ZJr5aWSmlBM8AXt.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h2 id="ret2usr-with-SMAP-x2F-SMEP-BYPASS"><a href="#ret2usr-with-SMAP-x2F-SMEP-BYPASS" class="headerlink" title="ret2usr with SMAP&#x2F;SMEP BYPASS"></a>ret2usr with SMAP&#x2F;SMEP BYPASS</h2><p>前面我们讲到，当 kernel 开启 SMEP 保护时，ret2usr 这种攻击手法将会引起 kernel panic，因此若是我们仍然想要进行 ret2usr 攻击，则需要先关闭 SMEP 保护</p>
+<h2 id="ret2usr-with-SMAP-SMEP-BYPASS"><a href="#ret2usr-with-SMAP-SMEP-BYPASS" class="headerlink" title="ret2usr with SMAP&#x2F;SMEP BYPASS"></a>ret2usr with SMAP&#x2F;SMEP BYPASS</h2><p>前面我们讲到，当 kernel 开启 SMEP 保护时，ret2usr 这种攻击手法将会引起 kernel panic，因此若是我们仍然想要进行 ret2usr 攻击，则需要先关闭 SMEP 保护</p>
 <p>Intel 下系统根据 CR4 控制寄存器的第 20、21 位标识是否开启 SMEP、SMAP 保护（1为开启，0为关闭），<strong>若是能够改变 CR4 寄存器的值便能够关闭 SMEP&#x2F;SMAP 保护</strong>，完成 SMAP&#x2F;SMEP-bypass，接下来就能够重新进行 ret2usr</p>
 <p><img src="https://i.loli.net/2021/09/07/sYFKuZiUVNIclBp.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>我们可以通过如下命令查看CPU相关信息，其中包括开启的保护类型：</p>
@@ -629,7 +628,7 @@
 <li>对于开启了 <code>CONFIG_MEMCG_KMEM</code> 编译选项的 kernel 而言（通常都是默认开启），其会为使用 <code>GFP_KERNEL_ACCOUNT</code> 进行分配的通用对象<strong>创建一组独立的 <code>kmem_cache</code> ——名为 <code>kmalloc-cg-*</code></strong> ，从而导致使用这两种 flag 的 object 之间的隔离：</li>
 </ul>
 <p><img src="https://s2.loli.net/2023/01/10/bLIr8nOUw4PjStx.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h2 id="Pre3-slub-合并-amp-隔离"><a href="#Pre3-slub-合并-amp-隔离" class="headerlink" title="Pre3. slub 合并 &amp; 隔离"></a>Pre3. slub 合并 &amp; 隔离</h2><p>slab alias 机制是一种对同等&#x2F;相近大小 object 的 <code>kmem_cache</code> 进行<strong>复用</strong>的一种机制：</p>
+<h2 id="Pre3-slub-合并-隔离"><a href="#Pre3-slub-合并-隔离" class="headerlink" title="Pre3. slub 合并 &amp; 隔离"></a>Pre3. slub 合并 &amp; 隔离</h2><p>slab alias 机制是一种对同等&#x2F;相近大小 object 的 <code>kmem_cache</code> 进行<strong>复用</strong>的一种机制：</p>
 <ul>
 <li>当一个 <code>kmem_cache</code> 在创建时，若已经存在能分配相等&#x2F;近似大小的 object 的 <code>kmem_cache</code> ，则<strong>不会创建新的 kmem_cache，而是为原有的 kmem_cache 起一个 alias，作为“新的” kmem_cache 返回</strong></li>
 </ul>
@@ -1104,7 +1103,7 @@
 <p>运行即可提权：</p>
 <p><img src="https://s2.loli.net/2023/02/09/s56EOhQGcDKe2SN.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h1 id="0x07-Kernel-Heap-Arbitrary-Address-Allocation"><a href="#0x07-Kernel-Heap-Arbitrary-Address-Allocation" class="headerlink" title="0x07. Kernel Heap - Arbitrary-Address Allocation"></a>0x07. Kernel Heap - Arbitrary-Address Allocation</h1><p>与用户态 glibc 中分配 fake chunk 后覆写 <code>__free_hook</code> 这样的手法类似，我们同样可以通过覆写 freelist 中的 next 指针的方式完成内核空间中任意地址上的对象分配，并修改一些有用的数据以完成提权</p>
-<h2 id="例题：RWCTF2022高校赛-Digging-into-kernel-1-amp-2"><a href="#例题：RWCTF2022高校赛-Digging-into-kernel-1-amp-2" class="headerlink" title="例题：RWCTF2022高校赛 - Digging into kernel 1 &amp; 2"></a>例题：RWCTF2022高校赛 - Digging into kernel 1 &amp; 2</h2><p><a href="/download/rwctf2022/kernel_for_player.tar.xz" title="点击此处下载原题">题目下载 - kernel_for_player.tar.xz</a></p>
+<h2 id="例题：RWCTF2022高校赛-Digging-into-kernel-1-2"><a href="#例题：RWCTF2022高校赛-Digging-into-kernel-1-2" class="headerlink" title="例题：RWCTF2022高校赛 - Digging into kernel 1 &amp; 2"></a>例题：RWCTF2022高校赛 - Digging into kernel 1 &amp; 2</h2><p><a href="/download/rwctf2022/kernel_for_player.tar.xz" title="点击此处下载原题">题目下载 - kernel_for_player.tar.xz</a></p>
 <blockquote>
 <p>两道题目实际上是同一道题，因为第一题由于启动脚本漏洞所以可以直接拿 flag所以第二道题其实是对第一道题目的脚本的修复</p>
 </blockquote>
@@ -1257,7 +1256,7 @@
 <h3 id="例题：corCTF2022-corjail"><a href="#例题：corCTF2022-corjail" class="headerlink" title="例题：corCTF2022 - corjail"></a>例题：corCTF2022 - corjail</h3><blockquote>
 <p>🕊🕊🕊</p>
 </blockquote>
-<h1 id="0x09-Kernel-Heap-Cross-Cache-Overflow-amp-Page-level-Heap-Fengshui"><a href="#0x09-Kernel-Heap-Cross-Cache-Overflow-amp-Page-level-Heap-Fengshui" class="headerlink" title="0x09. Kernel Heap - Cross-Cache Overflow &amp; Page-level Heap Fengshui"></a>0x09. Kernel Heap - Cross-Cache Overflow &amp; Page-level Heap Fengshui</h1><blockquote>
+<h1 id="0x09-Kernel-Heap-Cross-Cache-Overflow-Page-level-Heap-Fengshui"><a href="#0x09-Kernel-Heap-Cross-Cache-Overflow-Page-level-Heap-Fengshui" class="headerlink" title="0x09. Kernel Heap - Cross-Cache Overflow &amp; Page-level Heap Fengshui"></a>0x09. Kernel Heap - Cross-Cache Overflow &amp; Page-level Heap Fengshui</h1><blockquote>
 <p>注：这是两种联合起来的利用手法</p>
 </blockquote>
 <h2 id="Cross-Cache-Overflow"><a href="#Cross-Cache-Overflow" class="headerlink" title="Cross-Cache Overflow"></a>Cross-Cache Overflow</h2><p>与我们此前一直关注于 slub allocator 的各种利用手法不同，<strong>Cross-Cache Overflow</strong> 实际上是<strong>针对 buddy system</strong> 的利用手法，其主要基于如下思路：</p>
@@ -1573,6 +1572,8 @@
       
         <a href="/tags/Linux/">#Linux</a>
       
+        <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
+      
         <a href="/tags/Pwn/">#Pwn</a>
       
         <a href="/tags/Use-After-Free/">#Use After Free</a>
@@ -1581,13 +1582,11 @@
       
         <a href="/tags/%E6%A0%88%E6%BA%A2%E5%87%BA/">#栈溢出</a>
       
-        <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
-      
         <a href="/tags/Kernel-UAF/">#Kernel UAF</a>
       
-        <a href="/tags/Heap-Overflow/">#Heap Overflow</a>
-      
         <a href="/tags/%E6%A0%88%E8%BF%81%E7%A7%BB/">#栈迁移</a>
+      
+        <a href="/tags/Heap-Overflow/">#Heap Overflow</a>
       
     </div>
   

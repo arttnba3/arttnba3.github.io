@@ -27,11 +27,11 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129232638.png">
 <meta property="article:published_time" content="2023-11-29T12:21:47.000Z">
-<meta property="article:modified_time" content="2023-12-12T07:11:42.220Z">
+<meta property="article:modified_time" content="2024-03-20T14:42:14.000Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="开发手记">
-<meta property="article:tag" content="Assembly Language">
 <meta property="article:tag" content="操作系统">
+<meta property="article:tag" content="Assembly Language">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129232638.png">
   
@@ -90,8 +90,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
-</head>
+<meta name="generator" content="Hexo 7.1.1"></head>
 
 
 <body>
@@ -318,7 +317,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年12月12日 晚上
+                    本文最后更新于：2024年3月21日 凌晨
                   
                 
               </p>
@@ -374,7 +373,7 @@
 <blockquote>
 <p>目前市面上正在使用 Coreboot 的主流产品有 Google Chromebook 和 System76 旗下的笔记本等</p>
 </blockquote>
-<h1 id="0x02-多重引导规范-amp-GNU-GRUB"><a href="#0x02-多重引导规范-amp-GNU-GRUB" class="headerlink" title="0x02. 多重引导规范 &amp; GNU GRUB"></a>0x02. 多重引导规范 &amp; GNU GRUB</h1><h2 id="Why-GRUB？"><a href="#Why-GRUB？" class="headerlink" title="Why GRUB？"></a>Why GRUB？</h2><p>现今的大部分所谓“教你自行编写操作系统”的无论是教程也好书籍也好，都存在着一个小小的问题：<strong>对 Legacy BIOS 的内核引导阶段大书特书</strong>——诚然，了解一台计算机从启动开始到内核真正运作这段期间的实现细节无疑是十分重要的一件事情，对于操作系统学习而言或许也有不小的帮助，但很容易让初学者陷入到与各种硬件博弈的苦战当中，同时对于实际的开发而言手动编写一个<strong>仅适用于我们自己的内核</strong>的客制化 <code>MBR + boot loader</code> 意义并不算特别大</p>
+<h1 id="0x02-多重引导规范-GNU-GRUB"><a href="#0x02-多重引导规范-GNU-GRUB" class="headerlink" title="0x02. 多重引导规范 &amp; GNU GRUB"></a>0x02. 多重引导规范 &amp; GNU GRUB</h1><h2 id="Why-GRUB？"><a href="#Why-GRUB？" class="headerlink" title="Why GRUB？"></a>Why GRUB？</h2><p>现今的大部分所谓“教你自行编写操作系统”的无论是教程也好书籍也好，都存在着一个小小的问题：<strong>对 Legacy BIOS 的内核引导阶段大书特书</strong>——诚然，了解一台计算机从启动开始到内核真正运作这段期间的实现细节无疑是十分重要的一件事情，对于操作系统学习而言或许也有不小的帮助，但很容易让初学者陷入到与各种硬件博弈的苦战当中，同时对于实际的开发而言手动编写一个<strong>仅适用于我们自己的内核</strong>的客制化 <code>MBR + boot loader</code> 意义并不算特别大</p>
 <blockquote>
 <p> <del>再说都什么时代了还在用 Legacy BIOS，Wintel 联盟都宣布这玩意已经彻底成为历史了，👴🚪就没有必要再深究了，大概了解一下差不多得了</del></p>
 </blockquote>
@@ -453,7 +452,7 @@
 <p>如果你不想弄这一部分，也可以跳转到下一节，直接开始安全地使用 QEMU，我们后面的各种开发调试其实主要也是在 QEMU 上完成的 ：）</p>
 </blockquote>
 <ul>
-<li><p>如果你在物理机上使用 Linux 作业系统，请找到你的 U 盘对应的设备节点，如果你的计算机仅有一块固态硬盘，则新插入的 U 盘 <em>通常</em> 是 <code>/dev/sda</code></p>
+<li><p>如果你在物理机上使用 Linux 作业系统，请找到你的 U 盘对应的设备节点，通常情况下，如果你的计算机仅使用 nvme m.2 固态硬盘，则新插入的 U 盘 <em>通常</em> 是 <code>/dev/sda</code> ，<strong>如果你则计算机仍在使用 SATA 接口的硬盘，请自行确定设备路径</strong></p>
 </li>
 <li><p>如果你在物理机上使用 Windows 操作系统，出于易用性考虑，请在 Vmware 虚拟机中安装一个 Ubuntu 操作系统，并通过如下方式将 U 盘连接到虚拟机中（请先确定好你的 U 盘对应的设备名称），在你的虚拟机处在默认配置且不存在外部存储设备的情况下，U 盘对应的设备节点通常是 <code>/dev/sdb</code>：</p>
 </li>
@@ -558,7 +557,7 @@
 <p><code>arch/x86/Makefile</code> 主要就是编译汇编和 C 文件以及启动阶段临时用的字体文件放到 <code>out/arch</code> 目录下，这里我们将启动阶段所需的代码都放在 <code>arch/x86/boot</code> 目录下：</p>
 <figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-comment"># Author: arttnba3</span><br><span class="hljs-comment"># 2023.11</span><br><br>boot_dir = boot<br>X86_INCLUDE = <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> pwd)</span>/<span class="hljs-keyword">include</span>/<br><br>src_asm = <span class="hljs-variable">$(<span class="hljs-built_in">wildcard</span> *.S)</span><br>src_asm += <span class="hljs-variable">$(<span class="hljs-built_in">wildcard</span> <span class="hljs-variable">$(boot_dir)</span>/*.S)</span><br><br>src_c = <span class="hljs-variable">$(<span class="hljs-built_in">wildcard</span> *.c)</span><br>src_c += <span class="hljs-variable">$(<span class="hljs-built_in">wildcard</span> <span class="hljs-variable">$(boot_dir)</span>/*.c)</span><br><br>src_files = <span class="hljs-variable">$(src_asm)</span><br>src_files += <span class="hljs-variable">$(src_c)</span><br><br>obj_files = <span class="hljs-variable">$(<span class="hljs-built_in">notdir</span> $(<span class="hljs-built_in">patsubst</span> %S, %o, <span class="hljs-variable">$(src_asm)</span>)</span>)<br>obj_files += <span class="hljs-variable">$(<span class="hljs-built_in">notdir</span> $(<span class="hljs-built_in">patsubst</span> %c, %o, <span class="hljs-variable">$(src_c)</span>)</span>)<br>obj_files += boot_font.o<br><br><span class="hljs-section">all: <span class="hljs-variable">$(src_files)</span></span><br>	<span class="hljs-variable">$(CC)</span> <span class="hljs-variable">$(CFLAGS)</span> -c <span class="hljs-variable">$(src_files)</span> -I <span class="hljs-variable">$(INCLUDE)</span> -I <span class="hljs-variable">$(X86_INCLUDE)</span><br>	objcopy -O elf64-x86-64 -B i386 -I binary <span class="hljs-variable">$(boot_dir)</span>/font.psf boot_font.o<br>	mv <span class="hljs-variable">$(obj_files)</span> -t <span class="hljs-variable">$(ARCH_OUT)</span><br><br></code></pre></td></tr></table></figure>
 
-<h2 id="boot-S：BIOS-amp-UEFI-兼容-32-位汇编入口，跳转进入-64-位-C-语言"><a href="#boot-S：BIOS-amp-UEFI-兼容-32-位汇编入口，跳转进入-64-位-C-语言" class="headerlink" title="boot.S：BIOS &amp; UEFI 兼容 32 位汇编入口，跳转进入 64 位 C 语言"></a>boot.S：BIOS &amp; UEFI 兼容 32 位汇编入口，跳转进入 64 位 C 语言</h2><p><code>arch/x86/boot.S</code> 中则是我们实际的内核入口点，我们的 multiboot2 header 也可以放在这个地方，这里除了最基本的结构以外笔者还引入了一个指示入口点的 tag，以及一个指示让 GRUB 帮我们设置好指定大小的 frame buffer 的 tag，GRUB2 会根据这个 tag 自动帮我们设置显示模式：</p>
+<h2 id="boot-S：BIOS-UEFI-兼容-32-位汇编入口，跳转进入-64-位-C-语言"><a href="#boot-S：BIOS-UEFI-兼容-32-位汇编入口，跳转进入-64-位-C-语言" class="headerlink" title="boot.S：BIOS &amp; UEFI 兼容 32 位汇编入口，跳转进入 64 位 C 语言"></a>boot.S：BIOS &amp; UEFI 兼容 32 位汇编入口，跳转进入 64 位 C 语言</h2><p><code>arch/x86/boot.S</code> 中则是我们实际的内核入口点，我们的 multiboot2 header 也可以放在这个地方，这里除了最基本的结构以外笔者还引入了一个指示入口点的 tag，以及一个指示让 GRUB 帮我们设置好指定大小的 frame buffer 的 tag，GRUB2 会根据这个 tag 自动帮我们设置显示模式：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs assembly">#define ASM_FILE 1<br>#include &lt;boot/multiboot2.h&gt;<br>#include &lt;asm/cpu_types.h&gt;<br>#include &lt;asm/page_types.h&gt;<br><br>#define GRUB_MULTIBOOT_ARCHITECTURE_I386 (0)<br>#define MULTIBOOT2_HEADER_LEN (multiboot_header_end - multiboot_header)<br>#define MULTIBOOT2_HEADER_CHECKSUM \<br>    -(MULTIBOOT2_HEADER_MAGIC \<br>    + GRUB_MULTIBOOT_ARCHITECTURE_I386 \<br>    + MULTIBOOT2_HEADER_LEN)<br><br>.section .boot.header<br>    .align 8<br><br>    multiboot_header:<br>        .long   MULTIBOOT2_HEADER_MAGIC<br>        .long   GRUB_MULTIBOOT_ARCHITECTURE_I386<br>        .long   MULTIBOOT2_HEADER_LEN<br>        .long   MULTIBOOT2_HEADER_CHECKSUM<br><br>    tag_entry:<br>        .align 8<br>        .short MULTIBOOT_HEADER_TAG_ENTRY_ADDRESS<br>        .short 0<br>        .long 12<br>        .long _start<br>    <br>    tag_frame_buffer:<br>        .align 8<br>        .short MULTIBOOT_HEADER_TAG_FRAMEBUFFER<br>        .short 0<br>        .long 20<br>        .long 1024<br>        .long 768<br>        .long 32<br><br>    tags_end:<br>        .align 8<br>        .short  MULTIBOOT_HEADER_TAG_END<br>        .short  0<br>        .long   8<br>    multiboot_header_end:<br></code></pre></td></tr></table></figure>
 
 <p>ELF 文件默认的入口点是 <code>_start</code> 函数，因此我们在这里声明一个 <code>_start</code> 函数并导出该符号，从而使得 GRUB 在完成内核的装载之后会从此处开始执行，不过我们也可以通过在 header 中添加一个 <code>entry address tag</code> 来为 GRUB 指定我们的内核入口点：</p>
@@ -635,19 +634,17 @@
 </ul>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs assembly">        # enable PAE and PGE<br>        mov     %cr4, %eax<br>        or      $(CR4_PAE | CR4_PGE), %eax<br>        mov     %eax, %cr4<br><br>        # enter long mode by enabling EFER.LME<br>        mov     $0xC0000080, %ecx<br>        rdmsr<br>        or      $(1 &lt;&lt; 8), %eax<br>        wrmsr<br><br>        # enable paging<br>        mov     %cr0, %eax<br>        or      $CR0_PG, %eax<br>        mov     %eax, %cr0<br><br>        # set up GDT<br>        mov     $gdt64_ptr, %eax<br>        lgdt    0(%eax)<br><br>#......<br><br>.section .boot.data<br>    #......<br><br>    # global segment descriptor table<br>    .align 0x1000   # it should be aligned to page<br>    .globl gdt64, gdt64_ptr<br>    gdt64:<br>        .quad 0 # first one must be zero<br>    gdt64_code_segment:<br>        .quad 0x00209A0000000000 # exec/read<br>    gdt64_data_segment:<br>        .quad 0x0000920000000000 # read/write<br>    gdt64_ptr:<br>        .short gdt64_ptr - gdt64 - 1    # GDT limit<br>        .long gdt64                     # GDT Addr<br></code></pre></td></tr></table></figure>
 
-<p>此时我们便来到了 64 位<strong>兼容模式</strong>，而要进入纯 64 位模式，则需要我们<strong>手动更新 CS 段选择子</strong>，这里笔者通过一个远跳转 <code>jmp</code> 指令<strong>手动指定段选择子的方式来刷新 CS 段选择子</strong>：</p>
-<blockquote>
-<p>除了通过 <code>jmp 选择子:目标地址</code> 的方式以外，我们也可以通过 <code>lretq</code> 指令刷新 CS 段选择子：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs assembly">.code64<br>    pushq   $(1 &lt;&lt; SELECTOR_INDEX)<br>    pushq   $boot_main<br>    lretq<br></code></pre></td></tr></table></figure>
-</blockquote>
+<p>此时我们便来到了 64 位<strong>兼容模式</strong>，而要进入纯 64 位模式，则需要我们<strong>手动更新 CS 段选择子</strong>，这里笔者通过一个远跳转 <code>jmp</code> 指令<strong>手动指定段选择子的方式来刷新 CS 段选择子</strong></p>
 <blockquote>
 <p>以及别忘了刷新数据段选择子和其他段选择子，这些选择子可以直接通过寄存器进行重新赋值，<strong>但是 CS 段选择子必须通过指令进行刷新</strong></p>
 </blockquote>
 <p>从 <code>boot_main()</code> 开始我们就可以进入 C 语言的世界了：）</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs assembly">    # reload all the segment registers<br>    mov $(2 &lt;&lt; SELECTOR_INDEX), %ax<br>    mov     %ax, %ds<br>    mov     %ax, %ss<br>    mov     %ax, %es<br>    mov     %ax, %fs<br>    mov     %ax, %gs<br><br>    # enter the 64-bit world within a long jmp<br>    jmp $(1 &lt;&lt; SELECTOR_INDEX), $boot_main<br><br>    # we shouldn&#x27;t get here...<br>.loop:<br>    hlt<br>    jmp .loop<br></code></pre></td></tr></table></figure>
 
-
-
+<blockquote>
+<p>注：除了通过 <code>jmp 选择子:目标地址</code> 的方式以外，我们也可以通过 <code>lretq</code> 指令刷新 CS 段选择子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs assembly">.code64<br>  pushq   $(1 &lt;&lt; SELECTOR_INDEX)<br>  pushq   $boot_main<br>  lretq<br></code></pre></td></tr></table></figure>
+</blockquote>
 <blockquote>
 <h4 id="Extra-分段内存简介"><a href="#Extra-分段内存简介" class="headerlink" title="Extra. 分段内存简介"></a>Extra. 分段内存简介</h4><p>在古老的 16 位与 32 位运行模式下，x86 有一种管理内存的办法叫做<strong>分段</strong>（Segment），一个段便是一段连续内存，相应地有 cs、ds 等段寄存器用来指示不同用途的段，经过分段映射的地址称为逻辑地址（logical address）</p>
 <p>16 位下段寄存器中直接存放段基址与段界限信息，32 位下段描述符扩展为 8 字节，存放在内存中一个名为段描述符表的结构中，GDTR 寄存器用来存放全局段描述符表的地址，相应地段寄存器中存放的变为段选择子（segment selector），指示了该段寄存器对应的段在段描述符表中的索引、权限等信息</p>
@@ -749,9 +746,9 @@
       
         <a href="/tags/%E5%BC%80%E5%8F%91%E6%89%8B%E8%AE%B0/">#开发手记</a>
       
-        <a href="/tags/Assembly-Language/">#Assembly Language</a>
-      
         <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>
+      
+        <a href="/tags/Assembly-Language/">#Assembly Language</a>
       
     </div>
   

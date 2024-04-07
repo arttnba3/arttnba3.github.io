@@ -27,11 +27,11 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2023/09/27/lbsTAikSnVxNcat.png">
 <meta property="article:published_time" content="2023-09-26T15:26:14.000Z">
-<meta property="article:modified_time" content="2023-12-30T20:05:18.821Z">
+<meta property="article:modified_time" content="2023-12-30T09:06:06.000Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="漏洞挖掘">
-<meta property="article:tag" content="syzkaller">
 <meta property="article:tag" content="FUZZ">
+<meta property="article:tag" content="syzkaller">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://s2.loli.net/2023/09/27/lbsTAikSnVxNcat.png">
   
@@ -90,8 +90,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
-</head>
+<meta name="generator" content="Hexo 7.1.1"></head>
 
 
 <body>
@@ -318,7 +317,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年12月31日 早上
+                    本文最后更新于：2023年12月30日 晚上
                   
                 
               </p>
@@ -395,7 +394,7 @@
 
 
 
-<h3 id="10-WorkTriage-x2F-WorkCandidate-x2F-WorkSmash-：实际的单个输入项"><a href="#10-WorkTriage-x2F-WorkCandidate-x2F-WorkSmash-：实际的单个输入项" class="headerlink" title="10. WorkTriage&#x2F;WorkCandidate&#x2F;WorkSmash ：实际的单个输入项"></a>10. WorkTriage&#x2F;WorkCandidate&#x2F;WorkSmash ：实际的单个输入项</h3><p>在 fuzzing 过程当中 我们实际上不直接以 raw 的 <code>Prog</code> 作为输入，我们还想要在输入上标识更多额外的信息——因此便需要加上一层 wrapper，一共有如下<strong>三种类型</strong>：</p>
+<h3 id="10-WorkTriage-WorkCandidate-WorkSmash-：实际的单个输入项"><a href="#10-WorkTriage-WorkCandidate-WorkSmash-：实际的单个输入项" class="headerlink" title="10. WorkTriage&#x2F;WorkCandidate&#x2F;WorkSmash ：实际的单个输入项"></a>10. WorkTriage&#x2F;WorkCandidate&#x2F;WorkSmash ：实际的单个输入项</h3><p>在 fuzzing 过程当中 我们实际上不直接以 raw 的 <code>Prog</code> 作为输入，我们还想要在输入上标识更多额外的信息——因此便需要加上一层 wrapper，一共有如下<strong>三种类型</strong>：</p>
 <ul>
 <li><code>WorkTriage</code>：可能提供新的覆盖率的程序</li>
 </ul>
@@ -425,7 +424,7 @@
 <h2 id="输入生成变异相关"><a href="#输入生成变异相关" class="headerlink" title="输入生成变异相关"></a>输入生成变异相关</h2><h3 id="0-hint-机制"><a href="#0-hint-机制" class="headerlink" title="0. hint 机制"></a>0. hint 机制</h3><p>我们首先来看 syz-executor 中一个重要的变异机制——<code>mutate with hint</code> （可以理解为 hint 辅助的变异），在 <code>hint.go</code> 开头有如下注释：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 一个 hint 大体而言为一个由指向一个程序中一个系统调用的一个参数的指针</span><br><span class="hljs-comment">// 与一个应当被赋给该参数的值（我们称之为 replacer）组成.</span><br><span class="hljs-comment">//（译注：什么B长难句）</span><br><br><span class="hljs-comment">// 一个简易版本的 hints workflow 形如:</span><br><span class="hljs-comment">//		1. Fuzzer 启动一个程序 (称之为 hint 种子) 并为程序中的每个系统调用</span><br><span class="hljs-comment">// 收集所有的比较数据.</span><br><span class="hljs-comment">//		2. 接下来其尝试将所获得的比较操作数的值于输入参数值进行匹配.</span><br><span class="hljs-comment">//		3. 对于每一个这样的匹配，fuzzer 通过将指向的参数使用保存的值进行替换来变异程序.</span><br><span class="hljs-comment">//		4. 若获得了一个合法的程序, fuzzer 将其启动并检查是否获得了新的覆盖率.</span><br><span class="hljs-comment">// 要了解更多关于特定突变的信息，参见 prog/hints_test.go.</span><br></code></pre></td></tr></table></figure>
 
-<h3 id="1-CompMap：用作比较的参数的收缩-x2F-扩展替换取值表【核心】"><a href="#1-CompMap：用作比较的参数的收缩-x2F-扩展替换取值表【核心】" class="headerlink" title="1.CompMap：用作比较的参数的收缩&#x2F;扩展替换取值表【核心】"></a>1.CompMap：用作比较的参数的收缩&#x2F;扩展替换取值表【核心】</h3><p>CompMap 为一个 <code>uint64 </code>到 <code>[uint64 到 bool 的映射]</code> 的映射，用来在<strong>输入变异的时候进行参数值的替换</strong>：</p>
+<h3 id="1-CompMap：用作比较的参数的收缩-扩展替换取值表【核心】"><a href="#1-CompMap：用作比较的参数的收缩-扩展替换取值表【核心】" class="headerlink" title="1.CompMap：用作比较的参数的收缩&#x2F;扩展替换取值表【核心】"></a>1.CompMap：用作比较的参数的收缩&#x2F;扩展替换取值表【核心】</h3><p>CompMap 为一个 <code>uint64 </code>到 <code>[uint64 到 bool 的映射]</code> 的映射，用来在<strong>输入变异的时候进行参数值的替换</strong>：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 🌰: 对于比较对 &#123;(op1, op2), (op1, op3), (op1, op4), (op2, op1)&#125;</span><br><span class="hljs-comment">// 该映射将存储如下:</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">//	m = &#123;</span><br><span class="hljs-comment">//			op1: &#123;map[op2]: true, map[op3]: true, map[op4]: true&#125;,</span><br><span class="hljs-comment">//			op2: &#123;map[op1]: true&#125;</span><br><span class="hljs-comment">//	&#125;.</span><br><span class="hljs-keyword">type</span> CompMap <span class="hljs-keyword">map</span>[<span class="hljs-type">uint64</span>]<span class="hljs-keyword">map</span>[<span class="hljs-type">uint64</span>]<span class="hljs-type">bool</span><br></code></pre></td></tr></table></figure>
 
 <p>看着比较抽象，<del>笔者看了半天也不知道这™是个啥玩意</del>，下面我们结合 <code>prog/hints_test.go</code> 中的示例来看：）</p>
@@ -467,13 +466,13 @@
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// WorkQueue 存放全局的 non-fuzzing 工作项目 (参见下面的 Work* 结构体).</span><br><span class="hljs-comment">// WorkQueue 也在工作项目间进行优先排序，例如我们想要在我们碎片化程序前</span><br><span class="hljs-comment">// 分类并向 manager 发送新的输入以在 VM 崩溃的情况下不会永久失去有趣的程序.</span><br><span class="hljs-comment">//（译注：interesting input 在 fuzzing 中是经典概念了，这里应该不需要笔者注释了）</span><br><span class="hljs-keyword">type</span> WorkQueue <span class="hljs-keyword">struct</span> &#123;<br>	mu              sync.RWMutex<br>	triageCandidate []*WorkTriage<br>	candidate       []*WorkCandidate<br>	triage          []*WorkTriage<br>	smash           []*WorkSmash<br><br>	procs          <span class="hljs-type">int</span><br>	needCandidates <span class="hljs-keyword">chan</span> <span class="hljs-keyword">struct</span>&#123;&#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
 
 <p>我们可以看到 <code>WorkQueue</code> 为 <code>WorkTriage/WorkCandidate/WorkSmash</code> 都分别建立了一个新的队列 </p>
-<h2 id="fuzzer-amp-executor-通信相关"><a href="#fuzzer-amp-executor-通信相关" class="headerlink" title="fuzzer &amp; executor 通信相关"></a>fuzzer &amp; executor 通信相关</h2><h3 id="1-executeReq：fuzzer→executor-请求头"><a href="#1-executeReq：fuzzer→executor-请求头" class="headerlink" title="1. executeReq：fuzzer→executor 请求头"></a>1. executeReq：fuzzer→executor 请求头</h3><p>fuzzing 的主体进程由 syz-fuzzer 完成，syz-executor 仅需要完成单个输入程序的运行，因此 syz-fuzzer 需要多次与 syz-executor 间通信：发送待运行的数据并接收运行结果</p>
+<h2 id="fuzzer-executor-通信相关"><a href="#fuzzer-executor-通信相关" class="headerlink" title="fuzzer &amp; executor 通信相关"></a>fuzzer &amp; executor 通信相关</h2><h3 id="1-executeReq：fuzzer→executor-请求头"><a href="#1-executeReq：fuzzer→executor-请求头" class="headerlink" title="1. executeReq：fuzzer→executor 请求头"></a>1. executeReq：fuzzer→executor 请求头</h3><p>fuzzing 的主体进程由 syz-fuzzer 完成，syz-executor 仅需要完成单个输入程序的运行，因此 syz-fuzzer 需要多次与 syz-executor 间通信：发送待运行的数据并接收运行结果</p>
 <p>syz-fuzzer 与 syz-executor 间通信通过管道完成，因此每次通信前 syz-fuzzer 需要手动告诉 syz-executor 本次待接收的数据类型、长度等信息，这些信息被封装在固定大小的 <code>executeReq</code> 结构体当中：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> executeReq <span class="hljs-keyword">struct</span> &#123;<br>	magic            <span class="hljs-type">uint64</span><br>	envFlags         <span class="hljs-type">uint64</span> <span class="hljs-comment">// env flags</span><br>	execFlags        <span class="hljs-type">uint64</span> <span class="hljs-comment">// exec flags</span><br>	pid              <span class="hljs-type">uint64</span><br>	syscallTimeoutMS <span class="hljs-type">uint64</span><br>	programTimeoutMS <span class="hljs-type">uint64</span><br>	slowdownScale    <span class="hljs-type">uint64</span><br>	progSize         <span class="hljs-type">uint64</span><br>	<span class="hljs-comment">// 该结构体之后跟着一个 encodingexec 格式的序列化的测试程序.</span><br>	<span class="hljs-comment">// Both when sent over a pipe or in shared memory.</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>我们可以理解为 <code>executeReq</code> 为单次请求的请求头，后面跟着的序列化输入程序 <code>progData</code> 为单次请求的请求体，故 syz-fuzzer 向 syz-executor 发送单个程序执行请求的示例如下：</p>
 <p><img src="https://s2.loli.net/2023/04/24/I6od1evyCE3MZWH.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h3 id="2-executeReply-amp-callReply：executor-方响应的单个系统调用执行结果"><a href="#2-executeReply-amp-callReply：executor-方响应的单个系统调用执行结果" class="headerlink" title="2. executeReply &amp; callReply：executor 方响应的单个系统调用执行结果"></a>2. executeReply &amp; callReply：executor 方响应的单个系统调用执行结果</h3><p>有收便有发，syz-executor 在完成执行后会通过另一个管道将执行结果发送给 syz-fuzzer，由于 syzkaller 以单个系统调用为执行的最小粒度，因此syz-executor 每次返回给 syz-fuzzer 的便是<strong>单个系统调用的执行结果</strong>，使用一个头部 <code>executeReply</code> 标识信息，使用 <code>callReply</code> 存储具体结果：</p>
+<h3 id="2-executeReply-callReply：executor-方响应的单个系统调用执行结果"><a href="#2-executeReply-callReply：executor-方响应的单个系统调用执行结果" class="headerlink" title="2. executeReply &amp; callReply：executor 方响应的单个系统调用执行结果"></a>2. executeReply &amp; callReply：executor 方响应的单个系统调用执行结果</h3><p>有收便有发，syz-executor 在完成执行后会通过另一个管道将执行结果发送给 syz-fuzzer，由于 syzkaller 以单个系统调用为执行的最小粒度，因此syz-executor 每次返回给 syz-fuzzer 的便是<strong>单个系统调用的执行结果</strong>，使用一个头部 <code>executeReply</code> 标识信息，使用 <code>callReply</code> 存储具体结果：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> executeReply <span class="hljs-keyword">struct</span> &#123;<br>	magic <span class="hljs-type">uint32</span><br>	<span class="hljs-comment">// If done is 0, then this is call completion message followed by callReply.</span><br>	<span class="hljs-comment">// If done is 1, then program execution is finished and status is set.</span><br>	done   <span class="hljs-type">uint32</span><br>	status <span class="hljs-type">uint32</span><br>&#125;<br><br><span class="hljs-keyword">type</span> callReply <span class="hljs-keyword">struct</span> &#123;<br>	magic      <span class="hljs-type">uint32</span><br>	index      <span class="hljs-type">uint32</span> <span class="hljs-comment">// call index in the program</span><br>	num        <span class="hljs-type">uint32</span> <span class="hljs-comment">// syscall number (for cross-checking)</span><br>	errno      <span class="hljs-type">uint32</span><br>	flags      <span class="hljs-type">uint32</span> <span class="hljs-comment">// see CallFlags</span><br>	signalSize <span class="hljs-type">uint32</span><br>	coverSize  <span class="hljs-type">uint32</span><br>	compsSize  <span class="hljs-type">uint32</span><br>	<span class="hljs-comment">// signal/cover/comps follow</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p><code>executeReply</code> 中的 done 标志位用以标识传输是否结束，对于来自 syz-fuzzer 的单次执行请求，syz-executor 的返回结果如下（以一个 <code>done != 0</code> 的 <code>executeReply</code> 作为终止）：</p>
@@ -690,7 +689,7 @@
 <h2 id="从全局-WorkQueue-中获取输入，分类处理执行"><a href="#从全局-WorkQueue-中获取输入，分类处理执行" class="headerlink" title="从全局 WorkQueue 中获取输入，分类处理执行"></a>从全局 WorkQueue 中获取输入，分类处理执行</h2><p>大循环的核心逻辑之一为不断地从全局 <code>WorkQueue</code> 中获取新的输入，按照其类型不同调用不同的处理函数，完成后又继续下一轮循环</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs go">item := proc.fuzzer.workQueue.dequeue()<br><span class="hljs-keyword">if</span> item != <span class="hljs-literal">nil</span> &#123;<br>	<span class="hljs-keyword">switch</span> item := item.(<span class="hljs-keyword">type</span>) &#123;<br>	<span class="hljs-keyword">case</span> *WorkTriage:<br>		proc.triageInput(item)<br>	<span class="hljs-keyword">case</span> *WorkCandidate:<br>		proc.execute(proc.execOpts, item.p, item.flags, StatCandidate)<br>	<span class="hljs-keyword">case</span> *WorkSmash:<br>		proc.smashInput(item)<br>	<span class="hljs-keyword">default</span>:<br>		log.Fatalf(<span class="hljs-string">&quot;unknown work type: %#v&quot;</span>, item)<br>	&#125;<br>	<span class="hljs-keyword">continue</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
-<h3 id="①-proc-triageInput-：执行输入-amp-尝试最小化后发送给-manager-并添加到本地语料库，若未-smash-则添加到-smash-队列"><a href="#①-proc-triageInput-：执行输入-amp-尝试最小化后发送给-manager-并添加到本地语料库，若未-smash-则添加到-smash-队列" class="headerlink" title="① proc.triageInput()：执行输入&amp;尝试最小化后发送给 manager 并添加到本地语料库，若未 smash 则添加到 smash 队列"></a>① proc.triageInput()：执行输入&amp;尝试最小化后发送给 manager 并添加到本地语料库，若未 smash 则添加到 smash 队列</h3><p>该函数用来处理 WorkQueue 中的 WorkTraige，即<strong>可能会提供新覆盖率的程序</strong>：</p>
+<h3 id="①-proc-triageInput-：执行输入-尝试最小化后发送给-manager-并添加到本地语料库，若未-smash-则添加到-smash-队列"><a href="#①-proc-triageInput-：执行输入-尝试最小化后发送给-manager-并添加到本地语料库，若未-smash-则添加到-smash-队列" class="headerlink" title="① proc.triageInput()：执行输入&amp;尝试最小化后发送给 manager 并添加到本地语料库，若未 smash 则添加到 smash 队列"></a>① proc.triageInput()：执行输入&amp;尝试最小化后发送给 manager 并添加到本地语料库，若未 smash 则添加到 smash 队列</h3><p>该函数用来处理 WorkQueue 中的 WorkTraige，即<strong>可能会提供新覆盖率的程序</strong>：</p>
 <ul>
 <li>一开始先调用 <code>signalPrio()</code> 检查该输入之前执行结果的 <code>errno</code>，为 <code>0</code> 则 <code>prio |= 1 &lt;&lt; 1</code>，同时还会检查是否 <code>item.p</code> 的 <code>target</code> 不包含 <code>item.p.Calls[call]</code> 对应的调用，若是则 <code>prio |= 1 &lt;&lt; 0</code></li>
 <li>判断是否产生了语料库中没有的新信号，若无则直接返回</li>
@@ -841,7 +840,7 @@
 
 
 
-<h2 id="生成新输入-x2F-变异现有输入，执行"><a href="#生成新输入-x2F-变异现有输入，执行" class="headerlink" title="生成新输入&#x2F;变异现有输入，执行"></a>生成新输入&#x2F;变异现有输入，执行</h2><p>继续回到 <code>loop()</code> 的无限循环中，如果说全局 <code>WorkQueue</code> 空了，说明这个时候我们要自己想办法弄新的输入了，首先我们要获取 syz-fuzzer 当前的快照（其中包括语料库、语料库权重值、总的权重值），之后进行判断：</p>
+<h2 id="生成新输入-变异现有输入，执行"><a href="#生成新输入-变异现有输入，执行" class="headerlink" title="生成新输入&#x2F;变异现有输入，执行"></a>生成新输入&#x2F;变异现有输入，执行</h2><p>继续回到 <code>loop()</code> 的无限循环中，如果说全局 <code>WorkQueue</code> 空了，说明这个时候我们要自己想办法弄新的输入了，首先我们要获取 syz-fuzzer 当前的快照（其中包括语料库、语料库权重值、总的权重值），之后进行判断：</p>
 <ul>
 <li>若语料库为空，或是已经进行了 <code>generatePeriod</code> 次循环，此时调用 <code>target.Generate()</code> 生成新的输入程序</li>
 <li>否则，选择一份现有的输入，调用 <code>prog.Mutate()</code> 将该输入进行变异，生成新的输入</li>
@@ -944,9 +943,9 @@
       
         <a href="/tags/%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/">#漏洞挖掘</a>
       
-        <a href="/tags/syzkaller/">#syzkaller</a>
-      
         <a href="/tags/FUZZ/">#FUZZ</a>
+      
+        <a href="/tags/syzkaller/">#syzkaller</a>
       
     </div>
   

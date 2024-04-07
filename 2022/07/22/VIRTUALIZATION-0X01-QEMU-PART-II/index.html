@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2022/07/20/FUkehDzTocbtu4O.png">
 <meta property="article:published_time" content="2022-07-21T15:39:15.000Z">
-<meta property="article:modified_time" content="2023-10-27T11:41:10.308Z">
+<meta property="article:modified_time" content="2023-10-27T00:42:02.000Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="虚拟化">
 <meta property="article:tag" content="Qemu">
@@ -90,8 +90,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
-</head>
+<meta name="generator" content="Hexo 7.1.1"></head>
 
 
 <body>
@@ -318,7 +317,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年10月27日 晚上
+                    本文最后更新于：2023年10月27日 中午
                   
                 
               </p>
@@ -481,7 +480,7 @@
 <li>遍历 DisplayState 中的所有 DisplayChangeListener，检查 <code>dcl-&gt;update_interval</code></li>
 <li>若 <code>ds-&gt;update_interval != interval</code>，遍历所有的 QemuConsole 并调用 <code>con-&gt;hw_ops-&gt;update_interval()</code> 进行硬件数据更新</li>
 </ul>
-<h2 id="二、dpy-refresh-遍历-dcl-并调用-dcl-gt-ops-gt-dpy-refresh-进行更新"><a href="#二、dpy-refresh-遍历-dcl-并调用-dcl-gt-ops-gt-dpy-refresh-进行更新" class="headerlink" title="二、dpy_refresh - 遍历 dcl 并调用 dcl-&gt;ops-&gt;dpy_refresh 进行更新"></a>二、dpy_refresh - 遍历 dcl 并调用 dcl-&gt;ops-&gt;dpy_refresh 进行更新</h2><p><code>dpy_refresh()</code> 比较简单，主要就是遍历 DisplayState 中的所有 DisplayChangeListener 并调用 <code>dcl-&gt;ops-&gt;dpy_refresh()</code>，如下：</p>
+<h2 id="二、dpy-refresh-遍历-dcl-并调用-dcl-ops-dpy-refresh-进行更新"><a href="#二、dpy-refresh-遍历-dcl-并调用-dcl-ops-dpy-refresh-进行更新" class="headerlink" title="二、dpy_refresh - 遍历 dcl 并调用 dcl-&gt;ops-&gt;dpy_refresh 进行更新"></a>二、dpy_refresh - 遍历 dcl 并调用 dcl-&gt;ops-&gt;dpy_refresh 进行更新</h2><p><code>dpy_refresh()</code> 比较简单，主要就是遍历 DisplayState 中的所有 DisplayChangeListener 并调用 <code>dcl-&gt;ops-&gt;dpy_refresh()</code>，如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">dpy_refresh</span><span class="hljs-params">(DisplayState *s)</span><br>&#123;<br>    DisplayChangeListener *dcl;<br><br>    QLIST_FOREACH(dcl, &amp;s-&gt;listeners, next) &#123;<br>        <span class="hljs-keyword">if</span> (dcl-&gt;ops-&gt;dpy_refresh) &#123;<br>            dcl-&gt;ops-&gt;dpy_refresh(dcl);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>我们主要关注与 VNC 有关的部分，对于 VNC 而言，其 <code>dcl-&gt;ops-&gt;dpy_refresh</code> 应为 <code>vnc_refresh</code>，该函数定义于 <code>ui/vnc.c</code> 中，如下：</p>

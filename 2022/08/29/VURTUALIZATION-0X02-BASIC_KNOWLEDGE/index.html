@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2022/08/05/GUxVBYWnbdzA6KD.png">
 <meta property="article:published_time" content="2022-08-28T18:39:22.000Z">
-<meta property="article:modified_time" content="2023-10-27T11:41:37.603Z">
+<meta property="article:modified_time" content="2023-10-27T00:42:46.000Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="虚拟化">
 <meta property="article:tag" content="系统虚拟化">
@@ -89,8 +89,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
-</head>
+<meta name="generator" content="Hexo 7.1.1"></head>
 
 
 <body>
@@ -317,7 +316,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年10月27日 晚上
+                    本文最后更新于：2023年10月27日 中午
                   
                 
               </p>
@@ -503,7 +502,7 @@
 </ul>
 <p><img src="https://s2.loli.net/2022/08/11/SvO9ewNdxIbsLqV.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h2 id="一、纯软件实现虚拟化"><a href="#一、纯软件实现虚拟化" class="headerlink" title="一、纯软件实现虚拟化"></a>一、纯软件实现虚拟化</h2><p>前文我们已经指出 x86 架构存在<strong>非特权敏感指令，直接导致 VMM 无法截获 x86 VM 的敏感行为</strong>，这违反了<code>Popek and Goldberg virtualization requirements</code>，因此在硬件对虚拟化的支持出现之前，虚拟化厂商只好先从软件层面下手</p>
-<h3 id="I-模拟-amp-解释执行"><a href="#I-模拟-amp-解释执行" class="headerlink" title="I. 模拟 &amp; 解释执行"></a>I. 模拟 &amp; 解释执行</h3><p><strong>「模拟」</strong>（Emulate）技术的出现其实早于虚拟化，纯软件的模拟本质上就是通过编写能够呈现出与被模拟对象相同行为的应用程式从而达到运行非同构平台应用程序的效果</p>
+<h3 id="I-模拟-解释执行"><a href="#I-模拟-解释执行" class="headerlink" title="I. 模拟 &amp; 解释执行"></a>I. 模拟 &amp; 解释执行</h3><p><strong>「模拟」</strong>（Emulate）技术的出现其实早于虚拟化，纯软件的模拟本质上就是通过编写能够呈现出与被模拟对象相同行为的应用程式从而达到运行非同构平台应用程序的效果</p>
 <p>模拟技术不仅能够应用于程序级别的模拟，还能应用于系统级别的模拟：CPU 运行的本质行为其实就是<strong>从 PC 寄存器所指内存区域中不断取出指令解码执行</strong>，我们不难想到的是，实现一个虚拟机最简单粗暴的方法便是通过<strong>模拟每一条指令对应的行为，从而使得 VM 的行为对 VMM 而言是完全可控的</strong></p>
 <blockquote>
 <p>例如，对于 <code>mov rax, rbx</code> 这样的指令，我们可以使用下面的程序来模拟：</p>
@@ -524,7 +523,7 @@
 </blockquote>
 <p>不过基于解释执行的模拟技术有着一个非常致命的缺点——<strong>性能极差</strong>，因为每一条指令都需要经过 VMM 的解析后再由 VMM 模拟执行，哪怕最简单的一条指令也可能需要分解成多个步骤与多次内存访问，效率极低</p>
 <p>让我们重新审视我们为什么需要在 x86 架构上使用模拟技术来实现虚拟机：非特权敏感指令的存在打破了 <code>Popek and Goldberg virtualization requirements</code>，但<strong>非特权敏感指令仅是少数，大部分指令我们仍能直接在物理硬件上运行</strong>，因此基于模拟技术进行改进的虚拟化技术出现了：<code>扫描 &amp; 修补</code> 与 <code>二进制翻译</code></p>
-<h3 id="II-扫描-amp-修补"><a href="#II-扫描-amp-修补" class="headerlink" title="II. 扫描 &amp; 修补"></a>II. 扫描 &amp; 修补</h3><p>虚拟化场景下的虚拟机大都是与物理机有着相同的 ISA，因此我们并没有必要采用纯模拟的技术实现虚拟机，而是可以<strong>让非敏感指令直接在硬件上执行，通过某种方式让非特权敏感指令陷入 VMM</strong>，从而重新实现 Trap &amp; Emulate 模型</p>
+<h3 id="II-扫描-修补"><a href="#II-扫描-修补" class="headerlink" title="II. 扫描 &amp; 修补"></a>II. 扫描 &amp; 修补</h3><p>虚拟化场景下的虚拟机大都是与物理机有着相同的 ISA，因此我们并没有必要采用纯模拟的技术实现虚拟机，而是可以<strong>让非敏感指令直接在硬件上执行，通过某种方式让非特权敏感指令陷入 VMM</strong>，从而重新实现 Trap &amp; Emulate 模型</p>
 <p><strong>「扫描 &amp; 修补」</strong>便是这样的一种技术，其<strong>让非敏感指令直接在硬件上执行</strong>，同时<strong>将系统代码中的敏感指令替换为跳转指令等能陷入 VMM 中的指令</strong>，从而让 VM 在执行敏感指令时能陷入 VMM，使得 VMM 能够模拟执行敏感指令的效果</p>
 <p>「扫描 &amp; 修补」的基本执行流程如下：</p>
 <ul>
@@ -700,7 +699,7 @@
 <p>每个 MSR 寄存器都会有一个 id，称之为 <code>MSR Index</code>，我们可以通过这个 id 来利用 <code>RDMSR</code> 与 <code>WRMSR</code> 指令读写指定的 MSR 寄存器</p>
 <p>我们可以在 Intel SDM 的 Volume 4 中获取到到 MSR 寄存器的详细信息</p>
 </blockquote>
-<h2 id="三、KVM-amp-QEMU-KVM"><a href="#三、KVM-amp-QEMU-KVM" class="headerlink" title="三、KVM &amp; QEMU-KVM"></a>三、KVM &amp; QEMU-KVM</h2><p>下面我们来介绍 KVM——<strong>Kernel-based Virtual Machine</strong>，是一个自 Linux 2.6.20 后集成在 kernel 中的一个<strong>开源系统虚拟化内核模块</strong>，本质上是一个依赖于硬件辅助虚拟化的位于 kernel 中的 Hypervisor，或者说<strong>KVM 将 Linux kernel 变成了 Hypervisor</strong>，并提供了相应的用户态操作 VM 的接口： <code>/dev/kvm</code> ，我们可以通过 ioctl 指令来操作 KVM</p>
+<h2 id="三、KVM-QEMU-KVM"><a href="#三、KVM-QEMU-KVM" class="headerlink" title="三、KVM &amp; QEMU-KVM"></a>三、KVM &amp; QEMU-KVM</h2><p>下面我们来介绍 KVM——<strong>Kernel-based Virtual Machine</strong>，是一个自 Linux 2.6.20 后集成在 kernel 中的一个<strong>开源系统虚拟化内核模块</strong>，本质上是一个依赖于硬件辅助虚拟化的位于 kernel 中的 Hypervisor，或者说<strong>KVM 将 Linux kernel 变成了 Hypervisor</strong>，并提供了相应的用户态操作 VM 的接口： <code>/dev/kvm</code> ，我们可以通过 ioctl 指令来操作 KVM</p>
 <p>但 KVM 本身仅提供了 CPU 与内存的虚拟化，不能构成一个完整的虚拟化环境，那么我们不难想到的是我们可以复用现有的全虚拟化方案，<strong>将模拟 CPU 与内存的工作交由 KVM 完成</strong>，这样便能直接通过 KVM 来借助硬件辅助虚拟化以提高虚拟机性能</p>
 <p>那么我们有这样的一个现成的完备的全虚拟化实现方案吗？答案是有的——<strong>QEMU</strong> 本身便<strong>完整模拟了一整套虚拟机环境</strong>，我们不难想到的是我们可以修改 QEMU 的代码，使其通过 KVM 来创建与运行虚拟机，而设备模拟等依旧复用原有的框架，<strong>这样我们就实现了一个高性能的全虚拟化平台：KVM + QEMU</strong></p>
 <p><img src="https://s2.loli.net/2022/08/29/7WByzSrM9QYPsKH.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
@@ -754,7 +753,7 @@
 <h3 id="IV-VPID：TLB-资源优化"><a href="#IV-VPID：TLB-资源优化" class="headerlink" title="IV. VPID：TLB 资源优化"></a>IV. VPID：TLB 资源优化</h3><p><strong>Translation Lookaside Buffer</strong>为用以加快虚拟地址到物理地址转换的<strong>页表项缓存</strong>，当进行地址转换时 CPU 首先会先查询 TLB，TLB 根据虚拟地址查找是否存在对应的 cache，若 cache miss 了才会查询页表</p>
 <p>由于 TLB 是与对应的页表进行工作的，因此在切换页表时 TLB 原有的内容就失效了，此时我们应当使用 <code>INVLPG</code> 使 TLB 失效，类似地，在 VM-Entry 与 VM-Exit 时 CPU 都会强制让 TLB 失效，但这么做仍存在一定的性能损耗</p>
 <p><strong>Virtual Processor Identifier</strong>（VPID）则是一种硬件级的对 TLB 资源管理的优化，其在硬件上为每个 TLB 表项打上一个 VPID 标识（VMM 为每个 vCPU 分配一个唯一的 VPID，存放在 VMCS 中，逻辑 CPU 的 VPID 为 0），在 CPU 查找 TLB cache 时会先比对 VPID，这样我们就无需在每次进行 VM entry&#x2F;exit 时刷掉所有的 cache，而可以继续复用之前保留的 cache</p>
-<h1 id="0x06-I-x2F-O-虚拟化"><a href="#0x06-I-x2F-O-虚拟化" class="headerlink" title="0x06. I&#x2F;O 虚拟化"></a>0x06. I&#x2F;O 虚拟化</h1><p>现实的外设资源往往是有限的，同时我们有的时候并不需要让 VM 直接接触到现实存在的外设资源，有的时候我们还想为 VM 提供一些不存在实体设备的设备，因此 Hypervisor 需要通过 IO 虚拟化的方式来为 VM 提供<strong>虚拟的设备资源</strong></p>
+<h1 id="0x06-I-O-虚拟化"><a href="#0x06-I-O-虚拟化" class="headerlink" title="0x06. I&#x2F;O 虚拟化"></a>0x06. I&#x2F;O 虚拟化</h1><p>现实的外设资源往往是有限的，同时我们有的时候并不需要让 VM 直接接触到现实存在的外设资源，有的时候我们还想为 VM 提供一些不存在实体设备的设备，因此 Hypervisor 需要通过 IO 虚拟化的方式来为 VM 提供<strong>虚拟的设备资源</strong></p>
 <p>从处理器的角度而言，我们与外设之间的交互主要是通过 <code>MMIO</code> 与 <code>Port IO</code> 来完成的，因而针对外设的虚拟化称之为 <strong>I&#x2F;O 虚拟化</strong></p>
 <p>I&#x2F;O 虚拟化需要实现以下三个任务：</p>
 <ul>
@@ -762,7 +761,7 @@
 <li>提供设备接口：Hypervisor 需要为 VM 提供虚拟&#x2F;直通设备的接口</li>
 <li>实现设备功能：Hypervisor 需要实现虚拟设备的功能</li>
 </ul>
-<h2 id="一、I-x2F-O-虚拟化基本模型"><a href="#一、I-x2F-O-虚拟化基本模型" class="headerlink" title="一、I&#x2F;O 虚拟化基本模型"></a>一、I&#x2F;O 虚拟化基本模型</h2><blockquote>
+<h2 id="一、I-O-虚拟化基本模型"><a href="#一、I-O-虚拟化基本模型" class="headerlink" title="一、I&#x2F;O 虚拟化基本模型"></a>一、I&#x2F;O 虚拟化基本模型</h2><blockquote>
 <p>这一节其实是笔者不记得不知道什么时候出于什么目的从<a target="_blank" rel="noopener" href="https://developer.ibm.com/tutorials/l-pci-passthrough/">https://developer.ibm.com/tutorials/l-pci-passthrough/</a>上翻译了一段存在草稿箱里，最近翻草稿箱发现之前居然还留存有这种东西，所以修改一下就放上来了XD</p>
 </blockquote>
 <h3 id="I-平台设备模拟（Platform-device-emulation）"><a href="#I-平台设备模拟（Platform-device-emulation）" class="headerlink" title="I.平台设备模拟（Platform device emulation）"></a>I.平台设备模拟（Platform device emulation）</h3><p>QEMU 和 VMWare 都选择了仿真出一个虚拟设备，不同在于其模拟设备的实现方式。</p>

@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2023/10/27/Ga21EgrYNdHAyxl.png">
 <meta property="article:published_time" content="2023-10-27T11:30:54.000Z">
-<meta property="article:modified_time" content="2023-10-27T11:37:34.977Z">
+<meta property="article:modified_time" content="2023-10-27T00:38:34.000Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="信息安全">
 <meta property="article:tag" content="FUZZ">
@@ -92,8 +92,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
-</head>
+<meta name="generator" content="Hexo 7.1.1"></head>
 
 
 <body>
@@ -320,7 +319,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年10月27日 晚上
+                    本文最后更新于：2023年10月27日 中午
                   
                 
               </p>
@@ -363,7 +362,7 @@
 </blockquote>
 <p>在开始之前先介绍 X86 虚拟化的一些基础知识、X86 中 OS 的启动过程、Guest OS 与 hypervisor 的通信接口</p>
 <h2 id="A-x86-Boot-Process"><a href="#A-x86-Boot-Process" class="headerlink" title="A. x86 Boot Process"></a>A. x86 Boot Process</h2><p>在 x86 机器上最先运行的程序通常是 <code>Basic Input/Output System</code> （BIOS） 或 <code>Unified Extensible Firmware Interface</code> （UEFI），本文将这样的程序称为 <code>固件</code> （firmware），之后便是运行 boot loader （如 GRUB）来准备环境并引导操作系统内核，再由内核来配置其他硬件（如中断控制器、PCI 设备）</p>
-<h2 id="B-Input-x2F-Output-on-x86"><a href="#B-Input-x2F-Output-on-x86" class="headerlink" title="B. Input&#x2F;Output on x86"></a>B. Input&#x2F;Output on x86</h2><p>x86 上与设备通信的方式有：</p>
+<h2 id="B-Input-Output-on-x86"><a href="#B-Input-Output-on-x86" class="headerlink" title="B. Input&#x2F;Output on x86"></a>B. Input&#x2F;Output on x86</h2><p>x86 上与设备通信的方式有：</p>
 <ul>
 <li><code>Port I/O</code>：传统的端口地址总线，通过 <code>in</code>、<code>out</code> 指令访问</li>
 <li><code>Memory-Mapped I/O</code>：外设寄存器&#x2F;内存被映射到物理地址总线上，从而可以通过传统内存访问方式进行访问</li>

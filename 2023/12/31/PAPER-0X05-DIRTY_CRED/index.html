@@ -27,13 +27,13 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231231062430.png">
 <meta property="article:published_time" content="2023-12-30T19:34:16.000Z">
-<meta property="article:modified_time" content="2023-12-30T19:59:18.137Z">
+<meta property="article:modified_time" content="2023-12-30T09:00:40.000Z">
 <meta property="article:author" content="arttnba3">
-<meta property="article:tag" content="Linux">
-<meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="信息安全">
-<meta property="article:tag" content="Use After Free">
+<meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
+<meta property="article:tag" content="Pwn">
+<meta property="article:tag" content="Use After Free">
 <meta property="article:tag" content="Kernel UAF">
 <meta property="article:tag" content="Heap Overflow">
 <meta property="article:tag" content="论文笔记">
@@ -95,8 +95,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
-</head>
+<meta name="generator" content="Hexo 7.1.1"></head>
 
 
 <body>
@@ -323,7 +322,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年12月31日 早上
+                    本文最后更新于：2023年12月30日 晚上
                   
                 
               </p>
@@ -347,7 +346,7 @@
 <li>证明了 DirtyCred 可以在真实世界漏洞中广泛进行利用</li>
 <li>分析现有内核保护机制并设计出了一种新的保护机制</li>
 </ul>
-<h1 id="0x02-Background-amp-Threat-Model"><a href="#0x02-Background-amp-Threat-Model" class="headerlink" title="0x02. Background &amp; Threat Model"></a>0x02. Background &amp; Threat Model</h1><h2 id="2-1-Credentials-in-Linux-kernel"><a href="#2-1-Credentials-in-Linux-kernel" class="headerlink" title="2.1 Credentials in Linux kernel"></a>2.1 Credentials in Linux kernel</h2><p><strong>凭证</strong>（credentials）指内核中包含权限信息的东西，在 Linux 内核中被实现为带有权限信息的内核对象（包括 <code>cred</code>、<code>file</code>、<code>inode</code>，本文仅用前两个因为第三个仅会在创建文件时被分配）：</p>
+<h1 id="0x02-Background-Threat-Model"><a href="#0x02-Background-Threat-Model" class="headerlink" title="0x02. Background &amp; Threat Model"></a>0x02. Background &amp; Threat Model</h1><h2 id="2-1-Credentials-in-Linux-kernel"><a href="#2-1-Credentials-in-Linux-kernel" class="headerlink" title="2.1 Credentials in Linux kernel"></a>2.1 Credentials in Linux kernel</h2><p><strong>凭证</strong>（credentials）指内核中包含权限信息的东西，在 Linux 内核中被实现为带有权限信息的内核对象（包括 <code>cred</code>、<code>file</code>、<code>inode</code>，本文仅用前两个因为第三个仅会在创建文件时被分配）：</p>
 <ul>
 <li>Linux 内核中每个进程都有一个指向 <code>cred</code> 对象的指针，其中有着该进程的权限信息，如当进程要访问文件时便会检查 cred 的 UID；cred 对象还描述了能力（capability），如 <code>CAP_NET_BIND_SERVICE</code> 说明了进程可以将一个套接字绑定到一个端口上</li>
 <li>Linux 内核中每个文件都有着对应的权限设置，且与 inode 对象绑定，在进程要打开文件前内核会调用 <code>inode_permission</code> 检查权限，在文件打开后 <code>file</code> 对象用以记录权限设置</li>
@@ -361,7 +360,7 @@
 <li><strong>专用缓存</strong>（Dedicated Caches）：出于安全与性能目的考虑设计的仅供某些结构体分配的池</li>
 </ul>
 <h2 id="2-3-Threat-Model"><a href="#2-3-Threat-Model" class="headerlink" title="2.3 Threat Model"></a>2.3 Threat Model</h2><p>作者假设非特权本地用户可以访问 Linux 系统，目的是利用堆内存损坏漏洞进行提权，并假设上游（5.15）所有缓解措施与保护机制都已启用（包括KASLR、SMAP、SMEP、CFI、KPTI 等）</p>
-<h1 id="0x03-Technical-Overview-amp-Challenges"><a href="#0x03-Technical-Overview-amp-Challenges" class="headerlink" title="0x03. Technical Overview &amp; Challenges"></a>0x03. Technical Overview &amp; Challenges</h1><h2 id="3-1-Overview"><a href="#3-1-Overview" class="headerlink" title="3.1 Overview"></a>3.1 Overview</h2><p>作者使用 CVE-2021-4154 作为例子说明 DirtyCred，这是一个 <code>fs_context</code> 对象错误引用 <code>file</code> 对象所导致的类型混淆错误，这允许将正在使用中的 <code>file</code> 进行释放</p>
+<h1 id="0x03-Technical-Overview-Challenges"><a href="#0x03-Technical-Overview-Challenges" class="headerlink" title="0x03. Technical Overview &amp; Challenges"></a>0x03. Technical Overview &amp; Challenges</h1><h2 id="3-1-Overview"><a href="#3-1-Overview" class="headerlink" title="3.1 Overview"></a>3.1 Overview</h2><p>作者使用 CVE-2021-4154 作为例子说明 DirtyCred，这是一个 <code>fs_context</code> 对象错误引用 <code>file</code> 对象所导致的类型混淆错误，这允许将正在使用中的 <code>file</code> 进行释放</p>
 <p>如图 1 所示：</p>
 <ul>
 <li>首先打开可写文件 <code>/tmp/x</code> 分配一个 <code>file</code> ，之后尝试进行数据写入，权限检查通过，之后 DirtyCred 将文件写入暂停</li>
@@ -381,7 +380,7 @@
 <p>Pwn 人基本功了嗷，憋和👴说你不会嗷</p>
 </blockquote>
 <p>虽然 CVE-2021-4154 展示了 DirtyCred 的威力，但实战中我们并不一定有这样的能力，因此我们需要进行能力转换（笔者注：漏洞迁移的概念）</p>
-<h2 id="4-1-Pivoting-OOB-amp-UAF-Write"><a href="#4-1-Pivoting-OOB-amp-UAF-Write" class="headerlink" title="4.1 Pivoting OOB &amp; UAF Write"></a>4.1 Pivoting OOB &amp; UAF Write</h2><p>如图 2 所示，我们可以通过 partial overwrite 将包含指向凭证对象的指针的内核对象进行复写，使得两个指针指向同一个凭证对象，从而进行 DirtyCred，由于堆喷连续分配的结构体通常分组来自相同 slab，因此可行性很高</p>
+<h2 id="4-1-Pivoting-OOB-UAF-Write"><a href="#4-1-Pivoting-OOB-UAF-Write" class="headerlink" title="4.1 Pivoting OOB &amp; UAF Write"></a>4.1 Pivoting OOB &amp; UAF Write</h2><p>如图 2 所示，我们可以通过 partial overwrite 将包含指向凭证对象的指针的内核对象进行复写，使得两个指针指向同一个凭证对象，从而进行 DirtyCred，由于堆喷连续分配的结构体通常分组来自相同 slab，因此可行性很高</p>
 <p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231230072228.png" srcset="/img/loading.gif" lazyload></p>
 <h2 id="4-2-Pivoting-DF"><a href="#4-2-Pivoting-DF" class="headerlink" title="4.2 Pivoting DF"></a>4.2 Pivoting DF</h2><p>通用缓存（如 <code>kmalloc-96</code>）与专用缓存（如 <code>cred_jar</code>）间存在隔离，但我们可以通过释放缓存页面并重新分配的方式使得跨缓存的内存操作成为可能，如图 3 所示，我们先分配大量对象，通过漏洞我们有两个指针指向同一对象，在大量分配后我们将其大量释放，并保留一个垂悬指针，之后再分配为凭证结构体对象，以此进行 DirtyCred</p>
 <blockquote>
@@ -390,14 +389,14 @@
 <p>但如图 3(f) 所示，漏洞对象大小不一定匹配凭证对象大小，从而无法 DirtyCred，这种情况下我们需要保有两个指针，将其中一个释放掉从而构造出空内存槽以分配为凭证结构体，再进行释放以获取所需能力</p>
 <p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231230072544.png" srcset="/img/loading.gif" lazyload></p>
 <h1 id="0x05-Extending-Time-Window"><a href="#0x05-Extending-Time-Window" class="headerlink" title="0x05. Extending Time Window"></a>0x05. Extending Time Window</h1><p>DirtyCred 需要我们延长权限检查到写入之间的时间窗口</p>
-<h2 id="5-1-Exploitation-of-Userfaultfd-amp-FUSE"><a href="#5-1-Exploitation-of-Userfaultfd-amp-FUSE" class="headerlink" title="5.1 Exploitation of Userfaultfd &amp; FUSE"></a>5.1 Exploitation of Userfaultfd &amp; FUSE</h2><blockquote>
+<h2 id="5-1-Exploitation-of-Userfaultfd-FUSE"><a href="#5-1-Exploitation-of-Userfaultfd-FUSE" class="headerlink" title="5.1 Exploitation of Userfaultfd &amp; FUSE"></a>5.1 Exploitation of Userfaultfd &amp; FUSE</h2><blockquote>
 <p>简而言之长话短说可以参见<a target="_blank" rel="noopener" href="https://arttnba3.cn/2021/03/03/PWN-0X00-LINUX-KERNEL-PWN-PART-I/#userfaultfd%EF%BC%88may-obsolete%EF%BC%89">这里</a></p>
 </blockquote>
 <p>userfaultfd 允许我们在用户态手动处理缺页异常，FUSE 允许我们实现用户空间文件系统，这为延长时间窗口提供了可行性，如读写注册了 userfaultfd 的内存页或是读写 FUSE 文件来触发我们的自定义 handler 函数</p>
 <p>下面我们以 userfaultfd 为例（FUSE 利用方式类似），DirtyCred 通过系统调用 <code>writev()</code> 进行文件写入，不同于 <code>write()</code> 系统调用，其使用 <code>iovec</code> 向量来传递数据，如 List 1 所示，4.13 版本前的系统调用 <code>writev()</code> 首先进行权限检查，之后再通过 <code>iovec</code> 向量导入用户空间数据，最后才是写入，因此 DirtyCred 可以很轻易地使用 userfaultfd 的特性来获得合适的时间窗口</p>
 <p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231230164326.png" srcset="/img/loading.gif" lazyload></p>
 <p>这项技术初见于 <a target="_blank" rel="noopener" href="https://bugs.chromium.org/p/project-zero/issues/detail?id=808">CVE-2016-4557</a>，但现在已不再可用</p>
-<h2 id="5-2-Alternative-Exploitation-of-Userfaultfd-amp-FUSE"><a href="#5-2-Alternative-Exploitation-of-Userfaultfd-amp-FUSE" class="headerlink" title="5.2 Alternative Exploitation of Userfaultfd &amp; FUSE"></a>5.2 Alternative Exploitation of Userfaultfd &amp; FUSE</h2><p>如 List 2 所示，在内核版本 4.13 之后导入 <code>iovec</code> 向量的步骤被移动到了权限检查之前，这使得我们不再能扩大权限检查与文件写入间的时间窗口，为了解决这个问题，DirtyCred 将利用 Linux 文件系统的设计</p>
+<h2 id="5-2-Alternative-Exploitation-of-Userfaultfd-FUSE"><a href="#5-2-Alternative-Exploitation-of-Userfaultfd-FUSE" class="headerlink" title="5.2 Alternative Exploitation of Userfaultfd &amp; FUSE"></a>5.2 Alternative Exploitation of Userfaultfd &amp; FUSE</h2><p>如 List 2 所示，在内核版本 4.13 之后导入 <code>iovec</code> 向量的步骤被移动到了权限检查之前，这使得我们不再能扩大权限检查与文件写入间的时间窗口，为了解决这个问题，DirtyCred 将利用 Linux 文件系统的设计</p>
 <p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231230164938.png" srcset="/img/loading.gif" lazyload></p>
 <p>内核文件系统的设计遵循严格的层次关系，高层接口统一而低层接口各异，写入文件时会调用高层接口，如 List 3 所示， <code>generic_perform_write()</code> 为统一的高层接口，在第 15 ~ 17 行其会调用对应文件系统的写入操作，出于性能考虑内核在写入前会拷贝 iovec 向量数据，从而触发缺页异常，由此 DirtyCred 可以在第 10 行使用 userfaultfd 来延长时间窗口</p>
 <p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231230201446.png" srcset="/img/loading.gif" lazyload></p>
@@ -413,7 +412,7 @@
 <li>唤醒 usermode helper，如通过加载内核模块来让内核启动特权用户态 usermode helper 程序（如 modprobe）</li>
 </ul>
 <h1 id="0x07-Evaluation"><a href="#0x07-Evaluation" class="headerlink" title="0x07. Evaluation"></a>0x07. Evaluation</h1><p>作者设计了两个实验来在真实世界漏洞上评估 DirtyCred</p>
-<h2 id="7-1-Experiment-Design-amp-Setup"><a href="#7-1-Experiment-Design-amp-Setup" class="headerlink" title="7.1 Experiment Design &amp; Setup"></a>7.1 Experiment Design &amp; Setup</h2><p>作者引入了一种自动化方法（设计实现参见附录 A）寻找可供 DirtyCred 利用的内核对象，并应用于 5.16.15 版本的内核</p>
+<h2 id="7-1-Experiment-Design-Setup"><a href="#7-1-Experiment-Design-Setup" class="headerlink" title="7.1 Experiment Design &amp; Setup"></a>7.1 Experiment Design &amp; Setup</h2><p>作者引入了一种自动化方法（设计实现参见附录 A）寻找可供 DirtyCred 利用的内核对象，并应用于 5.16.15 版本的内核</p>
 <p>作者还探讨了针对实际漏洞利用的可行性，如第 4 节所言，若漏洞未直接提供交换凭证结构体的能力，则需要我们进行转换</p>
 <p>作者假设 Linux 内核使用其最先进的防护手段，并在评估中仅选择 2019 年以后的 CVE，数据集如表 2 所示，这涵盖了几乎所有的堆上漏洞类型</p>
 <h2 id="7-2-Experiment-Result"><a href="#7-2-Experiment-Result" class="headerlink" title="7.2 Experiment Result"></a>7.2 Experiment Result</h2><p><strong>可利用对象</strong>。表 1 展示了不同缓存池中可以被利用的内核对象，几乎所有通用缓存池（除了 <code>kmalloc-8</code> ）都有可供 DirtyCred 利用对象：</p>
@@ -429,7 +428,7 @@
 <p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231230210827.png" srcset="/img/loading.gif" lazyload></p>
 <p>在这项工作中，作者称其主要目标是提高Linux社区的意识，而不是构建一个安全、高效的防御解决方案，且作者将探索替代防御解决方案作为未来研究的一部分</p>
 <h1 id="0x09-Related-Work"><a href="#0x09-Related-Work" class="headerlink" title="0x09. Related Work"></a>0x09. Related Work</h1><p>这一节主要介绍与论文相关的两方面工作——内核利用（exploitation）与内核防护（defence），都是常识性内容所以这里笔者就不摘抄了：）</p>
-<h1 id="0x10-Discussion-amp-Future-Work"><a href="#0x10-Discussion-amp-Future-Work" class="headerlink" title="0x10. Discussion &amp; Future Work"></a>0x10. Discussion &amp; Future Work</h1><p>这节讨论之前没提到的一些点：</p>
+<h1 id="0x10-Discussion-Future-Work"><a href="#0x10-Discussion-Future-Work" class="headerlink" title="0x10. Discussion &amp; Future Work"></a>0x10. Discussion &amp; Future Work</h1><p>这节讨论之前没提到的一些点：</p>
 <ul>
 <li><p><strong>Escaping container.</strong> 容器中的文件并不提供交换命名空间的能力，但<a target="_blank" rel="noopener" href="https://www.datadoghq.com/blog/engineering/dirty-pipe-container-escape-poc/">一项最近的研究</a>显示攻击者可以被动等待 runC 进程，由此可以通过覆写进程来在 host 侧以 root 运行命令，DirtyCred 可以以此完成容器逃逸；利用 cred 对象则不需要被动等待，通过交换 cred 获得 <code>SYS_ADMIN</code> 权限使得攻击者可以挂载 cgroup 后利用 <code>notify_no_release</code> 机制来在 host 侧以 root 执行命令，作者在<a target="_blank" rel="noopener" href="https://hackmd.io/giRE2P2oQHektZzOG053IQ">这里</a>给出了案例</p>
 </li>
@@ -478,15 +477,15 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
+        <a href="/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/">#信息安全</a>
+      
         <a href="/tags/Linux/">#Linux</a>
+      
+        <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
       
         <a href="/tags/Pwn/">#Pwn</a>
       
-        <a href="/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/">#信息安全</a>
-      
         <a href="/tags/Use-After-Free/">#Use After Free</a>
-      
-        <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
       
         <a href="/tags/Kernel-UAF/">#Kernel UAF</a>
       

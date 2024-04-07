@@ -27,11 +27,11 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2023/03/02/xrfT9S7u3EijaLY.png">
 <meta property="article:published_time" content="2023-03-01T17:33:58.000Z">
-<meta property="article:modified_time" content="2023-03-01T20:40:20.000Z">
+<meta property="article:modified_time" content="2023-08-13T08:31:04.000Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="漏洞挖掘">
-<meta property="article:tag" content="syzkaller">
 <meta property="article:tag" content="FUZZ">
+<meta property="article:tag" content="syzkaller">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://s2.loli.net/2023/03/02/xrfT9S7u3EijaLY.png">
   
@@ -90,8 +90,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
-</head>
+<meta name="generator" content="Hexo 7.1.1"></head>
 
 
 <body>
@@ -318,7 +317,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年3月2日 早上
+                    本文最后更新于：2023年8月13日 晚上
                   
                 
               </p>
@@ -545,7 +544,7 @@
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs go">runDone := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> *RunResult, <span class="hljs-number">1</span>)<br>pendingRepro := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">map</span>[*Crash]<span class="hljs-type">bool</span>)<br>reproducing := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">map</span>[<span class="hljs-type">string</span>]<span class="hljs-type">bool</span>)<br><span class="hljs-keyword">var</span> reproQueue []*Crash<br>reproDone := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">chan</span> *ReproResult, <span class="hljs-number">1</span>)<br>stopPending := <span class="hljs-literal">false</span><br>shutdown := vm.Shutdown<br></code></pre></td></tr></table></figure>
 
 <p>最后进入到一个大循环中，这个大循环才是真正的 fuzzing 调控流程</p>
-<h2 id="二、外层大循环：调配空闲-VM-进行-fuzz-amp-crash-repro，等待处理不同-channel-数据"><a href="#二、外层大循环：调配空闲-VM-进行-fuzz-amp-crash-repro，等待处理不同-channel-数据" class="headerlink" title="二、外层大循环：调配空闲 VM 进行 fuzz &amp; crash repro，等待处理不同 channel 数据"></a>二、外层大循环：调配空闲 VM 进行 fuzz &amp; crash repro，等待处理不同 channel 数据</h2><p>大循环的终止条件为 <code>shutdown == nil</code> 或是 ResourcePool 中的 VM 数量与总数量不相等，进入循环后首先会获取当前所在阶段： </p>
+<h2 id="二、外层大循环：调配空闲-VM-进行-fuzz-crash-repro，等待处理不同-channel-数据"><a href="#二、外层大循环：调配空闲-VM-进行-fuzz-crash-repro，等待处理不同-channel-数据" class="headerlink" title="二、外层大循环：调配空闲 VM 进行 fuzz &amp; crash repro，等待处理不同 channel 数据"></a>二、外层大循环：调配空闲 VM 进行 fuzz &amp; crash repro，等待处理不同 channel 数据</h2><p>大循环的终止条件为 <code>shutdown == nil</code> 或是 ResourcePool 中的 VM 数量与总数量不相等，进入循环后首先会获取当前所在阶段： </p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">for</span> shutdown != <span class="hljs-literal">nil</span> || instances.Len() != vmCount &#123;<br>	mgr.mu.Lock()<br>	phase := mgr.phase<br>	mgr.mu.Unlock()<br></code></pre></td></tr></table></figure>
 
 <h3 id="Step-1-内层小循环：获取待复现-crash-加入复现队列"><a href="#Step-1-内层小循环：获取待复现-crash-加入复现队列" class="headerlink" title="Step 1. 内层小循环：获取待复现 crash 加入复现队列"></a>Step 1. 内层小循环：获取待复现 crash 加入复现队列</h3><p>小循环会遍历 <code>pendingRepro</code> 中的 crash：</p>
@@ -608,7 +607,7 @@
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(ctx *context)</span></span> extractProg(entries []*prog.LogEntry) (*Result, <span class="hljs-type">error</span>) &#123;<br>	ctx.reproLogf(<span class="hljs-number">2</span>, <span class="hljs-string">&quot;extracting reproducer from %v programs&quot;</span>, <span class="hljs-built_in">len</span>(entries))<br>	start := time.Now()<br>	<span class="hljs-keyword">defer</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>		ctx.stats.ExtractProgTime = time.Since(start)<br>	&#125;()<br><br>	<span class="hljs-comment">// Extract last program on every proc.</span><br>	procs := <span class="hljs-built_in">make</span>(<span class="hljs-keyword">map</span>[<span class="hljs-type">int</span>]<span class="hljs-type">int</span>)<br>	<span class="hljs-keyword">for</span> i, ent := <span class="hljs-keyword">range</span> entries &#123;<br>		procs[ent.Proc] = i<br>	&#125;<br>	<span class="hljs-keyword">var</span> indices []<span class="hljs-type">int</span><br>	<span class="hljs-keyword">for</span> _, idx := <span class="hljs-keyword">range</span> procs &#123;<br>		indices = <span class="hljs-built_in">append</span>(indices, idx)<br>	&#125;<br>	sort.Ints(indices)<br>	<span class="hljs-keyword">var</span> lastEntries []*prog.LogEntry<br>	<span class="hljs-keyword">for</span> i := <span class="hljs-built_in">len</span>(indices) - <span class="hljs-number">1</span>; i &gt;= <span class="hljs-number">0</span>; i-- &#123;<br>		lastEntries = <span class="hljs-built_in">append</span>(lastEntries, entries[indices[i]])<br>	&#125;<br>	<span class="hljs-keyword">for</span> _, timeout := <span class="hljs-keyword">range</span> ctx.testTimeouts &#123;<br>		<span class="hljs-comment">// 分别执行每个程序以检测由单个程序造成的简单的 crash.</span><br>		<span class="hljs-comment">// 程序被逆序执行, 通常最后一个程序就是罪魁祸首.</span><br>		res, err := ctx.extractProgSingle(lastEntries, timeout)<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>		&#125;<br>		<span class="hljs-keyword">if</span> res != <span class="hljs-literal">nil</span> &#123;<br>			ctx.reproLogf(<span class="hljs-number">3</span>, <span class="hljs-string">&quot;found reproducer with %d syscalls&quot;</span>, <span class="hljs-built_in">len</span>(res.Prog.Calls))<br>			<span class="hljs-keyword">return</span> res, <span class="hljs-literal">nil</span><br>		&#125;<br><br>		<span class="hljs-comment">// 若只有一个 entry 则不进行二分.</span><br>		<span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(entries) == <span class="hljs-number">1</span> &#123;<br>			<span class="hljs-keyword">continue</span><br>		&#125;<br><br>		<span class="hljs-comment">// 执行多个程序并二分 log 以找到造成崩溃的多个程序.</span><br>		res, err = ctx.extractProgBisect(entries, timeout)<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>		&#125;<br>		<span class="hljs-keyword">if</span> res != <span class="hljs-literal">nil</span> &#123;<br>			ctx.reproLogf(<span class="hljs-number">3</span>, <span class="hljs-string">&quot;found reproducer with %d syscalls&quot;</span>, <span class="hljs-built_in">len</span>(res.Prog.Calls))<br>			<span class="hljs-keyword">return</span> res, <span class="hljs-literal">nil</span><br>		&#125;<br>	&#125;<br><br>	ctx.reproLogf(<span class="hljs-number">0</span>, <span class="hljs-string">&quot;failed to extract reproducer&quot;</span>)<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, <span class="hljs-literal">nil</span><br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>这两个函数主要就是通过如下调用链来在 VM 中执行程序，这里就不展开了：</p>
-<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs reasonml">context.test<span class="hljs-constructor">Prog()</span><br>	context.test<span class="hljs-constructor">Progs()</span><br>		context.test<span class="hljs-constructor">WithInstance()</span><br>			ExecProgInstance.<span class="hljs-constructor">RunSyzProg()</span><br>				ExecProgInstance.<span class="hljs-constructor">RunSyzProgFile()</span><br>					<span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">ExecProgInstance</span>.</span></span>run<span class="hljs-constructor">Command()</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs scss">context<span class="hljs-selector-class">.testProg</span>()<br>	context<span class="hljs-selector-class">.testProgs</span>()<br>		context<span class="hljs-selector-class">.testWithInstance</span>()<br>			ExecProgInstance<span class="hljs-selector-class">.RunSyzProg</span>()<br>				ExecProgInstance<span class="hljs-selector-class">.RunSyzProgFile</span>()<br>					ExecProgInstance<span class="hljs-selector-class">.runCommand</span>()<br></code></pre></td></tr></table></figure>
 
 
 
@@ -692,9 +691,9 @@
       
         <a href="/tags/%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/">#漏洞挖掘</a>
       
-        <a href="/tags/syzkaller/">#syzkaller</a>
-      
         <a href="/tags/FUZZ/">#FUZZ</a>
+      
+        <a href="/tags/syzkaller/">#syzkaller</a>
       
     </div>
   

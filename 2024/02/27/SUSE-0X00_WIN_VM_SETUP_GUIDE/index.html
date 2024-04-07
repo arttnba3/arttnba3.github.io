@@ -27,12 +27,12 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2024/02/21/MRftUv7gSXDbn8I.png">
 <meta property="article:published_time" content="2024-02-27T03:22:58.000Z">
-<meta property="article:modified_time" content="2024-02-27T18:00:15.622Z">
+<meta property="article:modified_time" content="2024-03-21T20:28:24.000Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
-<meta property="article:tag" content="虚拟化">
 <meta property="article:tag" content="openSUSE">
 <meta property="article:tag" content="openSUSE Tumbleweed">
+<meta property="article:tag" content="虚拟化">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://s2.loli.net/2024/02/21/MRftUv7gSXDbn8I.png">
   
@@ -91,8 +91,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
-</head>
+<meta name="generator" content="Hexo 7.1.1"></head>
 
 
 <body>
@@ -264,7 +263,7 @@
         
         
         
-          119 分钟
+          120 分钟
         
       </span>
     
@@ -319,7 +318,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2024年2月28日 凌晨
+                    本文最后更新于：2024年3月22日 早上
                   
                 
               </p>
@@ -455,7 +454,7 @@
 <blockquote>
 <p>如果你在配置了共享文件夹后 VM 无法启动，且提示 <code>virtiofsd died unexpectedly</code> ，首先检查 <code>/var/log/libvirt/qemu/</code> 下的相关日志文件，若有类似 <code>libvirt:  error : cannot execute binary /usr/libexec/virtiofsd/virtiofsd: Permission denied</code> 这样的提示，则有可能是 <code>AppArmor</code> 的原因</p>
 <p>解决方案是在 <code>/etc/apparmor.d/usr.sbin.libvirtd</code> 中适当的位置添加一行：</p>
-<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk"><span class="hljs-regexp">/usr/</span>&#123;lib,lib64,lib<span class="hljs-regexp">/qemu,libexec&#125;/</span>virtiofsd/* PUx,<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">/usr/&#123;lib,lib64,lib/qemu,libexec&#125;/virtiofsd/* PUx,<br></code></pre></td></tr></table></figure>
 
 <p>之后 <code>sudo service apparmor restart</code> 重启 AppArmor，理论上此时便能正常启动了</p>
 <p>若还是不行，则检查 <strong>libvirtd 服务是否存活</strong>，并进行重启</p>
@@ -523,6 +522,9 @@
 <p><img src="https://s2.loli.net/2024/02/26/wnPzW97uJxqKXFI.png" srcset="/img/loading.gif" lazyload alt="真是简简又单单，你们有没有这样的 virt-manager 啊">)</p>
 <p>然后就能用 pin 登录了：</p>
 <p><img src="https://s2.loli.net/2024/02/28/GFo179iyWNLetIX.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="可能遇到的问题"><a href="#可能遇到的问题" class="headerlink" title="可能遇到的问题"></a><em>可能遇到的问题</em></h3><ul>
+<li>Host 重启至 Windows 后 WLAN 适配器丢失：在网络适配器里卸载 Kernel Mode Debugger，然后在管理里选择无线网卡设备，<strong>卸载设备</strong>，扫描设备更改，然后右键桌面右下角网络图标打开 <code>诊断网络问题 </code>，启用 WLAN 适配器即可</li>
+</ul>
 <h1 id="0x02-在-Host-侧配置-RDP-连接"><a href="#0x02-在-Host-侧配置-RDP-连接" class="headerlink" title="0x02. 在 Host 侧配置 RDP 连接"></a>0x02. 在 Host 侧配置 RDP 连接</h1><h2 id="配置-RDP-硬体加速"><a href="#配置-RDP-硬体加速" class="headerlink" title="配置 RDP 硬体加速"></a>配置 RDP 硬体加速</h2><p>运行 <code>gpedit.msc</code> 找到 <code>*计算机配置-&gt;管理模板-&gt;Windows组件-&gt;远程桌面服务-&gt;远程桌面会话主机-&gt;远程会话环境</code>，在其中配置 RDP 硬体加速，以此获得更好的 RDP 性能：</p>
 <p><img src="https://s2.loli.net/2024/02/26/ILEM9OrqKZFApou.png" srcset="/img/loading.gif" lazyload></p>
 <p>然后打开注册表编辑器路径 <code>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations</code> ，新建一个名为 <code>DWMFRAMEINTERVAL</code> 的 DWORD 值并设为 <code>15</code>：</p>
@@ -561,7 +563,7 @@
 <p>参考 <a target="_blank" rel="noopener" href="https://doc.opensuse.org/documentation/leap/virtualization/html/book-virtualization/app-gpu-passthru.html">SUSE - Configuring GPU Pass-Through for NVIDIA cards</a></p>
 </blockquote>
 <p>众所周知，《原神》是由米哈游自主研发的一款全新开放世界冒险游戏。游戏发生在一个被称作「提瓦特」的幻想世界，在这里，被神选中的人将被授予「神之眼」，导引元素之力。你将扮演一位名为「旅行者」的神秘角色，在自由的旅行中邂逅性格各异、能力独特的同伴们，和他们一起击败强敌，找回失散的亲人——同时，逐步发掘「原神」的真相。我现在每天玩原神都能赚150原石，每个月差不多5000原石的收入， 也就是现实生活中每个月5000美元的收入水平，换算过来最少也30000人民币，虽然我 只有14岁，但是已经超越了中国绝大多数人(包括你)的水平，这便是原神给我的骄傲的资本…</p>
-<p><img src="https://s2.loli.net/2024/02/22/kNXAmoqZslUjEYb.png" srcset="/img/loading.gif" lazyload alt="差不多得了😅屁大点事都要拐上原神，原神一没招你惹你，二没干伤天害理的事情，到底怎么你了让你一直无脑抹黑，米哈游每天费尽心思的文化输出弘扬中国文化，你这种喷子只会在网上敲键盘诋毁良心公司，中国游戏的未来就是被你这种人毁掉的😅 作者：我永远单推Cierra https://www.bilibili.com/read/cv17996308/ 出处：bilibili"></p>
+<p><img src="https://s2.loli.net/2024/02/22/kNXAmoqZslUjEYb.png" srcset="/img/loading.gif" lazyload alt="差不多得了😅屁大点事都要拐上原神，原神一没招你惹你，二没干伤天害理的事情，到底怎么你了让你一直无脑抹黑，米哈游每天费尽心思的文化输出弘扬中国文化，你这种喷子只会在网上敲键盘诋毁良心公司，中国游戏的未来就是被你这种人毁掉的😅"></p>
 <p><del>扯得有些远了，</del> 总而言之有的时候我们想要在 Windows 上进行一些需要用显卡才能完成的任务，亦或是使用显卡进行图形加速等，virt-manager 默认提供的 RedHat QXL 终究只是一个由 QEMU 进行模拟的设备，性能上自然很难与真正的显卡相比拟</p>
 <p>而笔者的笔记本刚好有两个显卡：一个是 Intel 的核显，另一个是一张 NVIDIA 的卡，因为笔者日常也不用这台电脑炼丹（ <del>再说了就一张小破 4060 能练个啥玩意出来</del> ），因此笔者决定将 N 卡直通到 VM 当中以提高 VM 的图形化性能， <del>同时闲暇之余还能打开 VM 玩玩游戏这样子</del></p>
 <h2 id="配置-IOMMU"><a href="#配置-IOMMU" class="headerlink" title="配置 IOMMU"></a>配置 IOMMU</h2><p>在 <a target="_blank" rel="noopener" href="https://arttnba3.cn/2022/08/29/VURTUALIZATION-0X02-BASIC_KNOWLEDGE/">《系统虚拟化导论》</a> 中我们知道集成在北桥上的 IOMMU 可以通过 DMA 重映射与中断重映射的方式让我们实现 I&#x2F;O 虚拟化：</p>
@@ -666,11 +668,11 @@
       
         <a href="/tags/Linux/">#Linux</a>
       
-        <a href="/tags/%E8%99%9A%E6%8B%9F%E5%8C%96/">#虚拟化</a>
-      
         <a href="/tags/openSUSE/">#openSUSE</a>
       
         <a href="/tags/openSUSE-Tumbleweed/">#openSUSE Tumbleweed</a>
+      
+        <a href="/tags/%E8%99%9A%E6%8B%9F%E5%8C%96/">#虚拟化</a>
       
     </div>
   

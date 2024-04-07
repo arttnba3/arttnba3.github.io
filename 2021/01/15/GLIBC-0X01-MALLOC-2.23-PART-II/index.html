@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/01/18/rYo8HAqZWKDveLN.png">
 <meta property="article:published_time" content="2021-01-15T09:17:03.000Z">
-<meta property="article:modified_time" content="2023-10-27T11:40:08.411Z">
+<meta property="article:modified_time" content="2023-10-27T00:41:20.000Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="堆">
 <meta property="article:tag" content="ptmalloc">
@@ -91,8 +91,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
-</head>
+<meta name="generator" content="Hexo 7.1.1"></head>
 
 
 <body>
@@ -319,7 +318,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年10月27日 晚上
+                    本文最后更新于：2023年10月27日 中午
                   
                 
               </p>
@@ -393,7 +392,7 @@
 
 <p>发现一个新的符号：<strong>strong_alias</strong></p>
 <p>该宏定义于libc-symbols.h下：</p>
-<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs reasonml"><span class="hljs-comment">/* GCC understands weak symbols and aliases; use its interface where</span><br><span class="hljs-comment">   possible, instead of embedded assembly language.  */</span><br><br><span class="hljs-comment">/* Define ALIASNAME as a strong alias for NAME.  */</span><br># define strong<span class="hljs-constructor">_alias(<span class="hljs-params">name</span>, <span class="hljs-params">aliasname</span>)</span> <span class="hljs-constructor">_strong_alias(<span class="hljs-params">name</span>, <span class="hljs-params">aliasname</span>)</span><br># define <span class="hljs-constructor">_strong_alias(<span class="hljs-params">name</span>, <span class="hljs-params">aliasname</span>)</span> \<br>  extern __typeof (name) aliasname __attribute__ ((alias (#name)));<br></code></pre></td></tr></table></figure>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-comment">/* GCC understands weak symbols and aliases; use its interface where</span><br><span class="hljs-comment">   possible, instead of embedded assembly language.  */</span><br><br><span class="hljs-comment">/* Define ALIASNAME as a strong alias for NAME.  */</span><br># define <span class="hljs-built_in">strong_alias</span>(name, aliasname) <span class="hljs-built_in">_strong_alias</span>(name, aliasname)<br># define <span class="hljs-built_in">_strong_alias</span>(name, aliasname) \<br>  extern __typeof (name) aliasname __attribute__ ((alias (#name)));<br></code></pre></td></tr></table></figure>
 
 <p>_strong_alias宏是strong_alias的宏展开，而_strong_alias宏展开后则是<code>extern __typeof (name) aliasname __attribute__ ((alias (#name)));</code><del>无  限  套  娃</del></p>
 <p><del>配合着glibc的注释，</del>不难理解，在这里<strong>将malloc声明为__libc_malloc的别名，即__libc_malloc才是我们在调用malloc时所真正调用的函数</strong></p>

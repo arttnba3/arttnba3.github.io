@@ -27,12 +27,12 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/05/08/fqdbRMhuKCrIozk.png">
 <meta property="article:published_time" content="2021-02-21T11:02:14.000Z">
-<meta property="article:modified_time" content="2023-10-27T11:53:04.238Z">
+<meta property="article:modified_time" content="2023-10-27T00:54:06.000Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
-<meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="Linux Kernel">
 <meta property="article:tag" content="操作系统">
+<meta property="article:tag" content="Pwn">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://i.loli.net/2021/05/08/fqdbRMhuKCrIozk.png">
   
@@ -91,8 +91,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
-</head>
+<meta name="generator" content="Hexo 7.1.1"></head>
 
 
 <body>
@@ -319,7 +318,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年10月27日 晚上
+                    本文最后更新于：2023年10月27日 中午
                   
                 
               </p>
@@ -392,7 +391,7 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">file <span class="hljs-built_in">arch</span>/x86/boot/bzImage</span><br>arch/x86/boot/bzImage: Linux kernel x86 boot executable bzImage, version 5.11.0 (root@iZf3ye3at4zthpZ) #1 SMP Sun Feb 21 21:44:35 CST 2021, RO-rootFS, swap_dev 0xB, Normal VGA<br></code></pre></td></tr></table></figure>
 
 <blockquote>
-<h6 id="zImage-amp-amp-bzImage"><a href="#zImage-amp-amp-bzImage" class="headerlink" title="zImage &amp;&amp; bzImage"></a>zImage &amp;&amp; bzImage</h6><p>zImage–是vmlinux经过gzip压缩后的文件。<br>bzImage–bz表示“big zImage”，不是用bzip2压缩的，而是要偏移到一个位置，使用gzip压缩的。两者的不同之处在于，zImage解压缩内核到低端内存(第一个 640K)，bzImage解压缩内核到高端内存(1M以上)。如果内核比较小，那么采用zImage或bzImage都行，如果比较大应该用bzImage。 </p>
+<h6 id="zImage-bzImage"><a href="#zImage-bzImage" class="headerlink" title="zImage &amp;&amp; bzImage"></a>zImage &amp;&amp; bzImage</h6><p>zImage–是vmlinux经过gzip压缩后的文件。<br>bzImage–bz表示“big zImage”，不是用bzip2压缩的，而是要偏移到一个位置，使用gzip压缩的。两者的不同之处在于，zImage解压缩内核到低端内存(第一个 640K)，bzImage解压缩内核到高端内存(1M以上)。如果内核比较小，那么采用zImage或bzImage都行，如果比较大应该用bzImage。 </p>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/xiaotengyi2012/article/details/8582886">https://blog.csdn.net/xiaotengyi2012/article/details/8582886</a></p>
 </blockquote>
 <h3 id="EXTRA-添加系统调用"><a href="#EXTRA-添加系统调用" class="headerlink" title="EXTRA.添加系统调用"></a>EXTRA.添加系统调用</h3><h5 id="1-分配系统调用号"><a href="#1-分配系统调用号" class="headerlink" title="1.分配系统调用号"></a>1.分配系统调用号</h5><p>在<code>arch/x86/entry/syscalls/syscall_64.tbl</code>中添加我们自己的系统调用号，这里用笔者个人比较喜欢的数字<code>114514</code></p>
@@ -556,7 +555,7 @@
 <li><code>linux/init.h</code>：包含着一些有用的宏</li>
 </ul>
 <p>通常情况下，这三个头文件对于内核模块编程都是不可或缺的</p>
-<h3 id="入口点-x2F-出口点"><a href="#入口点-x2F-出口点" class="headerlink" title="入口点&#x2F;出口点"></a>入口点&#x2F;出口点</h3><p>一个内核模块的入口点应当为<code> module_init()</code>，出口函数应当为<code>module_exit()</code>，在内核载入&#x2F;卸载内核模块时会缺省调用这两个函数</p>
+<h3 id="入口点-出口点"><a href="#入口点-出口点" class="headerlink" title="入口点&#x2F;出口点"></a>入口点&#x2F;出口点</h3><p>一个内核模块的入口点应当为<code> module_init()</code>，出口函数应当为<code>module_exit()</code>，在内核载入&#x2F;卸载内核模块时会缺省调用这两个函数</p>
 <p>在这里我们将自定义的两个函数的指针作为参数传入LKM入口函数&#x2F;出口函数中，以作为其入口&#x2F;出口函数</p>
 <h3 id="其他…"><a href="#其他…" class="headerlink" title="其他…"></a>其他…</h3><ul>
 <li><code>__init &amp; __exit</code>：这两个宏用以在函数结束后释放相应的内存</li>
@@ -581,7 +580,7 @@
 
 <p>测试一下，内核模块成功运行，撒花~🌸</p>
 <p><img src="https://i.loli.net/2021/02/28/vJitGgkFTzcPx8a.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h2 id="三、提供应用程式I-x2F-O接口"><a href="#三、提供应用程式I-x2F-O接口" class="headerlink" title="三、提供应用程式I&#x2F;O接口"></a>三、提供应用程式I&#x2F;O接口</h2><p>虽然说我们的新模块成功跑起来了，但是除了在内核缓冲区进行输入输出以外好像就做不了什么了，我们希望我们写的内核模块能够向我们提供更多的功能并能够让用户与其进行交互，以发挥更多的作用</p>
+<h2 id="三、提供应用程式I-O接口"><a href="#三、提供应用程式I-O接口" class="headerlink" title="三、提供应用程式I&#x2F;O接口"></a>三、提供应用程式I&#x2F;O接口</h2><p>虽然说我们的新模块成功跑起来了，但是除了在内核缓冲区进行输入输出以外好像就做不了什么了，我们希望我们写的内核模块能够向我们提供更多的功能并能够让用户与其进行交互，以发挥更多的作用</p>
 <h3 id="I-设备注册"><a href="#I-设备注册" class="headerlink" title="I.设备注册"></a>I.设备注册</h3><p>前面讲到，*NIX&#x2F;Linux的哲学之一便是<code>万物皆文件</code>，<strong>一切都可以被抽象为文件，一切都可以使用访问文件的方式进行操作</strong>，这提供了高层次上的操作一致性</p>
 <p>同样地，我们若是想要能够与我们的内核模块进行交互，则同样可以通过文件进行——注册一个“虚拟设备节点”，随后我们的用户态程序便可以使用系统调用<code>read、write、ioctl</code>来完成与内核模块间的通信</p>
 <h4 id="设备分类"><a href="#设备分类" class="headerlink" title="设备分类"></a>设备分类</h4><p>在Linux中I&#x2F;O设备分为如下两类：</p>
@@ -594,14 +593,14 @@
 <p> 笔者感觉作用类似于OOP中的<strong>接口类</strong>，或者是虚函数表</p>
 </blockquote>
 <p>一个文件应当拥有一个<code>file_operations实例</code>，并指定相关系统调用函数指针所指向的自定义函数，在后续进行设备的注册时会使用该结构体</p>
-<h4 id="主设备号-amp-次设备号"><a href="#主设备号-amp-次设备号" class="headerlink" title="主设备号 &amp; 次设备号"></a>主设备号 &amp; 次设备号</h4><p>在Linux内核中，使用类型<code>dev_t</code>（unsigned long）来标识一个设备的设备号</p>
+<h4 id="主设备号-次设备号"><a href="#主设备号-次设备号" class="headerlink" title="主设备号 &amp; 次设备号"></a>主设备号 &amp; 次设备号</h4><p>在Linux内核中，使用类型<code>dev_t</code>（unsigned long）来标识一个设备的设备号</p>
 <p>一个字符的设备号由<code>主设备号</code>与<code>次设备号</code>组成，高字节存储主设备号，低字节存储次设备号：</p>
 <ul>
 <li><code>主设备号</code>：标识设备类型，使用宏<code>MAJOR(dev_t dev)</code>可以获取主设备号</li>
 <li><code>次设备号</code>：用以区分同类型设备，使用宏<code>MINOR(dev_t dev)</code>可以获取次设备号</li>
 </ul>
 <p>Linux还提供了一个宏<code> MKDEV(int major, int minor);</code>，用以通过主次设备号生成对应的设备号</p>
-<h4 id="设备节点（struct-device-node-amp-struct-device）"><a href="#设备节点（struct-device-node-amp-struct-device）" class="headerlink" title="设备节点（struct device_node &amp; struct device）"></a>设备节点（struct device_node &amp; struct device）</h4><p>基于“万物皆文件”的设计思想，Linux中所有的设备都以文件的形式进行访问，这些文件存放在<code>/dev</code>目录下，一个文件就是一个<strong>设备节点</strong></p>
+<h4 id="设备节点（struct-device-node-struct-device）"><a href="#设备节点（struct-device-node-struct-device）" class="headerlink" title="设备节点（struct device_node &amp; struct device）"></a>设备节点（struct device_node &amp; struct device）</h4><p>基于“万物皆文件”的设计思想，Linux中所有的设备都以文件的形式进行访问，这些文件存放在<code>/dev</code>目录下，一个文件就是一个<strong>设备节点</strong></p>
 <p>在Linux kernel中使用结构体<code>device</code>描述一个设备，该结构体定义于<code>include/linux/device.h</code>（内核源码路径）中，<strong>每个设备在内核中都有着其对应的device实例，其中记录着设备的相关信息</strong></p>
 <p>在DTS（Device Tree Source，设备树）中则使用<code>device_node</code>结构体表示一个设备</p>
 <h4 id="设备类（struct-class）"><a href="#设备类（struct-class）" class="headerlink" title="设备类（struct class）"></a>设备类（struct class）</h4><p>在Linux kernel中使用结构体<code>class</code>用以表示<strong>高层次抽象的设备</strong>，该结构体定义于<code>include/linux/device/class.h</code>中</p>
@@ -922,11 +921,11 @@
       
         <a href="/tags/Linux/">#Linux</a>
       
-        <a href="/tags/Pwn/">#Pwn</a>
-      
         <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
       
         <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>
+      
+        <a href="/tags/Pwn/">#Pwn</a>
       
     </div>
   

@@ -27,11 +27,11 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/11/11/LxNvdhpEX2sBjYc.png">
 <meta property="article:published_time" content="2021-11-23T16:09:11.000Z">
-<meta property="article:modified_time" content="2024-01-04T21:32:24.242Z">
+<meta property="article:modified_time" content="2024-03-14T20:50:44.000Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="漏洞挖掘">
-<meta property="article:tag" content="syzkaller">
 <meta property="article:tag" content="FUZZ">
+<meta property="article:tag" content="syzkaller">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://i.loli.net/2021/11/11/LxNvdhpEX2sBjYc.png">
   
@@ -90,8 +90,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
-</head>
+<meta name="generator" content="Hexo 7.1.1"></head>
 
 
 <body>
@@ -263,7 +262,7 @@
         
         
         
-          190 分钟
+          191 分钟
         
       </span>
     
@@ -318,7 +317,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2024年1月5日 早上
+                    本文最后更新于：2024年3月15日 早上
                   
                 
               </p>
@@ -333,6 +332,7 @@
 <p>本篇文章中笔者将简述 syzkaller 的使用方法</p>
 <h1 id="0x01-环境配置"><a href="#0x01-环境配置" class="headerlink" title="0x01.环境配置"></a>0x01.环境配置</h1><blockquote>
 <p>这里参照官方文档进行配置： <a target="_blank" rel="noopener" href="https://github.com/google/syzkaller">https://github.com/google/syzkaller</a></p>
+<p><strong>注意：本文可能已经过时，请参照 Google 最新的官方文档进行配置！</strong></p>
 <p>笔者本地环境：Ubuntu 21.04</p>
 </blockquote>
 <p><strong>在安装之前请确保你的电脑具有足够的运行内存与存储空间！</strong>（笔者的2G阿里云学生机就被搞炸了</p>
@@ -343,7 +343,7 @@
 <li><code>Linux kernel with coverage additions</code></li>
 <li><code>Virtual machine or a physical device</code></li>
 </ul>
-<h2 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt update</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt install make gcc flex bison libncurses-dev libelf-dev libssl-dev clang clang-format</span><br></code></pre></td></tr></table></figure>
+<h2 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt update</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt install make gcc bc flex bison libncurses-dev libelf-dev libssl-dev clang clang-format</span><br></code></pre></td></tr></table></figure>
 
 <h2 id="配置-golang-环境"><a href="#配置-golang-环境" class="headerlink" title="配置 golang 环境"></a>配置 golang 环境</h2><p>首先配置 golang 环境，可以参照<a target="_blank" rel="noopener" href="https://golang.org/doc/install">官方文档</a>：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">wget https://dl.google.com/go/go1.14.2.linux-amd64.tar.gz</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">tar -xf go1.14.2.linux-amd64.tar.gz</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">mv</span> go goroot</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">mkdir</span> gopath</span><br></code></pre></td></tr></table></figure>
@@ -351,8 +351,8 @@
 <p>在 <code>/etc/profile</code> 中写入如下配置，重启，这里需要注意的是 <code>YourGoPath</code><strong>应当替换为你实际存放 go 的路径</strong>，在上一步的终端中输入 <code>pwd</code> 后将其值替换到下方</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">export</span> GOPATH=YourGoPath/gopath<br><span class="hljs-built_in">export</span> GOROOT=YourGoPath/goroot<br><span class="hljs-built_in">export</span> PATH=<span class="hljs-variable">$GOPATH</span>/bin:<span class="hljs-variable">$PATH</span><br><span class="hljs-built_in">export</span> PATH=<span class="hljs-variable">$GOROOT</span>/bin:<span class="hljs-variable">$PATH</span><br></code></pre></td></tr></table></figure>
 
-<h2 id="编译-syzkaller"><a href="#编译-syzkaller" class="headerlink" title="编译 syzkaller"></a>编译 syzkaller</h2><p>安装 syzkaller 本体</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">go get -u -d github.com/google/syzkaller/prog</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cd</span> gopath/src/github.com/google/syzkaller/</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">make</span><br></code></pre></td></tr></table></figure>
+<h2 id="编译-syzkaller"><a href="#编译-syzkaller" class="headerlink" title="编译 syzkaller"></a>编译 syzkaller</h2><p>直接从 GitHub 拉取即可</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">git <span class="hljs-built_in">clone</span> https://github.com/google/syzkaller</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cd</span> syzkaller/</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">make</span><br></code></pre></td></tr></table></figure>
 
 <h2 id="编译目标内核"><a href="#编译目标内核" class="headerlink" title="编译目标内核"></a>编译目标内核</h2><p>从镜像站随便拉一个版本的源码过来就行，笔者这里拉了一个 5.11 版本的内核</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">wget https://mirrors.tuna.tsinghua.edu.cn/kernel/v5.x/linux-5.11.tar.gz</span><br></code></pre></td></tr></table></figure>
@@ -367,20 +367,23 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">make CC=<span class="hljs-string">&quot;/usr/bin/gcc&quot;</span> defconfig</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">make CC=<span class="hljs-string">&quot;/usr/bin/gcc&quot;</span> kvmconfig</span><br></code></pre></td></tr></table></figure>
 
 <p>接下来编辑 <code>.config</code> 文件，在其末尾添加如下：</p>
+<blockquote>
+<p>注：此为基础配置，更多可选配置可以参见 <a target="_blank" rel="noopener" href="https://github.com/google/syzkaller/blob/master/docs/linux/kernel_configs.md">https://github.com/google/syzkaller/blob/master/docs/linux/kernel_configs.md</a></p>
+</blockquote>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">CONFIG_KCOV=y<br>CONFIG_DEBUG_INFO=y<br>CONFIG_KASAN=y<br>CONFIG_KASAN_INLINE=y<br>CONFIG_CONFIGFS_FS=y<br>CONFIG_SECURITYFS=y<br></code></pre></td></tr></table></figure>
 
 <p>接下来开始编译内核，这个时候可以简单开一局你喜欢的游戏慢慢等待（笑）</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">make CC=<span class="hljs-string">&quot;/usr/bin/gcc&quot;</span> olddefconfig</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">make CC=<span class="hljs-string">&quot;/usr/bin/gcc&quot;</span> -j64</span><br></code></pre></td></tr></table></figure>
 
-<p>这里笔者还遇到一个问题，**笔者的 gcc 版本太高了…**于是编译的时候又出现了这个错误：</p>
+<blockquote>
+<p>如果编译的时候出现了这个错误，则说明内核版本与当前编译器可能不兼容：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">cc1: error: ‘-fcf-protection’ is not compatible with this target<br></code></pre></td></tr></table></figure>
 
-<p><strong>切换回官方推荐的 gcc8 后重新进行编译</strong></p>
-<blockquote>
-<p>笔者<del>向生活妥协了，</del>暂时没找到高版本 gcc 在这个配置下能够成功编译的方法</p>
-</blockquote>
+<p>可以尝试 <em>切换到老版本的 gcc8 重新进行编译</em> </p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get install gcc-8 gcc-8-multilib</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get install g++-8 g++-8-multilib</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo update-alternatives --install /usr/bin/gcc gcc  /usr/bin/gcc-8 1</span><br></code></pre></td></tr></table></figure>
 
+
+</blockquote>
 <p>出现下面这行就标志着编译完成</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">Kernel: arch/x86/boot/bzImage is ready  (#1)<br></code></pre></td></tr></table></figure>
 
@@ -444,7 +447,7 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[FAILED] Failed to start Raise network interfaces.<br></code></pre></td></tr></table></figure>
 
 <p>虽然似乎还是能正常启动的</p>
-<h2 id="crash-分析"><a href="#crash-分析" class="headerlink" title="crash 分析"></a>crash 分析</h2><p>笔者本来想写一个有漏洞点内核模块来人为制造 crash，不过现在刚开挖没几分钟就出了一个 crash，由于用的是 5.11 版本的内核，已经不算太新了，笔者认为应该是挖到了现有的 CVE，通过 Google 笔者也找到了一个<a target="_blank" rel="noopener" href="https://syzkaller.appspot.com/bug?id=ad240ff5c32ca4f3406dc3acca519370693bb47c">基本上是一样的 crash</a>，不过我们还是来简单分析一下</p>
+<h2 id="crash-分析"><a href="#crash-分析" class="headerlink" title="crash 分析"></a>crash 分析</h2><p>笔者本来想写一个有漏洞点内核模块来人为制造 crash，不过现在刚开挖没几分钟就出了一个 crash，由于用的是 5.11 版本的内核，已经不算太新了，笔者认为应该是挖到了已经被人发现的漏洞，通过 Google 笔者也找到了一个<a target="_blank" rel="noopener" href="https://syzkaller.appspot.com/bug?id=ad240ff5c32ca4f3406dc3acca519370693bb47c">基本上是一样的 crash</a>，不过我们还是来简单分析一下</p>
 <p><img src="https://i.loli.net/2021/11/12/7EHYatBoG6KFxqR.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>在 Description 项中说明了 crash 的简要信息，点开分为两项：<code>log</code> 和 <code>report</code></p>
 <p><img src="https://i.loli.net/2021/11/12/Q6dBoPOHm7sRtgI.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
@@ -940,9 +943,9 @@
       
         <a href="/tags/%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98/">#漏洞挖掘</a>
       
-        <a href="/tags/syzkaller/">#syzkaller</a>
-      
         <a href="/tags/FUZZ/">#FUZZ</a>
+      
+        <a href="/tags/syzkaller/">#syzkaller</a>
       
     </div>
   

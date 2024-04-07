@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2023/02/21/D4idvgzLAaqIBQM.png">
 <meta property="article:published_time" content="2023-02-23T15:24:42.000Z">
-<meta property="article:modified_time" content="2023-12-18T07:01:46.674Z">
+<meta property="article:modified_time" content="2023-12-17T20:02:36.000Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
@@ -92,8 +92,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
-</head>
+<meta name="generator" content="Hexo 7.1.1"></head>
 
 
 <body>
@@ -320,7 +319,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年12月18日 晚上
+                    本文最后更新于：2023年12月18日 早上
                   
                 
               </p>
@@ -372,7 +371,7 @@
 </blockquote>
 <p>正如一个 page 结构体直接对应一张内存页（或复合页），复用了 page 结构体的 slab 也<strong>直接对应一份 slab 内存页</strong>，借助 <code>page_to_pfn()</code> 等函数可以直接完成 slab 结构体到对应内存页虚拟地址的转换，反之亦然，即<strong>我们可以直接通过一个空闲对象的虚拟地址找到对应的 slab 结构体</strong></p>
 <p><img src="https://s2.loli.net/2023/02/21/cBXCGF4Z18VLMzl.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h2 id="二、kmem-cache：特定大小-amp-用途对象（堆块）的内存池"><a href="#二、kmem-cache：特定大小-amp-用途对象（堆块）的内存池" class="headerlink" title="二、kmem_cache：特定大小&amp;用途对象（堆块）的内存池"></a>二、kmem_cache：特定大小&amp;用途对象（堆块）的内存池</h2><p><code>kmem_cache</code> 为一个基本的 allocator 组件，可以理解为 <strong>用于分配某个特定大小（某种特定用途）的对象的内存池</strong>，所有的 kmem_cache 构成一个双向链表，并存在一个对应的通用 <code>kmem_cache</code> 数组 <code>kmalloc_caches</code> </p>
+<h2 id="二、kmem-cache：特定大小-用途对象（堆块）的内存池"><a href="#二、kmem-cache：特定大小-用途对象（堆块）的内存池" class="headerlink" title="二、kmem_cache：特定大小&amp;用途对象（堆块）的内存池"></a>二、kmem_cache：特定大小&amp;用途对象（堆块）的内存池</h2><p><code>kmem_cache</code> 为一个基本的 allocator 组件，可以理解为 <strong>用于分配某个特定大小（某种特定用途）的对象的内存池</strong>，所有的 kmem_cache 构成一个双向链表，并存在一个对应的通用 <code>kmem_cache</code> 数组 <code>kmalloc_caches</code> </p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kmem_cache</span> *</span><br><span class="hljs-class"><span class="hljs-title">kmalloc_caches</span>[<span class="hljs-title">NR_KMALLOC_TYPES</span>][<span class="hljs-title">KMALLOC_SHIFT_HIGH</span> + 1] __<span class="hljs-title">ro_after_init</span> =</span><br>&#123; <span class="hljs-comment">/* initialization for https://bugs.llvm.org/show_bug.cgi?id=42570 */</span> &#125;;<br>EXPORT_SYMBOL(kmalloc_caches);<br></code></pre></td></tr></table></figure>
 
 <blockquote>
@@ -513,7 +512,7 @@
 <h4 id="①-reread-slab：读取-percpu-slab"><a href="#①-reread-slab：读取-percpu-slab" class="headerlink" title="① reread_slab：读取 percpu slab"></a>① reread_slab：读取 percpu slab</h4><p>首先读取 percpu 的 slab，若没有 slab 则判断分配节点，并跳转到 <code>new_slab</code> 分配新的 slab，注意这一块代码对应 <code>reread_slab</code> 标签：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c">reread_slab:<br><br>	slab = READ_ONCE(c-&gt;slab);<br>	<span class="hljs-keyword">if</span> (!slab) &#123;<br>		<span class="hljs-comment">/*</span><br><span class="hljs-comment">		 * 若 node 未上线或没有 normal memory，忽略 node 约束</span><br><span class="hljs-comment">		 */</span><br>		<span class="hljs-keyword">if</span> (unlikely(node != NUMA_NO_NODE &amp;&amp;<br>			     !node_isset(node, slab_nodes)))<br>			node = NUMA_NO_NODE;<br>		<span class="hljs-keyword">goto</span> new_slab;<br>	&#125;<br></code></pre></td></tr></table></figure>
 
-<h4 id="②-redo：获取-percpu-slab-gt-freelist"><a href="#②-redo：获取-percpu-slab-gt-freelist" class="headerlink" title="② redo：获取 percpu slab-&gt;freelist"></a>② redo：获取 percpu slab-&gt;freelist</h4><p>接下来这块代码对应 <code>redo</code> 标签：</p>
+<h4 id="②-redo：获取-percpu-slab-freelist"><a href="#②-redo：获取-percpu-slab-freelist" class="headerlink" title="② redo：获取 percpu slab-&gt;freelist"></a>② redo：获取 percpu slab-&gt;freelist</h4><p>接下来这块代码对应 <code>redo</code> 标签：</p>
 <ul>
 <li><p>若 percpu slab 不为空，判断 slab 是否属于指定的节点且与分配标志位匹配，若否，则跳转到 <code>deactivate_slab</code> 标签</p>
 </li>

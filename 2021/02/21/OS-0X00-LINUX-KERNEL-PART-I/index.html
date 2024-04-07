@@ -27,12 +27,12 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/02/24/IYaievPRZpAVMH7.png">
 <meta property="article:published_time" content="2021-02-21T10:02:14.000Z">
-<meta property="article:modified_time" content="2023-11-09T10:57:53.352Z">
+<meta property="article:modified_time" content="2023-11-08T23:58:40.000Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
-<meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="Linux Kernel">
 <meta property="article:tag" content="操作系统">
+<meta property="article:tag" content="Pwn">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://i.loli.net/2021/02/24/IYaievPRZpAVMH7.png">
   
@@ -91,8 +91,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
-</head>
+<meta name="generator" content="Hexo 7.1.1"></head>
 
 
 <body>
@@ -319,7 +318,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年11月9日 晚上
+                    本文最后更新于：2023年11月9日 上午
                   
                 
               </p>
@@ -361,7 +360,7 @@
 </li>
 </ul>
 <p>基于这些特权级切换的方式，现代操作系统的开发者包装出了一种名为<strong>系统调用</strong>（syscall）的东西，作为由”用户态“切换到”内核态“的入口，从而执行内核代码来完成用户进程所需的一些功能；当用户进程想要请求更高权限的服务时，便需要通过由系统提供的应用接口，使用系统调用以<strong>陷入内核态，再由操作系统完成请求</strong></p>
-<h3 id="IV-进程-x3D-进程运行环境上下文-内核数据结构"><a href="#IV-进程-x3D-进程运行环境上下文-内核数据结构" class="headerlink" title="IV.进程 &#x3D; 进程运行环境上下文 + 内核数据结构"></a>IV.进程 &#x3D; 进程运行环境上下文 + 内核数据结构</h3><p>进程<strong>本质上是我们抽象出来的一个概念</strong>，CPU 是不知道也不可能知道进程是什么东西的，他只知道<strong>当前核心的寄存器的数据是这样，运行状态是这样，内存里的数据是那样</strong>，但我们可以<strong>人为地进行划分</strong>——将当前的运行环境上下文称之为一个<strong>进程实体</strong></p>
+<h3 id="IV-进程-进程运行环境上下文-内核数据结构"><a href="#IV-进程-进程运行环境上下文-内核数据结构" class="headerlink" title="IV.进程 &#x3D; 进程运行环境上下文 + 内核数据结构"></a>IV.进程 &#x3D; 进程运行环境上下文 + 内核数据结构</h3><p>进程<strong>本质上是我们抽象出来的一个概念</strong>，CPU 是不知道也不可能知道进程是什么东西的，他只知道<strong>当前核心的寄存器的数据是这样，运行状态是这样，内存里的数据是那样</strong>，但我们可以<strong>人为地进行划分</strong>——将当前的运行环境上下文称之为一个<strong>进程实体</strong></p>
 <p>接下来我们引入一个新的概念——<strong>页表</strong>（page table）。这通常是一个多级结构，用以对应表示一个虚拟地址空间中存在的每张内存页所对应的物理内存，下图是一张经典的二级页表结构：</p>
 <p><img src="https://s2.loli.net/2022/03/15/bnYKURW1xPg7CHN.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>当开启分页模式之后，我们对内存的访问都需要通过页表进行，利用多级页表将对应的虚拟地址转化为物理地址后才能进行内存访问，因此<strong>当前页表集所表示的物理地址空间为我们当前所能访问的物理地址空间</strong></p>
@@ -404,7 +403,7 @@
 </ul>
 <p>包括 I&#x2F;O，权限控制，系统调用，进程管理，内存管理等多项功能都可以归结到以上三点中</p>
 <p>但与一般的应用程式不同，系统内核的发生 crash 通常会引起系统重启</p>
-<h2 id="二、内核架构：微内核-amp-宏内核-amp-混合内核"><a href="#二、内核架构：微内核-amp-宏内核-amp-混合内核" class="headerlink" title="二、内核架构：微内核 &amp; 宏内核 &amp; 混合内核"></a>二、内核架构：微内核 &amp; 宏内核 &amp; 混合内核</h2><p>通常来说我们可以把内核架构分为两种：<code>宏内核</code>和<code>微内核</code>，现在还有一种内核是混合了宏内核与微内核的特性，称为 <code>混合内核</code> ，三种内核的大致架构如下图所示：</p>
+<h2 id="二、内核架构：微内核-宏内核-混合内核"><a href="#二、内核架构：微内核-宏内核-混合内核" class="headerlink" title="二、内核架构：微内核 &amp; 宏内核 &amp; 混合内核"></a>二、内核架构：微内核 &amp; 宏内核 &amp; 混合内核</h2><p>通常来说我们可以把内核架构分为两种：<code>宏内核</code>和<code>微内核</code>，现在还有一种内核是混合了宏内核与微内核的特性，称为 <code>混合内核</code> ，三种内核的大致架构如下图所示：</p>
 <p><img src="https://i.loli.net/2021/02/22/eQlyv3DszOjXPuw.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <h3 id="I-宏内核（Monolithic-Kernel）"><a href="#I-宏内核（Monolithic-Kernel）" class="headerlink" title="I.宏内核（Monolithic Kernel）"></a>I.宏内核（Monolithic Kernel）</h3><blockquote>
 <p> <strong>宏内核</strong>（英语：Monolithic kernel），也译为<strong>集成式内核</strong>、<strong>单体式内核</strong>，一种<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%86%85%E6%A0%B8">操作系统内核</a>架构，此架构的特性是整个内核程序是一个单一二进制可执行文件，在<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%A0%B8%E5%BF%83%E7%A9%BA%E9%96%93">内核态</a>以监管者模式（Supervisor Mode）来运行。相对于其他类型的操作系统架构，如<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%BE%AE%E6%A0%B8%E5%BF%83">微内核</a>架构或<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%B7%B7%E6%A0%B8%E5%BF%83">混合内核</a>架构等，这些内核会定义出一个高端的虚拟接口，由该接口来涵盖描述整个电脑硬件，这些描述会集合成一组硬件描述用词，有时还会附加一些<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8">系统调用</a>，如此可以用一个或多个模块来实现各种操作系统服务，如<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%A1%8C%E7%A8%8B">进程</a>管理、并发（Concurrency）控制、<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%A8%98%E6%86%B6%E9%AB%94%E7%AE%A1%E7%90%86">存储器管理</a>等。 </p>
@@ -441,7 +440,7 @@
 <li>64位下的虚拟内存空间布局如下：</li>
 </ul>
 <p><img src="https://i.loli.net/2021/11/09/k8NHa1ljMEfXQbh.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<h2 id="三、用户态-amp-内核态"><a href="#三、用户态-amp-内核态" class="headerlink" title="三、用户态 &amp; 内核态"></a>三、用户态 &amp; 内核态</h2><p>抛开华丽的辞藻，这两个词最本质的含义是：</p>
+<h2 id="三、用户态-内核态"><a href="#三、用户态-内核态" class="headerlink" title="三、用户态 &amp; 内核态"></a>三、用户态 &amp; 内核态</h2><p>抛开华丽的辞藻，这两个词最本质的含义是：</p>
 <ul>
 <li>用户态：CPU 运行在 ring3 + 用户进程运行环境上下文</li>
 <li>内核态：CPU 运行在 ring0 + 内核代码运行环境上下文</li>
@@ -544,7 +543,7 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cred</span> &#123;</span><br>    <span class="hljs-type">atomic_t</span>    usage;<br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_DEBUG_CREDENTIALS</span><br>    <span class="hljs-type">atomic_t</span>    subscribers;    <span class="hljs-comment">/* number of processes subscribed */</span><br>    <span class="hljs-type">void</span>        *put_addr;<br>    <span class="hljs-type">unsigned</span>    magic;<br><span class="hljs-meta">#<span class="hljs-keyword">define</span> CRED_MAGIC    0x43736564</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> CRED_MAGIC_DEAD    0x44656144</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>    <span class="hljs-type">kuid_t</span>        uid;        <span class="hljs-comment">/* real UID of the task */</span><br>    <span class="hljs-type">kgid_t</span>        gid;        <span class="hljs-comment">/* real GID of the task */</span><br>    <span class="hljs-type">kuid_t</span>        suid;        <span class="hljs-comment">/* saved UID of the task */</span><br>    <span class="hljs-type">kgid_t</span>        sgid;        <span class="hljs-comment">/* saved GID of the task */</span><br>    <span class="hljs-type">kuid_t</span>        euid;        <span class="hljs-comment">/* effective UID of the task */</span><br>    <span class="hljs-type">kgid_t</span>        egid;        <span class="hljs-comment">/* effective GID of the task */</span><br>    <span class="hljs-type">kuid_t</span>        fsuid;        <span class="hljs-comment">/* UID for VFS ops */</span><br>    <span class="hljs-type">kgid_t</span>        fsgid;        <span class="hljs-comment">/* GID for VFS ops */</span><br>    <span class="hljs-type">unsigned</span>    securebits;    <span class="hljs-comment">/* SUID-less security management */</span><br>    <span class="hljs-type">kernel_cap_t</span>    cap_inheritable; <span class="hljs-comment">/* caps our children can inherit */</span><br>    <span class="hljs-type">kernel_cap_t</span>    cap_permitted;    <span class="hljs-comment">/* caps we&#x27;re permitted */</span><br>    <span class="hljs-type">kernel_cap_t</span>    cap_effective;    <span class="hljs-comment">/* caps we can actually use */</span><br>    <span class="hljs-type">kernel_cap_t</span>    cap_bset;    <span class="hljs-comment">/* capability bounding set */</span><br>    <span class="hljs-type">kernel_cap_t</span>    cap_ambient;    <span class="hljs-comment">/* Ambient capability set */</span><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_KEYS</span><br>    <span class="hljs-type">unsigned</span> <span class="hljs-type">char</span>    jit_keyring;    <span class="hljs-comment">/* default keyring to attach requested</span><br><span class="hljs-comment">                     * keys to */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">key</span>    *<span class="hljs-title">session_keyring</span>;</span> <span class="hljs-comment">/* keyring inherited over fork */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">key</span>    *<span class="hljs-title">process_keyring</span>;</span> <span class="hljs-comment">/* keyring private to this process */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">key</span>    *<span class="hljs-title">thread_keyring</span>;</span> <span class="hljs-comment">/* keyring private to this thread */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">key</span>    *<span class="hljs-title">request_key_auth</span>;</span> <span class="hljs-comment">/* assumed request_key authority */</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_SECURITY</span><br>    <span class="hljs-type">void</span>        *security;    <span class="hljs-comment">/* subjective LSM security */</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">user_struct</span> *<span class="hljs-title">user</span>;</span>    <span class="hljs-comment">/* real user ID subscription */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">user_namespace</span> *<span class="hljs-title">user_ns</span>;</span> <span class="hljs-comment">/* user_ns the caps and keyrings are relative to. */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">group_info</span> *<span class="hljs-title">group_info</span>;</span>    <span class="hljs-comment">/* supplementary groups for euid/fsgid */</span><br>    <span class="hljs-comment">/* RCU deletion */</span><br>    <span class="hljs-class"><span class="hljs-keyword">union</span> &#123;</span><br>        <span class="hljs-type">int</span> non_rcu;            <span class="hljs-comment">/* Can we skip RCU deletion? */</span><br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">rcu_head</span>    <span class="hljs-title">rcu</span>;</span>        <span class="hljs-comment">/* RCU deletion hook */</span><br>    &#125;;<br>&#125; __randomize_layout;<br></code></pre></td></tr></table></figure>
 
 <p>我们主要关注<code>cred</code>结构体中管理权限的变量</p>
-<h3 id="用户ID-amp-组ID"><a href="#用户ID-amp-组ID" class="headerlink" title="用户ID &amp; 组ID"></a>用户ID &amp; 组ID</h3><p>一个cred结构体中记载了<strong>一个进程四种不同的用户ID</strong>：</p>
+<h3 id="用户ID-组ID"><a href="#用户ID-组ID" class="headerlink" title="用户ID &amp; 组ID"></a>用户ID &amp; 组ID</h3><p>一个cred结构体中记载了<strong>一个进程四种不同的用户ID</strong>：</p>
 <ul>
 <li><strong>真实用户ID</strong>（real UID）：标识一个进程<strong>启动时的用户ID</strong></li>
 <li><strong>保存用户ID</strong>（saved UID）：标识一个进程<strong>最初的有效用户ID</strong></li>
@@ -559,7 +558,7 @@
 <li><code>struct cred* prepare_kernel_cred(struct task_struct* daemon)</code>：该函数用以拷贝一个进程的cred结构体，并返回一个新的cred结构体，需要注意的是<code>daemon</code>参数应为<strong>有效的进程描述符地址</strong></li>
 <li><code>int commit_creds(struct cred *new)</code>：该函数用以将一个新的<code>cred</code>结构体应用到进程</li>
 </ul>
-<h1 id="0x05-I-x2F-O"><a href="#0x05-I-x2F-O" class="headerlink" title="0x05.I&#x2F;O"></a>0x05.I&#x2F;O</h1><p>*NIX&#x2F;Linux追求高层次抽象上的统一，其设计哲学之一便是<code>万物皆文件</code></p>
+<h1 id="0x05-I-O"><a href="#0x05-I-O" class="headerlink" title="0x05.I&#x2F;O"></a>0x05.I&#x2F;O</h1><p>*NIX&#x2F;Linux追求高层次抽象上的统一，其设计哲学之一便是<code>万物皆文件</code></p>
 <h2 id="一、“万物皆文件”"><a href="#一、“万物皆文件”" class="headerlink" title="一、“万物皆文件”"></a>一、“万物皆文件”</h2><p><em>NIX&#x2F;Linux设计的哲学之一——<code>万物皆文件</code>，在Linux系统的视角下，无论是文件、设备、管道，还是目录、进程，甚至是磁盘、套接字等等，*<em>一切都可以被抽象为文件，一切都可以使用访问文件的方式进行操作</em></em></p>
 <p>通过这样一种哲学，Linux予开发者以高层次抽象的统一性，提供了<code>操作的一致性</code>：</p>
 <ul>
@@ -613,7 +612,7 @@
 <blockquote>
 <p>CTF 比赛中的 kernel pwn 的漏洞往往出现在第三方 LKM 中，<del>一般来说不会真的让你去直接日内核组件</del></p>
 </blockquote>
-<h1 id="0x07-内核内存结构-amp-管理"><a href="#0x07-内核内存结构-amp-管理" class="headerlink" title="0x07.内核内存结构 &amp; 管理"></a>0x07.内核内存结构 &amp; 管理</h1><p>Linux kernel 将内存分为 <code>页→区→节点</code> 三级结构，主要有两个内存管理器—— <code>buddy system</code> 与 <code>slab allocator</code></p>
+<h1 id="0x07-内核内存结构-管理"><a href="#0x07-内核内存结构-管理" class="headerlink" title="0x07.内核内存结构 &amp; 管理"></a>0x07.内核内存结构 &amp; 管理</h1><p>Linux kernel 将内存分为 <code>页→区→节点</code> 三级结构，主要有两个内存管理器—— <code>buddy system</code> 与 <code>slab allocator</code></p>
 <h2 id="一、-页→区→节点三级结构"><a href="#一、-页→区→节点三级结构" class="headerlink" title="一、 页→区→节点三级结构"></a>一、 页→区→节点三级结构</h2><p>这是一张十分经典的 _Overview_，自顶向下是</p>
 <ul>
 <li><strong>节点</strong>（node，对应结构体 pgdata_list）</li>
@@ -693,7 +692,7 @@
 </ul>
 </li>
 </ul>
-<h3 id="II-分配-x2F-释放过程"><a href="#II-分配-x2F-释放过程" class="headerlink" title="II.分配&#x2F;释放过程"></a>II.分配&#x2F;释放过程</h3><p>那么现在我们可以来说明 slub allocator 的分配&#x2F;释放行为了</p>
+<h3 id="II-分配-释放过程"><a href="#II-分配-释放过程" class="headerlink" title="II.分配&#x2F;释放过程"></a>II.分配&#x2F;释放过程</h3><p>那么现在我们可以来说明 slub allocator 的分配&#x2F;释放行为了</p>
 <ul>
 <li>分配：<ul>
 <li>首先从 <code>kmem_cache_cpu</code> 上取对象，若有则直接返回</li>
@@ -722,7 +721,7 @@
 <h4 id="FGKASLR"><a href="#FGKASLR" class="headerlink" title="*FGKASLR"></a><em>*FGKASLR</em></h4><p>KASLR 虽然在一定程度上能够缓解攻击，但是若是攻击者通过一些信息泄露漏洞获取到内核中的某个地址，仍能够直接得知内核加载地址偏移从而得知整个内核地址布局，因此有研究者基于 KASLR 实现了 FGKASLR，<strong>以函数粒度重新排布内核代码</strong></p>
 <h4 id="STACK-PROTECTOR"><a href="#STACK-PROTECTOR" class="headerlink" title="STACK PROTECTOR"></a>STACK PROTECTOR</h4><p>类似于用户态程序的 canary，通常又被称作是 stack cookie，用以检测<strong>是否发生内核堆栈溢出</strong>，若是发生内核堆栈溢出则会产生 kernel panic</p>
 <p>内核中的 canary 的值通常取自 gs 段寄存器某个固定偏移处的值</p>
-<h4 id="SMAP-x2F-SMEP"><a href="#SMAP-x2F-SMEP" class="headerlink" title="SMAP&#x2F;SMEP"></a>SMAP&#x2F;SMEP</h4><p>SMAP即<code>管理模式访问保护</code>（Supervisor Mode Access Prevention），SMEP即<code>管理模式执行保护</code>（Supervisor Mode Execution Prevention），这两种保护通常是同时开启的，用以阻止<strong>内核空间直接访问&#x2F;执行用户空间的数据</strong>，完全地将内核空间与用户空间相分隔开，用以防范ret2usr（return-to-user，将内核空间的指令指针重定向至用户空间上构造好的提权代码）攻击</p>
+<h4 id="SMAP-SMEP"><a href="#SMAP-SMEP" class="headerlink" title="SMAP&#x2F;SMEP"></a>SMAP&#x2F;SMEP</h4><p>SMAP即<code>管理模式访问保护</code>（Supervisor Mode Access Prevention），SMEP即<code>管理模式执行保护</code>（Supervisor Mode Execution Prevention），这两种保护通常是同时开启的，用以阻止<strong>内核空间直接访问&#x2F;执行用户空间的数据</strong>，完全地将内核空间与用户空间相分隔开，用以防范ret2usr（return-to-user，将内核空间的指令指针重定向至用户空间上构造好的提权代码）攻击</p>
 <p>SMEP保护的绕过有以下两种方式：</p>
 <ul>
 <li>利用内核线性映射区对物理地址空间的完整映射，找到用户空间对应页框的内核空间地址，利用该内核地址完成对用户空间的访问（即一个内核空间地址与一个用户空间地址映射到了同一个页框上），这种攻击手法称为 ret2dir</li>
@@ -813,11 +812,11 @@
       
         <a href="/tags/Linux/">#Linux</a>
       
-        <a href="/tags/Pwn/">#Pwn</a>
-      
         <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
       
         <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>
+      
+        <a href="/tags/Pwn/">#Pwn</a>
       
     </div>
   

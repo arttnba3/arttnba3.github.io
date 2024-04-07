@@ -27,14 +27,14 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2022/03/08/gartTlFBis2xALv.png">
 <meta property="article:published_time" content="2022-03-08T07:25:07.000Z">
-<meta property="article:modified_time" content="2023-02-09T08:09:12.000Z">
+<meta property="article:modified_time" content="2023-08-13T08:31:08.000Z">
 <meta property="article:author" content="arttnba3">
-<meta property="article:tag" content="Linux">
-<meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="信息安全">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Linux Kernel">
+<meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="CTF">
 <meta property="article:tag" content="Use After Free">
-<meta property="article:tag" content="Linux Kernel">
 <meta property="article:tag" content="Kernel UAF">
 <meta property="article:tag" content="D^3CTF">
 <meta name="twitter:card" content="summary_large_image">
@@ -95,8 +95,7 @@
 
 
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
-</head>
+<meta name="generator" content="Hexo 7.1.1"></head>
 
 
 <body>
@@ -323,7 +322,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年2月9日 晚上
+                    本文最后更新于：2023年8月13日 晚上
                   
                 
               </p>
@@ -430,7 +429,7 @@
 <p>可能有的人会想到一个更为快捷的办法：因为我们已经获得了内核的“堆上地址”，所以我们可以去猜测“堆的基址”（<code>page_offset_base</code>），在 <code>page_offset_base + 0x9d000</code> 处<strong>固定存放着</strong> <code>secondary_startup_64</code> 函数的地址，而这个地址前面刚好有一片为 0 的区域方便我们的 next 指针进行指向</p>
 <p>但这个做法有一定的风险：若是我们猜错了则很容易导致 kernel panic，且经笔者尝试会在我们的下一步中<strong>导致 kernel panic</strong>（也可能是笔者的构造存在缺陷），所以笔者还是更推荐大家只用内存搜索的办法</p>
 </blockquote>
-<h3 id="Step-III-构造-A-gt-B-gt-A-式-freelist-劫持新的结构体"><a href="#Step-III-构造-A-gt-B-gt-A-式-freelist-劫持新的结构体" class="headerlink" title="Step.III 构造 A-&gt;B-&gt;A 式 freelist 劫持新的结构体"></a>Step.III 构造 A-&gt;B-&gt;A 式 freelist 劫持新的结构体</h3><p>现在地址泄露的工作已经完成了，接下来我们来考虑如何进行提权，比较朴素的提权方法有两种：修改进程 cred 结构体或是劫持内核执行流</p>
+<h3 id="Step-III-构造-A-B-A-式-freelist-劫持新的结构体"><a href="#Step-III-构造-A-B-A-式-freelist-劫持新的结构体" class="headerlink" title="Step.III 构造 A-&gt;B-&gt;A 式 freelist 劫持新的结构体"></a>Step.III 构造 A-&gt;B-&gt;A 式 freelist 劫持新的结构体</h3><p>现在地址泄露的工作已经完成了，接下来我们来考虑如何进行提权，比较朴素的提权方法有两种：修改进程 cred 结构体或是劫持内核执行流</p>
 <p>对于前一种方法我们需要获得内核中的任意地址写，可能此时有的同学已经想到了利用 userfaultfd + msg_msg 这一任意写方法，而现在我们有着内存搜索技术，自然可以直接使用 prctl 设置 task_struct 的 comm 成员后进行暴力搜索，但首先<strong>我们并不知道 PCB 地址在当前已知堆地址的前方还是后方</strong>，无论搜索前向越界还是后向越界到了非法地址都会引起 kernel panic，且自内核版本 5.11 起 <strong>userfaultfd 系统调用被限制为 root 权限才能使用</strong>，因此笔者选择控制一些有着函数指针的结构体从而劫持内核执行流</p>
 <p>那么我们要将该 object 分配到别的地方，还要能对其进行修改，那么我们<strong>必须要先将该 object 放回 slub 中</strong>，因为此时该 object 虽为 free 状态，但当我们将其分配到别的结构体上后<strong>我们便无法再控制其内容</strong>，因为此时原 msg_msg 结构体的数据会被新结构体覆盖，<strong>无法正常被释放</strong>（过不了 msgrcv 中的 unlink）</p>
 <p>因此接下来我们的工作便是先维修 msg_msg 中的双向链表，让其指向内核堆上一个合法的地址，同时让 next 指针为 NULL 即可，这里我们可以直接选择使用 setxattr 完成修复，可能有的同学这里会有疑问：m_list 成员位于 msg_msg 的前 16 字节，在 setxattr 将其放回 slub 时<strong>难道不会又将其修改为一个 slub 中的指针从而破坏双向链表么</strong>？开启了 hardened freelist 保护时 free object 的 next 指针字面量并非一个合法地址。这里我们就要说到 slub 的一个特性了：</p>
@@ -569,17 +568,17 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
+        <a href="/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/">#信息安全</a>
+      
         <a href="/tags/Linux/">#Linux</a>
       
-        <a href="/tags/Pwn/">#Pwn</a>
+        <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
       
-        <a href="/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/">#信息安全</a>
+        <a href="/tags/Pwn/">#Pwn</a>
       
         <a href="/tags/CTF/">#CTF</a>
       
         <a href="/tags/Use-After-Free/">#Use After Free</a>
-      
-        <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
       
         <a href="/tags/Kernel-UAF/">#Kernel UAF</a>
       
