@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231124021010.png">
 <meta property="article:published_time" content="2023-11-23T14:22:31.000Z">
-<meta property="article:modified_time" content="2024-03-29T23:37:06.000Z">
+<meta property="article:modified_time" content="2024-04-15T04:07:46.963Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="openSUSE">
@@ -251,7 +251,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          7.4k 字
+          7.9k 字
         
       </span>
     
@@ -262,7 +262,7 @@
         
         
         
-          62 分钟
+          66 分钟
         
       </span>
     
@@ -317,7 +317,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2024年3月30日 上午
+                    本文最后更新于：2024年4月15日 下午
                   
                 
               </p>
@@ -349,7 +349,7 @@
 <p>但是 <del>抛开事实不谈</del>  <em>抛开这些小毛病不谈，openSUSE 依旧是做得不错的发行版</em> ，Leap 有着超乎想象的稳定性与维护周期，Tumbleweed 在保证了其稳定性的同时依旧能紧追最前沿的技术，虽然国内没啥人用但在国外其实还是有着不错的口碑，因此笔者最终选择尝试在 openSUSE Tumbleweed 上开始自己新的旅程</p>
 <blockquote>
 <p>至于为什么不用 Ubuntu 是因为 Ubuntu Desktop 依托答辩，经常能卡出各种玄学问题，软件包旧且难配，snap 这样混沌邪恶的东西更是让人谔谔，只适合放服务器上或是放在虚拟机里玩</p>
-<p>至于为什么不用 Debian 则是因为在笔者感受起来这也是一个更适合在服务器上稳定跑应用的系统，能折腾的空间也不多（<del>年轻人自己用的电脑当然要滚动发行版天天滚，我每天稳定在 Arch 上滚 114 次在centos stream 上滚 514 次在 tumbleweed 上滚 1919 次并用 Gentoo 自行编译 810 次</del>）， <em>更重要的是</em> 笔者手上没有<a target="_blank" rel="noopener" href="https://github.com/moesoha/debian-media-box">Debian 盒装安装媒介</a> （笑</p>
+<p>至于为什么不用 Debian 则是因为在笔者感受起来这也是一个更适合在服务器上稳定跑应用的系统，能折腾的空间也不多（<del>年轻人自己用的电脑当然要滚动发行版天天滚，我每天稳定在 Arch 上滚 114 次在 centos stream 上滚 514 次在 tumbleweed 上滚 1919 次并用 Gentoo 自行编译 810 次</del>）， <em>更重要的是</em> 笔者手上没有<a target="_blank" rel="noopener" href="https://github.com/moesoha/debian-media-box">Debian 盒装安装媒介</a> （笑</p>
 </blockquote>
 <h1 id="0x01-安装前的准备工作"><a href="#0x01-安装前的准备工作" class="headerlink" title="0x01. 安装前的准备工作"></a>0x01. 安装前的准备工作</h1><blockquote>
 <p>如果要和笔者一样安装 Windows + Linux 双系统的话<strong>建议先安装 Windows</strong>，因为如果先安装 Linux 的话 Windows 会对 Linux 空间乱动：(</p>
@@ -392,7 +392,8 @@
 <p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231124013040.png" srcset="/img/loading.gif" lazyload></p>
 <p>这里不得不夸的一点是<strong>openSUSE 无缝地将笔者之前的 KDE 美化给迁移了过来</strong>（当笔者从 Arch 往 Fedora 上迁移时、重新安装 Fedora 时，这块都没太能处理好），把 <code>latte-dock</code> 给安装上之后笔者就像没换过系统一样：</p>
 <p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/img_v3_025f_b217ee22-634c-432b-95ad-8c5569d0081g.jpg" srcset="/img/loading.gif" lazyload></p>
-<h1 id="0x03-安装-N-卡闭源驱动"><a href="#0x03-安装-N-卡闭源驱动" class="headerlink" title="0x03. 安装 N 卡闭源驱动"></a>0x03. 安装 N 卡闭源驱动</h1><blockquote>
+<h1 id="0x03-安装-NVIDIA-Driver"><a href="#0x03-安装-NVIDIA-Driver" class="headerlink" title="0x03. 安装 NVIDIA Driver"></a>0x03. 安装 NVIDIA Driver</h1><p>openSUSE 默认不引入 non-OSS 软件，所以默认为 NVIDIA 显卡安装的是开源的 <code>nouveau</code> 驱动， <del>因为是社区逆向出来的所以不仅功能不全而且性能吊差</del> ，所以我们需要安装 NVIDIA 的官方驱动以获取更好的使用体验。</p>
+<h2 id="闭源驱动（by-default）"><a href="#闭源驱动（by-default）" class="headerlink" title="闭源驱动（by default）"></a>闭源驱动（by default）</h2><blockquote>
 <p>如果你用的是 A 卡或者仅有核显，则可以跳过这一章节</p>
 </blockquote>
 <p>YaST 是很好很强大的一个综合性工具，这也是 SUSE 系发行版的魅力之一，通过 YaST可以非常方便地管理包括软件安装在内的各项系统配置</p>
@@ -419,6 +420,12 @@
 
 <p>之后运行 <code>sudo dracut -f</code> 命令后重启， <del>然后发现好像还是没有什么用</del></p>
 </blockquote>
+<h2 id="开源驱动（only-for-RTX-2000-and-newer）"><a href="#开源驱动（only-for-RTX-2000-and-newer）" class="headerlink" title="开源驱动（only for RTX 2000 and newer）"></a>开源驱动（only for RTX 2000 and newer）</h2><p><del>可能是被 Linus 给 fuck 太多了，</del> NVIDIA <a target="_blank" rel="noopener" href="https://developer.nvidia.com/blog/nvidia-releases-open-source-gpu-kernel-modules/">在 2022 年放出了开源的 Linux 内核模块</a>，为 Linuxer 们提供了除了闭源驱动以外的一个新的选择。</p>
+<p>和安装闭源显卡驱动一样，首先用 zypper 引入 Nvidia 驱动仓库：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo zypper addrepo --refresh https://download.nvidia.com/opensuse/tumbleweed NVIDIA<br></code></pre></td></tr></table></figure>
+
+<p>然后打开 <code>YaST-&gt;Software Management</code>，搜索 nvidia,勾上这两个带 <code>open</code> 字样的包之后让 YaST 帮你自动完成即可：</p>
+<p><img src="https://s2.loli.net/2024/04/15/zOhtWciCZRmnLyS.png" srcset="/img/loading.gif" lazyload alt="笔者这里是已经安装好了所以显示绿底打勾，如果是待安装则通常应当是一个蓝底白十字"></p>
 <h1 id="0x04-安装中文与输入法"><a href="#0x04-安装中文与输入法" class="headerlink" title="0x04. 安装中文与输入法"></a>0x04. 安装中文与输入法</h1><p>openSUSE Tumbleweed 安装媒介中自带的中文有些问题，因此我们需要安装 English 系统后手动将中文给安装上</p>
 <p>首先是将简体中文添加为第二语言（笔者不推荐作为第一语言，否则万一系统崩了以后进入 tty 抢救的时候会让你感到很崩溃），打开 <code>YaST-&gt;System-&gt;Language</code>，勾上 <code>Simplified Chinese</code> 后直接点 <code>OK</code> 就可以自动安装了：</p>
 <p><img src="https://s2.loli.net/2023/11/23/pe6DK84kNB3cSZj.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
