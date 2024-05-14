@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2023/09/25/YpLXq8BdcIFThgO.png">
 <meta property="article:published_time" content="2023-09-24T15:25:17.000Z">
-<meta property="article:modified_time" content="2023-11-23T04:49:12.000Z">
+<meta property="article:modified_time" content="2024-05-05T15:14:11.006Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Arch Linux">
@@ -250,7 +250,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          6.2k 字
+          6.4k 字
         
       </span>
     
@@ -261,7 +261,7 @@
         
         
         
-          52 分钟
+          54 分钟
         
       </span>
     
@@ -316,7 +316,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年11月23日 下午
+                    本文最后更新于：2024年5月6日 凌晨
                   
                 
               </p>
@@ -327,7 +327,7 @@
                 <p>不好用，在安装界面睡了三个小时</p>
 <span id="more"></span>
 
-<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><p>本科阶段笔者一直用的 Windows 作为主力系统并使用 VMWare Workstation 运行 Linux 虚拟机，但总感觉不够得劲，可惜笔者有一些硬性需求只能在 Windows 上完成（比如说游戏、绘图等），由于仅有一台电脑的缘故，所以一直没有机会在真机上安装 Linux 操作系统 ：(</p>
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><p>本科阶段笔者一直用的 Windows 作为主力系统并使用 VMWare Workstation 运行 Linux 虚拟机，但总感觉不够得劲，可惜笔者有一些硬性需求只能在 Windows 上完成（比如说游戏、绘图等），由于仅有一台电脑的缘故，再加上众所周知 Surface 系统对于 Linux 的支持一直不太好，所以一直没有机会在真机上安装 Linux 操作系统 ：(</p>
 <p>开始读 Phd 之后老板比较阔气大手一挥直接配了一个新的笔记本用来工作，于是笔者决定这一次直接在真机上安装 Linux ，专门用来做工作上的事情</p>
 <p>关于发行版的选择，笔者决定选择安装 <a target="_blank" rel="noopener" href="https://archlinux.org/">Arch Linux</a>，因为其有着较为完备的各类文档及驱动适配等，同时笔者的新笔记本的牌子为华硕，其同样有一个较为完善的<a target="_blank" rel="noopener" href="https://asus-linux.org/">第三方社区</a>支持</p>
 <p>不过考虑到有些工作可能还是在 Windows 上做会比较方便（例如调试 Windows 程序），再加上原装的 Windows 系统毕竟是收了笔者的钱的，直接抹掉的话未免有点可惜（笑），所以笔者最终的策略是<strong>安装 Windows + Linux 双系统，日常主力还是使用 Linux 系统</strong></p>
@@ -371,12 +371,18 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">mkfs.ext4 /dev/nvme0n1p6</span><br></code></pre></td></tr></table></figure>
 
 <h3 id="正式安装"><a href="#正式安装" class="headerlink" title="正式安装"></a>正式安装</h3><p>接下来首先挂载新分区，之后在内部创建 <code>/boot</code> 目录，并将 Windows 原有的 EFI 分区挂载到 <code>/boot</code> 目录下，这里注意看自己对应的分区名：</p>
+<blockquote>
+<p>update：这里笔者非常错误地让 Windows  和 Arch 使用了同一个 EFI 分区，导致了后面一系列事故的发生， <em>虽然说不是不能用吧</em> ，但为了更好的体验，笔者还是建议大家为 Linux 准备一个独立的 EFI 分区</p>
+</blockquote>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">mount /dev/nvme0n1p6 /mnt</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">mkdir</span> /mnt/boot</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">mount /dev/nvme0n1p1 /mnt/boot</span><br></code></pre></td></tr></table></figure>
 
 <p>接下来使用该命令进行安装基本的环境，这里笔者安装默认的内核版本 <code>linux</code>，你也可以在 <a target="_blank" rel="noopener" href="https://wiki.archlinuxcn.org/wiki/%E5%86%85%E6%A0%B8">Wiki</a> 上选择自己想要的内核（比如说带有安全加固的 <code>linux-hardened</code>）：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">pacstrap /mnt base linux linux-firmware</span><br></code></pre></td></tr></table></figure>
 
 <p>安装完成之后接下来我们来对系统进行一些基本配置，首先是生成 fstab（文件系统表）文件：</p>
+<blockquote>
+<p>这个文件用以决定系统启动时将某些分区挂载到指定目录的操作细节，也可以手写（建议用 UUID 而不是 <code>/dev</code> 路径进行指定）</p>
+</blockquote>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">genfstab -U /mnt &gt;&gt; /mnt/etc/fstab</span><br></code></pre></td></tr></table></figure>
 
 <p>接下来使用 <code>arch-chroot</code> 命令切换到新的系统环境中：</p>
@@ -399,7 +405,7 @@
 <p>安装一些基本的软件包，这里我们选择使用 <code>grub</code> 作为启动器：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">pacman -S grub efibootmgr networkmanager network-manager-applet dialog wireless_tools wpa_supplicant os-prober mtools dosfstools ntfs-3g base-devel linux-headers reflector git sudo vim</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">pacman -S intel-ucode <span class="hljs-comment"># 如果你是 AMD 则需要改成 amd-ucode</span></span><br></code></pre></td></tr></table></figure>
 
-<p>配置 GRUB 自动启用 <code>os-prober</code>，这里只需要在 <code>/etc/default/grub</code> 中加入一行 <code>GRUB_DISABLE_OS_PROBER=false</code> ，并输入如下命令：</p>
+<p>配置 GRUB 自动启用 <code>os-prober</code>，这个程序用来检测磁盘上的 Windows Boot Manager 并自动创建 Grub entry,这里只需要在 <code>/etc/default/grub</code> 中加入一行 <code>GRUB_DISABLE_OS_PROBER=false</code> ，并输入如下命令：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=Arch</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">grub-mkconfig -o /boot/grub/grub.cfg</span><br></code></pre></td></tr></table></figure>
 
 <p>到这一步一个基本的 Arch 环境就安装好了，完成之后输入如下命令进行重启进入系统，别忘了拔出移动安装介质：</p>
@@ -428,7 +434,7 @@
 
 <p>去掉如下图所示这一行的前面的 <code>#</code> 注释即可，笔者这里是已经修改过后的版本：</p>
 <p><img src="https://s2.loli.net/2023/09/18/dpNtu5qs4hCGSmD.png" srcset="/img/loading.gif" lazyload></p>
-<h3 id="配置桌面环境"><a href="#配置桌面环境" class="headerlink" title="配置桌面环境"></a>配置桌面环境</h3><p>笔者选择安装 <code>XWayland + KDE Plasma</code>，首先安装基本的 KDE Plasma 桌面组件：</p>
+<h3 id="配置桌面环境"><a href="#配置桌面环境" class="headerlink" title="配置桌面环境"></a>配置桌面环境</h3><p>笔者选择安装 <code>Wayland + KDE Plasma</code>，首先安装基本的 KDE Plasma 桌面组件：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo pacman -S plasma-meta konsole dolphin</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">systemctl <span class="hljs-built_in">enable</span> sddm</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo pacman -S egl-wayland kde-applications-meta sway alacritty waybar wofi xorg-xwayland xorg-xlsclients qt5-wayland glfw-wayland</span><br></code></pre></td></tr></table></figure>
 
 <blockquote>

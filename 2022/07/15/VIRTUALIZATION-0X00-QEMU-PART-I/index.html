@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2022/08/20/qg5Uni1hzxETecX.png">
 <meta property="article:published_time" content="2022-07-15T06:45:17.000Z">
-<meta property="article:modified_time" content="2023-10-27T00:42:46.000Z">
+<meta property="article:modified_time" content="2024-04-28T20:40:56.305Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="PCI">
 <meta property="article:tag" content="虚拟化">
@@ -262,7 +262,7 @@
         
         
         
-          272 分钟
+          273 分钟
         
       </span>
     
@@ -317,7 +317,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年10月27日 中午
+                    本文最后更新于：2024年4月29日 早上
                   
                 
               </p>
@@ -356,10 +356,10 @@
 <p>如果我们不指定的话会把所有架构都编译一遍，不过这里笔者只需要 x86 的；）</p>
 </blockquote>
 <h2 id="三、开始编译"><a href="#三、开始编译" class="headerlink" title="三、开始编译"></a>三、开始编译</h2><p>直接 make 就完事了</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">build$ </span><span class="language-bash">make</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">build$ </span><span class="language-bash">make -j$(<span class="hljs-built_in">nproc</span>)</span><br></code></pre></td></tr></table></figure>
 
 <p>需要花的时间还是不短的，在笔者的小破服务器上编译大概需要十几分钟左右，大概编译了两千多个文件，完成之后在当前目录下就会有一个热乎乎的可执行文件 <code>qemu-system_x86-64</code>，这个就是 Qemu 的本体了</p>
-<p>之后可以 make install 给他安到 bin 里边，这样就能直接从命令行启动了</p>
+<p>如果需要的话可以通过 <code>make install</code> 安装到系统中，这样就能直接从命令行启动了</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">build$ </span><span class="language-bash">sudo make install</span><br></code></pre></td></tr></table></figure>
 
 <h1 id="0x02-构建系统镜像并使用-vnc-连接"><a href="#0x02-构建系统镜像并使用-vnc-连接" class="headerlink" title="0x02.构建系统镜像并使用 vnc 连接"></a>0x02.构建系统镜像并使用 vnc 连接</h1><p>空有一个 <code>qemu</code> 的可执行文件还不行，我们最终还是要在 qemu 上面跑一个完整的操作系统的，那么这里有两种方法：</p>
@@ -385,6 +385,9 @@
 <li><code>-cdrom</code>：指定 qemu 启动时装载的光碟文件路径</li>
 </ul>
 <p>启动后 qemu 默认会在 5900 端口启动一个 VNC server，此时我们便能通过 VNC 连接到 qemu 上，需要注意的是这里<strong>只能在本地进行连接</strong></p>
+<blockquote>
+<p>注：我们默认从包管理器安装的 QEMU 使用的是 GTK 图形界面，如果你更喜欢使用这个，则可以在编译选项中额外加上 <code>--enable-gtk</code> ，这样默认就是用 gtk 在本地绘制图形界面，不过这通常额外需要类似 <code>gtk-devel</code> 的库</p>
+</blockquote>
 <p>如果是运行在远程服务器上的话，我们还需要额外指定 <code>-vnc</code> 参数：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo ./build/qemu-system-x86_64 -m 2G -drive format=qcow2,file=test.qcow2 -enable-kvm -cdrom ~/Download/ubuntu-22.04-desktop-amd64.iso -vnc yourip:0</span><br></code></pre></td></tr></table></figure>
 

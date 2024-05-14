@@ -1,0 +1,1197 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="省流：最后装回了 openSUSE Tumbleweed">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【DISTRO.0x02】在 Surface Pro 8 上安装 Gentoo">
+<meta property="og:url" content="https://arttnba3.github.io/2024/04/30/DISTRO-0X02-SURFACE_INSTALL_GENTOO_WINDOWS/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="省流：最后装回了 openSUSE Tumbleweed">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://steamuserimages-a.akamaihd.net/ugc/43107956178667128/BC3271F0AA6DFA2EF54A2D119994087298A53BC6/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false">
+<meta property="article:published_time" content="2024-04-29T19:23:41.000Z">
+<meta property="article:modified_time" content="2024-05-14T17:07:21.374Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Gentoo Linux">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://steamuserimages-a.akamaihd.net/ugc/43107956178667128/BC3271F0AA6DFA2EF54A2D119994087298A53BC6/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【DISTRO.0x02】在 Surface Pro 8 上安装 Gentoo - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"arttnba3.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://s2.loli.net/2024/04/30/jEKw7bCOu9rMhlD.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【DISTRO.0x02】在 Surface Pro 8 上安装 Gentoo"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-04-30 05:23" pubdate>
+          2024年4月30日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          20k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          166 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【DISTRO.0x02】在 Surface Pro 8 上安装 Gentoo</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2024年5月15日 凌晨
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>省流：最后装回了 openSUSE Tumbleweed</p>
+<span id="more"></span>
+
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><blockquote>
+<p>熟悉的废话环节，可以直接跳过不看：）</p>
+</blockquote>
+<p>熟悉笔者的朋友都知道笔者是一个微软死忠粉（ <del>虽然这位微软死忠粉现在并没有在将由微软开发的操作系统作为主力</del> ），因此手上自然而然会有一些 Surface 设备（当然绝大部分都出二手回血了，👴只能说学生时代缺钱的穷 b 是这样的），恰好笔者手边有一台闲置的 Surface Pro 8 设备，而 Surface 从这一代设备开始有一个支持方便快捷地自行更换硬盘的设计，同时笔者原有的设备是最低配的版本 （8G 运存 + 128G 存储），因此笔者就想把这台陪伴了笔者大四期间多个夜晚的设备（因为晚上宿舍断电，所以有这样一台续航长的办公本还是很重要的， <del>当然这里肯定有人要问为什么不用 macbook 了，虽然说 mac 的续航时间确实比 Windows 阵营任何的笔记本要长得多，但是笔者当时并没有钱能够买得起哪怕是一台二手的 macbook，而且既然都买 macbook 了再买二手未免有些寒碜，可能有人又会抬杠说 Surface 都买了怎么买不起 macbook，毕竟最低配的 Surface 价格终究是比最低配的 macbook 要便宜不少，同时还有一个比较重要的原因便是笔者此前很多工作还是需要在 X86 平台上完成，mac 下虽然有 Rosetta 或是 Parallel，但是转译终究还是会带来一定的性能损耗，而且使用起来并不优雅，那这里可能又会有人问为什么不买联想或是其他牌子的同价位办公本，那👴只能说田牌就是信仰</del> ）给简单升级一下，在替换大容量硬盘的同时顺便装一个 Windows + Linux 双系统，<strong>前者是为了保留原汁原味的 Surface 体验，后者则是纯粹为了瞎折腾</strong>：）</p>
+<p>出于各种因素的考虑（ <del>可能是偷工减料</del> ）微软为 Surface Pro 选用了 2230 规格的 SSD，这个规格的 SSD 并不好找，尤其是笔者目前肉身位于地大物穷的位于大洋彼岸离所有国家都很远的澳洲，找了半天<a target="_blank" rel="noopener" href="https://cplonline.com.au/micron-mtfdkbk2t0qfm-1bd1aabyyr-2400-2tb-m-2-2230-nvme-ssd.html">才在 CPL 上找到一款镁光的 2230 规格的 2TB SSD</a>，虽然商品页面写着 <code>NOT Compatible with Surface Pro 8/9</code> ，但是<strong>在笔者看来理论上来说不兼容的情况不太可能发生</strong>，同时笔者在微软社区上找到了 <a target="_blank" rel="noopener" href="https://answers.microsoft.com/en-us/surface/forum/all/what-is-the-max-ssd-my-surface-pro8-will-accept/4cf1ff6d-0bb8-415a-a4b9-690e31808f34">一篇成功在 Surface Pro 8 上安装这一款 SSD 的帖子</a>，那“不兼容”一说想来应当是无稽之谈（又或者是微软的商业手段，<strong>事实证明确实是可以兼容的</strong>），因此笔者选了一个风和日丽 <del>但其实下着细雨</del> 的日子前往墨尔本的某家 CPL 线下门店取到了这款 SSD （ <del>是的这就是发达国家比较常见的购物方式，没有国内那样发达的物流网络说实话👴感觉买啥都不方便，当然出来活动活动筋骨也是好的</del> ）</p>
+<p><img src="https://s2.loli.net/2024/04/27/q3giJxNV9ZpvrIS.png" srcset="/img/loading.gif" lazyload alt="价格比国内贵上好几百 RMB，澳洲的大部分电子产品都是如此"></p>
+<p>接下来是对系统发行版的选择，Windows 自然不用说直接装最新的 Win 11，那么 Linux 该选择哪一种发行版呢？首先考虑比较贴近上游的 Linux 发行版——</p>
+<ul>
+<li>出于瞎折腾的角度考虑 <code>Arch Linux</code> 自然是提供了一定的折腾空间以及 AUR 的海量软件包，在为系统带来极高的可定制性的同时你几乎可以在 AUR 上找到任何软件</li>
+<li><code>Fedora Workstation</code> 作为 RHEL 的试验田同时也是 Linus 所用的发行版在紧贴上游的同时提供了不弱于 Arch 的先进性，有着来自红帽的强大技术支持，软件更新比一部分滚动发行版还要激进，  <del>更是能第一时间当 RedHat 的小白鼠</del></li>
+<li><code>openSUSE Tumbleweed</code> 则有着 SUSE 那来自德国人的精确与严谨，在兼顾稳定性的同时保持了滚动更新紧贴上游（更有着 Slowroll 这样等着 Tumbleweed 滚稳了再更新的“慢滚”发行版），YaST 更像一个温柔的大姐姐一样能帮你轻松解决相当多的各类需求， <em>因此这也是笔者的主力笔记本所使用的 Linux 发行版</em></li>
+</ul>
+<p><img src="https://s2.loli.net/2024/04/30/62x7yCpgKwqOYHj.png" srcset="/img/loading.gif" lazyload alt="熟悉笔者的都知道笔者一直都是 SUSE 批.jpg"></p>
+<p>虽然这些都是笔者比较喜欢的发行版，但思来想去笔者还是决定安装一个不太常规的 Linux 发行版—— <a target="_blank" rel="noopener" href="https://gentoo.org/">Gentoo Linux</a> ，最直接的原因就是<strong>这是一个少有的原生从源码安装软件包的滚动 Linux 发行版</strong> ，任何软件都需要自行在自己的机器上进行编译，<strong>这意味着所有人的软件的二进制包都是不一样的</strong>，虽然说这与目前软工业界所追求的<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Reproducible_builds">“逐位可重复构建”</a> 似乎完全背道而驰，但从软件安全的角度考虑这意味着 <em>哪怕你知道我的电脑上的某个软件中存在二进制漏洞，你也无法直接通过传统的常规 pwn 手法进行攻击</em>  ，这主要是出于一个原因： <strong>现有的漏洞利用方法通常是控制流劫持导向的，针对软件二进制漏洞利用的方式通常是劫持控制流后再利用软件中原有的代码片段构建执行链完成任意代码执行</strong> ，例如现在针对不同程序的不同版本中存在的某一漏洞进行攻击的办法通常是辨别目标软件版本后利用 ROPgadget 或是其他的一些工具来拼凑 ROP chain ，而这样的攻击方法的可行性得以成立的原因则是包括内核在内的软件二进制通常是由软件源侧完成编译后再分发给用户，这意味着在同一发行版上使用同一版本软件的用户所持有的二进制文件都是相同的，因此对于攻击者而言获取相应软件的二进制文件基本上是没什么难度的， <strong>而所有软件都自行编译则可以很大程度上加大攻击者在传统攻击面的攻击难度</strong> ——这在很大程度上满足了笔者的精神洁癖：）</p>
+<blockquote>
+<p>当然可能有人会抬杠说这没什么意义，毕竟现在 <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2401.17618">exploit technique 前沿都在各种 data-only attack</a> ，仅是阻挡攻击者获取 code gadget 的方式是无法完成 100% 的防护的， 可能也有人会抬杠说 <a target="_blank" rel="noopener" href="https://www.intel.com/content/dam/develop/external/us/en/documents/catc17-introduction-intel-cet-844137.pdf">把 CET 开上不就完事了</a> ， <strong>但对笔者而言能有一定程度的提升那就是有意义的，在笔者看来这并非仅有 0 和 100 的区别</strong> ，同时对于攻击者而言针对所有软件都单独开发 data-only 的攻击手法未免成本就太高了，目前的这类研究还仅集中在操作系统内核或是其他大型软件上</p>
+<p>此外，形如 <a target="_blank" rel="noopener" href="https://clang.llvm.org/docs/ControlFlowIntegrity.html">CFI</a> 这样的防御手法在发行版分发的二进制软件包中很多都是未必开启的，而 Gentoo 这样自定义软件编译选项的发行版可以让你快速在系统各个软件中应用这些防护手段，同时定制自己所想要的优化选项，可能不是最好的，但是<strong>从精神层面而言一定是最适合自己的</strong></p>
+<p> 那又有人可能会说每个开源软件都自己手工拉源码编译不就好了干嘛一定要用 Gentoo，笔者的评价是：</p>
+<p><img src="https://s2.loli.net/2024/05/09/EfglUGYtAqpTSmz.png" srcset="/img/loading.gif" lazyload alt="男人，什么罐头我说，曼巴出去"> </p>
+</blockquote>
+<p>当然，除了<strong>可以基于自身需求高度定制</strong>这个核心动机以外，Gentoo 有着一个强大的包管理器：<a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Portage">Portage</a> ，通过配置 <code>USE flag</code> 可以按照需求去编译软件包，实现 <strong>如无必要，勿增实体</strong> 的哲学（例如你需要使用的部分软件带有 kde 支持，但你其实并不使用 kde，那么只需要在 <code>/etc/portage/make.conf</code> 中添加 <code>USE=&quot;-kde&quot;</code>  这一 flag，这是一个全局性的例子；又或者对于某些软件包你想要启用&#x2F;禁止某些支持而并不想要把这样的配置全局化，你只需要在 <code>/etc/portage/package.use</code> 目录下创建新配置文件来为指定程序声明 USE 标记，例如 <code>kde-plasma/plasma-meta qt5 -sddm</code> 将为 KDE Plasma 桌面编译上 QT 支持的同时不使用 SDDM；当然，<a target="_blank" rel="noopener" href="https://blog.xupeng.me/2006/10/10/met-problem-of-circular-dependencies-with-gentoo/">滥用 USE flags 有可能会来带循环依赖的问题</a>，那这又是另外一件事情了…）， <a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Selected-packages_set_(Portage)">world file</a> 的存在也大幅增添了系统的可重复构建性（硬要说的话在可复现性上肯定比不过 NixOS，但笔者对于 NixOS 这类“不可变系统”的概念说实话不太感冒，反倒觉得对于桌面用户而言这增添了不少没必要的麻烦，不过多学习一门 DSL 倒其实是无所谓的事情，毕竟 reproducible 的体验某种程度上真的很香，但 NixOS 对于笔者而言还有一点劝退的便是 non-FHS compliance ，虽然说 NixOS 可用的软件包确实是数一数二的多，但这样的系统构造在笔者看来并不够优雅）</p>
+<p>最重要的是，<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Richard_Stallman">Richard Stallman</a> 曾经说过：Install Gentoo——</p>
+<p><img src="https://s2.loli.net/2024/04/30/jEKw7bCOu9rMhlD.png" srcset="/img/loading.gif" lazyload alt="虽然他用的不是 Gentoo 而是 Trisquel.jpg"></p>
+<p>于是在经历了各种思考之后，笔者最终选择在 Surface Pro 上尝试折腾一下 Gentoo Linux 这一个相对而言比较小众的发行版</p>
+<h1 id="0x01-安装-Windows"><a href="#0x01-安装-Windows" class="headerlink" title="0x01. 安装 Windows"></a>0x01. 安装 Windows</h1><p>因为笔者是要用一块全新的硬盘替换掉原有的硬盘，因此系统安装需要重头开始（ <del>虽然实际上有一些已知的系统迁移方案，但是👴太懒了</del> ），因为 Windows 很容易对硬盘分区进行预期外的修改，所以在安装双系统的情况下笔者选择先安装 Windows 再安装 Linux</p>
+<h2 id="替换硬盘"><a href="#替换硬盘" class="headerlink" title="替换硬盘"></a>替换硬盘</h2><p>因为我们后面安装 Linux 要关闭 Secure Boot，因此我们首先需要在设置中关闭 BitLocker，从而确保原硬盘的可用性</p>
+<blockquote>
+<p> 否则后面就只能上 <a target="_blank" rel="noopener" href="https://aka.ms/myrecoverykey">https://aka.ms/myrecoverykey</a> 找原有密钥进行恢复了，如果没有登录过微软账户的话那就只能和原硬盘数据彻底说再见了……</p>
+</blockquote>
+<p><img src="https://s2.loli.net/2024/04/24/tIUp49yHldzxkm2.png" srcset="/img/loading.gif" lazyload alt="这个过程会非常慢，因为 Surface 设备的性能极其拉胯"></p>
+<p>接下来进 UEFI 中关闭 Secure Boot，在关机状态下按住音量增加键不动，之后再按一次电源键即可进入 Surface 的 UEFI 界面，找到 <code>Secure Boot Configuration</code> 选择 <code>None</code> 即可：</p>
+<p><img src="https://s2.loli.net/2024/04/24/q8MC6dsJ5HN3ToX.png" srcset="/img/loading.gif" lazyload alt="u1s1 Surface 的 UEFI 虽然简介但是凑凑的"></p>
+<p>解锁之后每次开机都会显示一个大大的红色条和一个🔓：</p>
+<p><img src="https://s2.loli.net/2024/04/24/eJkMLOUzrG8NAvl.jpg" srcset="/img/loading.gif" lazyload alt="丑中丑设计，感觉不如把🔓放在 Win logo 旁边并排"></p>
+<p>然后在关机状态下用手机取卡针在背面的小孔一戳就能更换硬盘了，从 Surface Pro 8 开始微软的设备有了一定的可维护性，不过需要注意的是硬盘螺丝的规格为不太常见的 <code>T3</code> 六角螺丝，以及在完成硬盘更换之后 <strong>需要插电才能开机</strong> ，不过无论是通过 surface connect 还是通过雷电 4 接口插电都是可行的</p>
+<p><img src="https://s2.loli.net/2024/04/27/iQEMbORa8qcP12j.jpg" srcset="/img/loading.gif" lazyload alt="当然，你也可以选择使用牙签"></p>
+<blockquote>
+<p>然而仅限于 Surface Pro 系列，也就是只有 Pro 8&#x2F;9&#x2F;10（在笔者编写此文时，Pro 10 仅有商业版） 能快捷更换硬盘，Laptop 等其他产品线依然需要繁琐的拆机流程，不过这个便捷拆解设计在笔者看来有点类似之前见过的 ThinkPad 的高端工作站才有的特性🤔 遗憾的是微软如今依然尚未支持更换内存条，<del>否则👴将成为微软的铁血卫士</del></p>
+</blockquote>
+<h2 id="使用-PE-启动盘进行安装"><a href="#使用-PE-启动盘进行安装" class="headerlink" title="使用 PE 启动盘进行安装"></a>使用 PE 启动盘进行安装</h2><blockquote>
+<p>Windows ISO 在 <a target="_blank" rel="noopener" href="https://www.microsoft.com/software-download/windows11">微软官网</a> 便能进行下载，这里就不再赘叙了</p>
+</blockquote>
+<p>接下来我们在可移动磁盘（如 U 盘、移动硬盘等设备）上创建 Windows 安装介质，不过由于官网下载的 ISO 镜像缺少了分区表，因此我们需要手动进行配置，在 Windows 上你可以很轻松地使用 <a target="_blank" rel="noopener" href="https://rufus.ie/en/">RUFUS</a> 一类的工具完成这一工作，若你和笔者一样日常使用 Linux 作为工作系统，则暂时没有比较好的解决方案</p>
+<p>不过好在使用 PE 启动盘进行安装已经是一个较为成熟的解决方案了，方便起见笔者选择直接使用现有的解决方案进行安装：）</p>
+<p>需要注意的是在这个阶段<strong>触控屏和原装键盘触摸板都是无法使用的，你必须外接键鼠进行使用</strong></p>
+<p><img src="https://s2.loli.net/2024/04/29/RJF6nfCQYvLuesG.png" srcset="/img/loading.gif" lazyload alt="笔者很久以前自制的启动盘，事实证明这些工具虽然老但是都还挺好用"></p>
+<p>之后就是正常进系统了，不过在更新完成之前<strong>原装键盘触摸板依旧用不了</strong>：</p>
+<p><img src="https://s2.loli.net/2024/04/29/s851nuVo43KpmWj.jpg" srcset="/img/loading.gif" lazyload></p>
+<h2 id="Extra-手工创建安装介质（not-recommended）"><a href="#Extra-手工创建安装介质（not-recommended）" class="headerlink" title="Extra. 手工创建安装介质（not recommended）"></a>Extra. 手工创建安装介质（not recommended）</h2><p>如果你希望自己动手丰衣足食，则也可以参照这一节的内容，不过笔者不太推荐（<strong>比较浪费时间</strong>）</p>
+<blockquote>
+<p>主要原因是 Windows 安装镜像中并没有提供一个分区表，否则直接 <code>dd</code> 一把梭就好了：(</p>
+</blockquote>
+<p>首先使用 <code>parted</code> 新建分区，这里我们建立一个 GPT 分区表，并建立两个分区：</p>
+<ul>
+<li>一个 NTFS 分区：存放 Windows 安装镜像中的文件</li>
+<li>一个 EFI 分区：存放<a target="_blank" rel="noopener" href="https://github.com/pbatard/rufus/blob/master/res/uefi/uefi-ntfs.img">由 RUFUS 提供的 EFI 启动程序</a></li>
+</ul>
+<blockquote>
+<p>为什么我们不选择直接拷贝 Win 镜像进 EFI 分区？虽然 Win 镜像本身便是一个可启动的 EFI 分区，但是其安装文件 <code>source/install.wim</code> 通常大于 UEFI specs 所支持的 fat32 文件系统所支持的最大文件大小（4G），虽然部分 OEM 的 UEFI 会额外有对 exFAT 或是 NTFS 的支持，但为了兼容性考虑我们还是选择 fat32，并使用第三方软件 RUFUS 所提供的 EFI 程序</p>
+</blockquote>
+<p>这里的 <code>/dev/sda</code> 为你的 U 盘设备路径，请自行辨别，需要注意的是<strong>NTFS 分区应当在第一位，EFI 分区在第二位</strong> ，否则会导致 <em>无法进行安装</em>  （提示缺少驱动）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo parted /dev/sda</span>                        <br>GNU Parted 3.6<br>Using /dev/sda<br>Welcome to GNU Parted! Type &#x27;help&#x27; to view a list of commands.<br>(parted) unit s                                                           <br>(parted) mktable gpt<br>Warning: The existing disk label on /dev/sda will be destroyed and all data on this disk will be lost. Do you<br>want to continue?<br>Yes/No? Yes                                                               <br>(parted) mkpart windows-iso ntfs 2048 16777215<br>(parted) mkpart efi fat32 16777216 33554432<br>(parted) set 2 esp on                                                     <br>(parted) set 2 boot on                                                    <br>(parted) name 1 Windows                                                   <br>(parted) name 2 EFI                                                       <br>(parted) quit<br>Information: You may need to update /etc/fstab.<br><br></code></pre></td></tr></table></figure>
+
+<p>然后运行如下两条命令初始化 EFI 分区的文件系统：</p>
+<blockquote>
+<p>需要说明的是与 NTFS 相关的操作在 Linux 下都会特别慢（至少在笔者的机器上如此，这可能和 <code>ntfs-3g</code> 的性能相关），建议 <del>其实也只能</del> 耐心等待：）</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo mkfs.ntfs /dev/sda1</span><br>Cluster size has been automatically set to 4096 bytes.<br>Initializing device with zeroes: 100% - Done.<br>Creating NTFS volume structures.<br>mkntfs completed successfully. Have a nice day.<br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo mkfs.fat -F 32 /dev/sda2</span>               <br>mkfs.fat 4.2 (2021-01-31)<br></code></pre></td></tr></table></figure>
+
+<p>接下来将 ISO 中数据拷贝到 U 盘当中，再将 <a target="_blank" rel="noopener" href="https://github.com/pbatard/rufus/blob/master/res/uefi/uefi-ntfs.img">RUFUS</a> 提供的 EFI 镜像拷贝到 EFI 分区即可</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">mkdir</span> /mnt/&#123;iso,efi,win&#125;</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo mount ~/Downloads/Win11_23H2_Chinese_Simplified_x64v2.iso /mnt/iso/</span><br>mount: /mnt/iso: WARNING: source write-protected, mounted read-only.<br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo mount /dev/sda1 /mnt/win/</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo mount /dev/sda2 /mnt/efi/</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">cp</span> -r /mnt/iso/* /mnt/win/</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo umount /mnt/iso</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo mount ~/Downloads/uefi-ntfs.img /mnt/iso/</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">cp</span> -r /mnt/iso/* /mnt/efi</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo umount /mnt/efi</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo umount /mnt/win</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo umount /mnt/iso</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">sync</span></span><br></code></pre></td></tr></table></figure>
+
+<p>之后就能 <del>原神启动</del> 正常启动进入安装界面了，需要注意的是<strong>原装的键盘触摸板完全无法使用，因此你需要额外用扩展坞连接通用无驱键鼠</strong>：</p>
+<blockquote>
+<p>原装键鼠仅在 UEFI 启动阶段可用，目测是 Windows 官网默认的安装介质中并未带有对应的驱动</p>
+</blockquote>
+<p><img src="https://s2.loli.net/2024/04/27/tRg15behirlnsIU.jpg" srcset="/img/loading.gif" lazyload alt="Windows，启动——"></p>
+<blockquote>
+<p>以及这个安装方式在笔者的电脑上并未成功，但是使用各种第三方的 PE 启动盘提供的第三方工具却能轻松完成， <del>👴只能说 Windows 官方的安装程序确实比较垃圾</del></p>
+</blockquote>
+<h1 id="0x02-安装-Gentoo-Linux"><a href="#0x02-安装-Gentoo-Linux" class="headerlink" title="0x02. 安装 Gentoo Linux"></a>0x02. 安装 Gentoo Linux</h1><p>完成 Windows 安装之后接下来是安装 Gentoo Linux，在开始之前别忘了在 Windows 上进入硬盘管理中划出一块完整的空间留给 Gentoo Linux 使用，这里笔者就不截图了：）</p>
+<h2 id="创建安装介质"><a href="#创建安装介质" class="headerlink" title="创建安装介质"></a>创建安装介质</h2><p>在 <a target="_blank" rel="noopener" href="https://www.gentoo.org/downloads/">Gentoo 官网上下载镜像后</a> 用 balenaEtcher 或是一些其他的软件或是直接 <code>dd</code> 往 U 盘里写都 ok，其中 <code>Minimal Installation CD</code> 和 Arch 一样只有命令行，而 <code>LiveGUI USB Image</code> 则带有一个图形环境，<strong>但是最后都是要敲命令行一步步安装</strong> ，只是带 GUI 的会有个 KDE 桌面让你能在 Konsole 中敲，方便开浏览器和联网 ：）</p>
+<blockquote>
+<p>以及别忘了在 Surface UEFI 中将 USB 调整为第一启动项</p>
+</blockquote>
+<p>进入桌面后只有一个 <a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Handbook:Main_Page">Gentoo Linux Handbook</a> 的快捷方式，而不似其他 Linux 发行版有引导式安装程序：</p>
+<p><img src="https://s2.loli.net/2024/04/30/xaksIHeSrmup2VT.jpg" srcset="/img/loading.gif" lazyload alt="需要注意的是 Surface 屏幕分辨率较高，建议调一下缩放后 logout 再重新进来"></p>
+<h2 id="创建文件系统"><a href="#创建文件系统" class="headerlink" title="创建文件系统"></a>创建文件系统</h2><blockquote>
+<p>网络连接笔者直接使用 KDE 组件完成了，习惯命令行的也可以尝试使用 <code>net-setup</code> </p>
+</blockquote>
+<p>首先我们先使用 <code>cfdisk</code> 对硬盘进行分区，按惯例建立四个新分区：</p>
+<ul>
+<li>EFI 分区（<code>fat32</code>，挂载在 <code>/boot/efi</code> ）：存放 EFI 启动程序（grub）</li>
+<li>系统分区（ <code>ext4</code> ，挂载在 <code>/</code> ）：存放系统基本文件</li>
+<li>数据分区（ <code>ext4</code> ，挂载在 <code>/home</code> ）：存放用户数据</li>
+<li>SWAP 分区（<code>swap</code> ）：交换内存</li>
+</ul>
+<p>Surface 上仅有一块 SSD ，所以硬盘路径基本上定死为 <code>/dev/nvme0n1</code> ，如果你在其他有多块硬盘的机器上参照本文进行配置则注意识别自己想要安装的键盘</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">cfdisk /dev/nvme0n1</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注：这一步使用 LiveGUI CD 中的 KDE Partitioner 或是 GParted 也可以</p>
+</blockquote>
+<p><img src="https://s2.loli.net/2024/04/30/y6X4YeOlGKPbNkC.jpg" srcset="/img/loading.gif" lazyload alt="100M 是 Windows 分区弄错了留下来的一个多余的无用空间，因为 NTFS 没法前扩所以笔者也懒得管了"></p>
+<p>接下来创建文件系统，惯例地 <code>mkfs</code> 一把梭，开始之前最好先 <code>fdisk -l</code> 再辨别一下自己想要格式化的分区：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">mkfs.fat -F 32 /dev/nvme0n1p4</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mkfs.ext4 /dev/nvme0n1p5</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mkswap /dev/nvme0n1p6</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">swapon /dev/nvme0n1p6</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mkfs.ext4 /dev/nvme0n1p7</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://s2.loli.net/2024/04/30/FCveHV8alMDSgPW.jpg" srcset="/img/loading.gif" lazyload alt="日志输出太长了，没法拍完屏，将就看看"></p>
+<p>最后就是挂载文件系统了：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">mkdir</span> /mnt/gentoo</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mount /dev/nvme0n1p5 /mnt/gentoo</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">mkdir</span> /mnt/gentoo/boot</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">mkdir</span> /mnt/gentoo/boot/efi</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">mkdir</span> /mnt/gentoo/home</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mount /dev/nvme0n1p4 /mnt/gentoo/boot/efi</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mount /dev/nvme0n1p7 /mnt/gentoo/home</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="安装-Stage-3"><a href="#安装-Stage-3" class="headerlink" title="安装 Stage 3"></a>安装 Stage 3</h2><p><code>Stage</code> 可以简单理解为构建 Gentoo Linux 系统的各个不同阶段：</p>
+<ul>
+<li><code>Stage 1</code> ：通常仅 Gentoo 内部开发人员使用，由一个基本的 <code>packages,build</code> 文件生成的系统包</li>
+<li><code>Stage 2</code> ：通常仅 Gentoo 内部开发人员使用，从 Stage 1 编译而来的可以自举的工具链</li>
+<li><code>Stage 3</code> ：由 Stage 2 编译而来的文件，并包含一组  <a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/System_set_(Portage)">@system set</a> 软件包</li>
+<li><code>Stage 4</code> ：在 Stage 3 基础上安装好的完整的 Gentoo 系统</li>
+</ul>
+<p>首先我们将 <a target="_blank" rel="noopener" href="https://www.gentoo.org/downloads/">Stage 3</a> 下载到文件系统根目录下解压，笔者比较习惯 systemd 所以还是选择 systemd + desktop 版的：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cd</span> /mnt/gentoo</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">wget https://distfiles.gentoo.org/releases/amd64/autobuilds/20240428T163427Z/stage3-amd64-desktop-systemd-20240428T163427Z.tar.xz</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">tar xpvf stage3-*.tar.xz --xattrs-include=<span class="hljs-string">&#x27;*.*&#x27;</span> --numeric-owner</span><br></code></pre></td></tr></table></figure>
+
+<p>然后是配置机器时间：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">chronyd -q</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来配置编译选项，Portage 在运行时会读取一个 <code>make.conf</code> 配置文件，位于文件系统根目录下的 <code>/etc/portage/make.conf</code> 当中，Stage 3 文件中已经给我们提供好了一个空白模板，其中主要是一些编译参数与选项，我们只需要根据自身习惯进行修改即可：</p>
+<blockquote>
+<p>一般来说只需要在 <code>COMMON_FLAGS</code> 中添加 <code>-march=native</code> 以告诉编译器选择当前的系统体系结构，此时 GCC 会自动调查 CPU 并配置合适的 flag，但若是当前机器正在为其他机器编译时则不应当启用该项</p>
+<p>对于内存比较小的设备，则不应当启用 <code>-pipe</code> 编译选项，因为这使用管道而非文件来存放编译中间文件，而这将占用更多的内存，从而导致编译器可能被 kill 掉而编译失败</p>
+<p>其他的可用选项可以参照 <a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki//etc/portage/make.conf">Gentoo wiki</a></p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">vim ./etc/portage/make.conf</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="安装基本系统"><a href="#安装基本系统" class="headerlink" title="安装基本系统"></a>安装基本系统</h2><p>接下来复制 DNS 信息，从而确保 chroot 之后有网可用：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cp</span> --dereference /etc/resolv.conf /mnt/gentoo/etc/</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来挂载一些必要的文件系统并 chroot 到根目录，也可以直接通过 <code>arch-chroot /mnt/gentoo</code> 命令完成：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">mount --types proc /proc /mnt/gentoo/proc</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mount --rbind /sys /mnt/gentoo/sys</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mount --make-rslave /mnt/gentoo/sys</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mount --rbind /dev /mnt/gentoo/dev</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mount --make-rslave /mnt/gentoo/dev</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mount --<span class="hljs-built_in">bind</span> /run /mnt/gentoo/run</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mount --make-slave /mnt/gentoo/run</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">chroot</span> /mnt/gentoo /bin/bash</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">source</span> /etc/profile</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">export</span> PS1=<span class="hljs-string">&quot;(chroot) <span class="hljs-variable">$&#123;PS1&#125;</span>&quot;</span></span><br></code></pre></td></tr></table></figure>
+
+<p>接下来配置 Portage 仓库：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">mkdir</span> --parents /etc/portage/repos.conf</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cp</span> /usr/share/portage/config/repos.conf /etc/portage/repos.conf/gentoo.conf</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来安装 Gentoo ebuild 数据库快照：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge-webrsync</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>（可选配置：选择镜像站）</p>
+<p>若有需要，则可以使用 <code>mirrorselect</code> 这个工具来手动选择想要使用的镜像源（空格键选中后 enter，可以选多个项），本质上是往 <code>make.conf</code> 中写入新的 <code>GENTOO_MIRRORS</code> 变量：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask --verbose --oneshot app-portage/mirrorselect</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mirrorselect -i -o &gt;&gt; /etc/portage/make.conf</span><br></code></pre></td></tr></table></figure>
+
+
+</blockquote>
+<p>接下来配置系统的 <code>profile</code> （决定了系统的默认配置，例如 <code>USE</code> 和 <code>CFLAGS</code> 等），第一条命令用来查看可用配置，第二条则进行选择，这里笔者选择了 <code>default/linux/amd64/23.0/desktop/plasma/systemd</code> ：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">eselect profile list</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">eselect profile <span class="hljs-built_in">set</span> 28</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>（可选配置：添加二进制包源）</p>
+<p>众所周知 gentoo 是个几乎任何东西都要自行编译的发行版，如果你不想在当前机器上进行编译，而想要像其他发行版那样直接拿二进制可执行文件，则可以配置一个 <code>binary package host</code> ，这可以是你的另一台 Gentoo 机器，也可以是官方或是其他人的源</p>
+<p>源地址需要写在 <code>/etc/portage/binrepos.conf/gentoobinhost.conf</code> 文件中，这是官方给的一个例子：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[binhost]</span><br><span class="hljs-attr">priority</span> = <span class="hljs-number">9999</span><br><span class="hljs-attr">sync-uri</span> = https://distfiles.gentoo.org/releases/&lt;arch&gt;/binpackages/&lt;profile&gt;/x86-<span class="hljs-number">64</span>/<br></code></pre></td></tr></table></figure>
+
+<p>对于想要以获取二进制可执行文件的形式进行安装的软件包，在使用 <code>emerge</code> 安装软件时添加 <code>--getbinpkg</code> 即可，也可以通过修改 <code>/etc/portage/make.conf</code> 文件并添加 <code>FEATURES</code> 变量来完成，例如：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-comment"># Appending getbinpkg to the list of values within the FEATURES variable</span><br><span class="hljs-attr">FEATURES</span>=<span class="hljs-string">&quot;$&#123;FEATURES&#125; getbinpkg&quot;</span><br><span class="hljs-comment"># Require signatures</span><br><span class="hljs-attr">FEATURES</span>=<span class="hljs-string">&quot;$&#123;FEATURES&#125; binpkg-request-signature&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>若选择这种方式，则在修改后需要额外运行 <code>getuto</code> 命令进行配置</p>
+</blockquote>
+<p>接下来配置 <code>CPU_FLAGS_*</code> 变量，编译器会在编译特定汇编代码&#x2F;指令时使用，笔者是 <code>x86/64</code> 架构所以应当为 <code>CPU_FLAGS_X86</code> ，不过工具 <code>cpuid2cpuflags</code> 可以帮我们完成输出：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask --oneshot app-portage/cpuid2cpuflags</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;*/* <span class="hljs-subst">$(cpuid2cpuflags)</span>&quot;</span> &gt; /etc/portage/package.use/00cpu-flags</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来在 <code>/etc/portage/make.conf</code> 中添加 <code>VIDEO_CARDS</code> 变量，用以恰当地配置 GPU，Surface Pro 8 只有一个 Intel 核显所以该变量应为：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">VIDEO_CARDS</span>=<span class="hljs-string">&quot;intel&quot;</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>（可选配置：可接受的 License）</p>
+<p>如果你对软件包有 License 洁癖，不是 GPL&#x2F;MIT&#x2F;.. 的不用，则可以配置 <code>ACCEPT_LICENSE</code> 变量，建议参照官方的 handbook</p>
+<p>如果想全都接收，则在 <code>/etc/portage/make.conf</code> 中将该变量设为：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">ACCEPT_LICENSE</span>=<span class="hljs-string">&quot;*&quot;</span><br></code></pre></td></tr></table></figure>
+
+
+</blockquote>
+<p>接下来配置时区，笔者用的是 systemd ，所以直接将时区文件软链接到 <code>/etc/localtime</code> 即可：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">ln</span> -sf ../usr/share/zoneinfo/Australia/Melbourne /etc/localtime</span><br></code></pre></td></tr></table></figure>
+
+<p>然后是进行本地化配置，在 <code>/etc/locale.gen</code> 中添加对应项即可，例如：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">en_US</span> ISO-<span class="hljs-number">8859</span>-<span class="hljs-number">1</span><br><span class="hljs-attribute">en_US</span>.UTF-<span class="hljs-number">8</span> UTF-<span class="hljs-number">8</span><br><span class="hljs-attribute">zh_CN</span> GBK <br><span class="hljs-attribute">zh_CN</span>.UTF-<span class="hljs-number">8</span> UTF-<span class="hljs-number">8</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来运行 <code>locale-gen</code> 命令，其会根据  <code>/etc/locale.gen</code> 中项进行生成，生成结束后通过 <code>eselect</code> 命令进行选择，这里最好先选择 <code>C.utf8</code> ，完成之后更新环境变量：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">locale-gen</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">eselect locale list</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">eselect locale <span class="hljs-built_in">set</span> 2</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">env-update &amp;&amp; <span class="hljs-built_in">source</span> /etc/profile &amp;&amp; <span class="hljs-built_in">export</span> PS1=<span class="hljs-string">&quot;(chroot) <span class="hljs-variable">$&#123;PS1&#125;</span>&quot;</span></span><br></code></pre></td></tr></table></figure>
+
+<p>对于中文用户，你可能会需要 gentoo 中文社区的仓库：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask app-eselect/eselect-repository</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">eselect repository <span class="hljs-built_in">enable</span> gentoo-zh</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">emaint <span class="hljs-built_in">sync</span> -r gentoo-zh</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="编译与安装内核"><a href="#编译与安装内核" class="headerlink" title="编译与安装内核"></a>编译与安装内核</h2><blockquote>
+<p>（可选配置：安装固件与微码）</p>
+<p>在开始配置内核前我们可以安装可选的微码与固件，Surface Pro 8 是 Intel CPU，所以微码应当安装 <code>sys-firmware/intel-microcode</code> 包，固件则都为通用的 <code>sys-kernel/linux-firmware</code> 包：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask sys-firmware/intel-microcode</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask sys-kernel/linux-firmware</span><br></code></pre></td></tr></table></figure>
+
+<p>可能会遇到 <code>all ebuilds that could satisfy * have been masked</code> 的错误，这是因为 LICENSE 配置问题，通过如下命令进行补充即可：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;sys-kernel/linux-firmware @BINARY-REDISTRIBUTABLE&quot;</span> | <span class="hljs-built_in">tee</span> -a /etc/portage/package.license</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;sys-firmware/intel-microcode @BINARY-REDISTRIBUTABLE&quot;</span> | <span class="hljs-built_in">tee</span> -a /etc/portage/package.license</span><br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>虽然内核主线暂且缺少一些 Surface 驱动，但是有一个社区项目 <a target="_blank" rel="noopener" href="https://github.com/linux-surface/linux-surface">linux-surface</a> 提供了部分驱动，可惜的是该项目本身仅提供 Arch&#x2F;Debian&#x2F;Fedora 的版本，而在 Wiki 中 fork 到 Gentoo 这边<a target="_blank" rel="noopener" href="https://github.com/Parinz/Surface-Gentoo">对应仓库</a>的维护者不知道什么时候已经跑路了，因此笔者只能先用默认的内核，这里我们有三种大方向上的选择：</p>
+<ul>
+<li>安装 <a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Project:Distribution_Kernel">Distribution kernels</a>：Gentoo 官方维护的 kernel，涵盖了内核编译安装的完整过程且已经配置好了一份支持主要硬件的配置文件，<a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Project:Distribution_Kernel#Modifying_kernel_configuration">配置文件也可以手工更改</a>，安装方法与装普通软件包无异</li>
+<li>使用 <a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Genkernel">Genkernel</a> 进行配置：<code>genkernel</code> 是 Gentoo 官方提供的用来自动构建内核与 initramfs 的软件，简化了使用者手工安装内核的过程</li>
+<li>纯手工编译安装内核：通过 <code>eselect kernel</code> 拉取内核源码后手工 <code>make</code> 进行配置、编译、安装，_<a target="_blank" rel="noopener" href="https://github.com/arttnba3/XDU-SCE_OS-Experiment_2021/tree/main/Exp-7">就像你的操作系统老师让你在操作系统实验课上做的那样</a>_ ， <del>没让你自己从 kernel.org 拉就偷着乐吧</del></li>
+</ul>
+<p>作为 Linux kernel hacker，手工编译内核自然是第一选择，主要原因是方便更改编译选项 <del>而且这样看起来会显得👴比较帅</del> </p>
+<blockquote>
+<p>不选 distribution 的原因是配置文件中可能未必默认包含笔者需要的硬件驱动，再逐条改起来有点麻烦，而 Genkernel 感觉有点上不去下不来卡在那里了</p>
+</blockquote>
+<p>首先安装必要的工具：</p>
+<blockquote>
+<p>其中 <a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Installkernel">installkernel</a> 是可选包，用于自动安装新的内核并更新 bootloader 配置， <del>如果你比较闲的话也可以手工完成</del></p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask sys-apps/pciutils</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask sys-kernel/installkernel</span><br></code></pre></td></tr></table></figure>
+
+<p>拉取 Gentoo 官方维护的内核源码：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask sys-kernel/gentoo-sources</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果你选择用 gentoo 官方的内核配置（<code>gentoo-kernel</code>），可能出现提示需要检查 configure 的问题，使用如下命令修复：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">dispatch-conf</span><br></code></pre></td></tr></table></figure>
+
+<p>基本上一路 <code>u</code> （update） 即可</p>
+</blockquote>
+<p>使用如下命令查看当前安装的源码：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">eselect kernel list</span><br></code></pre></td></tr></table></figure>
+
+<p>通常我们会在 Linux 系统中维护一个指向当前内核源码的符号链接 <code>/usr/src/linux</code>，在 Gentoo 下我们通过如下命令手动创建（序号由 <code>eselect</code> 命令获得）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">eselect kernel <span class="hljs-built_in">set</span> 1</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来创建配置文件 <code>.config</code> ，这里笔者使用 <code>make localyesconfig</code> 来检测硬件并决定开启的内核模块，你也可以用默认的 <code>make defconfig</code> ，根据自己的需求进行选择即可：</p>
+<blockquote>
+<p>内核模块会被编译到 vmlinuz 中，如果你想让内核模块独立存在，使用 <code>localmodconfig</code></p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cd</span> /usr/src/linux</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">make localyesconfig</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来用 menuconfig 手动改一些选项，其会在已有的 <code>.config</code> 基础上进行修改，这里我们要决定的包括 OpenRC&#x2F;systemd 的选择、常用文件系统支持、额外选一些 Surface 相关的驱动等，具体参见 <a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Kernel#Alternative:_Manual_configuration">Gentoo handbook</a>：</p>
+<blockquote>
+<p>在这一步，你可能会需要手动开启 iwlwifi 的编译支持，参见 <a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Iwlwifi">Gentoo wiki - iwlwifi</a> 的 <code>Device driver wilwifi</code>  一节</p>
+<p>在这一步，你还可能会需要手动将网卡固件添加到配置中，参见 <a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Iwlwifi">Gentoo wiki - iwlwifi</a> 的 <code>Firmware</code>  一节<a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Iwlwifi">https://wiki.gentoo.org/wiki/Iwlwifi</a>)</p>
+<blockquote>
+<p>如果不清楚应该添加哪个固件，可以 <code>dmesg | grep -i wifi | grep -i ucode</code> 查看在 LiveISO 当中使用的是哪个</p>
+</blockquote>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">make menuconfig</span><br></code></pre></td></tr></table></figure>
+
+<p>然后开始编译内核，这可能会需要一定的时间：</p>
+<blockquote>
+<p>实际上在笔者的机器上 8 分钟左右就能完成了，笔者也没想到 <code>1135g7</code> 的性能这么强，可能这就是科技的进步吧 ：）</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">make -j$(<span class="hljs-built_in">nproc</span>) &amp;&amp; make modules_install -j$(<span class="hljs-built_in">nproc</span>)</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来使用 <a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Installkernel">installkernel</a> 安装内核，这里笔者选择使用 <code>GRUB + systemd</code> ，首先创建文件 <code>/etc/portage/package.use/installkernel</code> 并写入：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sys-kernel/installkernel grub dracut<br></code></pre></td></tr></table></figure>
+
+<p>然后运行：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask sys-kernel/installkernel</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">make install</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="配置系统"><a href="#配置系统" class="headerlink" title="配置系统"></a>配置系统</h2><p>首先配置 <code>/etc/fstab</code> ，这个文件决定了在系统启动时哪些分区该被挂载到哪些目录，为了保证挂载的一致性，通常我们会选择使用一个分区的 UUID 进行挂载，而非设备路径，因为在有着多个磁盘的环境中不同磁盘的路径在启动后未必一致</p>
+<blockquote>
+<p>不过因为笔者的 Surface Pro 8 仅有一个盘位，所以是可以使用设备路径进行挂载的，但保险起见还是用 UUID 进行挂载</p>
+</blockquote>
+<p>首先查看不同分区的 UUID：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">blkid</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来按照分区用途编写 fstab，以笔者的配置为例：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">UUID</span>=f0e95c49-e05d-<span class="hljs-number">4659</span>-a617-bfdaee35af7c none       swap  sw           <span class="hljs-number">0</span> <span class="hljs-number">0</span><br><span class="hljs-attribute">UUID</span>=<span class="hljs-number">8317</span>cece-<span class="hljs-number">8</span>c46-<span class="hljs-number">4</span>fec-bdf6-ddab4aa23249 /          ext4  defaults     <span class="hljs-number">0</span> <span class="hljs-number">1</span><br><span class="hljs-attribute">UUID</span>=<span class="hljs-number">5</span>e8624e3-b40e-<span class="hljs-number">4</span>e6c-be02-e72a99e94462 /home      ext4  data=ordered <span class="hljs-number">0</span> <span class="hljs-number">2</span><br><span class="hljs-attribute">UUID</span>=C215-<span class="hljs-number">9</span>C27                            /boot/efi  vfat  utf8         <span class="hljs-number">0</span> <span class="hljs-number">2</span><br></code></pre></td></tr></table></figure>
+
+<p>然后配置主机名：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;Surface-Pro-8&quot;</span> &gt; /etc/hostname</span><br></code></pre></td></tr></table></figure>
+
+<p>配置 DHCP：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask net-misc/dhcpcd</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">systemctl <span class="hljs-built_in">enable</span> dhcpcd</span><br></code></pre></td></tr></table></figure>
+
+<p>设置 root 密码：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">passwd</span><br></code></pre></td></tr></table></figure>
+
+<p>初始化一些配置：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">systemd-machine-id-setup</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">systemd-firstboot --prompt</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">systemctl preset-all --preset-mode=enable-only</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">systemctl preset-all</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>（可选）配置文件索引</p>
+<p>通过空间换时间的方式加快文件搜索速度：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask sys-apps/mlocate</span><br></code></pre></td></tr></table></figure>
+
+
+</blockquote>
+<p>配置 shell 自动补全，gentoo 默认使用 bash：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask app-shells/bash-completion</span><br></code></pre></td></tr></table></figure>
+
+<p>配置时间同步：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask net-misc/chrony</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">systemctl <span class="hljs-built_in">enable</span> chronyd.service</span><br></code></pre></td></tr></table></figure>
+
+<p>配置文件系统和磁盘相关的一些工具，笔者只用 ext4 和 fat32：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask sys-fs/e2fsprogs</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask sys-fs/dosfstools</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask sys-block/io-scheduler-udev-rules</span><br></code></pre></td></tr></table></figure>
+
+<p>安装网络相关的一些包：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask net-dialup/ppp</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask net-wireless/iw net-wireless/wpa_supplicant</span><br></code></pre></td></tr></table></figure>
+
+<p>安装 NetworkManager：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask net-misc/networkmanager</span><br></code></pre></td></tr></table></figure>
+
+<p>完成后我们通过修改 <code>/etc/portage/make.conf</code> 中的 USE flags 添加相关软件对 NetworkManager 的支持：</p>
+<blockquote>
+<p>添加完 USE flags 后别忘了通过如下命令进行更新：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask --changed-use --deep @world</span><br></code></pre></td></tr></table></figure>
+
+</blockquote>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">USE</span><span class="hljs-operator">=</span><span class="hljs-string">&quot;$&#123;USE&#125; networkmanager&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>完成安装后启用对应的 systemd service：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">systemctl <span class="hljs-built_in">enable</span> NetworkManager</span><br></code></pre></td></tr></table></figure>
+
+<p>安装 sudo ，解注释 <code>%wheel ALL=(ALL:ALL) ALL</code> 所在行： </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask app-admin/sudo</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">visudo</span><br></code></pre></td></tr></table></figure>
+
+<p>前面我们只配置了 root 用户，所以别忘了配置一个日常用的管理员用户：</p>
+<blockquote>
+<p>这里会报一个 <code>Creating mailbox file: No such file or directory</code> 的错误，可以不用管</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">groupadd arttnba3</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">useradd -g arttnba3 -m -G <span class="hljs-built_in">users</span>,wheel,audio,cdrom,floppy,portage,usb,video -s /bin/bash arttnba3</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">passwd arttnba3</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="安装-boot-loader"><a href="#安装-boot-loader" class="headerlink" title="安装 boot loader"></a>安装 boot loader</h2><p>按惯例直接用 GRUB 就行， <del>真的会有人去用 systemd-boot 🐴</del> ：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;GRUB_PLATFORMS=&quot;efi-64&quot;&#x27;</span> &gt;&gt; /etc/portage/make.conf</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask --update --newuse --verbose sys-boot/grub</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask sys-boot/os-prober</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Gentoo</span><br></code></pre></td></tr></table></figure>
+
+<p>默认的 grub 主题比较难看，而且在高分辨率屏下看着属实有些难受，所以笔者这里选择安装一个 <a href="">minegrub</a> 主题，首先克隆仓库：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask dev-vcs/git</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cd</span> ~</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">git <span class="hljs-built_in">clone</span> https://github.com/Lxtharia/minegrub-theme.git</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cd</span> ./minegrub-theme</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cp</span> -ruv ./minegrub /boot/grub/themes/</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来修改 grub 配置文件 <code>/etc/default/grub</code>：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">GRUB_THEME=<span class="hljs-regexp">/boot/g</span>rub<span class="hljs-regexp">/themes/mi</span>negrub/theme.txt<br></code></pre></td></tr></table></figure>
+
+<p>添加自动更新背景字体的 systemd 服务：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cp</span> ./minegrub-update.service /etc/systemd/system</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">systemctl <span class="hljs-built_in">enable</span> minegrub-update.service</span><br></code></pre></td></tr></table></figure>
+
+<p>最后将 grub 配置写入 grub.cfg 中：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">grub-mkconfig -o /boot/grub/grub.cfg</span><br></code></pre></td></tr></table></figure>
+
+<p>最后重启系统，别忘了拔 u 盘：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">exit</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">umount -l /mnt/gentoo/dev&#123;/shm,/pts,&#125;</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">umount -R /mnt/gentoo</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">reboot</span><br></code></pre></td></tr></table></figure>
+
+<p>进入系统后我们用 os-probe 完成双系统引导中对 Windows 的检测以及 grub entry 的生成（当然如果你比较闲也可以手写），这里别忘了检查 <code>/etc/default/grub</code> 中是否有 <code>GRUB_DISABLE_OS_PROBER=false</code> ：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">grub-mkconfig -o /boot/grub/grub.cfg</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="安装-KDE-Wayland"><a href="#安装-KDE-Wayland" class="headerlink" title="安装 KDE + Wayland"></a>安装 KDE + Wayland</h2><p>首先按惯例连接网络：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">nmtui</span><br></code></pre></td></tr></table></figure>
+
+<p>然后安装  <a target="_blank" rel="noopener" href="https://packages.gentoo.org/packages/kde-plasma/plasma-meta">kde-plasma&#x2F;plasma-meta</a> 和  <a target="_blank" rel="noopener" href="https://packages.gentoo.org/packages/kde-apps/kde-apps-meta">kde-apps&#x2F;kde-apps-meta</a>，不过不同于其他的滚动发行版（Arch、openSUSE Tumbleweed、Debian Sid 等）或是贴近上游的常规发行版（如 Fedora Spin），Gentoo 滚得比较慢，目前 stable 分支还停留在 KDE 5.27：</p>
+<blockquote>
+<p>如果你不想安装其中的部分组件，可以非常轻松地通过 USE flag 进行定义，例如 <code>USE=&quot;kde-plasma/plasma-meta -xwayland&quot;</code> 将不会安装 <code>xwayland</code> ，通过 <code>-sddm</code> flag 也可以将默认的 sddm 替换为 lightdm，可用的 USE flag 详见 <a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/KDE">Gentoo wiki</a></p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo emerge --ask kde-plasma/plasma-meta</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo emerge --ask kde-apps/kde-apps-meta</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果你和笔者一样使用类似 Surface Pro 的性能比较低下的笔记本，那么这个编译会耗费相当长的时间（至少数个小时），正所谓 <code>“一杯茶，一包烟，Gentoo编译一整天”</code> （笑）</p>
+</blockquote>
+<p>plasma-meta 包自带依赖 sddm ，直接启用：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl <span class="hljs-built_in">enable</span> --now sddm.service</span><br></code></pre></td></tr></table></figure>
+
+<p>最后进入到大家熟悉的 KDE 桌面，非常好的是默认使用 wayland，但非常坏的是 Plasma 6 在各大发行版都铺开了的时候 Gentoo 这边还停在 <code>5.27</code> ：</p>
+<p><img src="https://s2.loli.net/2024/05/06/kdpR871gunKx4wt.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>需要注意的是 Linux on Surface 由于缺少相应的触摸板驱动，触摸板使用体验极其糟糕，在系统设置中也无法被检测为触摸板</p>
+</blockquote>
+<h2 id="安装中文字体与输入法"><a href="#安装中文字体与输入法" class="headerlink" title="安装中文字体与输入法"></a>安装中文字体与输入法</h2><p>首先安装中文字体，毕竟大家都不喜欢看到一大片方块：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo emerge --ask media-fonts/arphicfonts</span><br></code></pre></td></tr></table></figure>
+
+<p>中文输入法按惯例选择来自 Gentoo 中文社区的 fcitx ，不过默认被 masked 了，得先 unmasked 一下：</p>
+<blockquote>
+<p>如果没有，检查一下你的 <code>gentoo-zh</code> 仓库是否启用成功</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo emerge --ask --autounmask app-i18n/fcitx-meta</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo dispatch-conf <span class="hljs-comment"># 这里直接 u 就好</span></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo emerge --ask app-i18n/fcitx-meta app-i18n/fcitx-chinese-addons</span><br></code></pre></td></tr></table></figure>
+
+<p>最后按惯例在设置的 <code>virtual keyboard</code> 里选中 <code>fcitx5</code> ，然后右键 panel 的小企鹅图标找 <code>Pinyin</code> 即可：</p>
+<p><img src="https://s2.loli.net/2024/05/08/Fau4LnKdUomslJY.jpg" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<blockquote>
+<p>笔者不得不吐槽的一句是软件包非常老，在各大主流发行版 <code>fcitx5</code> 早已全面铺开的时代，Gentoo 这边刚刚上到 rc 版本，同时 <code>cloudpinyin</code> 和 <code>libpinyin</code> 都还停留在 fcitx4 …不过这可能也是相当多开源社区存在的问题了，维护人员越来越少+用户出走逐渐形成恶性循环，马太效应诚不我欺.jpg</p>
+</blockquote>
+<h2 id="安装常用软件"><a href="#安装常用软件" class="headerlink" title="安装常用软件"></a>安装常用软件</h2><blockquote>
+<p>因为笔者没有协议洁癖所以前面设置了接受所有协议，如果你有但是又需要安装部分软件则需要参照 wiki 手动修改 <code>/etc/portage/package.license</code> ：）</p>
+</blockquote>
+<p>首先是 chrome，有社区从 deb 重新打的包：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo emerge --ask www-client/google-chrome</span><br></code></pre></td></tr></table></figure>
+
+<p>以及 vscode：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo emerge --ask app-editors/vscode</span><br></code></pre></td></tr></table></figure>
+
+<p>flatpak 用以补充一些 Gentoo 上没有的软件包：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo emerge --ask sys-apps/flatpak</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo</span><br></code></pre></td></tr></table></figure>
+
+<p>然后是中国大陆这边常用的微信，虽然官方 Linux 版特供 UOS、OpenKylin 等国产发行版，但<a target="_blank" rel="noopener" href="https://github.com/web1n/wechat-universal-flatpak">有人打了一个绕过发行版检测的 flatpak 的包</a> ，所以直接而下载后安装即可：</p>
+<blockquote>
+<p>flathub 上也有，不过版本稍老</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">flatpak install com.tencent.WeChat.flatpak</span><br></code></pre></td></tr></table></figure>
+
+<p>QQ Linux 版提供了 AppImage 可用，不过还需要提前安个依赖：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo emerge --ask app-crypt/mit-krb5</span><br></code></pre></td></tr></table></figure>
+
+<p>之后随便放到个目录里然后写个 shortcut 放到 <code>~/.local/share/applications</code> 下就行：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Desktop Entry]</span><br><span class="hljs-attr">Name</span>=QQ<br><span class="hljs-attr">GenericName</span>=Tencent QQ<br><span class="hljs-attr">Exec</span>=/home/arttnba3/Applications/QQ/QQ_3.<span class="hljs-number">2.7</span>_240422_x<span class="hljs-number">86_64_01</span>.appimage<br><span class="hljs-attr">Version</span>=<span class="hljs-number">3.2</span>.<span class="hljs-number">7.240422</span><br><span class="hljs-attr">Type</span>=Application<br><span class="hljs-attr">Categories</span>=Network<span class="hljs-comment">;</span><br><span class="hljs-attr">Terminal</span>=<span class="hljs-literal">false</span><br><span class="hljs-attr">Icon</span>=com.qq.QQ<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="0x03-遇到的一些问题"><a href="#0x03-遇到的一些问题" class="headerlink" title="0x03. 遇到的一些问题"></a>0x03. 遇到的一些问题</h1><h2 id="触摸板驱动问题（not-solved）"><a href="#触摸板驱动问题（not-solved）" class="headerlink" title="触摸板驱动问题（not solved）"></a>触摸板驱动问题（not solved）</h2><p>主要表现：</p>
+<ul>
+<li>启动后点按有效，但是多指手势（如双指&#x3D;&#x3D;右键）无效</li>
+<li>按下触摸板左右键后<strong>点按失效</strong></li>
+<li>在 KDE 系统设置中无法检测到触摸板</li>
+</ul>
+<p>基本上只能当作一个最简陋的触摸板来用，笔者最初感觉主要可能是微软触摸板缺少驱动的问题，毕竟在安装 Windows 时在没更新驱动前也没法用键盘和触摸板（ <del>微软怎么天天搞特殊，忍不了一点，真的有必要🐴</del> ）</p>
+<p><strong>但是，笔者在 openSUSE Tumbleweed on Surface 中可以正常使用触摸板及多指手势</strong> ，那这就有意思了，这么看起来似乎是笔者在编译内核时并未将部分必须的驱动给编译进去，又或是没有安装部分必须的软件，笔者更倾向于前者的缘故🤔</p>
+<h2 id="摄像头无法使用（not-solved）"><a href="#摄像头无法使用（not-solved）" class="headerlink" title="摄像头无法使用（not solved）"></a>摄像头无法使用（not solved）</h2><p>应该也是经典的缺驱动问题， <del>这就是你 Surface Pro 的屏摄像头啊，你们有没有这样的摄像头啊，真是摄摄像像又头头啊</del></p>
+<h2 id="休眠无法正常唤醒"><a href="#休眠无法正常唤醒" class="headerlink" title="休眠无法正常唤醒"></a>休眠无法正常唤醒</h2><p>放个一会整个💻就睡死了，按键盘没法唤醒，最快的解决方案是把键盘拔了再重新插上， <del>这就是你 Surface Pro 的键盘啊，你们有没有这样的键盘啊，真是键键又盘盘啊</del></p>
+<h2 id="Surface-Pen-无法使用（not-solved）"><a href="#Surface-Pen-无法使用（not-solved）" class="headerlink" title="Surface Pen 无法使用（not solved）"></a>Surface Pen 无法使用（not solved）</h2><p>应该也是经典的缺驱动问题， <del>不过真的有人会有在 Linux on Surface 上使用 Surface Pen 的需求🐴</del></p>
+<h2 id="触屏无法正常使用（not-solved）"><a href="#触屏无法正常使用（not-solved）" class="headerlink" title="触屏无法正常使用（not solved）"></a>触屏无法正常使用（not solved）</h2><p>应该也是经典的缺驱动问题，Surface Pro 支持十点触控的高素质屏幕几乎成了摆设， <del>这就是你 Surface Pro 的屏幕啊，你们有没有这样的屏幕啊，真是屏屏又幕幕啊</del></p>
+<h1 id="0xFF-写在结束之后…"><a href="#0xFF-写在结束之后…" class="headerlink" title="0xFF. 写在结束之后…"></a>0xFF. 写在结束之后…</h1><p>Distro hopping 的狂欢之火燃尽之后，剩下的似乎总是只有一地的灰烬，在笔者看来 <strong>Gentoo Linux 在安装流程上其实和 Arch Linux 基本差不多</strong>，所以对于笔者而言还是比较轻车熟路的，但在尝试了几小时 Gentoo Linux 后，笔者最终还是选择重新装回 openSUSE Tumbleweed，触摸板一开始就是正常可用的，也没有休眠醒不来的问题，甚至触屏功能在安装了社区提供的 <a target="_blank" rel="noopener" href="https://github.com/linux-surface/linux-surface">linux-surface</a> 包之后也正常可用了，唯一的遗憾就是 Surface Pen 与摄像头依旧没法工作，但其他的一切就像你在 Surface 上使用 Windows 那样自然与舒适</p>
+<p><img src="https://s2.loli.net/2024/05/09/dnEDHtBzY7oOxCf.jpg" srcset="/img/loading.gif" lazyload alt="舒舒又适适，但可惜的是电池健康在经历笔者大四一年的蹂躏之后已经只剩不到 90 了"></p>
+<p>在回到了大蜥蜴温暖的怀抱当中后，笔者不禁思考：究竟是 Surface 这一特殊设备与 Gentoo 八字不合，还是笔者与 Gentoo Linux 在相性上不符呢？笔者自然不希望答案会是后者，但当笔者尝试在另一台旧笔记本上安装 Gentoo Linux 并再次碰到各种问题（例如 Dolphin 和触摸板无法正常工作）时，<strong>笔者不得不承认或许 Gentoo 这个特殊的发行版与笔者在某种程度上有点犯冲</strong>，而这样的两段安装经历也让笔者彻底打消了将主力操作系统从 openSUSE Tumbleweed 换成 Gentoo 的念头</p>
+<p>除此之外，Gentoo 的各种优点似乎也没有理想中的那么好，作为一个滚动发行版，Gentoo 明显是没有 Arch、openSUSE Tumbleweed、Fedora 这样紧贴上游的（当然，如果能实现所谓“调试好了再发布”，那在能确保稳定性的情况下软件包旧一点其实无所谓，但事实上他们似乎并没有能做到这一点）； <code>USE flag</code> 等配置听起来舒服，但是大部分情况下其实并不需要这样的特性，和其他发行版的包管理器的使用体验拉不开差距（当然，大部分情况下一个包管理器又能想要多不一样的体验呢？）；Gentoo wiki 以前一直都被吹嘘能和 Arch wiki 有得一拼，但真正用起来能清晰感受到在内容上前者很明显差了后者好几个档次……</p>
+<p>但这些其实都是小问题，毕竟 Linux 用户和苹果用户一样有着非常强的自适应性，尤其是在使用 Arch&#x2F;Gentoo 这样的高度自定义的发行版的时候，出现问题了大家总会第一时间自适应地认为“是不是自己什么地方没有配置好”，可惜 Gentoo 社区一直在走下坡路却是一个不争的事实，虽然 Gentoo 听起来似乎有着各式各样不同的优点，但使用的人数确乎一直在慢慢减少，也很少有新鲜血液加入，因此很多软件包也没人打，在论坛问问题也没人回复，这又导致没人愿意继续用 Gentoo ——对于 Gentoo 社区所遇到的“马太效应“的问题，笔者思考了许久，感觉似乎没有一个比较好的解决方案，而这似乎是所有规模比较小的发行版都会遇到的问题，发行版用的人少导致社区缺少人维护从而导致系统没有那么好用，系统可用性的降低又使得人员出走，最后“强者愈强，弱者愈弱”</p>
+<p>——而对于这个不得不被正视的问题，<strong>社区除了等死以外似乎并没有什么能做的事情</strong>，但同样是支持高度定制的系统，Gentoo 和 Arch 的命运为什么差得越来越多了呢？</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/DISTRO/" class="category-chain-item">DISTRO</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+        <a href="/tags/Gentoo-Linux/">#Gentoo Linux</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【DISTRO.0x02】在 Surface Pro 8 上安装 Gentoo</div>
+      <div>https://arttnba3.github.io/2024/04/30/DISTRO-0X02-SURFACE_INSTALL_GENTOO_WINDOWS/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年4月30日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/03/31/PWN-0X03-USERMODE-ENV/" title="【PWN.0x03】Linux x86 用户态 Pwn 基本环境搭建">
+                        <span class="hidden-mobile">【PWN.0x03】Linux x86 用户态 Pwn 基本环境搭建</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
