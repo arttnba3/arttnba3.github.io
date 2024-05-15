@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/05/08/fqdbRMhuKCrIozk.png">
 <meta property="article:published_time" content="2021-02-21T11:02:14.000Z">
-<meta property="article:modified_time" content="2023-10-27T00:54:06.000Z">
+<meta property="article:modified_time" content="2024-05-15T04:17:29.961Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
@@ -263,7 +263,7 @@
         
         
         
-          349 分钟
+          352 分钟
         
       </span>
     
@@ -318,7 +318,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年10月27日 中午
+                    本文最后更新于：2024年5月15日 下午
                   
                 
               </p>
@@ -546,8 +546,8 @@
 <h2 id="〇、预备知识"><a href="#〇、预备知识" class="headerlink" title="〇、预备知识"></a>〇、预备知识</h2><p>前面我们讲到，LKM同样是ELF格式文件，但是其不能够独立运行，而只能作为内核的一部分存在</p>
 <p>同样的，对于LKM而言，其所处在的内核空间与用户空间是分开的，对于通常有着SMAP&#x2F;SMEP保护的Linux而言，这意味着<strong>LKM并不能够使用libc中的函数，也不能够直接与用户进行交互</strong></p>
 <p>虽然我们同样能够使用C语言编写LKM，但是作为内核的一部分，LKM编程在一定意义上便是内核编程， 内核版本的每次变化意味着某些函数名也会相应地发生变化，因此LKM编程与内核版本密切相关 </p>
-<h2 id="一、简单的测试模块"><a href="#一、简单的测试模块" class="headerlink" title="一、简单的测试模块"></a>一、简单的测试模块</h2><p>我们来编写这样一个简单的内核模块，在载入&#x2F;卸载时会通过<code>printk()</code>在内核缓冲区进行输出：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/*</span><br><span class="hljs-comment">* hellokernel.c</span><br><span class="hljs-comment">* developed by arttnba3</span><br><span class="hljs-comment">*/</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/module.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/kernel.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/init.h&gt;</span></span><br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> __init <span class="hljs-title function_">kernel_module_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    printk(<span class="hljs-string">&quot;&lt;1&gt;Hello the Linux kernel world!\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> __exit <span class="hljs-title function_">kernel_module_exit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    printk(<span class="hljs-string">&quot;&lt;1&gt;Good bye the Linux kernel world! See you again!\n&quot;</span>);<br>&#125;<br><br>module_init(kernel_module_init);<br>module_exit(kernel_module_exit);<br>MODULE_LICENSE(<span class="hljs-string">&quot;GPL&quot;</span>);<br>MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);<br></code></pre></td></tr></table></figure>
+<h2 id="一、简单的测试模块"><a href="#一、简单的测试模块" class="headerlink" title="一、简单的测试模块"></a>一、简单的测试模块</h2><p>我们来编写这样一个简单的内核模块，其功能是在载入&#x2F;卸载时会在内核缓冲区打印字符串：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/*</span><br><span class="hljs-comment">* main.c</span><br><span class="hljs-comment">* developed by arttnba3</span><br><span class="hljs-comment">*/</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/module.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/kernel.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/init.h&gt;</span></span><br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> __init <span class="hljs-title function_">kernel_module_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    printk(<span class="hljs-string">&quot;&lt;1&gt;Hello the Linux kernel world!\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> __exit <span class="hljs-title function_">kernel_module_exit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    printk(<span class="hljs-string">&quot;&lt;1&gt;Good bye the Linux kernel world! See you again!\n&quot;</span>);<br>&#125;<br><br>module_init(kernel_module_init);<br>module_exit(kernel_module_exit);<br>MODULE_LICENSE(<span class="hljs-string">&quot;GPL&quot;</span>);<br>MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);<br></code></pre></td></tr></table></figure>
 
 <h3 id="头文件"><a href="#头文件" class="headerlink" title="头文件"></a>头文件</h3><ul>
 <li><code>linux/module.h</code>：对于LKM而言这是必须包含的一个头文件</li>
@@ -555,28 +555,36 @@
 <li><code>linux/init.h</code>：包含着一些有用的宏</li>
 </ul>
 <p>通常情况下，这三个头文件对于内核模块编程都是不可或缺的</p>
-<h3 id="入口点-出口点"><a href="#入口点-出口点" class="headerlink" title="入口点&#x2F;出口点"></a>入口点&#x2F;出口点</h3><p>一个内核模块的入口点应当为<code> module_init()</code>，出口函数应当为<code>module_exit()</code>，在内核载入&#x2F;卸载内核模块时会缺省调用这两个函数</p>
-<p>在这里我们将自定义的两个函数的指针作为参数传入LKM入口函数&#x2F;出口函数中，以作为其入口&#x2F;出口函数</p>
+<h3 id="入口点-出口点"><a href="#入口点-出口点" class="headerlink" title="入口点&#x2F;出口点"></a>入口点&#x2F;出口点</h3><p>内核模块的初始化函数在编译时通过 <code> module_init()</code> 定义，在内核模块被载入时会调用所定义的函数，这里我们将初始化函数设定为 <code>kernel_module_init</code> </p>
+<p>内核模块的卸载函数在编译时通过 <code>module_exit()</code> 定义，在内核模块被卸载时会调用所定义的函数，这里我们将卸载函数定义为 <code>kernel_module_exit</code></p>
 <h3 id="其他…"><a href="#其他…" class="headerlink" title="其他…"></a>其他…</h3><ul>
-<li><code>__init &amp; __exit</code>：这两个宏用以在函数结束后释放相应的内存</li>
+<li><code>__init</code> 与 <code>__exit</code> 宏：用来显式标识内核模块出入口函数</li>
 <li><code>MODULE_AUTHOR() &amp; MODULE_LICENSE()</code>：声明内核作者与发行所用许可证</li>
-<li><code>printk()</code>：内核态函数，用以在内核缓冲区写入信息，其中<code>&lt;1&gt;</code>标识着信息的紧急级别（一共有8个优先级，0为最高，相关宏定义于linux&#x2F;kernel.h中）</li>
 </ul>
-<h2 id="二、编译内核模块：makefile"><a href="#二、编译内核模块：makefile" class="headerlink" title="二、编译内核模块：makefile"></a>二、编译内核模块：makefile</h2><p>与一般的可执行文件所不同的是，我们应当使用makefile来构建一个内核模块</p>
-<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs makefile">obj-m += hellokernel.o<br>CURRENT_PATH := <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> pwd)</span><br>LINUX_KERNEL := <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> uname -r)</span><br>LINUX_KERNEL_PATH := /usr/src/linux-headers-<span class="hljs-variable">$(LINUX_KERNEL)</span><br><span class="hljs-section">all:</span><br>    make -C <span class="hljs-variable">$(LINUX_KERNEL_PATH)</span> M=<span class="hljs-variable">$(CURRENT_PATH)</span> modules<br><span class="hljs-section">clean:</span><br>    make -C <span class="hljs-variable">$(LINUX_KERNEL_PATH)</span> M=<span class="hljs-variable">$(CURRENT_PATH)</span> clean<br></code></pre></td></tr></table></figure>
+<h2 id="二、编译内核模块：makefile-与-Kbuild"><a href="#二、编译内核模块：makefile-与-Kbuild" class="headerlink" title="二、编译内核模块：makefile 与 Kbuild"></a>二、编译内核模块：makefile 与 Kbuild</h2><p>与一般的可执行文件所不同的是，我们应当使用 Makefile 来构建一个内核模块，并使用 Kbuild 说明编译规则</p>
+<p>首先创建一个 <code>Kbuild</code> 文件，写入如下内容：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs ruby"><span class="hljs-variable constant_">MODULE_NAME</span> <span class="hljs-string">?=</span> hellokernel<br><br>obj-m += <span class="hljs-variable">$(</span><span class="hljs-variable constant_">MODULE_NAME</span>).o<br><br><span class="hljs-variable">$(</span><span class="hljs-variable constant_">MODULE_NAME</span>)-y += main.o<br></code></pre></td></tr></table></figure>
 
-<p>关于makefile的编写方式在网上有着很多教程，笔者在这里便不再赘叙，只简单说明一下这个makefile：</p>
+<p>简单说明一下这个 Kbuild：</p>
 <ul>
-<li><code>obj-m</code>： 指定了编译的结果应当为<code>.ko</code>文件，即可装载内核模块，类似命令有： <code>obj-y</code> 编译进内核 ，<code>obj-n</code> 不编译 </li>
-<li><code>CURRENT_PATH &amp; LINUX_KERNEL &amp; LINUX_KERNEL_PATH</code>：三个自定义变量，分别意味着通过shell命令获得当前路径、内核版本、内核源码路径</li>
-<li><code>all</code>：编译指令</li>
-<li><code>clean</code>：清理指令</li>
+<li><code>MODULE_NAME ?= hellokernel</code> ：定义了一个局部变量 <code>MODULE_NAME</code> ，值为 <code>hellokernel</code></li>
+<li><code>obj-m += $(MODULE_NAME).o</code>  ：指定了编译的结果应当为<code>.ko</code>文件，即可装载内核模块，同时指定了模块名为 <code>hellokernel</code> ，当模块编译时相应的源文件所编译得到的中间文件会先被链接为 <code>hellokernel.o</code> ，之后再构建 <code>.ko</code> 文件；其他可替代标识为： <code>obj-y</code> 编译进内核 ，<code>obj-n</code> 不编译 </li>
+<li><code>$(MODULE_NAME)-y += main.o</code> ：编译该内核模块所需要的文件，例如这里我们需要 <code>main.c</code> ，那么我们就在该变量中添加 <code>main.o</code></li>
 </ul>
-<p>将以上内容写入当前目录下一个名为<code>makefile</code>的文件后，在终端执行如下指令，我们的内核模块就会自动进行构建</p>
+<p>接下来创建一个名为 <code>Makefile</code> 的文件，写入如下内容：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs makefile">CURRENT_PATH := <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> pwd)</span><br>LINUX_KERNEL_SRC := /lib/modules/<span class="hljs-variable">$(<span class="hljs-built_in">shell</span> uname -r)</span>/build<br><br><span class="hljs-section">all:</span><br>    make -C <span class="hljs-variable">$(LINUX_KERNEL_SRC)</span> M=<span class="hljs-variable">$(CURRENT_PATH)</span> modules<br><span class="hljs-section">clean:</span><br>    make -C <span class="hljs-variable">$(LINUX_KERNEL_SRC)</span> M=<span class="hljs-variable">$(CURRENT_PATH)</span> clean<br></code></pre></td></tr></table></figure>
+
+<p>这里简单说明一下这个 makefile ：</p>
+<ul>
+<li><code>LINUX_KERNEL_SRC := /lib/modules/$(shell uname -r)/build</code> ：当前系统所使用的内核源码路径</li>
+<li><code>make -C $(LINUX_KERNEL_SRC) M=$(CURRENT_PATH) modules</code>：<code>-C</code> 表示进入源码目录进行编译，<code>M=</code> 意味着当前正在编译一个外部模块、该变量用以指示外部模块的源码目录， <code>modules</code> 则意为进行内核模块编译操作</li>
+<li><code>make -C $(LINUX_KERNEL_SRC) M=$(CURRENT_PATH) clean</code>：同上，不过此时进行的是清理指令</li>
+</ul>
+<p>接下来在终端执行如下指令，我们的内核模块就会自动进行构建</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">make</span><br></code></pre></td></tr></table></figure>
 
 <p>随后会输出如下信息，标志着内核模块的编译顺利完成</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell">make -C /usr/src/linux-headers-5.8.0-43-generic M=/home/arttnba3/Music modules<br>make[1]: Entering directory &#x27;/usr/src/linux-headers-5.8.0-43-generic&#x27;<br>  CC [M]  /home/arttnba3/Music/hellokernel.o<br>  MODPOST /home/arttnba3/Music/Module.symvers<br>  CC [M]  /home/arttnba3/Music/hellokernel.mod.o<br>  LD [M]  /home/arttnba3/Music/hellokernel.ko<br>make[1]: Leaving directory &#x27;/usr/src/linux-headers-5.8.0-43-generic&#x27;<br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell">make -C /lib/modules/5.8.0-43-generic/build M=/home/arttnba3/Music modules<br>make[1]: Entering directory &#x27;/lib/modules/5.8.0-43-generic/build&#x27;<br>  CC [M]  /home/arttnba3/Music/hellokernel.o<br>  MODPOST /home/arttnba3/Music/Module.symvers<br>  CC [M]  /home/arttnba3/Music/hellokernel.mod.o<br>  LD [M]  /home/arttnba3/Music/hellokernel.ko<br>make[1]: Leaving directory &#x27;/lib/modules/5.8.0-43-generic/build&#x27;<br></code></pre></td></tr></table></figure>
 
 <p>测试一下，内核模块成功运行，撒花~🌸</p>
 <p><img src="https://i.loli.net/2021/02/28/vJitGgkFTzcPx8a.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
