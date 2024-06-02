@@ -1,0 +1,970 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="真是序序又列列啊，你们有没有这样的文件接口啊我想问">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【OS.0x05】Linux 内核文件系统 - 初探序列文件接口">
+<meta property="og:url" content="https://arttnba3.github.io/2024/05/31/OS-0X05-LINUX-KERNEL-FILESYSTEM-SEQFILE/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="真是序序又列列啊，你们有没有这样的文件接口啊我想问">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/06/03/ZahMeDXdWp2lgIK.png">
+<meta property="article:published_time" content="2024-05-30T21:36:25.000Z">
+<meta property="article:modified_time" content="2024-06-02T21:43:13.233Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Linux Kernel">
+<meta property="article:tag" content="操作系统">
+<meta property="article:tag" content="文件系统">
+<meta property="article:tag" content="序列文件接口">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2024/06/03/ZahMeDXdWp2lgIK.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【OS.0x05】Linux 内核文件系统 - 初探序列文件接口 - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"arttnba3.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://s2.loli.net/2024/06/03/juGzqY8l1DJUeiK.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【OS.0x05】Linux 内核文件系统 - 初探序列文件接口"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-05-31 07:36" pubdate>
+          2024年5月31日 早上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          24k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          198 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【OS.0x05】Linux 内核文件系统 - 初探序列文件接口</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2024年6月3日 早上
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>真是序序又列列啊，你们有没有这样的文件接口啊我想问</p>
+<span id="more"></span>
+
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><p>笔者大二上那会学 kernel pwn 时便经常在用户态用到序列文件接口，不过在那个时候笔者只关心打开 <code>/proc/self/stat</code> 文件便能分配一个 <code>kmalloc-32</code> 对象（<code>seq_operations</code> ）；大二下写 Linux kernel rootkit 时又碰到 <code>/proc/kallsyms</code> 无法在内核层读取的问题，不过也是了解了一下序列文件接口的相关知识就没有再继续深入了（<del>不过这个东西本来就很简约，就其本身而言确实没有什么能够深入的地方</del>）</p>
+<p>刚好笔者最近的工作又接触到了这个玩意，所以简单写一篇博客记录一下这是个什么玩意：）</p>
+<h1 id="0x01-序列文件接口-简介"><a href="#0x01-序列文件接口-简介" class="headerlink" title="0x01. 序列文件接口 - 简介"></a>0x01. 序列文件接口 - 简介</h1><p><a target="_blank" rel="noopener" href="https://docs.kernel.org/filesystems/seq_file.html">序列文件接口</a> 是在现有 VFS 上建立的一套用于 <strong>从内核空间向用户空间提供传输序列数据</strong> 的接口，这里我们将序列数据简单定义为 <strong>由多条数据组成的数据</strong> （例如 <code>/proc/kallsyms</code> 为用户提供了多条内核符号信息数据），这个场景下内核通常需要多次迭代地向用户空间拷贝多条数据</p>
+<p>序列文件接口的设计主要出于一个原因：<strong>【大于一页的文件操作对于开发者而言非常麻烦】</strong> ，我们要从内核空间向用户空间传递数据通常需要自行创建如 <code>procfs</code> 等节点并自定义一份 <code>file_operations</code> ，开发者能用的只有一个裸的 <code>read(struct file *, char __user *, size_t, loff_t *)</code> ，而对于这类功能比较单一的场景， <em>设计上要考虑的和常规的文件接口相比却一个都不能少</em> （跨页多条数据拷贝的文件偏移处理确实不是个小问题），这增大了开发者的开发难度，但序列数据的传输在内核开发中其实又是一个非常常见的场景</p>
+<p>由此，针对此类场景，序列文件接口应运而生，<strong>为上层开发者提供了类似【迭代器】的简易文件读取接口</strong> ，由此极大地简化了对于此类场景的内核开发工作</p>
+<blockquote>
+<p>本篇博客使用的内核源码为 6.9.1</p>
+</blockquote>
+<h2 id="序列文件接口开发：操作函数"><a href="#序列文件接口开发：操作函数" class="headerlink" title="序列文件接口开发：操作函数"></a>序列文件接口开发：操作函数</h2><p>要使用序列文件接口，我们需要实现一个 <code>seq_operations</code> 函数表：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/seq_file.h&gt;</span></span><br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">seq_operations</span> &#123;</span><br>	<span class="hljs-type">void</span> * (*start) (<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-type">loff_t</span> *pos);<br>	<span class="hljs-type">void</span> (*stop) (<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-type">void</span> *v);<br>	<span class="hljs-type">void</span> * (*next) (<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-type">void</span> *v, <span class="hljs-type">loff_t</span> *pos);<br>	<span class="hljs-type">int</span> (*show) (<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-type">void</span> *v);<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>各函数指针说明如下（<strong>按照被调用顺序</strong>）：</p>
+<ul>
+<li><code>start</code> ：在开始读取序列数据前进行初始化工作，并返回指定偏移上的序列数据对象</li>
+<li><code>show</code> ：打印传入的序列数据对象，该函数会被循环调用</li>
+<li><code>next</code> ： 根据传入的偏移值与当前对象获取下一个序列数据对象，并自增偏移值，该函数会被循环调用</li>
+<li><code>stop</code> ：在完成对序列文件的遍历后用以进行需要的收尾工作，可以为空函数</li>
+</ul>
+<p>需要注意的是，这里所说的偏移值通常指的 <strong>其实是序列数据对象的索引值</strong> ，而非基于具体内存对象大小计算的值</p>
+<p>除了 <code>seq_operations</code> 函数表以外，序列文件接口对于每个文件还会额外分配一个 <code>seq_file</code> 结构体（在 open() 时分配到 <code>file-&gt;private</code> ）用以存储如当前的读取偏移、整个序列的长度等数据：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">seq_file</span> &#123;</span><br>	<span class="hljs-type">char</span> *buf;<br>	<span class="hljs-type">size_t</span> size;<br>	<span class="hljs-type">size_t</span> from;<br>	<span class="hljs-type">size_t</span> count;<br>	<span class="hljs-type">size_t</span> pad_until;<br>	<span class="hljs-type">loff_t</span> index;<br>	<span class="hljs-type">loff_t</span> read_pos;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">mutex</span> <span class="hljs-title">lock</span>;</span><br>	<span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">seq_operations</span> *<span class="hljs-title">op</span>;</span><br>	<span class="hljs-type">int</span> poll_event;<br>	<span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file</span> *<span class="hljs-title">file</span>;</span><br>	<span class="hljs-type">void</span> *private;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>核心的字段说明如下：</p>
+<ul>
+<li><code>buf</code> ：临时存放由 <code>show()</code> 打印的数据，通常为单张内存页大小，数据会先被拷贝到这块内存上再拷贝回用户空间</li>
+<li><code>size</code> ：<code>buf</code> 的总大小</li>
+<li><code>from</code>：<code>buf</code> 当前数据写入的起始偏移</li>
+<li><code>count</code> ：<code>buf</code> 已经写入的大小，<strong>序列文件上的有效待写入数据为</strong> <code>&amp;seq_file::buf[seq_file::from]</code> <strong>起始的长度为</strong> <code>seq_file::count</code> <strong>的区域</strong> ，通常每一轮读取都会刷新一次 <code>count</code> 字段</li>
+<li><code>index</code> ： 当前正在读取的对象的偏移值</li>
+<li><code>read_pos</code> ：成功读取的数据量（字节）</li>
+<li><code>op</code> ：序列文件接口的函数表 <del>其实是指玩原神的人</del> </li>
+<li><code>file</code> ：对应的 VFS file 节点</li>
+<li><code>private</code> ：供上层开发者存放私人数据</li>
+</ul>
+<p>下面我们以一个基础的链表结构作为示例说明如何基于序列文件接口进行基本的开发：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">a3_seq_data</span> &#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">list</span>;</span><br>    <span class="hljs-type">char</span> data[<span class="hljs-number">0x100</span>];<br>&#125;;<br><br>LIST_HEAD(a3_seq_list);<br></code></pre></td></tr></table></figure>
+
+<h3 id="start-：序列文件读取初始化"><a href="#start-：序列文件读取初始化" class="headerlink" title="start()：序列文件读取初始化"></a>start()：序列文件读取初始化</h3><p>内核将单次 <code>read()</code> 系统调用读取的过程称之为一个 <code>session</code> ，在每个 session 开始时都会调用序列文件接口的 <code>start()</code> 函数以进行初始化，核心作用是 <strong>在读取开始时获取指定偏移值上的对象作为起始点</strong> ，我们通常需要返回<strong>指定偏移上的序列数据对象</strong></p>
+<p>在现代内核及驱动开发场景中 <code>start()</code> 所获取到的通常是第一个序列数据对象，这也是序列文件接口的规范用法， <em>因为大部分情况下开发者并不需要处理偏移值不为 0 的场景</em> ，因此也可以简单返回一个  <code>SEQ_START_TOKEN</code>  （值为 1）</p>
+<blockquote>
+<p>该值用于在 <code>next()</code> 与 <code>show()</code> 中<strong>供你自己进行识别</strong>，所以只要你认得就行</p>
+</blockquote>
+<p>对于读取到末尾的情况（偏移值超出范围）， <strong>通常直接返回 NULL 即可</strong> ，对于初始化失败的场景，我们还可以返回一个 <code>ERR_PTR</code> 类型值进行说明</p>
+<p>以下是我们的示例代码，这里我们简单地返回链表上指定偏移的对象：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">void</span>* <span class="hljs-title function_">a3kmod_seq_start</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-type">loff_t</span> *ppos)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">a3_seq_data</span> *<span class="hljs-title">ptr</span>;</span><br>    <span class="hljs-type">loff_t</span> cpos = <span class="hljs-number">0</span>;<br><br>    list_for_each_entry(ptr, &amp;a3_seq_list, <span class="hljs-built_in">list</span>) &#123;<br>        <span class="hljs-keyword">if</span> (cpos == (*ppos)) &#123;<br>            <span class="hljs-keyword">return</span> ptr;<br>        &#125;<br><br>        cpos++;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="show-：打印指定的序列数据"><a href="#show-：打印指定的序列数据" class="headerlink" title="show()：打印指定的序列数据"></a>show()：打印指定的序列数据</h3><p><code>show()</code> 函数用于将当前序列对象需要被导出的数据通过序列文件的打印接口拷贝到指定的临时内存（即 <code>seq_file::buf</code> ）上，这些数据会在多次遍历完成后（buf 满了或者序列遍历完成）统一拷贝到用户空间，可用的接口通常有：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* print data directly */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">seq_printf</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *fmt, ...)</span>; <span class="hljs-comment">/* mostly used */</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">seq_putc</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-type">char</span> c)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">seq_puts</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *s)</span>;<br><span class="hljs-type">void</span> <span class="hljs-title function_">seq_escape</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *s, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *esc)</span>;<br><span class="hljs-comment">/* print file path */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">seq_path</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> path *path,</span><br><span class="hljs-params">             <span class="hljs-type">const</span> <span class="hljs-type">char</span> *esc)</span>;<br><span class="hljs-type">int</span> <span class="hljs-title function_">seq_path_root</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> path *path,</span><br><span class="hljs-params">                  <span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> path *root, <span class="hljs-type">const</span> <span class="hljs-type">char</span> *esc)</span><br></code></pre></td></tr></table></figure>
+
+<p>正常打印完成需要返回 0，返回小于 0 的值表示出错，返回大于 0 的值（ <code>SEQ_SKIP</code> ）表示跳过该项，以下是我们的示例代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">a3kmod_seq_show</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-type">void</span> *v)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">a3_seq_data</span> *<span class="hljs-title">data</span> =</span> v;<br><br>    seq_printf(m, <span class="hljs-string">&quot;[a3kmod_data] data: %s\n&quot;</span>, data-&gt;data);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="next-：获取指定偏移上的序列数据，自增偏移值"><a href="#next-：获取指定偏移上的序列数据，自增偏移值" class="headerlink" title="next()：获取指定偏移上的序列数据，自增偏移值"></a>next()：获取指定偏移上的序列数据，自增偏移值</h3><p><code>next()</code> 函数用以 <strong>根据传入的偏移值获取下一个序列数据对象，并更新偏移值</strong> ，在单次 session 中会迭代地调用 <code>next()</code> 函数，直到当前数据页无法继续装载，或是已经读取完序列上所有的数据</p>
+<p>在 <code>next()</code> 函数当中，我们需要更新上层的 index （通常直接 <code>+1</code> 即可），并返回下一个序列数据对象，以下是我们的示例代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">void</span>* <span class="hljs-title function_">a3kmod_seq_next</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-type">void</span> *v, <span class="hljs-type">loff_t</span> *ppos)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">a3_seq_data</span> *<span class="hljs-title">ptr</span> =</span> v;<br><br>    (*ppos)++;<br><br>    ptr = list_next_entry(ptr, <span class="hljs-built_in">list</span>);<br>    <span class="hljs-keyword">if</span> (unlikely(list_entry_is_head(ptr, &amp;a3_seq_list, <span class="hljs-built_in">list</span>))) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> ptr;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="stop-：序列文件关闭清理"><a href="#stop-：序列文件关闭清理" class="headerlink" title="stop()：序列文件关闭清理"></a>stop()：序列文件关闭清理</h3><p><code>stop()</code> 函数用于在单个 session 结束时进行一些自定义的需要的清理工作，因此通常也可以只是一个空函数，以下是我们的示例代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">a3kmod_seq_stop</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-type">void</span> *v)</span><br>&#123;<br>    <span class="hljs-comment">/* do nothing */</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="序列文件接口开发：初始化"><a href="#序列文件接口开发：初始化" class="headerlink" title="序列文件接口开发：初始化"></a>序列文件接口开发：初始化</h2><p>完成了序列文件接口四个函数的定义后，接下来我们需要在创建通用 VFS 节点时进行初始化，主要就是定义四个通用函数：</p>
+<ul>
+<li><code>open()</code> ：该函数中我们需要调用 <code>seq_open()</code> 进行初始化，其会分配一个 <code>seq_file</code> 结构体存放到 <code>file-&gt;private</code> ，我们也可以使用 <code>__seq_open_private()</code> （等价于多一次 kmalloc() 分配自定义数据对象）</li>
+<li>二选一：<ul>
+<li><code>read()</code> ：该函数指针需要被初始化为 <code>seq_read()</code> ，但你也可以再套个 wrapper</li>
+<li><code>read_iter()</code> ：该函数指针需要被初始化为 <code>seq_read_iter()</code> ，但你也可以再套个 wrapper</li>
+</ul>
+</li>
+<li><code>lseek()</code> ：该函数指针需要被初始化为 <code>seq_lseek()</code> ，但你也可以再套个 wrapper</li>
+<li><code>release()</code> ：该函数指针需要被初始化为 <code>seq_release()</code> ，但你也可以再套个 wrapper</li>
+</ul>
+<p>之后像往常一样初始化文件接口即可，对序列文件接口的操作都会直接通过这些 <code>seq_*</code> API 完成，这极大地简化了开发者的工作，以下是我们以 <code>procfs</code> 为例的示例代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">seq_operations</span> <span class="hljs-title">a3kmod_seq_ops</span> =</span> &#123;<br>    .start  = a3kmod_seq_start,<br>    .show   = a3kmod_seq_show,<br>    .next   = a3kmod_seq_next,<br>    .stop   = a3kmod_seq_stop,<br>&#125;;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">a3kmod_open</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *i, <span class="hljs-keyword">struct</span> file *f)</span><br>&#123;<br>    <span class="hljs-keyword">return</span> seq_open(f, &amp;a3kmod_seq_ops);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">proc_ops</span> <span class="hljs-title">a3kmod_ops</span> =</span> &#123;<br>    .proc_open      = a3kmod_open,<br>    .proc_read      = seq_read,<br>    <span class="hljs-comment">//.proc_read_iter = seq_read_iter, /* it&#x27;s also okay! */</span><br>    .proc_lseek     = seq_lseek,<br>    .proc_release   = seq_release,<br>&#125;;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">a3kmod_release_data_list</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">a3_seq_data</span> *<span class="hljs-title">cur</span>, *<span class="hljs-title">next</span>;</span><br><br>    list_for_each_entry_safe(cur, next, &amp;a3_seq_list, <span class="hljs-built_in">list</span>) &#123;<br>        list_del(&amp;cur-&gt;<span class="hljs-built_in">list</span>);<br>        kfree(cur);<br>    &#125;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> __init <span class="hljs-title function_">a3kmod_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">a3_seq_data</span> *<span class="hljs-title">data</span>;</span><br><br>    printk(KERN_INFO <span class="hljs-string">&quot;[a3kmod:] Hello to kernel space!\n&quot;</span>);<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">0x10</span>; i++) &#123;<br>        data = kmalloc(<span class="hljs-keyword">sizeof</span>(*data), GFP_KERNEL);<br>        <span class="hljs-keyword">if</span> (!data) &#123;<br>            printk(KERN_ERR <span class="hljs-string">&quot;[a3kmod:] FAILED to alloc data!\n&quot;</span>);<br>            a3kmod_release_data_list();<br>            <span class="hljs-keyword">return</span> -ENOMEM;<br>        &#125;<br><br>        <span class="hljs-built_in">sprintf</span>(data-&gt;data, <span class="hljs-string">&quot;arttnba3 - no.%.2d data&quot;</span>, i);<br>        list_add_tail(&amp;data-&gt;<span class="hljs-built_in">list</span>, &amp;a3_seq_list);<br>    &#125;<br>    <br>    <span class="hljs-keyword">if</span> (!proc_create(<span class="hljs-string">&quot;a3kmod&quot;</span>, <span class="hljs-number">0666</span>, <span class="hljs-literal">NULL</span>, &amp;a3kmod_ops)) &#123;<br>        printk(KERN_ERR <span class="hljs-string">&quot;[a3kmod:] FAILED to create procfs interface!\n&quot;</span>);<br>        a3kmod_release_data_list();<br>        <span class="hljs-keyword">return</span> -EACCES;<br>    &#125;<br><br>    printk(KERN_INFO <span class="hljs-string">&quot;[a3kmod:] Initialization done.\n&quot;</span>);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> __exit <span class="hljs-title function_">a3kmod_exit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    printk(KERN_INFO <span class="hljs-string">&quot;[a3kmod:] Goodbye to kernel space!\n&quot;</span>);<br><br>    a3kmod_release_data_list();<br>    remove_proc_entry(<span class="hljs-string">&quot;a3kmod&quot;</span>, <span class="hljs-literal">NULL</span>);<br>&#125;<br><br>module_init(a3kmod_init);<br>module_exit(a3kmod_exit);<br>MODULE_LICENSE(<span class="hljs-string">&quot;GPL v2&quot;</span>);<br>MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>简单测试一下，可以看到内核非常完美地按照我们的需求输出了序列文件数据：</p>
+<p><img src="https://s2.loli.net/2024/06/02/xL3wgmPoT9IUCN7.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="序列文件接口开发：single-file（仅单个序列对象读取的简易预实现）"><a href="#序列文件接口开发：single-file（仅单个序列对象读取的简易预实现）" class="headerlink" title="序列文件接口开发：single file（仅单个序列对象读取的简易预实现）"></a>序列文件接口开发：single file（仅单个序列对象读取的简易预实现）</h2><p> <code>/fs/seq_file.c</code> 中除了序列文件接口以外，还有一套已经写好的 <code>single_*</code> 开头的序列文件接口实现，开发者只需要补充实现 <code>show()</code> 函数即可，这通常用于一些并不需要太复杂实现的 <strong>只需要读取一次的</strong> 场景（例如读取 <code>/proc/self/stat</code> ）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> *<span class="hljs-title function_">single_start</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> seq_file *p, <span class="hljs-type">loff_t</span> *pos)</span><br>&#123;<br>	<span class="hljs-keyword">return</span> *pos ? <span class="hljs-literal">NULL</span> : SEQ_START_TOKEN;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> *<span class="hljs-title function_">single_next</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> seq_file *p, <span class="hljs-type">void</span> *v, <span class="hljs-type">loff_t</span> *pos)</span><br>&#123;<br>	++*pos;<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">single_stop</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> seq_file *p, <span class="hljs-type">void</span> *v)</span><br>&#123;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">single_open</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file *file, <span class="hljs-type">int</span> (*show)(<span class="hljs-keyword">struct</span> seq_file *, <span class="hljs-type">void</span> *),</span><br><span class="hljs-params">		<span class="hljs-type">void</span> *data)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">seq_operations</span> *<span class="hljs-title">op</span> =</span> kmalloc(<span class="hljs-keyword">sizeof</span>(*op), GFP_KERNEL_ACCOUNT);<br>	<span class="hljs-type">int</span> res = -ENOMEM;<br><br>	<span class="hljs-keyword">if</span> (op) &#123;<br>		op-&gt;start = single_start;<br>		op-&gt;next = single_next;<br>		op-&gt;stop = single_stop;<br>		op-&gt;show = show;<br>		res = seq_open(file, op);<br>		<span class="hljs-keyword">if</span> (!res)<br>			((<span class="hljs-keyword">struct</span> seq_file *)file-&gt;private_data)-&gt;private = data;<br>		<span class="hljs-keyword">else</span><br>			kfree(op);<br>	&#125;<br>	<span class="hljs-keyword">return</span> res;<br>&#125;<br>EXPORT_SYMBOL(single_open);<br></code></pre></td></tr></table></figure>
+
+<p>使用 single file 实现我们只需要将前面的 <code>seq_open()</code> 替换为 <code>single_open()</code> 并定义一个 <code>show()</code> 即可，注意传给 <code>show()</code> 的序列对象永远都是 NULL ，以下是一个简单的例子：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/module.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/kernel.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/init.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/fs.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/proc_fs.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/seq_file.h&gt;</span></span><br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">a3_data</span> &#123;</span><br>    <span class="hljs-type">char</span> name[<span class="hljs-number">0x100</span>];<br>    <span class="hljs-type">size_t</span> age;<br>    <span class="hljs-type">size_t</span> money;<br>&#125; a3_info = &#123;<br>    .name   = <span class="hljs-string">&quot;arttnba3&quot;</span>,<br>    .age    = <span class="hljs-number">23</span>,<br>    .money  = <span class="hljs-number">0</span>,<br>&#125;;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">a3kmod_seq_show</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-type">void</span> *v)</span><br>&#123;<br>    seq_printf(m, <span class="hljs-string">&quot;[a3kmod_data] name: %s\n&quot;</span>, a3_info.name);<br>    seq_printf(m, <span class="hljs-string">&quot;[a3kmod_data] age: %ld\n&quot;</span>, a3_info.age);<br>    seq_printf(m, <span class="hljs-string">&quot;[a3kmod_data] money: %ld\n&quot;</span>, a3_info.money);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">a3kmod_open</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *i, <span class="hljs-keyword">struct</span> file *f)</span><br>&#123;<br>    <span class="hljs-keyword">return</span> single_open(f, a3kmod_seq_show, <span class="hljs-literal">NULL</span>);<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">proc_ops</span> <span class="hljs-title">a3kmod_ops</span> =</span> &#123;<br>    .proc_open      = a3kmod_open,<br>    .proc_read      = seq_read,<br>    .proc_lseek     = seq_lseek,<br>    .proc_release   = seq_release,<br>&#125;;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> __init <span class="hljs-title function_">a3kmod_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-keyword">if</span> (!proc_create(<span class="hljs-string">&quot;a3kmod&quot;</span>, <span class="hljs-number">0666</span>, <span class="hljs-literal">NULL</span>, &amp;a3kmod_ops)) &#123;<br>        printk(KERN_ERR <span class="hljs-string">&quot;[a3kmod:] FAILED to create procfs interface!\n&quot;</span>);<br>        <span class="hljs-keyword">return</span> -EACCES;<br>    &#125;<br><br><br><br>    printk(KERN_INFO <span class="hljs-string">&quot;[a3kmod:] Initialization done.\n&quot;</span>);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> __exit <span class="hljs-title function_">a3kmod_exit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    printk(KERN_INFO <span class="hljs-string">&quot;[a3kmod:] Goodbye to kernel space!\n&quot;</span>);<br><br>    remove_proc_entry(<span class="hljs-string">&quot;a3kmod&quot;</span>, <span class="hljs-literal">NULL</span>);<br>&#125;<br><br>module_init(a3kmod_init);<br>module_exit(a3kmod_exit);<br>MODULE_LICENSE(<span class="hljs-string">&quot;GPL v2&quot;</span>);<br>MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>测试一下：</p>
+<p><img src="https://s2.loli.net/2024/06/03/BMN2iSZJVb3kwht.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="序列文件接口开发：proc-seq-接口"><a href="#序列文件接口开发：proc-seq-接口" class="headerlink" title="序列文件接口开发：proc_seq 接口"></a>序列文件接口开发：proc_seq 接口</h2><p>proc_seq 接口同时提供了创建 procfs 节点与初始化 seq_file 的功能，我们只需要调用 <code>proc_create_seq()</code> 便能创建 procfs + 初始化 seq_file 一步到位，底层而言不同的是其帮我们实现的是 <code>read_iter</code> 接口而非 <code>read()</code> 接口，这意味着 <em>这样的序列文件可以从内核侧被读取</em></p>
+<p>下面是对上面的链表读取的例子进行简单重写的例子：</p>
+<blockquote>
+<p>其实也没有简化太多…</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/module.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/kernel.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/init.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/fs.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/proc_fs.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/seq_file.h&gt;</span></span><br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">a3_seq_data</span> &#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">list</span>;</span><br>    <span class="hljs-type">char</span> data[<span class="hljs-number">0x100</span>];<br>&#125;;<br><br>LIST_HEAD(a3_seq_list);<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span>* <span class="hljs-title function_">a3kmod_seq_start</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-type">loff_t</span> *ppos)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">a3_seq_data</span> *<span class="hljs-title">ptr</span>;</span><br>    <span class="hljs-type">loff_t</span> cpos = <span class="hljs-number">0</span>;<br><br>    list_for_each_entry(ptr, &amp;a3_seq_list, <span class="hljs-built_in">list</span>) &#123;<br>        <span class="hljs-keyword">if</span> (cpos == (*ppos)) &#123;<br>            <span class="hljs-keyword">return</span> ptr;<br>        &#125;<br><br>        cpos++;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span>* <span class="hljs-title function_">a3kmod_seq_next</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-type">void</span> *v, <span class="hljs-type">loff_t</span> *ppos)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">a3_seq_data</span> *<span class="hljs-title">ptr</span> =</span> v;<br><br>    (*ppos)++;<br><br>    ptr = list_next_entry(ptr, <span class="hljs-built_in">list</span>);<br>    <span class="hljs-keyword">if</span> (unlikely(list_entry_is_head(ptr, &amp;a3_seq_list, <span class="hljs-built_in">list</span>))) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> ptr;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">a3kmod_seq_show</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-type">void</span> *v)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">a3_seq_data</span> *<span class="hljs-title">data</span> =</span> v;<br><br>    seq_printf(m, <span class="hljs-string">&quot;[a3kmod_data] data: %s\n&quot;</span>, data-&gt;data);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">a3kmod_seq_stop</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-type">void</span> *v)</span><br>&#123;<br>    <span class="hljs-comment">/* do nothing */</span><br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">seq_operations</span> <span class="hljs-title">a3kmod_seq_ops</span> =</span> &#123;<br>    .start  = a3kmod_seq_start,<br>    .show   = a3kmod_seq_show,<br>    .next   = a3kmod_seq_next,<br>    .stop   = a3kmod_seq_stop,<br>&#125;;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">a3kmod_release_data_list</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">a3_seq_data</span> *<span class="hljs-title">cur</span>, *<span class="hljs-title">next</span>;</span><br><br>    list_for_each_entry_safe(cur, next, &amp;a3_seq_list, <span class="hljs-built_in">list</span>) &#123;<br>        list_del(&amp;cur-&gt;<span class="hljs-built_in">list</span>);<br>        kfree(cur);<br>    &#125;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> __init <span class="hljs-title function_">a3kmod_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">a3_seq_data</span> *<span class="hljs-title">data</span>;</span><br><br>    printk(KERN_INFO <span class="hljs-string">&quot;[a3kmod:] Hello to kernel space!\n&quot;</span>);<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">0x10</span>; i++) &#123;<br>        data = kmalloc(<span class="hljs-keyword">sizeof</span>(*data), GFP_KERNEL);<br>        <span class="hljs-keyword">if</span> (!data) &#123;<br>            printk(KERN_ERR <span class="hljs-string">&quot;[a3kmod:] FAILED to alloc data!\n&quot;</span>);<br>            a3kmod_release_data_list();<br>            <span class="hljs-keyword">return</span> -ENOMEM;<br>        &#125;<br><br>        <span class="hljs-built_in">sprintf</span>(data-&gt;data, <span class="hljs-string">&quot;arttnba3 - no.%.2d data&quot;</span>, i);<br>        list_add_tail(&amp;data-&gt;<span class="hljs-built_in">list</span>, &amp;a3_seq_list);<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (!proc_create_seq(<span class="hljs-string">&quot;a3kmod&quot;</span>, <span class="hljs-number">0666</span>, <span class="hljs-literal">NULL</span>, &amp;a3kmod_seq_ops)) &#123;<br>        printk(KERN_ERR <span class="hljs-string">&quot;[a3kmod:] FAILED to create procfs interface!\n&quot;</span>);<br>        a3kmod_release_data_list();<br>        <span class="hljs-keyword">return</span> -EACCES;<br>    &#125;<br><br>    printk(KERN_INFO <span class="hljs-string">&quot;[a3kmod:] Initialization done.\n&quot;</span>);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> __exit <span class="hljs-title function_">a3kmod_exit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    printk(KERN_INFO <span class="hljs-string">&quot;[a3kmod:] Goodbye to kernel space!\n&quot;</span>);<br><br>    a3kmod_release_data_list();<br>    remove_proc_entry(<span class="hljs-string">&quot;a3kmod&quot;</span>, <span class="hljs-literal">NULL</span>);<br>&#125;<br><br>module_init(a3kmod_init);<br>module_exit(a3kmod_exit);<br>MODULE_LICENSE(<span class="hljs-string">&quot;GPL v2&quot;</span>);<br>MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);<br><br></code></pre></td></tr></table></figure>
+
+<p>简单测试：</p>
+<p><img src="https://s2.loli.net/2024/06/03/liUg9bKBcz1QqGV.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="0x02-序列文件接口-实现原理"><a href="#0x02-序列文件接口-实现原理" class="headerlink" title="0x02. 序列文件接口 - 实现原理"></a>0x02. 序列文件接口 - 实现原理</h1><p>序列文件接口的实现其实可以理解成在 VFS 上套了一层通用 wrapper，整体上还是比较简单的，本节我们从 VFS 文件接口的调用路径来看序列文件接口是如何实现的</p>
+<h2 id="seq-open-：-序列文件初始化"><a href="#seq-open-：-序列文件初始化" class="headerlink" title="seq_open() ： 序列文件初始化"></a>seq_open() ： 序列文件初始化</h2><p>使用序列文件接口需要在自定义的 <code>read()</code> 函数中调用 <code>seq_open()</code> 进行初始化，这个函数的作用其实就是分配一个 <code>seq_file</code> 结构体存放到 <code>file::private</code> 中，并去除文件属性 <code>file::f_mode</code> 中的 <code>FMODE_PWRITE</code> 位（即文件变得不可被使用 <code>pwrite()</code> 访问，因为这个函数不会改变文件偏移，对序列文件接口而言增加了操作复杂性）</p>
+<p>不过比起简约的函数本身，注释则详细地对序列文件接口进行了说明：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> *	seq_open -	初始化序列文件</span><br><span class="hljs-comment"> *	@file: 我们要初始化的文件</span><br><span class="hljs-comment"> *	@op: 描述序列的方法表</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> *	seq_open() 设置了 @file, 将其与一个由 @op 描述的序列进行关联。</span><br><span class="hljs-comment"> *	@op-&gt;start() 启动了迭代器并返回序列的第一个元素。</span><br><span class="hljs-comment"> *	@op-&gt;stop() 将其停止。  </span><br><span class="hljs-comment"> *	@op-&gt;next() 返回序列的下一个元素。</span><br><span class="hljs-comment"> *	@op-&gt;show() 将元素打印到缓冲区中。</span><br><span class="hljs-comment"> *	在出错的情况下 -&gt;start() 与 -&gt;next() 返回 ERR_PTR(error)，</span><br><span class="hljs-comment"> *  在序列到达末尾时返回 NULL。</span><br><span class="hljs-comment"> *	-&gt;show() 在成功时返回 0,在出错时返回一个负数值，</span><br><span class="hljs-comment"> *  返回 SEQ_SKIP 表示 &quot;丢弃这个元素并继续移动&quot;。</span><br><span class="hljs-comment"> *	注意: seq_open() 会分配一个 struct seq_file 并将其指针</span><br><span class="hljs-comment"> *	存放在 @file-&gt;private_data，这个指针不应当被修改。</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">seq_open</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file *file, <span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> seq_operations *op)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">seq_file</span> *<span class="hljs-title">p</span>;</span><br><br>	WARN_ON(file-&gt;private_data);<br><br>	p = kmem_cache_zalloc(seq_file_cache, GFP_KERNEL);<br>	<span class="hljs-keyword">if</span> (!p)<br>		<span class="hljs-keyword">return</span> -ENOMEM;<br><br>	file-&gt;private_data = p;<br><br>	mutex_init(&amp;p-&gt;lock);<br>	p-&gt;op = op;<br><br>	<span class="hljs-comment">// 没有引用计数: &#x27;p&#x27; 的生命周期被约束到文件的生命周期</span><br>	p-&gt;file = file;<br><br>	<span class="hljs-comment">/*</span><br><span class="hljs-comment">	 * seq_files 支持 lseek() 与 pread()，且一点也不支持 write()，</span><br><span class="hljs-comment">	 * 但我们因为一些历史原因在这清除 FMODE_PWRITE here 位。</span><br><span class="hljs-comment">	 *</span><br><span class="hljs-comment">	 * 若一个 seq_files 的使用者：</span><br><span class="hljs-comment">	 * a) 实现了 file.write() 且 b) 想要支持 pwrite()</span><br><span class="hljs-comment">	 * 使用者需要在自己的 file.open() 中在调用 seq_open() 后再设置 FMODE_PWRITE。</span><br><span class="hljs-comment">	 */</span><br>	file-&gt;f_mode &amp;= ~FMODE_PWRITE;<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br>EXPORT_SYMBOL(seq_open);<br></code></pre></td></tr></table></figure>
+
+<p>这个函数有一个更常用的 wrapper 叫 <code>__seq_open_private()</code> ，主要就是帮开发者多 kmalloc() 一个内存对象放到 <code>seq_file::private</code> 中，这里不再赘叙：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> *__seq_open_private(<span class="hljs-keyword">struct</span> file *f, <span class="hljs-type">const</span> <span class="hljs-keyword">struct</span> seq_operations *ops,<br>		<span class="hljs-type">int</span> psize)<br>&#123;<br>	<span class="hljs-type">int</span> rc;<br>	<span class="hljs-type">void</span> *private;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">seq_file</span> *<span class="hljs-title">seq</span>;</span><br><br>	private = kzalloc(psize, GFP_KERNEL_ACCOUNT);<br>	<span class="hljs-keyword">if</span> (private == <span class="hljs-literal">NULL</span>)<br>		<span class="hljs-keyword">goto</span> out;<br><br>	rc = seq_open(f, ops);<br>	<span class="hljs-keyword">if</span> (rc &lt; <span class="hljs-number">0</span>)<br>		<span class="hljs-keyword">goto</span> out_free;<br><br>	seq = f-&gt;private_data;<br>	seq-&gt;private = private;<br>	<span class="hljs-keyword">return</span> private;<br><br>out_free:<br>	kfree(private);<br>out:<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>&#125;<br>EXPORT_SYMBOL(__seq_open_private);<br></code></pre></td></tr></table></figure>
+
+<h2 id="（⭐核心）seq-read-：读取序列文件"><a href="#（⭐核心）seq-read-：读取序列文件" class="headerlink" title="（⭐核心）seq_read() ：读取序列文件"></a>（⭐核心）seq_read() ：读取序列文件</h2><p><code>seq_read()</code> 是正常 VFS 路径上 <code>read()</code> 会调用的函数，因为对于序列文件接口而言我们将函数表中的函数指针指定为该函数，不过这个函数主要是对 <code>seq_read_iter()</code> 的包装，在调用之前简单初始化了写入目标记录 <code>iovec</code> 与操作记录块 <code>kiocb</code> ：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> *	seq_read -	序列文件的 -&gt;read() 方法.</span><br><span class="hljs-comment"> *	@file: 要读取的源文件</span><br><span class="hljs-comment"> *	@buf: 要读入的目标缓冲区</span><br><span class="hljs-comment"> *	@size: 最大读取字节</span><br><span class="hljs-comment"> *	@ppos: 当前文件位置</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> *	Ready-made -&gt;f_op-&gt;read()</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">ssize_t</span> <span class="hljs-title function_">seq_read</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file *file, <span class="hljs-type">char</span> __user *buf, <span class="hljs-type">size_t</span> size, <span class="hljs-type">loff_t</span> *ppos)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">iovec</span> <span class="hljs-title">iov</span> =</span> &#123; .iov_base = buf, .iov_len = size&#125;;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kiocb</span> <span class="hljs-title">kiocb</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">iov_iter</span> <span class="hljs-title">iter</span>;</span><br>	<span class="hljs-type">ssize_t</span> ret;<br><br>	init_sync_kiocb(&amp;kiocb, file);<br>	iov_iter_init(&amp;iter, ITER_DEST, &amp;iov, <span class="hljs-number">1</span>, size);<br><br>	kiocb.ki_pos = *ppos;<br>	ret = seq_read_iter(&amp;kiocb, &amp;iter);<br>	*ppos = kiocb.ki_pos;<br>	<span class="hljs-keyword">return</span> ret;<br>&#125;<br>EXPORT_SYMBOL(seq_read);<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p> 什么，你还不知道 iovec、 kiocb、iov_iter 是什么东西？简单来说就是在内核 IO 中用于存放操作信息的数据结构，前者是基础结构，后两者主要配对用于异步 IO：</p>
+<ul>
+<li>iovec：<code>io vector</code>，表示一块带长度的缓冲区</li>
+<li>kiocb：<code>kernel i/o call back</code> ，记录文件侧 IO 信息，包括文件指针、当前偏移等</li>
+<li>iov_iter ：<code>iovec iterator</code> ，用来操作 iovec 的迭代器，记录内存侧 IO 信息，包括内存地址、当前偏移等</li>
+</ul>
+</blockquote>
+<p>下面我们来到序列文件读取的核心函数 <code>seq_read_iter()</code> ，首先会检查文件侧偏移，若是 0 则将序列文件的序列对象偏移与读取字节数也都设为 0：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * Ready-made -&gt;f_op-&gt;read_iter()</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">ssize_t</span> <span class="hljs-title function_">seq_read_iter</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> kiocb *iocb, <span class="hljs-keyword">struct</span> iov_iter *iter)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">seq_file</span> *<span class="hljs-title">m</span> =</span> iocb-&gt;ki_filp-&gt;private_data;<br>	<span class="hljs-type">size_t</span> copied = <span class="hljs-number">0</span>;<br>	<span class="hljs-type">size_t</span> n;<br>	<span class="hljs-type">void</span> *p;<br>	<span class="hljs-type">int</span> err = <span class="hljs-number">0</span>;<br><br>	<span class="hljs-keyword">if</span> (!iov_iter_count(iter))<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br><br>	mutex_lock(&amp;m-&gt;lock);<br><br>	<span class="hljs-comment">/*</span><br><span class="hljs-comment">	 * if request is to read from zero offset, reset iterator to first</span><br><span class="hljs-comment">	 * record as it might have been already advanced by previous requests</span><br><span class="hljs-comment">	 */</span><br>	<span class="hljs-keyword">if</span> (iocb-&gt;ki_pos == <span class="hljs-number">0</span>) &#123;<br>		m-&gt;index = <span class="hljs-number">0</span>;<br>		m-&gt;count = <span class="hljs-number">0</span>;<br>	&#125;<br></code></pre></td></tr></table></figure>
+
+<p>若是文件侧偏移与序列文件读取偏移不等则调用 <code>traverse()</code> 函数处理，如果出错直接跳到 <code>Done</code> 进行收尾，否则将序列文件偏移与文件偏移进行同步：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* Don&#x27;t assume ki_pos is where we left it */</span><br><span class="hljs-keyword">if</span> (unlikely(iocb-&gt;ki_pos != m-&gt;read_pos)) &#123;<br>	<span class="hljs-keyword">while</span> ((err = traverse(m, iocb-&gt;ki_pos)) == -EAGAIN)<br>		;<br>	<span class="hljs-keyword">if</span> (err) &#123;<br>		<span class="hljs-comment">/* With prejudice... */</span><br>		m-&gt;read_pos = <span class="hljs-number">0</span>;<br>		m-&gt;index = <span class="hljs-number">0</span>;<br>		m-&gt;count = <span class="hljs-number">0</span>;<br>		<span class="hljs-keyword">goto</span> Done;<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		m-&gt;read_pos = iocb-&gt;ki_pos;<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>traverse()</code> 函数有点类似一个小的 <code>seq_read_iter()</code> 的核心，作用其实是 <strong>将序列文件的偏移同步到指定的偏移值</strong> ，这里是<strong>同步到文件侧记录的偏移</strong> ：</p>
+<ul>
+<li>初始化从第一个序列数据对象开始读取，检查序列文件的临时缓冲区是否分配</li>
+<li>调用 <code>op-&gt;start()</code> 初始化后进入读取循环：<ul>
+<li>首先调用 <code>op-&gt;show()</code> 打印到临时缓冲区上</li>
+<li>调用 <code>seq_has_overflowed()</code> 检查临时缓冲区是否读满，满则跳到 <code>Eoverflow</code> 标签重新分配一块更大的内存，需要注意的是 <code>traverse()</code> 的作用主要是进行正式读取前的偏移同步，因此不会保存前面读取的数据</li>
+<li>调用 <code>op-&gt;next()</code> 移动到下个序列数据对象，若本次超出预期偏移则减去对应数据量大小并退出循环，注意这里额外用了一个变量 <code>pos</code> 记录读取的数据量，且每次完成读取会清空临时缓冲区读取计数 <code>m-&gt;count</code> 加到 <code>pos</code> 上</li>
+<li>若完成读取到指定偏移的任务则退出循环</li>
+</ul>
+</li>
+<li>调用 <code>op-&gt;stop()</code> 终止读取并返回</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">traverse</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-type">loff_t</span> offset)</span><br>&#123;<br>	<span class="hljs-type">loff_t</span> pos = <span class="hljs-number">0</span>;<br>	<span class="hljs-type">int</span> error = <span class="hljs-number">0</span>;<br>	<span class="hljs-type">void</span> *p;<br><br>	m-&gt;index = <span class="hljs-number">0</span>;<br>	m-&gt;count = m-&gt;from = <span class="hljs-number">0</span>;<br>	<span class="hljs-keyword">if</span> (!offset)<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br><br>	<span class="hljs-keyword">if</span> (!m-&gt;buf) &#123;<br>		m-&gt;buf = seq_buf_alloc(m-&gt;size = PAGE_SIZE);<br>		<span class="hljs-keyword">if</span> (!m-&gt;buf)<br>			<span class="hljs-keyword">return</span> -ENOMEM;<br>	&#125;<br>	p = m-&gt;op-&gt;start(m, &amp;m-&gt;index);<br>	<span class="hljs-keyword">while</span> (p) &#123;<br>		error = PTR_ERR(p);<br>		<span class="hljs-keyword">if</span> (IS_ERR(p))<br>			<span class="hljs-keyword">break</span>;<br>		error = m-&gt;op-&gt;show(m, p);<br>		<span class="hljs-keyword">if</span> (error &lt; <span class="hljs-number">0</span>)<br>			<span class="hljs-keyword">break</span>;<br>		<span class="hljs-keyword">if</span> (unlikely(error)) &#123;<br>			error = <span class="hljs-number">0</span>;<br>			m-&gt;count = <span class="hljs-number">0</span>;<br>		&#125;<br>		<span class="hljs-keyword">if</span> (seq_has_overflowed(m))<br>			<span class="hljs-keyword">goto</span> Eoverflow;<br>		p = m-&gt;op-&gt;next(m, p, &amp;m-&gt;index);<br>		<span class="hljs-keyword">if</span> (pos + m-&gt;count &gt; offset) &#123;<br>			m-&gt;from = offset - pos;<br>			m-&gt;count -= m-&gt;from;<br>			<span class="hljs-keyword">break</span>;<br>		&#125;<br>		pos += m-&gt;count;<br>		m-&gt;count = <span class="hljs-number">0</span>;<br>		<span class="hljs-keyword">if</span> (pos == offset)<br>			<span class="hljs-keyword">break</span>;<br>	&#125;<br>	m-&gt;op-&gt;stop(m, p);<br>	<span class="hljs-keyword">return</span> error;<br><br>Eoverflow:<br>	m-&gt;op-&gt;stop(m, p);<br>	kvfree(m-&gt;buf);<br>	m-&gt;count = <span class="hljs-number">0</span>;<br>	m-&gt;buf = seq_buf_alloc(m-&gt;size &lt;&lt;= <span class="hljs-number">1</span>);<br>	<span class="hljs-keyword">return</span> !m-&gt;buf ? -ENOMEM : -EAGAIN;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>回到 <code>seq_read_iter()</code> ，接下来首先检查 <code>buf</code> 是否分配，之后检查 <code>buf</code> 上是否有数据 <code>m-&gt;count != 0</code> ，若是则拷贝到 <code>iovec</code> 所指示的内存上：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/* grab buffer if we didn&#x27;t have one */</span><br><span class="hljs-keyword">if</span> (!m-&gt;buf) &#123;<br>	m-&gt;buf = seq_buf_alloc(m-&gt;size = PAGE_SIZE);<br>	<span class="hljs-keyword">if</span> (!m-&gt;buf)<br>		<span class="hljs-keyword">goto</span> Enomem;<br>&#125;<br><span class="hljs-comment">// something left in the buffer - copy it out first</span><br><span class="hljs-keyword">if</span> (m-&gt;count) &#123;<br>	n = copy_to_iter(m-&gt;buf + m-&gt;from, m-&gt;count, iter);<br>	m-&gt;count -= n;<br>	m-&gt;from += n;<br>	copied += n;<br>	<span class="hljs-keyword">if</span> (m-&gt;count)	<span class="hljs-comment">// hadn&#x27;t managed to copy everything</span><br>		<span class="hljs-keyword">goto</span> Done;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>然后是预检查部分，作用是 <strong>进行一次读取，并检查缓冲区大小是否足够</strong> ：</p>
+<ul>
+<li>首先初始化序列文件临时缓冲区的起始偏移为 0，调用 <code>op-&gt;start()</code>  进行初始化，然后进入读取循环：<ul>
+<li>首先调用 <code>op-&gt;show()</code> 打印当前序列数据对象到临时缓冲区，若跳过（如 <code>SEQ_SKIP</code> ）则当前轮的读取长度（ <code>m-&gt;count</code> ）记为 <code>0</code> ，并开始下轮循环</li>
+<li>若临时缓冲区<strong>未满</strong> ，跳到 Fill 标签 <strong>开始正式的继续读取</strong> ，否则调用 <code>op-&gt;stop()</code> 停止并<strong>重新分配一个更大的缓冲区</strong>，之后重新读取当前序列数据对象</li>
+</ul>
+</li>
+<li>若正常退出循环（break），说明读取失败，调用 <code>op-&gt;stop()</code> 停止并直接跳到 <code>Done</code> 标签进行收尾</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// get a non-empty record in the buffer</span><br>m-&gt;from = <span class="hljs-number">0</span>;<br>p = m-&gt;op-&gt;start(m, &amp;m-&gt;index);<br><span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>) &#123;<br>	err = PTR_ERR(p);<br>	<span class="hljs-keyword">if</span> (!p || IS_ERR(p))	<span class="hljs-comment">// EOF or an error</span><br>		<span class="hljs-keyword">break</span>;<br>	err = m-&gt;op-&gt;show(m, p);<br>	<span class="hljs-keyword">if</span> (err &lt; <span class="hljs-number">0</span>)		<span class="hljs-comment">// hard error</span><br>		<span class="hljs-keyword">break</span>;<br>	<span class="hljs-keyword">if</span> (unlikely(err))	<span class="hljs-comment">// -&gt;show() says &quot;skip it&quot;</span><br>		m-&gt;count = <span class="hljs-number">0</span>;<br>	<span class="hljs-keyword">if</span> (unlikely(!m-&gt;count)) &#123; <span class="hljs-comment">// empty record</span><br>		p = m-&gt;op-&gt;next(m, p, &amp;m-&gt;index);<br>		<span class="hljs-keyword">continue</span>;<br>	&#125;<br>	<span class="hljs-keyword">if</span> (!seq_has_overflowed(m)) <span class="hljs-comment">// got it</span><br>		<span class="hljs-keyword">goto</span> Fill;<br>	<span class="hljs-comment">// need a bigger buffer</span><br>	m-&gt;op-&gt;stop(m, p);<br>	kvfree(m-&gt;buf);<br>	m-&gt;count = <span class="hljs-number">0</span>;<br>	m-&gt;buf = seq_buf_alloc(m-&gt;size &lt;&lt;= <span class="hljs-number">1</span>);<br>	<span class="hljs-keyword">if</span> (!m-&gt;buf)<br>		<span class="hljs-keyword">goto</span> Enomem;<br>	p = m-&gt;op-&gt;start(m, &amp;m-&gt;index);<br>&#125;<br><span class="hljs-comment">// EOF or an error</span><br>m-&gt;op-&gt;stop(m, p);<br>m-&gt;count = <span class="hljs-number">0</span>;<br><span class="hljs-keyword">goto</span> Done;<br></code></pre></td></tr></table></figure>
+
+<p>接下来就是核心的数据读取部分了：</p>
+<ul>
+<li>核心还是一个读取循环，不过前面预读取时已经 <code>start()</code> 过了所以这里直接开始读取：<ul>
+<li>首先直接调用 <code>op-&gt;next()</code> 获取下一个序列数据对象（因为前面已经读过一次了），若开发者定义的该函数没有更新 <code>m-&gt;index</code> 则会手动自增，获取出错则跳出循环</li>
+<li>若缓冲区上已有数据量大于 iovec 迭代器剩余量（<code>iov_iter_count(iter)</code>）则跳出循环</li>
+<li>调用 <code>op-&gt;show()</code> 将新获取到的序列数据对象打印到缓冲区上，若溢出则跳出循环，注意这里的 <code>offs</code> 记录的是当前次循环开始前的 <code>m-&gt;count</code></li>
+</ul>
+</li>
+<li>接下来调用 <code>op-&gt;stop()</code> 停止，并调用 <code>copy_to_iter()</code> 将临时缓冲区上数据拷贝到 iovec 迭代器所指示的 iovec 所指示的内存上</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs c">Fill:<br>	<span class="hljs-comment">// one non-empty record is in the buffer; if they want more,</span><br>	<span class="hljs-comment">// try to fit more in, but in any case we need to advance</span><br>	<span class="hljs-comment">// the iterator once for every record shown.</span><br>	<span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>) &#123;<br>		<span class="hljs-type">size_t</span> offs = m-&gt;count;<br>		<span class="hljs-type">loff_t</span> pos = m-&gt;index;<br><br>		p = m-&gt;op-&gt;next(m, p, &amp;m-&gt;index);<br>		<span class="hljs-keyword">if</span> (pos == m-&gt;index) &#123;<br>			pr_info_ratelimited(<span class="hljs-string">&quot;buggy .next function %ps did not update position index\n&quot;</span>,<br>					    m-&gt;op-&gt;next);<br>			m-&gt;index++;<br>		&#125;<br>		<span class="hljs-keyword">if</span> (!p || IS_ERR(p))	<span class="hljs-comment">// no next record for us</span><br>			<span class="hljs-keyword">break</span>;<br>		<span class="hljs-keyword">if</span> (m-&gt;count &gt;= iov_iter_count(iter))<br>			<span class="hljs-keyword">break</span>;<br>		err = m-&gt;op-&gt;show(m, p);<br>		<span class="hljs-keyword">if</span> (err &gt; <span class="hljs-number">0</span>) &#123;		<span class="hljs-comment">// -&gt;show() says &quot;skip it&quot;</span><br>			m-&gt;count = offs;<br>		&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (err || seq_has_overflowed(m)) &#123;<br>			m-&gt;count = offs;<br>			<span class="hljs-keyword">break</span>;<br>		&#125;<br>	&#125;<br>	m-&gt;op-&gt;stop(m, p);<br>	n = copy_to_iter(m-&gt;buf, m-&gt;count, iter);<br>	copied += n;<br>	m-&gt;count -= n;<br>	m-&gt;from = n;<br></code></pre></td></tr></table></figure>
+
+<p>最后就是一些常规的收尾工作，例如在序列文件与 kiocb 中记录拷贝的字节数等：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c">Done:<br>	<span class="hljs-keyword">if</span> (unlikely(!copied)) &#123;<br>		copied = m-&gt;count ? -EFAULT : err;<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		iocb-&gt;ki_pos += copied;<br>		m-&gt;read_pos += copied;<br>	&#125;<br>	mutex_unlock(&amp;m-&gt;lock);<br>	<span class="hljs-keyword">return</span> copied;<br>Enomem:<br>	err = -ENOMEM;<br>	<span class="hljs-keyword">goto</span> Done;<br>&#125;<br>EXPORT_SYMBOL(seq_read_iter);<br></code></pre></td></tr></table></figure>
+
+<p>不难看出序列文件接口的读取实现其实非常的简洁</p>
+<h2 id="seq-lseek-：序列文件偏移操作"><a href="#seq-lseek-：序列文件偏移操作" class="headerlink" title="seq_lseek()：序列文件偏移操作"></a>seq_lseek()：序列文件偏移操作</h2><p>这个函数比较简洁，主要就是移动当前的序列文件偏移，对于相对偏移值（<code>SEEK_CUR</code> 路径）会先转换成绝对偏移值，进行偏移值计算的路径归一化，偏移值移动则主要靠 <code>traverse()</code> 完成，前文已经讲过故这里不再赘叙：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> *	seq_lseek -	序列文件的 -&gt;llseek() 方法</span><br><span class="hljs-comment"> *	@file: the file in question</span><br><span class="hljs-comment"> *	@offset: 新的偏移值</span><br><span class="hljs-comment"> *	@whence: 0 for 绝对值, 1 for 相对位置</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> *	Ready-made -&gt;f_op-&gt;llseek()</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">loff_t</span> <span class="hljs-title function_">seq_lseek</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file *file, <span class="hljs-type">loff_t</span> offset, <span class="hljs-type">int</span> whence)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">seq_file</span> *<span class="hljs-title">m</span> =</span> file-&gt;private_data;<br>	<span class="hljs-type">loff_t</span> retval = -EINVAL;<br><br>	mutex_lock(&amp;m-&gt;lock);<br>	<span class="hljs-keyword">switch</span> (whence) &#123;<br>	<span class="hljs-keyword">case</span> SEEK_CUR:<br>		offset += file-&gt;f_pos;<br>		fallthrough;<br>	<span class="hljs-keyword">case</span> SEEK_SET:<br>		<span class="hljs-keyword">if</span> (offset &lt; <span class="hljs-number">0</span>)<br>			<span class="hljs-keyword">break</span>;<br>		retval = offset;<br>		<span class="hljs-keyword">if</span> (offset != m-&gt;read_pos) &#123;<br>			<span class="hljs-keyword">while</span> ((retval = traverse(m, offset)) == -EAGAIN)<br>				;<br>			<span class="hljs-keyword">if</span> (retval) &#123;<br>				<span class="hljs-comment">/* with extreme prejudice... */</span><br>				file-&gt;f_pos = <span class="hljs-number">0</span>;<br>				m-&gt;read_pos = <span class="hljs-number">0</span>;<br>				m-&gt;index = <span class="hljs-number">0</span>;<br>				m-&gt;count = <span class="hljs-number">0</span>;<br>			&#125; <span class="hljs-keyword">else</span> &#123;<br>				m-&gt;read_pos = offset;<br>				retval = file-&gt;f_pos = offset;<br>			&#125;<br>		&#125; <span class="hljs-keyword">else</span> &#123;<br>			file-&gt;f_pos = offset;<br>		&#125;<br>	&#125;<br>	mutex_unlock(&amp;m-&gt;lock);<br>	<span class="hljs-keyword">return</span> retval;<br>&#125;<br>EXPORT_SYMBOL(seq_lseek);<br></code></pre></td></tr></table></figure>
+
+<h2 id="seq-release-：关闭序列文件"><a href="#seq-release-：关闭序列文件" class="headerlink" title="seq_release()：关闭序列文件"></a>seq_release()：关闭序列文件</h2><p>这个函数主要是进行释放内存的收尾工作，不再赘叙：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> *	seq_release -	free the structures associated with sequential file.</span><br><span class="hljs-comment"> *	@file: file in question</span><br><span class="hljs-comment"> *	@inode: its inode</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> *	Frees the structures associated with sequential file; can be used</span><br><span class="hljs-comment"> *	as -&gt;f_op-&gt;release() if you don&#x27;t have private data to destroy.</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">seq_release</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *inode, <span class="hljs-keyword">struct</span> file *file)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">seq_file</span> *<span class="hljs-title">m</span> =</span> file-&gt;private_data;<br>	kvfree(m-&gt;buf);<br>	kmem_cache_free(seq_file_cache, m);<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br>EXPORT_SYMBOL(seq_release);<br></code></pre></td></tr></table></figure>
+
+<p>对于 <code>__seq_open_private()</code> ，也有一个对应的关闭函数 <code>seq_release_private()</code> ，同样是在 <code>seq_release()</code> 上的 wrapper，不过会帮你释放掉 <code>seq_file::private</code> ：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">seq_release_private</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> inode *inode, <span class="hljs-keyword">struct</span> file *file)</span><br>&#123;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">seq_file</span> *<span class="hljs-title">seq</span> =</span> file-&gt;private_data;<br><br>	kfree(seq-&gt;private);<br>	seq-&gt;private = <span class="hljs-literal">NULL</span>;<br>	<span class="hljs-keyword">return</span> seq_release(inode, file);<br>&#125;<br>EXPORT_SYMBOL(seq_release_private);<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>至此序列文件接口的实现基本完结，可以看到这个实现其实非常的简洁，这个场景在内核中其实非常常见（例如读取各种内核对象的信息），对于开发者而言并不需要每个场景都手写一套，因此通用的序列文件接口应运而生</p>
+</blockquote>
+<h1 id="0x03-序列文件接口-其他"><a href="#0x03-序列文件接口-其他" class="headerlink" title="0x03. 序列文件接口 - 其他"></a>0x03. 序列文件接口 - 其他</h1><p>序列文件接口其实没啥更多能讲的东西了，这一节主要记录一些比较零碎的迷思</p>
+<h2 id="在内核中读取特殊序列文件"><a href="#在内核中读取特殊序列文件" class="headerlink" title="在内核中读取特殊序列文件"></a>在内核中读取特殊序列文件</h2><!--因为序列文件接口被开发出来的目的便是为了向用户空间导出内核数据，因此在内核空间读取序列文件在设计初期并没有被考虑到， 所以数据拷贝使用的是 AIO 接口的 `copy_to_iter()` ，**仅用来将数据从内核空间拷贝到用户空间** ，因此你无法通过 `kernel_read()` 这样的 API 来读取这类文件-->
+
+<p>部分的序列文件接口对于内核空间是不可以使用 <code>kernel_read()</code> 进行读取的，因为其文件函数表实现的是 <code>read()</code> 接口而非 <code>read_iter()</code> 接口，但是实战开发中我们往往又需要在内核空间读取一些序列文件，这通常是因为这一部分内核数据的获取接口并不对内核驱动导出，但留有向用户空间导出的序列文件接口，此时序列文件接口便几乎是我们唯一的数据获取方式</p>
+<blockquote>
+<p>例如在 rootkit 开发当中我们通常需要获取各种内核符号的地址，但对应的获取内核符号的内核接口 <code>kallsyms_lookup_name()</code> 在内核版本 <code>5.7.0</code> 后默认不再导出，因此我们只能通过读取 <code>/proc/kallsyms</code>  进行获取</p>
+</blockquote>
+<p>解决的方案其实很简单： <strong>我们只需要分配一块属于用户空间的临时内存即可</strong> ，这可以通过 <code>vm_mmap() &amp; vm_munmap()</code> 完成，下面是一个简单的例子：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/module.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/kernel.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/init.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/fs.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/mm.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/types.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/mman.h&gt;</span></span><br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> __init <span class="hljs-title function_">a3kmod_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file</span> *<span class="hljs-title">filp</span>;</span><br>    <span class="hljs-type">char</span> __user *ubuf;<br>    <span class="hljs-type">char</span> *kbuf;<br>    <span class="hljs-type">int</span> ret = <span class="hljs-number">0</span>;<br>    <span class="hljs-type">ssize_t</span> read_len;<br>    <span class="hljs-type">loff_t</span> fpos;<br><br>    printk(KERN_INFO <span class="hljs-string">&quot;[a3kmod:] Hello to kernel space!\n&quot;</span>);<br><br>    ubuf = (<span class="hljs-type">void</span>*) vm_mmap(<span class="hljs-literal">NULL</span>,<br>                           <span class="hljs-number">0</span>,<br>                           PAGE_SIZE,<br>                           PROT_READ | PROT_WRITE,<br>                           MAP_ANONYMOUS | MAP_PRIVATE,<br>                           <span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">if</span> (!ubuf) &#123;<br>        printk(KERN_ERR <span class="hljs-string">&quot;[a3kmod:] FAILED to allocate userspace buf!\n&quot;</span>);<br>        ret = -ENOMEM;<br>        <span class="hljs-keyword">goto</span> out_ret;<br>    &#125;<br><br>    filp = filp_open(<span class="hljs-string">&quot;/proc/kallsyms&quot;</span>, O_RDONLY, <span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">if</span> (IS_ERR(filp)) &#123;<br>        printk(KERN_ERR <span class="hljs-string">&quot;[a3kmod:] FAILED to open file! Error code: %ld\n&quot;</span>,<br>               PTR_ERR(filp));<br>        ret = PTR_ERR(filp);<br>        <span class="hljs-keyword">goto</span> out_free_ubuf;<br>    &#125;<br><br>    kbuf = kmalloc(PAGE_SIZE, GFP_KERNEL);<br>    <span class="hljs-keyword">if</span> (!kbuf) &#123;<br>        printk(KERN_ERR <span class="hljs-string">&quot;[a3kmod:] FAILED to allocate kernelspace buf!\n&quot;</span>);<br>        ret = -ENOMEM;<br>        <span class="hljs-keyword">goto</span> out_close_file;<br>    &#125;<br>    <span class="hljs-built_in">memset</span>(kbuf, <span class="hljs-number">0</span>, PAGE_SIZE);<br><br>    fpos = <span class="hljs-number">0</span>;<br>    read_len = filp-&gt;f_op-&gt;read(filp, ubuf, PAGE_SIZE, &amp;fpos);<br>    filp-&gt;f_pos = fpos;<br>    <span class="hljs-keyword">if</span> (read_len &lt; <span class="hljs-number">0</span>) &#123;<br>        printk(KERN_ERR <span class="hljs-string">&quot;[a3kmod:] FAILED to read file! Error code: %ld\n&quot;</span>,<br>              read_len);<br>        ret = read_len;<br>        <span class="hljs-keyword">goto</span> out_close_file;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (copy_from_user(kbuf, ubuf, read_len)) &#123;<br>        printk(KERN_ERR <span class="hljs-string">&quot;[a3kmod:] FAILED to copy data to kernel!\n&quot;</span>);<br>        ret = -EFAULT;<br>        <span class="hljs-keyword">goto</span> out_close_file;<br>    &#125;<br><br>    printk(KERN_INFO <span class="hljs-string">&quot;[a3kmod:] Got data: %s\n&quot;</span>, kbuf);<br><br>out_close_file:<br>    filp_close(filp, <span class="hljs-literal">NULL</span>);<br>out_free_ubuf:<br>    vm_munmap((<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>) ubuf, PAGE_SIZE);<br>out_ret:<br>    <span class="hljs-keyword">return</span> ret;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> __exit <span class="hljs-title function_">a3kmod_exit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    printk(KERN_INFO <span class="hljs-string">&quot;[a3kmod:] Goodbye to kernel space!\n&quot;</span>);<br>&#125;<br><br>module_init(a3kmod_init);<br>module_exit(a3kmod_exit);<br>MODULE_LICENSE(<span class="hljs-string">&quot;GPL v2&quot;</span>);<br>MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>成功读取 <code>/proc/kallsyms</code> 文件：</p>
+<p><img src="https://s2.loli.net/2024/06/03/juGzqY8l1DJUeiK.png" srcset="/img/loading.gif" lazyload></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/OS/" class="category-chain-item">OS</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+        <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
+      
+        <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>
+      
+        <a href="/tags/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">#文件系统</a>
+      
+        <a href="/tags/%E5%BA%8F%E5%88%97%E6%96%87%E4%BB%B6%E6%8E%A5%E5%8F%A3/">#序列文件接口</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【OS.0x05】Linux 内核文件系统 - 初探序列文件接口</div>
+      <div>https://arttnba3.github.io/2024/05/31/OS-0X05-LINUX-KERNEL-FILESYSTEM-SEQFILE/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年5月31日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/04/30/DISTRO-0X02-SURFACE_INSTALL_GENTOO_WINDOWS/" title="【DISTRO.0x02】在 Surface Pro 8 上安装 Gentoo">
+                        <span class="hidden-mobile">【DISTRO.0x02】在 Surface Pro 8 上安装 Gentoo</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
