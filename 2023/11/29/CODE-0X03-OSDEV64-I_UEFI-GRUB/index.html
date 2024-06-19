@@ -20,14 +20,14 @@
   
     <meta name="description" content="遥遥领先！遥遥领先！遥遥领先！">
 <meta property="og:type" content="article">
-<meta property="og:title" content="【CODE.0x03】现代 64 位 OS 开发手记 I：UEFI 启动、GRUB 引导、Frame buffer 文字输出">
+<meta property="og:title" content="【CODE.0x03】现代 64 位 OS 开发手记 I：Cmake构建、UEFI 启动、GRUB 引导、Frame buffer 文字输出">
 <meta property="og:url" content="https://arttnba3.github.io/2023/11/29/CODE-0X03-OSDEV64-I_UEFI-GRUB/index.html">
 <meta property="og:site_name" content="arttnba3&#39;s blog">
 <meta property="og:description" content="遥遥领先！遥遥领先！遥遥领先！">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129232638.png">
 <meta property="article:published_time" content="2023-11-29T12:21:47.000Z">
-<meta property="article:modified_time" content="2024-06-13T08:57:27.478Z">
+<meta property="article:modified_time" content="2024-06-19T03:55:56.968Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="开发手记">
 <meta property="article:tag" content="操作系统">
@@ -39,7 +39,7 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>【CODE.0x03】现代 64 位 OS 开发手记 I：UEFI 启动、GRUB 引导、Frame buffer 文字输出 - arttnba3&#39;s blog</title>
+  <title>【CODE.0x03】现代 64 位 OS 开发手记 I：Cmake构建、UEFI 启动、GRUB 引导、Frame buffer 文字输出 - arttnba3&#39;s blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -228,7 +228,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="【CODE.0x03】现代 64 位 OS 开发手记 I：UEFI 启动、GRUB 引导、Frame buffer 文字输出"></span>
+            <span id="subtitle" data-typed-text="【CODE.0x03】现代 64 位 OS 开发手记 I：Cmake构建、UEFI 启动、GRUB 引导、Frame buffer 文字输出"></span>
           
         </div>
 
@@ -251,7 +251,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          30k 字
+          31k 字
         
       </span>
     
@@ -262,7 +262,7 @@
         
         
         
-          254 分钟
+          255 分钟
         
       </span>
     
@@ -312,12 +312,12 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">【CODE.0x03】现代 64 位 OS 开发手记 I：UEFI 启动、GRUB 引导、Frame buffer 文字输出</h1>
+            <h1 style="display: none">【CODE.0x03】现代 64 位 OS 开发手记 I：Cmake构建、UEFI 启动、GRUB 引导、Frame buffer 文字输出</h1>
             
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2024年6月13日 晚上
+                    本文最后更新于：2024年6月19日 下午
                   
                 
               </p>
@@ -491,7 +491,7 @@
 
 <p>网上也没有找到什么比较好的解决方案，笔者只好从源码进行编译</p>
 <blockquote>
-<p>但是 Ubuntu 自带的 <code>grub-install</code> 就能正常使用，<del>t新系统的苦逼.txt</del></p>
+<p>但是 Ubuntu&#x2F;openSUSE 自带的 <code>grub-install/grub2-install</code> 就能正常使用，怎么回事呢</p>
 </blockquote>
 </blockquote>
 <p>接下来我们新建一个文件 <code>/mnt/boot/grub/grub.cfg</code> （假设你的 U 盘 EFI 分区和笔者一样挂载在 <code>/mnt</code> 下），其为 GRUB 的配置文件，编写内容如下：</p>
@@ -548,8 +548,8 @@
 <blockquote>
 <p>什么，你不知道如何编写 CMake？还不<a target="_blank" rel="noopener" href="https://cmake.org/cmake/help/latest/index.html">赶快学！</a></p>
 </blockquote>
-<p>根目录的 <code>CMakeLists.txt</code> 编写如下，主要作用就是准备统一的编译参数、进入不同文件夹进行 make、链接所有的目标文件：</p>
-<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs cmake"><span class="hljs-keyword">cmake_minimum_required</span>(VERSION <span class="hljs-number">3.16</span>)<br><span class="hljs-keyword">project</span>(ClosureOS)<br><br><span class="hljs-comment"># for debugging only</span><br><span class="hljs-comment">#set(CMAKE_VERBOSE_MAKEFILE ON)</span><br><br><span class="hljs-comment"># languages we will use</span><br><span class="hljs-keyword">enable_language</span>(C)<br><span class="hljs-keyword">enable_language</span>(ASM)<br><br><span class="hljs-comment"># check for current compiler environment, temporarily support linux only</span><br><span class="hljs-keyword">if</span> (<span class="hljs-keyword">NOT</span> CMAKE_HOST_SYSTEM_NAME <span class="hljs-keyword">STREQUAL</span> <span class="hljs-string">&quot;Linux&quot;</span>)<br>    <span class="hljs-keyword">message</span>(FATAL_ERROR <span class="hljs-string">&quot;Unsatisfied compilation environment, only support Linux now&quot;</span>)<br><span class="hljs-keyword">endif</span>()<br><br><span class="hljs-comment"># global link script</span><br><span class="hljs-keyword">if</span> (CMAKE_HOST_SYSTEM_PROCESSOR <span class="hljs-keyword">STREQUAL</span> <span class="hljs-string">&quot;x86_64&quot;</span>)<br>    <span class="hljs-keyword">set</span>(CMAKE_EXE_LINKER_FLAGS <span class="hljs-string">&quot;$&#123;CMAKE_EXE_LINKER_FLAGS&#125; -T $&#123;CMAKE_SOURCE_DIR&#125;/arch/x86/linker.lds&quot;</span>)<br><span class="hljs-keyword">else</span>()<br>    <span class="hljs-keyword">message</span>(FATAL_ERROR <span class="hljs-string">&quot;Only support x86_64 now&quot;</span>)<br><span class="hljs-keyword">endif</span>()<br><br><span class="hljs-comment">#set(LINK_SCRIPTS &quot;src/linker.lds&quot;)</span><br><br><br><span class="hljs-comment"># compile and link as bare bone project</span><br><span class="hljs-keyword">add_compile_options</span>(-pipe -ffreestanding -nostdlib -fno-pie -fno-stack-protector -mcmodel=large)<br><span class="hljs-keyword">set</span>(CMAKE_EXE_LINKER_FLAGS <span class="hljs-string">&quot;$&#123;CMAKE_EXE_LINKER_FLAGS&#125;  -nostdlib -z max-page-size=0x1000&quot;</span>)<br><br><span class="hljs-comment"># general include dirs</span><br><span class="hljs-keyword">include_directories</span>(<span class="hljs-variable">$&#123;PROJECT_SOURCE_DIR&#125;</span>/<span class="hljs-keyword">include</span>)<br><br><span class="hljs-comment"># seperate module</span><br><span class="hljs-keyword">add_subdirectory</span>(arch)<br><span class="hljs-keyword">add_subdirectory</span>(kernel)<br><br><span class="hljs-comment"># we create an empty file for add_executable(), as it must need at least one file to work</span><br><span class="hljs-keyword">file</span>(WRITE <span class="hljs-string">&quot;$&#123;CMAKE_CURRENT_BINARY_DIR&#125;/internal_empty_file_for_occupation_only.cpp&quot;</span> <span class="hljs-string">&quot;&quot;</span>)<br><span class="hljs-keyword">add_executable</span>(kernel.bin <span class="hljs-string">&quot;$&#123;CMAKE_CURRENT_BINARY_DIR&#125;/internal_empty_file_for_occupation_only.cpp&quot;</span>)<br><br><span class="hljs-comment"># final output</span><br><span class="hljs-keyword">target_link_libraries</span>(kernel.bin<br>    PRIVATE<br>        Arch<br>        Kernel<br>)<br></code></pre></td></tr></table></figure>
+<p>根目录的 <code>CMakeLists.txt</code> 编写如下，主要作用就是准备统一的编译参数、进入不同文件夹进行 make、链接所有的目标文件，这里我们去掉了标准库支持、去掉了调试段、指定了静态编译……因为在裸金属环境下能依赖的只有我们自己：）</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs cmake"><span class="hljs-keyword">cmake_minimum_required</span>(VERSION <span class="hljs-number">3.16</span>)<br><span class="hljs-keyword">project</span>(ClosureOS)<br><br><span class="hljs-comment"># for debugging only</span><br><span class="hljs-comment">#set(CMAKE_VERBOSE_MAKEFILE ON)</span><br><br><span class="hljs-comment"># languages we will use</span><br><span class="hljs-keyword">enable_language</span>(C)<br><span class="hljs-keyword">enable_language</span>(ASM)<br><br><span class="hljs-comment"># check for current compiler environment, temporarily support linux only</span><br><span class="hljs-keyword">if</span> (<span class="hljs-keyword">NOT</span> CMAKE_HOST_SYSTEM_NAME <span class="hljs-keyword">STREQUAL</span> <span class="hljs-string">&quot;Linux&quot;</span>)<br>    <span class="hljs-keyword">message</span>(FATAL_ERROR <span class="hljs-string">&quot;Unsatisfied compilation environment, only support Linux now&quot;</span>)<br><span class="hljs-keyword">endif</span>()<br><br><span class="hljs-comment"># global link script</span><br><span class="hljs-keyword">if</span> (CMAKE_HOST_SYSTEM_PROCESSOR <span class="hljs-keyword">STREQUAL</span> <span class="hljs-string">&quot;x86_64&quot;</span>)<br>    <span class="hljs-keyword">set</span>(CMAKE_EXE_LINKER_FLAGS <span class="hljs-string">&quot;$&#123;CMAKE_EXE_LINKER_FLAGS&#125; -T $&#123;CMAKE_SOURCE_DIR&#125;/arch/x86/linker.lds&quot;</span>)<br><span class="hljs-keyword">else</span>()<br>    <span class="hljs-keyword">message</span>(FATAL_ERROR <span class="hljs-string">&quot;Only support x86_64 now&quot;</span>)<br><span class="hljs-keyword">endif</span>()<br><br><span class="hljs-comment"># compile and link as bare bone project</span><br><span class="hljs-keyword">add_compile_options</span>(-pipe -ffreestanding -nostdlib -fno-pie -fno-stack-protector -mcmodel=large -fno-asynchronous-unwind-tables)<br><span class="hljs-keyword">set</span>(CMAKE_EXE_LINKER_FLAGS <span class="hljs-string">&quot;$&#123;CMAKE_EXE_LINKER_FLAGS&#125; -nostdlib -z max-page-size=0x1000 -Wl,--build-id=none -static&quot;</span>)<br><br><span class="hljs-comment"># general include dirs</span><br><span class="hljs-keyword">include_directories</span>(<span class="hljs-variable">$&#123;PROJECT_SOURCE_DIR&#125;</span>/<span class="hljs-keyword">include</span>)<br><br><span class="hljs-comment"># seperate module</span><br><span class="hljs-keyword">add_subdirectory</span>(arch)<br><span class="hljs-keyword">add_subdirectory</span>(kernel)<br><br><span class="hljs-comment"># we create an empty file for add_executable(), as it must need at least one file to work</span><br><span class="hljs-keyword">file</span>(WRITE <span class="hljs-string">&quot;$&#123;CMAKE_CURRENT_BINARY_DIR&#125;/internal_empty_file_for_occupation_only.cpp&quot;</span> <span class="hljs-string">&quot;&quot;</span>)<br><span class="hljs-keyword">add_executable</span>(kernel.bin <span class="hljs-string">&quot;$&#123;CMAKE_CURRENT_BINARY_DIR&#125;/internal_empty_file_for_occupation_only.cpp&quot;</span>)<br><br><span class="hljs-comment"># final output</span><br><span class="hljs-keyword">target_link_libraries</span>(kernel.bin<br>    PRIVATE<br>        Arch<br>        Kernel<br>)<br><br></code></pre></td></tr></table></figure>
 
 <p><code>include</code> 目录下是用于各个子系统的各种头文件，与 multiboot2 规范相关的一些定义放在 <code>include/boot/multiboot2.h</code> 中，该头文件来自于<a target="_blank" rel="noopener" href="https://www.gnu.org/software/grub/manual/multiboot2/html_node/multiboot2_002eh.html">Multiboot 2 spec</a>，比较长，这里就不贴出来了</p>
 <p>内核主体放在 <code>kernel</code> 目录下，其中 <code>kernel/CMakeLists.txt</code> 编写如下，目前暂时就只是添加当前文件夹下文件链接为 <code>Kernel</code> ：</p>
@@ -572,7 +572,7 @@
 <h2 id="linker-lds：链接脚本"><a href="#linker-lds：链接脚本" class="headerlink" title="linker.lds：链接脚本"></a>linker.lds：链接脚本</h2><blockquote>
 <p>什么，你不知道什么事链接脚本？还不<a target="_blank" rel="noopener" href="https://ftp.gnu.org/old-gnu/Manuals/ld-2.9.1/html_chapter/ld_3.html">赶快学</a>！</p>
 </blockquote>
-<p>需要注意的一点是，<strong>GNU GRUB 会默认将内核载入到物理地址高 1MB 起始</strong>，因此我们需要在链接脚本中将我们的引导部分加载到这个位置，同时作为一个不成文的规范，<strong>内核应当被装载到高地址处</strong>，那么我们的内核应当分为如下两大部分：</p>
+<p>链接脚本用来指示我们的内核可执行文件各个段的布局，例如不同的段的加载地址，在操作系统开发中有个不成文的约定就是将内核加载到物理内存 1M 起始，因此我们需要在链接脚本中将我们的引导部分放到这个位置，同时作为一个不成文的规范，<strong>内核应当被装载到高地址处</strong>，那么我们的内核应当分为如下两大部分：</p>
 <ul>
 <li>boot：由 GRUB 引导，负责进行页表重映射、内存管理初始化等预备工作，完成后跳转至内核</li>
 <li>kernel：实际的内核主体，位于虚拟地址的高地址处</li>
@@ -872,6 +872,7 @@
 <p><a target="_blank" rel="noopener" href="https://wiki.osdev.org/Serial_Ports">Serial Ports</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.scs.stanford.edu/09wi-cs140/pintos/specs/pc16550d.pdf">PC16550D Universal Asynchronous Receiver&#x2F;Transmitter with FIFOs</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.keil.com/dd/vtr/3880/9788.htm">NXP (founded by Philips) LPC2148 — UARTs: (UART0-1)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.lookrs232.com/rs232/lcr.htm">Line Control Register (LCR)</a></p>
 
                 
               </div>
@@ -921,7 +922,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>【CODE.0x03】现代 64 位 OS 开发手记 I：UEFI 启动、GRUB 引导、Frame buffer 文字输出</div>
+      <div>【CODE.0x03】现代 64 位 OS 开发手记 I：Cmake构建、UEFI 启动、GRUB 引导、Frame buffer 文字输出</div>
       <div>https://arttnba3.github.io/2023/11/29/CODE-0X03-OSDEV64-I_UEFI-GRUB/</div>
     </div>
     <div class="license-meta">
