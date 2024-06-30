@@ -1,0 +1,1175 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Good old MEMORIES has gone…">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【CODE.0x04】现代 64 位 OS 开发手记 II：内核内存分配器与 C++ 的初步引入">
+<meta property="og:url" content="https://arttnba3.github.io/2024/06/30/CODE-0X04-OSDEV64-II_MEMORY-MANAGE/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="Good old MEMORIES has gone…">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/07/01/AVBx4FohGaz7fPY.png">
+<meta property="article:published_time" content="2024-06-30T13:39:41.000Z">
+<meta property="article:modified_time" content="2024-06-30T18:16:56.965Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="开发手记">
+<meta property="article:tag" content="操作系统">
+<meta property="article:tag" content="内存管理">
+<meta property="article:tag" content="C++">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2024/07/01/AVBx4FohGaz7fPY.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【CODE.0x04】现代 64 位 OS 开发手记 II：内核内存分配器与 C++ 的初步引入 - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"arttnba3.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://s2.loli.net/2024/06/30/aueUx4hqbP9FZLR.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【CODE.0x04】现代 64 位 OS 开发手记 II：内核内存分配器与 C++ 的初步引入"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-06-30 23:39" pubdate>
+          2024年6月30日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          35k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          294 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【CODE.0x04】现代 64 位 OS 开发手记 II：内核内存分配器与 C++ 的初步引入</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2024年7月1日 凌晨
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>Good old MEMORIES has gone…</p>
+<span id="more"></span>
+
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><p>不知不觉这个系列的文章居然已经鸽了大半年了…虽然说已经拖了这么久没有继续进行下一步的代码编写，不过笔者目前暂时并没有放弃这个项目，只是确实不像本科那样能有大段大段的空闲时间去抛开一切去做自己想做的事情了：）</p>
+<p>言归正传，这一次我们将要脱离引导阶段，进入到位于高地址的真正的内核，并建立内存管理系统，笔者选择优先实现内存管理的原因是因为这是一个非常核心的模块，操作系统内核的各个部分几乎都无时无刻不在进行动态内存分配与释放，因此完成了这个模块的开发之后我们后续的工作也能变得更加方便</p>
+<p>本项目代码开源在 <a target="_blank" rel="noopener" href="https://github.com/arttnba3/ClosureOS">https://github.com/arttnba3/ClosureOS</a></p>
+<blockquote>
+<p>注： <strong>本章暂时省略了常规的内核输出语句</strong> （如类似 <code>printk()</code> 的东西），我们将在下一章完成图形与串口驱动初始化后再重新引入这部分功能，如若你需要查看调试信息，则可以 <em>临时重新引入</em> boot 阶段的输出模块</p>
+</blockquote>
+<h2 id="内核内存布局设定与链接脚本调整"><a href="#内核内存布局设定与链接脚本调整" class="headerlink" title="内核内存布局设定与链接脚本调整"></a>内核内存布局设定与链接脚本调整</h2><p>目前我们暂定的内核内存布局如下所示，笔者在设计时尽量使各个区域都对齐到一个四级页表条目 （512 GB），从而使得我们在后续创建进程时无需重复拷贝过多的内核页表项，而可以尽量进行复用：</p>
+<table>
+<thead>
+<tr>
+<th align="center">Start address</th>
+<th align="center">End address</th>
+<th align="center">Size</th>
+<th align="center">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">0x0000000000000000</td>
+<td align="center">0x00007FFFFFFFFFFF</td>
+<td align="center">128TB</td>
+<td align="center">memory space for user-mode process, isolate for per one</td>
+</tr>
+<tr>
+<td align="center">0x0000800000000000</td>
+<td align="center">0xFFFF7FFFFFFFFFFF</td>
+<td align="center">16776960 TB</td>
+<td align="center">unused hole</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">shared kernel-space virtual memory for all processes</td>
+</tr>
+<tr>
+<td align="center">0xFFFF800000000000</td>
+<td align="center">0xFFFFBFFFFFFFFFFF</td>
+<td align="center">64TB</td>
+<td align="center">direct mapping of first 64TB physical memory (physmem_base)</td>
+</tr>
+<tr>
+<td align="center">0xFFFFC00000000000</td>
+<td align="center">0xFFFFCFFFFFFFFFFF</td>
+<td align="center">16TB</td>
+<td align="center">dynamic kernel memory mapping region (vmremap_base)</td>
+</tr>
+<tr>
+<td align="center">0xFFFFD00000000000</td>
+<td align="center">0xFFFFEFFFFFFFFFFF</td>
+<td align="center">32TB</td>
+<td align="center">unused hole</td>
+</tr>
+<tr>
+<td align="center">0xFFFFF00000000000</td>
+<td align="center">0xFFFFF7FFFFFFFFFF</td>
+<td align="center">8TB</td>
+<td align="center">page database (pgdb_base)</td>
+</tr>
+<tr>
+<td align="center">0xFFFFF80000000000</td>
+<td align="center">0xFFFFF9FFFFFFFFFF</td>
+<td align="center">2TB</td>
+<td align="center">unused hole</td>
+</tr>
+<tr>
+<td align="center">0xFFFFFA0000000000</td>
+<td align="center">0xFFFFFA0FFFFFFFFF</td>
+<td align="center">64GB</td>
+<td align="center">kernel stack, isolate for each process</td>
+</tr>
+<tr>
+<td align="center">0xFFFFFA1000000000</td>
+<td align="center">0xFFFFFF7FFFFFFFFF</td>
+<td align="center">5568GB</td>
+<td align="center">unused hole</td>
+</tr>
+<tr>
+<td align="center">0xFFFFFF8000000000</td>
+<td align="center">0xFFFFFF800FFFFFFF</td>
+<td align="center">256MB</td>
+<td align="center">kernel .text segment</td>
+</tr>
+<tr>
+<td align="center">0xFFFFFF8010000000</td>
+<td align="center">0xFFFFFF801FFFFFFF</td>
+<td align="center">256MB</td>
+<td align="center">kernel .data segment</td>
+</tr>
+<tr>
+<td align="center">0xFFFFFF8020000000</td>
+<td align="center">0xFFFFFF802FFFFFFF</td>
+<td align="center">256MB</td>
+<td align="center">kernel .rodata segment</td>
+</tr>
+<tr>
+<td align="center">0xFFFFFF8030000000</td>
+<td align="center">0xFFFFFF803FFFFFFF</td>
+<td align="center">256MB</td>
+<td align="center">kernel .bss segment</td>
+</tr>
+<tr>
+<td align="center">0xFFFFFF8050000000</td>
+<td align="center">0xFFFFFFFFFFFFFFFF</td>
+<td align="center">511GB</td>
+<td align="center">unused hole</td>
+</tr>
+</tbody></table>
+<p>相应地，我们需要略微调整一下原有的链接脚本中的内核部分，在第一章时笔者仅是简单地将其放置在高内存区域，现在我们根据如上所示内存布局进行调整，这里注意计算各个段的物理位置：</p>
+<figure class="highlight autohotkey"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><code class="hljs autohotkey">OUTPUT_FORMAT(<span class="hljs-string">&quot;elf64-x86-64&quot;</span>)<br><span class="hljs-title">OUTPUT_ARCH(i386:</span>x86-<span class="hljs-number">64</span>)<br>ENTRY(_start)<br><br>SECTIONS<br>&#123;<br>	<span class="hljs-comment">/* ... */</span><br><br>	__boot_end = .<span class="hljs-comment">;</span><br><br>	<span class="hljs-comment">/* now we come to the REAL kernel */</span><br><br>	KERN_ELF_BASE = <span class="hljs-number">0</span>xFFFFFF8000000000<span class="hljs-comment">;</span><br>	. = KERN_ELF_BASE<span class="hljs-comment">;</span><br>	__kernel_start = .<span class="hljs-comment">;</span><br><br>	<span class="hljs-comment">/* we use AT() there to make it loaded on phys correctly */</span><br><br>	KERN_TEXT_BASE = KERN_ELF_BASE<span class="hljs-comment">;</span><br>	. = KERN_TEXT_BASE<span class="hljs-comment">;</span><br>	__kernel_text_base = .<span class="hljs-comment">;</span><br><br><span class="hljs-title">	.text ALIGN(4096) :</span> AT (__kernel_text_base - __kernel_start + __boot_end)<br>	&#123;<br>		*(.text)<br>		*(.text.*)<br>	&#125;<br><br>	. = ALIGN(<span class="hljs-number">4096</span>)<span class="hljs-comment">;</span><br><br>	__kernel_text_end = .<span class="hljs-comment">;</span><br>	__kernel_text_sz = __kernel_text_end - __kernel_text_base<span class="hljs-comment">;</span><br><br>	KERN_DAT<span class="hljs-built_in">A_BASE</span> = <span class="hljs-number">0</span>xFFFFFF8010000000<span class="hljs-comment">;</span><br>	. = KERN_DAT<span class="hljs-built_in">A_BASE</span><span class="hljs-comment">;</span><br>	__kernel_dat<span class="hljs-built_in">a_base</span> = .<span class="hljs-comment">;</span><br><br><span class="hljs-title">	.data ALIGN(4096) :</span> AT (__kernel_text_sz + __boot_end)<br>	&#123;<br>		*(.data)<br>		__init_array = .<span class="hljs-comment">;</span><br>		*(.init_array)<br>		__fini_array = .<span class="hljs-comment">;</span><br>		*(.fini_array)<br>	&#125;<br><br>	. = ALIGN(<span class="hljs-number">4096</span>)<span class="hljs-comment">;</span><br><br>	__kernel_dat<span class="hljs-built_in">a_end</span> = .<span class="hljs-comment">;</span><br>	__kernel_dat<span class="hljs-built_in">a_sz</span> = __kernel_dat<span class="hljs-built_in">a_end</span> - __kernel_dat<span class="hljs-built_in">a_base</span><span class="hljs-comment">;</span><br><br>	KERN_RODAT<span class="hljs-built_in">A_BASE</span> = <span class="hljs-number">0</span>xFFFFFF8020000000<span class="hljs-comment">;</span><br>	. = KERN_RODAT<span class="hljs-built_in">A_BASE</span><span class="hljs-comment">;</span><br>	__kernel_rodat<span class="hljs-built_in">a_base</span> = .<span class="hljs-comment">;</span><br><br><span class="hljs-title">	.rodata ALIGN(4096) :</span> AT (__kernel_dat<span class="hljs-built_in">a_sz</span> + __kernel_text_sz + __boot_end)<br>	&#123;<br>		*(.rodata)<br>	&#125;<br><br>	. = ALIGN(<span class="hljs-number">4096</span>)<span class="hljs-comment">;</span><br><br>	__kernel_rodat<span class="hljs-built_in">a_end</span> = .<span class="hljs-comment">;</span><br>	__kernel_rodat<span class="hljs-built_in">a_sz</span> = __kernel_rodat<span class="hljs-built_in">a_end</span> - __kernel_rodat<span class="hljs-built_in">a_base</span><span class="hljs-comment">;</span><br><br>	KERN_BSS_BASE = <span class="hljs-number">0</span>xFFFFFF8030000000<span class="hljs-comment">;</span><br>	. = KERN_BSS_BASE<span class="hljs-comment">;</span><br>	__kernel_bss_base = .<span class="hljs-comment">;</span><br><br><span class="hljs-title">	.bss ALIGN(4096) :</span> AT (__kernel_rodat<span class="hljs-built_in">a_sz</span> + __kernel_dat<span class="hljs-built_in">a_sz</span> + __kernel_text_sz + __boot_end)<br>	&#123;<br>		*(COMMON)<br>		*(.bss)<br>	&#125;<br><br>	. = ALIGN(<span class="hljs-number">4096</span>)<span class="hljs-comment">;</span><br><br>	__kernel_bss_end = .<span class="hljs-comment">;</span><br>	__kernel_bss_sz = __kernel_bss_end - __kernel_bss_base<span class="hljs-comment">;</span><br><br>	. = ALIGN(<span class="hljs-number">4096</span>)<span class="hljs-comment">;</span><br><br>	__kernel_end = .<span class="hljs-comment">;</span><br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h1 id="0x01-内存探测，临时内存分配器，页表重建"><a href="#0x01-内存探测，临时内存分配器，页表重建" class="headerlink" title="0x01. 内存探测，临时内存分配器，页表重建"></a>0x01. 内存探测，临时内存分配器，页表重建</h1><h2 id="内存容量获取与线性内存分配器"><a href="#内存容量获取与线性内存分配器" class="headerlink" title="内存容量获取与线性内存分配器"></a>内存容量获取与线性内存分配器</h2><p>在初始化内存管理器之前，首先我们需要知道当前究竟有多少内存，熟悉 BIOS 下 OS 开发的同学肯定对BIOS <code>0x15</code> 中断的 <code>0xE820</code> 、<code>0xE801</code> 、<code>0x88</code> 这三板斧再熟悉不过了，然而在 UEFI 启动中我们是无法使用 legacy BIOS 的中断进行内存探测的</p>
+<p>万幸的是在 UEFI 中同样有类似的接口供我们获取内存容量——<a target="_blank" rel="noopener" href="https://uefi.org/htmlspecs/ACPI_Spec_6_4_html/15_System_Address_Map_Interfaces/uefi-getmemorymap-boot-services-function.html">UEFI GetMemoryMap()</a>，不过在我们的系统当中，通过该接口获取内存容量的任务是由 EFI 程序 Grub 完成的—— <strong>得益于 multiboot 规范的存在，我们可以直接从 multiboot header 获取到内存容量</strong> </p>
+<p><a target="_blank" rel="noopener" href="https://www.gnu.org/software/grub/manual/multiboot2/multiboot.html#Boot-information-format">multiboot2 规范</a>中 Memory Map 段的 tag 格式如下，其中 <code>size</code> 为 tag header 加上 所有 entry 的大小， <code>entry_size</code> 为单条 entry 的大小：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">        +-------------------+<br>u32     |<span class="hljs-string"> type = 6          </span>|<br>u32     |<span class="hljs-string"> size              </span>|<br>u32     |<span class="hljs-string"> entry_size        </span>|<br>u32     |<span class="hljs-string"> entry_version     </span>|<br>varies  |<span class="hljs-string"> entries           </span>|<br>        +-------------------+<br></code></pre></td></tr></table></figure>
+
+<p>每个 entry 的格式如下：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">        +-------------------+<br>u64     |<span class="hljs-string"> base_addr         </span>|<br>u64     |<span class="hljs-string"> length            </span>|<br>u32     |<span class="hljs-string"> type              </span>|<br>u32     |<span class="hljs-string"> reserved          </span>|<br>        +-------------------+<br></code></pre></td></tr></table></figure>
+
+<p>我们简单写一个示例函数（非正式代码）进行测试：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">boot_mm_test</span><span class="hljs-params">(<span class="hljs-type">multiboot_uint8_t</span> *mbi)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">multiboot_tag</span> *<span class="hljs-title">tag</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">multiboot_tag_mmap</span> *<span class="hljs-title">mmap_tag</span> =</span> <span class="hljs-literal">NULL</span>;<br>    <span class="hljs-type">int</span> mmap_entry_nr;<br><br>    <span class="hljs-keyword">for</span> (tag = (<span class="hljs-keyword">struct</span> multiboot_tag *) (mbi + <span class="hljs-number">8</span>);<br>         tag-&gt;type != MULTIBOOT_TAG_TYPE_END;<br>         tag = (<span class="hljs-keyword">struct</span> multiboot_tag *)<br>                 ((<span class="hljs-type">multiboot_uint8_t</span> *) tag + ((tag-&gt;size + <span class="hljs-number">7</span>) &amp; ~<span class="hljs-number">7</span>))) &#123;<br>        <span class="hljs-keyword">if</span> (tag-&gt;type == MULTIBOOT_TAG_TYPE_MMAP) &#123;<br>            mmap_tag = (<span class="hljs-keyword">struct</span> multiboot_tag_mmap*) tag;<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (!mmap_tag) &#123;<br>        boot_puts(<span class="hljs-string">&quot;[x] Unable to find mmap tag in multiboot info! Halting...&quot;</span>);<br>        <span class="hljs-keyword">asm</span> <span class="hljs-title function_">volatile</span> <span class="hljs-params">(<span class="hljs-string">&quot; hlt; &quot;</span>)</span>;<br>    &#125;<br><br>    mmap_entry_nr = (mmap_tag-&gt;size - <span class="hljs-keyword">sizeof</span>(*mmap_tag)) / <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">struct</span> multiboot_mmap_entry);<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; mmap_entry_nr; i++) &#123;<br>        boot_printstr(<span class="hljs-string">&quot;[*] Memory region &quot;</span>);<br>        boot_printnum(i);<br>        boot_printstr(<span class="hljs-string">&quot;, addr: 0x&quot;</span>);<br>        boot_printhex(mmap_tag-&gt;entries[i].addr);<br>        boot_printstr(<span class="hljs-string">&quot;, size: 0x&quot;</span>);<br>        boot_printhex(mmap_tag-&gt;entries[i].len);<br>        boot_printstr(<span class="hljs-string">&quot;, type: &quot;</span>);<br>        boot_printnum(mmap_tag-&gt;entries[i].type);<br>        boot_putchar(<span class="hljs-string">&#x27;\n&#x27;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>可以看到我们有不少内存段，但其中绝大部分都是不可作为内存使用的保留段（<code>type ==2</code>），我们能用来作为内存使用的只有 <code>type==1</code> 的段：</p>
+<blockquote>
+<p>这些保留段包括 MMIO 区域等</p>
+</blockquote>
+<p><img src="https://s2.loli.net/2024/06/16/PogROmLe2KjQwi3.png" srcset="/img/loading.gif" lazyload></p>
+<p>现在让我们正式开始编写与内存管理相关的代码，类似于内核需要分步装载（boot loader 到 kernel），我们的内存管理器同样采用 <strong>分步走</strong> 的设计思路：</p>
+<ul>
+<li>先创建一个最基本的内存管理器，由其分配正式的内存管理器所需的内存，再启用正式的内存管理器</li>
+</ul>
+<p>这个内存分配器的作用 <strong>仅</strong> 是为我们接下来创建正式的内存管理器进行内存分配，因此我们 <strong>不需要考虑释放内存的情况，直接线性地分配可用内存空间即可</strong> ，为了简化此阶段的内存分配模型，这里我们限定每次分配的内存大小为单张内存页：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">multiboot_tag_mmap</span> *<span class="hljs-title">mmap_tag</span> =</span> <span class="hljs-literal">NULL</span>;<br><span class="hljs-type">static</span> <span class="hljs-type">uint32_t</span> mmap_entry_nr;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">multiboot_mmap_entry</span> *<span class="hljs-title">curr_entry</span> =</span> <span class="hljs-literal">NULL</span>;<br><span class="hljs-type">int</span> curr_entry_idx = <span class="hljs-number">-1</span>;<br><span class="hljs-type">phys_addr_t</span> curr_avail, curr_end;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Linear allocator without releasing, alloc a page each time.</span><br><span class="hljs-comment"> * Note that the result could be physical 0, NULL should not be use as failure,</span><br><span class="hljs-comment"> * but a -EMOMEM or some other error number should be returned.</span><br><span class="hljs-comment">*/</span><br><span class="hljs-type">static</span> <span class="hljs-type">void</span>* <span class="hljs-title function_">boot_mm_page_alloc_internal</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">void</span> *res;<br><br>    <span class="hljs-comment">/* initialization */</span><br>    <span class="hljs-keyword">if</span> (!curr_entry) &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = (curr_entry_idx + <span class="hljs-number">1</span>); i &lt; mmap_entry_nr; i++) &#123;<br>            <span class="hljs-keyword">if</span> (mmap_tag-&gt;entries[i].type == MULTIBOOT_MEMORY_AVAILABLE) &#123;<br>                <span class="hljs-type">phys_addr_t</span> base = mmap_tag-&gt;entries[i].addr;<br>                <span class="hljs-type">phys_addr_t</span> end = base + mmap_tag-&gt;entries[i].len;<br><br>                <span class="hljs-keyword">if</span> (base &gt; end) &#123;<br>                    boot_puts(<span class="hljs-string">&quot;[x] FATAL ERROR: &quot;</span><br>                              <span class="hljs-string">&quot;integeter overflow at parsing multiboot tags&quot;</span>);<br>                    <span class="hljs-keyword">asm</span> <span class="hljs-title function_">volatile</span> <span class="hljs-params">(<span class="hljs-string">&quot; hlt; &quot;</span>)</span>;<br>                &#125;<br><br>                <span class="hljs-comment">/**</span><br><span class="hljs-comment">                 * we&#x27;d like to give up the first and last partial page,</span><br><span class="hljs-comment">                 * as it&#x27;s not enough for use to use</span><br><span class="hljs-comment">                */</span><br>                base = PAGE_ALIGN(base);<br>                end &amp;= PAGE_MASK;<br>                <br>                <span class="hljs-comment">/* available region may be less than 1 page, ignore */</span><br>                <span class="hljs-keyword">if</span> ((end &lt; base) || ((end - base) &lt; PAGE_SIZE)) &#123;<br>                    <span class="hljs-keyword">continue</span>;<br>                &#125;<br><br>                curr_avail = base;<br>                curr_end = end;<br>                curr_entry = &amp;mmap_tag-&gt;entries[i];<br>                curr_entry_idx = i;<br>                <span class="hljs-keyword">break</span>;<br>            &#125;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (!curr_entry) &#123;<br>        boot_puts(<span class="hljs-string">&quot;[x] FATAL ERROR: NO MEMORY AVAILABLE!&quot;</span>);<br>        <span class="hljs-keyword">return</span> ERR_PTR(-ENOMEM);<br>    &#125;<br><br>    res = (<span class="hljs-type">void</span>*) curr_avail;<br>    curr_avail += PAGE_SIZE;<br><br>    <span class="hljs-keyword">if</span> (curr_avail == curr_end) &#123;<br>        curr_entry = <span class="hljs-literal">NULL</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> res;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>需要注意的一点是， <strong>我们的内核本体便位于可用内存区域</strong> ，因此在进行内存分配时我们应当跳过这些区域，得益于 Multiboot 规范的存在， boot loader 会向我们提供一个如下格式的 tag 来存放 ELF 各节的信息：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">        +-------------------+<br>u32     |<span class="hljs-string"> type = 9          </span>|<br>u32     |<span class="hljs-string"> size              </span>|<br>u16     |<span class="hljs-string"> num               </span>|<br>u16     |<span class="hljs-string"> entsize           </span>|<br>u16     |<span class="hljs-string"> shndx             </span>|<br>u16     |<span class="hljs-string"> reserved          </span>|<br>varies  |<span class="hljs-string"> section headers   </span>|<br>        +-------------------+<br></code></pre></td></tr></table></figure>
+
+<p>ELF 格式是 *nix 系统中常用的可执行程序的格式，也是我们的 ClosureOS kernel 文件的格式，简单理解可以认为其由一个 ELF header 存储总的信息，由一个 header table 存储不同 section 的信息，简而言之一个 ELF 文件应当长这个样子：</p>
+<p><img src="https://i.loli.net/2021/06/03/boZ8nCURBOXfdQH.png" srcset="/img/loading.gif" lazyload alt="ELF 格式提供了两种基本视图：链接视图与执行视图，区别大概就是链接后会把相同的段整合在一起"></p>
+<p>更加详细的细节笔者就不赘叙了，感兴趣的可以自行参考 <a target="_blank" rel="noopener" href="https://refspecs.linuxfoundation.org/elf/elf.pdf">Linux Foundation - Executable and Linking Format (ELF) Specification</a> ，这里我们简单介绍一下 section header 的格式，multiboot2 elf tag 提供给我们的 section headers 和 ELF 中的 section header table 是一样的，都是一个如下所示结构体的数组，不同的是 <code>sh_offset</code> 段被 GRUB 填上其相对于 ELF 加载起始地址的偏移（在上一篇文章中，我们在链接脚本中将这个起始地址设为 <code>1M</code> ）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">elf64_shdr</span> &#123;</span><br>    elf64_word  sh_name;<br>    elf64_word  sh_type;<br>    elf64_xword sh_flags;<br>    elf64_addr  sh_addr;<br>    elf64_off   sh_offset;<br>    elf64_xword sh_size;<br>    elf64_word  sh_link;<br>    elf64_word  sh_info;<br>    elf64_xword sh_addr_align;<br>    elf64_xword sh_ent_size;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>至于为什么是 section header 而不是 program header，总之 multiboot2 specification 就是这么定义的…</p>
+</blockquote>
+<p>这里我们简单写一个 wrapper 在每次进行内存分配之后将地址与 ELF tag 中各 section 的地址范围进行对比，若刚好位于 ELF 范围则重新进行内存分配，这里我们仅考虑 <code>shdr-&gt;sh_type == SHT_PROGBITS</code> 的情况，因为 <code>.text</code> 等段都是这个类型，其他的一些例如 <code>.symtab</code> 等段对于我们程序运行而言其实并不重要；此外我们仅考虑 <code>shdr-&gt;sh_flags</code> 包含 <code>SHF_ALLOC</code> 的情况，只有存在该标志位才表示这个段在运行时需要内存</p>
+<blockquote>
+<p>至于 <code>.bss</code> 段，我们所获得的类型为 <code>shdr-&gt;sh_type == SHT_NOBITS</code> ，因为这个段的数据全为 0，所以在这里我们可以暂时忽略，等到后续重建高端内核内存映射时再分配这个段的空间</p>
+</blockquote>
+<p>此外，我们还需要避免覆写掉 multiboot tags 所在的区域以及 frame buffer 所在区域：</p>
+<blockquote>
+<p>实际上，frame buffer 的内存区域通常并不直接来自 RAM，而是来自显卡，不过保险起见这里多加一份检查</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">multiboot_tag_elf_sections</span> *<span class="hljs-title">elf_info_tag</span> =</span> <span class="hljs-literal">NULL</span>;<br><span class="hljs-type">phys_addr_t</span> multiboot_tag_start, multiboot_tag_end;<br><br><span class="hljs-type">static</span> <span class="hljs-type">bool</span> <span class="hljs-title function_">addr_is_in_used_range</span><span class="hljs-params">(<span class="hljs-type">phys_addr_t</span> addr)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">elf64_shdr</span> *<span class="hljs-title">shdr</span>;</span><br>    <span class="hljs-type">void</span> *shdr_end;<br>    <span class="hljs-type">phys_addr_t</span> seg_start, seg_end;<br><br>    <span class="hljs-comment">/* in ELF range */</span><br>    shdr_end = (<span class="hljs-type">void</span>*) ((<span class="hljs-type">phys_addr_t</span>) &amp;elf_info_tag-&gt;sections<br>               + elf_info_tag-&gt;num * <span class="hljs-keyword">sizeof</span>(*shdr));<br><br>    <span class="hljs-keyword">for</span> (shdr = (<span class="hljs-type">void</span>*) &amp;elf_info_tag-&gt;sections;<br>         (<span class="hljs-type">void</span>*) shdr &lt; shdr_end;<br>         shdr = (<span class="hljs-type">void</span>*) ((<span class="hljs-type">phys_addr_t</span>) shdr + <span class="hljs-keyword">sizeof</span>(*shdr))) &#123;<br><br>        <span class="hljs-keyword">if</span> ((shdr-&gt;sh_type != SHT_PROGBITS)<br>            || !(shdr-&gt;sh_flags &amp; SHF_ALLOC)) &#123;<br>            <span class="hljs-keyword">continue</span>;<br>        &#125;<br><br>        seg_start = <span class="hljs-number">0x100000</span> + shdr-&gt;sh_offset;<br>        seg_end = PAGE_ALIGN(seg_start + shdr-&gt;sh_size);<br><br>        <span class="hljs-keyword">if</span> (addr &gt;= seg_start &amp;&amp; addr &lt; seg_end) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-comment">/* in frame buffer */</span><br>    <span class="hljs-keyword">if</span> (boot_tty_has_fb()) &#123;<br>        <span class="hljs-keyword">if</span> ((addr &gt;= (<span class="hljs-type">phys_addr_t</span>) boot_fb_base)<br>            &amp;&amp; (addr &lt;= (<span class="hljs-type">phys_addr_t</span>) boot_fb_end)) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-comment">/* in multiboot tags */</span><br>    <span class="hljs-keyword">if</span> ((addr &gt;= multiboot_tag_start) &amp;&amp; (addr &lt;= multiboot_tag_end)) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="页表重建立"><a href="#页表重建立" class="headerlink" title="页表重建立"></a>页表重建立</h2><p>有了临时的动态内存分配器，现在我们可以开始 <strong>建立一个常规的四级页表，并将内核本体对应的物理内存映射到高端内存空间</strong> ，完成这一部分的初始化工作之后我们的后续工作都将在高半部内核完成</p>
+<p>首先是页表映射的建立，页表主要用于将由页表所定义的虚拟地址空间映射到物理地址空间上，在 CPU 进行内存访问时内存管理单元（Memory Management Unit）会根据页表将虚拟地址翻译（translate）成物理地址，在纯 64 位模式下虚拟地址的最大长度为 8 字节，在兼容模式下虚拟地址仅能用前 4 字节，且需要额外经历基于分段的翻译， <strong>我们的 ClosureOS 为纯 64 位系统，暂时不考虑 32 位的情况</strong> ：</p>
+<blockquote>
+<p>注： <em>本章</em> 暂时不考虑 <em>翻译后备缓冲区</em> （Translation Lookaside Buffer），感兴趣的同学可以先自行了解</p>
+</blockquote>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20231129170947.png" srcset="/img/loading.gif" lazyload alt="amd64 下的页表翻译过程"></p>
+<p>64 位下最常用的是 4 级页表结构，页顶级表的地址被存放在 CR3 寄存器中，通常情况下一张内存页被设定为 4KB，单条页表项的长度为 8 字节：</p>
+<ul>
+<li>对于虚拟地址而言，前 12 位被用来表示内存页内的偏移；对于页表项而言，前 12 位用于存放页权限等信息</li>
+<li>剩下的 36 位每 9 位用来表示在页表不同级别的偏移，开启 5 级分页后额外多用 9 位表示第 5 级的偏移，否则作为保留位</li>
+<li>剩下 7 位用作扩展</li>
+</ul>
+<p><img src="https://s2.loli.net/2024/06/20/SvC9YmyWuphJosO.png" srcset="/img/loading.gif" lazyload alt="4 级页表结构，来自 AMD64 Architecture Programmer&#39;s Manual Volume 2"></p>
+<p>纯 64 位模式下，4K 页的页表项结构如下：</p>
+<p><img src="https://s2.loli.net/2024/06/20/QoBCNTfJPAzwvxr.png" srcset="/img/loading.gif" lazyload></p>
+<p>前 12 位的各位说明如下：</p>
+<ul>
+<li><strong>AVL</strong>：available，该页是否可用，可忽略</li>
+<li><strong>G</strong>：是否为<strong>全局页</strong>，全局页会被保存在 TLB 中方便调用；1为是</li>
+<li><strong>PAT</strong>：页属性表位，用以在分级页表中设定页的属性，这里暂且先置0</li>
+<li><strong>D</strong>：Dirty，当一张内存页被写入时，CPU会将该页<strong>标脏</strong>，仅针对页表项有效</li>
+<li><strong>A</strong>：Accessed，该页每次被访问时该位都会被置1，定期清零，置1次数用以表示使用频率</li>
+<li><strong>PCD</strong>：Page-level Cache Disable，0 为启用高速缓存，1 为禁止</li>
+<li><strong>PWT</strong>：Page-level Write-Through，页级通写位，与高速缓存有关，这里暂且置 0</li>
+<li><strong>US</strong>：User&#x2F;Supervisor，权限位，1 时 ring0~ring3 均可访问该页，0时仅 ring0~ring2 可访问（一般来说操作系统只需要用到 ring0 与 ring3）</li>
+<li><strong>RW</strong>：即 Read&#x2F;Write，该位为 1 时该页可读写，否则只可读不可写</li>
+<li><strong>P</strong>：Present，即该页是否存在，0 表示该页不存在于物理页中，此时对该页的访问会引发缺页异常</li>
+</ul>
+<p>我们的 ClosureOS 使用的是常规的 4 级页表与 4KB 页大小，因为这更适合我们对不同的内存区域进行更加细粒度的映射管理，对于页表的映射建立操作，我们只需要直接分配各级页表项的空间后写入即可，这里需要注意的是 <strong>高级页目录表项权限会限制低级页表项的权限，因此对于存在映射的虚拟内存区域，除了最后一级页表项以外的页目录表项我们都应当给予可写的权限</strong> ：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> PDE_DEFAULT     (PDE_ATTR_P | PDE_ATTR_RW)</span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">boot_mm_pgtable_map</span><span class="hljs-params">(<span class="hljs-type">phys_addr_t</span> pgtable,</span><br><span class="hljs-params">                        <span class="hljs-type">virt_addr_t</span> va,</span><br><span class="hljs-params">                        <span class="hljs-type">phys_addr_t</span> pa, </span><br><span class="hljs-params">                        <span class="hljs-type">page_attr_t</span> attr)</span><br>&#123;<br>    <span class="hljs-type">pgd_t</span> *pgd;<br>    <span class="hljs-type">pud_t</span> *pud;<br>    <span class="hljs-type">pmd_t</span> *pmd;<br>    <span class="hljs-type">pte_t</span> *pte;<br>    <span class="hljs-type">int</span> pgd_i = PGD_ENTRY(va);<br>    <span class="hljs-type">int</span> pud_i = PUD_ENTRY(va);<br>    <span class="hljs-type">int</span> pmd_i = PMD_ENTRY(va);<br>    <span class="hljs-type">int</span> pte_i = PTE_ENTRY(va);<br><br>    pgd = (<span class="hljs-type">pgd_t</span>*) pgtable;<br>    <span class="hljs-keyword">if</span> (!pgd[pgd_i]) &#123;<br>        pgd[pgd_i] = (<span class="hljs-type">pgd_t</span>) boot_mm_page_alloc();<br>        <span class="hljs-keyword">if</span> (IS_ERR_PTR((<span class="hljs-type">void</span>*) pgd[pgd_i])) &#123;<br>            pgd[pgd_i] = (<span class="hljs-type">pgd_t</span>) <span class="hljs-literal">NULL</span>;<br>            <span class="hljs-keyword">return</span> -ENOMEM;<br>        &#125;<br><br>        boot_memset((<span class="hljs-type">void</span>*) ((<span class="hljs-type">phys_addr_t</span>) pgd[pgd_i]), <span class="hljs-number">0</span> ,PAGE_SIZE);<br>        pgd[pgd_i] |= PDE_DEFAULT;<br>    &#125;<br><br>    pud = (<span class="hljs-type">pud_t</span>*) (pgd[pgd_i] &amp; PAGE_MASK);<br>    <span class="hljs-keyword">if</span> (!pud[pud_i]) &#123;<br>        pud[pud_i] = (<span class="hljs-type">pud_t</span>) boot_mm_page_alloc();<br>        <span class="hljs-keyword">if</span> (IS_ERR_PTR((<span class="hljs-type">void</span>*) pud[pud_i])) &#123;<br>            pud[pud_i] = (<span class="hljs-type">pud_t</span>) <span class="hljs-literal">NULL</span>;<br>            <span class="hljs-keyword">return</span> -ENOMEM;<br>        &#125;<br><br>        boot_memset((<span class="hljs-type">void</span>*) ((<span class="hljs-type">phys_addr_t</span>) pud[pud_i]), <span class="hljs-number">0</span> ,PAGE_SIZE);<br>        pud[pud_i] |= PDE_DEFAULT;<br>    &#125;<br><br>    pmd = (<span class="hljs-type">pmd_t</span>*) (pud[pud_i] &amp; PAGE_MASK);<br>    <span class="hljs-keyword">if</span> (!pmd[pmd_i]) &#123;<br>        pmd[pmd_i] = (<span class="hljs-type">pmd_t</span>) boot_mm_page_alloc();<br>        <span class="hljs-keyword">if</span> (IS_ERR_PTR((<span class="hljs-type">void</span>*) pmd[pmd_i])) &#123;<br>            pmd[pmd_i] = (<span class="hljs-type">pmd_t</span>) <span class="hljs-literal">NULL</span>;<br>            <span class="hljs-keyword">return</span> -ENOMEM;<br>        &#125;<br><br>        boot_memset((<span class="hljs-type">void</span>*) ((<span class="hljs-type">phys_addr_t</span>) pmd[pmd_i]), <span class="hljs-number">0</span> ,PAGE_SIZE);<br>        pmd[pmd_i] |= PDE_DEFAULT;<br>    &#125;<br><br>    pte = (<span class="hljs-type">pte_t</span>*) (pmd[pmd_i] &amp; PAGE_MASK);<br>    pte[pte_i] = pa | attr;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>现在我们可以开始重新建立新的页表映射了，我们首先映射这几个区域：</p>
+<ul>
+<li><p>内核 ELF，用于正常执行代码</p>
+</li>
+<li><p>内存直接映射区，映射整个已知的物理内存空间，用于直接访问物理内存以及后续的内核小对象内存分配器</p>
+</li>
+<li><p>此外，对于存在 frame buffer 的情况，我们还需要映射 frame buffer 所在内存</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">boot_mm_pgtable_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">elf64_shdr</span> *<span class="hljs-title">shdr</span>;</span><br>    <span class="hljs-type">void</span> *shdr_end;<br>    <span class="hljs-type">phys_addr_t</span> seg_phys_start, seg_phys_end;<br>    <span class="hljs-type">virt_addr_t</span> seg_virt_start, seg_virt_end;<br>    <span class="hljs-type">page_attr_t</span> pte_attr;<br>    <span class="hljs-type">phys_addr_t</span> physmem_start, physmem_end;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *__<span class="hljs-title">pgdb_base</span>;</span><br>    <span class="hljs-type">size_t</span> __pgdb_page_nr;<br>    <span class="hljs-type">int</span> ret;<br><br>    boot_kern_pgtable = (<span class="hljs-type">phys_addr_t</span>) boot_mm_page_alloc();<br>    <span class="hljs-keyword">if</span> (IS_ERR_PTR((<span class="hljs-type">void</span>*) boot_kern_pgtable)) &#123;<br>        boot_puts(<span class="hljs-string">&quot;[x] FAILED to allocate new page table!&quot;</span>);<br>        <span class="hljs-keyword">return</span> -ENOMEM;<br>    &#125;<br>    boot_memset((<span class="hljs-type">void</span>*) boot_kern_pgtable, <span class="hljs-number">0</span>, PAGE_SIZE);<br><br>    <span class="hljs-comment">/* map kernel ELF */</span><br>    shdr_end = (<span class="hljs-type">void</span>*) ((<span class="hljs-type">phys_addr_t</span>) &amp;elf_info_tag-&gt;sections<br>               + elf_info_tag-&gt;num * <span class="hljs-keyword">sizeof</span>(*shdr));<br><br>    <span class="hljs-keyword">for</span> (shdr = (<span class="hljs-type">void</span>*) &amp;elf_info_tag-&gt;sections;<br>         (<span class="hljs-type">void</span>*) shdr &lt; shdr_end;<br>         shdr = (<span class="hljs-type">void</span>*) ((<span class="hljs-type">phys_addr_t</span>) shdr + <span class="hljs-keyword">sizeof</span>(*shdr))) &#123;<br><br>        <span class="hljs-keyword">if</span> (!(shdr-&gt;sh_flags &amp; SHF_ALLOC)) &#123;<br>            <span class="hljs-keyword">continue</span>;<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (shdr-&gt;sh_type &amp; SHT_PROGBITS) &#123;    <span class="hljs-comment">/* for .text, .data, .rodata */</span><br>            seg_phys_start = <span class="hljs-number">0x100000</span> + shdr-&gt;sh_offset - PAGE_SIZE;<br>            seg_phys_end = PAGE_ALIGN(seg_phys_start + shdr-&gt;sh_size);<br>            seg_virt_start =shdr-&gt;sh_addr;<br><br>            <span class="hljs-keyword">while</span> (seg_phys_start &lt; seg_phys_end) &#123;<br>                pte_attr = PTE_ATTR_P;<br>                <span class="hljs-keyword">if</span> (shdr-&gt;sh_flags &amp; SHF_WRITE) &#123;<br>                    pte_attr |= PTE_ATTR_RW;<br>                &#125;<br><br>                ret = boot_mm_pgtable_map(boot_kern_pgtable,<br>                                          seg_virt_start,<br>                                          seg_phys_start,<br>                                          pte_attr);<br>                <span class="hljs-keyword">if</span> (ret &lt; <span class="hljs-number">0</span>) &#123;  <span class="hljs-comment">/* out of memory */</span><br>                    <span class="hljs-keyword">return</span> ret;<br>                &#125;<br><br>                seg_phys_start += PAGE_SIZE;<br>                seg_virt_start += PAGE_SIZE;<br>            &#125;<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (shdr-&gt;sh_type &amp; SHT_NOBITS) &#123;   <span class="hljs-comment">/* for .bss */</span><br>            seg_virt_start = shdr-&gt;sh_addr;<br>            seg_virt_end = PAGE_ALIGN(seg_virt_start + shdr-&gt;sh_size);<br><br>            <span class="hljs-keyword">while</span> (seg_virt_start &lt; seg_virt_end) &#123;<br>                pte_attr = PTE_ATTR_P;<br>                <span class="hljs-keyword">if</span> (shdr-&gt;sh_flags &amp; SHF_WRITE) &#123;<br>                    pte_attr |= PTE_ATTR_RW;<br>                &#125;<br><br>                seg_phys_start = (<span class="hljs-type">phys_addr_t</span>) boot_mm_page_alloc();<br>                <span class="hljs-keyword">if</span> (IS_ERR_PTR((<span class="hljs-type">void</span>*) seg_phys_start)) &#123;<br>                    <span class="hljs-keyword">return</span> -ENOMEM;<br>                &#125;<br><br>                boot_memset((<span class="hljs-type">void</span>*) seg_phys_start, <span class="hljs-number">0</span>, PAGE_SIZE);<br>                ret = boot_mm_pgtable_map(boot_kern_pgtable,<br>                                          seg_virt_start,<br>                                          seg_phys_start,<br>                                          pte_attr);<br>                <span class="hljs-keyword">if</span> (ret &lt; <span class="hljs-number">0</span>) &#123;  <span class="hljs-comment">/* out of memory */</span><br>                    <span class="hljs-keyword">return</span> ret;<br>                &#125;<br><br>                seg_virt_start += PAGE_SIZE;<br>            &#125;<br>        &#125; <span class="hljs-keyword">else</span> &#123;    <span class="hljs-comment">/* unknown but we need to allocate??? */</span><br>            boot_puts(<span class="hljs-string">&quot;[x] Unknown segment. ELF mapping stopped.&quot;</span>);<br>            <span class="hljs-keyword">return</span> -EFAULT;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-comment">/* map for frame buffer */</span><br>    <span class="hljs-keyword">if</span> (boot_tty_has_fb()) &#123;<br>        seg_phys_start = ((<span class="hljs-type">phys_addr_t</span>) boot_fb_base) &amp; PAGE_MASK;<br>        seg_virt_start = seg_phys_start;<br>        seg_phys_end = PAGE_ALIGN(seg_phys_start + boot_tty_fb_sz());<br>        <span class="hljs-keyword">while</span> (seg_phys_start &lt; seg_phys_end) &#123;<br>            ret = boot_mm_pgtable_map(boot_kern_pgtable,<br>                                      seg_virt_start,<br>                                      seg_phys_start,<br>                                      PTE_ATTR_P | PTE_ATTR_RW);<br>            <span class="hljs-keyword">if</span> (ret &lt; <span class="hljs-number">0</span>) &#123;  <span class="hljs-comment">/* out of memory */</span><br>                <span class="hljs-keyword">return</span> ret;<br>            &#125;<br><br>            seg_phys_start += PAGE_SIZE;<br>            seg_virt_start += PAGE_SIZE;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-comment">/* map for direct mapping area */</span><br>    physmem_start = physmem_end = <span class="hljs-number">0x0000000000000000</span>;<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; mmap_entry_nr; i++) &#123;<br>        <span class="hljs-type">phys_addr_t</span> base = mmap_tag-&gt;entries[i].addr &amp; PAGE_MASK;<br>        <span class="hljs-type">phys_addr_t</span> end = base + mmap_tag-&gt;entries[i].len;<br>        <span class="hljs-type">virt_addr_t</span> vaddr = base + KERN_DIRECT_MAP_REGION_BASE;<br><br>        <span class="hljs-keyword">if</span> (end &gt; physmem_end) &#123;<br>            physmem_end = end;<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (vaddr &lt; base) &#123;<br>            boot_printstr(<span class="hljs-string">&quot;[x] FATAL: memory region base 0x&quot;</span>);<br>            boot_printhex(base);<br>            boot_puts(<span class="hljs-string">&quot; has caused an integer overflow in memory mapping.&quot;</span>);<br>            <span class="hljs-keyword">asm</span> <span class="hljs-title function_">volatile</span><span class="hljs-params">(<span class="hljs-string">&quot; hlt &quot;</span>)</span>;<br>        &#125;<br><br>        <span class="hljs-keyword">while</span> (base &lt; end) &#123;<br>            <span class="hljs-keyword">if</span> (vaddr &gt; KERN_DIRECT_MAP_REGION_END) &#123;   <span class="hljs-comment">/* out of 64TB */</span><br>                <span class="hljs-keyword">break</span>;<br>            &#125;<br><br>            ret = boot_mm_pgtable_map(boot_kern_pgtable,<br>                                vaddr,<br>                                base,<br>                                PTE_ATTR_P | PTE_ATTR_RW);<br>            <span class="hljs-keyword">if</span> (ret &lt; <span class="hljs-number">0</span>) &#123;<br>                <span class="hljs-keyword">return</span> ret;<br>            &#125;<br><br>            base += PAGE_SIZE;<br>            vaddr += PAGE_SIZE;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-comment">/* ... */</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="Extra-添加-KASLR-支持"><a href="#Extra-添加-KASLR-支持" class="headerlink" title="Extra. 添加 KASLR 支持"></a><em>Extra. 添加 KASLR 支持</em></h3><blockquote>
+<p>咕咕咕 🕊🕊🕊</p>
+<p>暂时先留给大家当课后作业了，tips：映射前给几个变量加上偏移值就行，不过你或许还需要额外修改一些链接 flags？ ： ）</p>
+</blockquote>
+<h2 id="建立内存页数据库"><a href="#建立内存页数据库" class="headerlink" title="建立内存页数据库"></a>建立内存页数据库</h2><p>接下来我们开始建立 <strong>内存页数据库</strong> （page database），这一个内存区域的存在是为了能够更好地管理所有的物理页框，首先我们使用如下结构表示单张内存页，其中 <code>type</code> 字段用来表示当前内存页的类型，<code>ref_count</code> 字段为当前页面的引用计数（闲置时为 <code>-1</code>），其他字段我们会在后续使用到时进行说明：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    PAGE_NON_EXISTED = <span class="hljs-number">0</span>,<br>    PAGE_NORMAL_MEM,<br>    PAGE_RESERVED,<br>    PAGE_ACPI_RECLAIMABLE,<br>    PAGE_NVS,<br>    PAGE_BADRAM,<br>&#125;;<br><br><span class="hljs-comment">/* for `type == PAGE_NORMAL_MEM` only */</span><br><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">migrate_type</span> &#123;</span><br>    MIGRATE_UNMOVABLE = <span class="hljs-number">0</span>,<br>    MIGRATE_MOVABLE,<br>&#125;;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * struct page</span><br><span class="hljs-comment"> * - representing a physical page frame</span><br><span class="hljs-comment"> * - page-aligned size</span><br><span class="hljs-comment"> */</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> &#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">list</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>        <span class="hljs-comment">/* for page allocator */</span><br>        <span class="hljs-type">unsigned</span> type: <span class="hljs-number">4</span>;<br>        <span class="hljs-type">unsigned</span> migrate_type: <span class="hljs-number">4</span>;<br>        <span class="hljs-type">unsigned</span> is_free: <span class="hljs-number">1</span>; <span class="hljs-comment">/* already in freelist */</span><br>        <span class="hljs-type">unsigned</span> is_head: <span class="hljs-number">1</span>; <span class="hljs-comment">/* head of a group of pages*/</span><br>        <span class="hljs-type">unsigned</span> order: <span class="hljs-number">4</span>;<br>    &#125;;<br>    <span class="hljs-type">atomic_t</span> ref_count;     <span class="hljs-comment">/* used only for PAGE_NORMAL_MEM pages */</span><br>    <span class="hljs-type">atomic_t</span> map_count;     <span class="hljs-comment">/* mapped count in processes */</span><br>    <span class="hljs-type">spinlock_t</span> lock;<br>    <span class="hljs-type">void</span> **freelist;    <span class="hljs-comment">/* used only when the slub is not a cpu partial */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kmem_cache</span> *<span class="hljs-title">kc</span>;</span>  <span class="hljs-comment">/* used only when it&#x27;s a slub page */</span><br>    <span class="hljs-type">size_t</span> obj_nr;      <span class="hljs-comment">/* used only when it&#x27;s a slub page */</span><br><br>    <span class="hljs-comment">/* unused area to make it page-aligned, maybe we can put sth else there? */</span><br>    <span class="hljs-type">size_t</span> unused[<span class="hljs-number">0</span>];<br>&#125; __attribute__((aligned(<span class="hljs-number">64</span>)));<br></code></pre></td></tr></table></figure>
+
+<p>现在我们引入内存页数据库的概念，这是一个由 <code>struct page</code> 所组成的数组， <strong>数组下标直接对应物理页框号</strong> ，通过这样的一个结构我们便能非常方便地管理所有的内存页，由于 <code>struct page</code> 大小为 64 字节，我们的内存页数据库将会使用相当数量的内存来表示所有的内存，为了保证这是一个虚拟地址连续的数组， <strong>我们单独分配一个内存区域来存放 page 结构体</strong> ：</p>
+<p><img src="https://s2.loli.net/2024/06/22/aeqr5QcwOKJzNfy.png" srcset="/img/loading.gif" lazyload></p>
+<p>我们首先进行该区域的映射建立：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">boot_mm_pgtable_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-comment">/* ... */</span><br>    <br>    <span class="hljs-comment">/* map for page database (`struct page` array) */</span><br>    __pgdb_base = (<span class="hljs-type">void</span>*) KERN_PAGE_DATABASE_REGION_BASE;<br>    __pgdb_page_nr = (physmem_end - physmem_start) / PAGE_SIZE;<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; __pgdb_page_nr; i += PGDB_PG_PAGE_NR) &#123;<br>        <span class="hljs-type">void</span> *new_page = boot_mm_page_alloc();<br><br>        <span class="hljs-keyword">if</span>(IS_ERR_PTR(new_page)) &#123;<br>            <span class="hljs-keyword">return</span> PTR_ERR(new_page);<br>        &#125;<br><br>        boot_memset((<span class="hljs-type">void</span>*) new_page, <span class="hljs-number">0</span>, PAGE_SIZE);<br>        ret = boot_mm_pgtable_map(boot_kern_pgtable,<br>                                  (<span class="hljs-type">virt_addr_t</span>) &amp;__pgdb_base[i],<br>                                  (<span class="hljs-type">phys_addr_t</span>) new_page,<br>                                  PTE_ATTR_P | PTE_ATTR_RW);<br>        <span class="hljs-keyword">if</span> (ret &lt; <span class="hljs-number">0</span>) &#123;<br>            <span class="hljs-keyword">return</span> ret;<br>        &#125;<br>    &#125;<br></code></pre></td></tr></table></figure>
+
+<p>完成这些工作之后， <strong>我们便直接装载这份新的页表，作为后续正式的内核页表</strong> ，并初始化一些记录内存段的变量，以及将一些可能还会用到的指针重新映射到 <code>Direct Mapping Area</code> ，因为我们不能保证在加载新页表后其所在内存区域仍然有映射：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">boot_mm_load_pgtable</span><span class="hljs-params">(<span class="hljs-type">phys_addr_t</span> pgtable)</span><br>&#123;<br>    <span class="hljs-keyword">asm</span> <span class="hljs-title function_">volatile</span><span class="hljs-params">(</span><br><span class="hljs-params">        <span class="hljs-string">&quot;mov    %0, %%rax;&quot;</span></span><br><span class="hljs-params">        <span class="hljs-string">&quot;mov    %%rax, %%cr3;&quot;</span></span><br><span class="hljs-params">        :</span><br><span class="hljs-params">        : <span class="hljs-string">&quot;a&quot;</span> (pgtable)</span><br><span class="hljs-params">    )</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">boot_mm_pgtable_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-comment">/* ... */</span>    <br><br>    <span class="hljs-comment">/* load the new page table now! */</span><br>    boot_mm_load_pgtable(boot_kern_pgtable);<br><br>    <span class="hljs-comment">/* init for some vals */</span><br>    physmem_base = KERN_DIRECT_MAP_REGION_BASE;<br>    kernel_base = KERN_SEG_TEXT_REGION_START;<br>    vmremap_base = KERN_DYNAMIC_MAP_REGION_BASE;<br>    pgdb_base = __pgdb_base;<br>    pgdb_page_nr = __pgdb_page_nr;<br><br>    <span class="hljs-comment">/* remap some variables we may still use */</span><br>    elf_info_tag = (<span class="hljs-type">void</span>*) phys_to_virt((<span class="hljs-type">phys_addr_t</span>) elf_info_tag);<br>    mmap_tag = (<span class="hljs-type">void</span>*) phys_to_virt((<span class="hljs-type">phys_addr_t</span>) mmap_tag);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>接下来我们根据 multiboot2 tags 所提供的内存信息来初始化 page 结构体数组，并根据临时线性内存分配器的分配地址计算页面引用计数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">boot_mm_page_database_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">int</span> ret;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * as we set all page to 0 at the beginning,we don&#x27;t need to care about hole</span><br><span class="hljs-comment">     * because the type for memory hole is 0 in our design</span><br><span class="hljs-comment">    */</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; mmap_entry_nr; i++) &#123;<br>        <span class="hljs-type">phys_addr_t</span> base = mmap_tag-&gt;entries[i].addr;<br>        <span class="hljs-type">phys_addr_t</span> end = base + mmap_tag-&gt;entries[i].len;<br>        <span class="hljs-type">size_t</span> pfn;<br><br>        <span class="hljs-keyword">while</span> (base &lt; end) &#123;<br>            pfn = base / PAGE_SIZE;<br>            pgdb_base[pfn].migrate_type = MIGRATE_UNMOVABLE;<br>            spin_lock_init((&amp;pgdb_base[pfn].lock));<br><br>            <span class="hljs-keyword">switch</span> (mmap_tag-&gt;entries[i].type) &#123;<br>            <span class="hljs-keyword">case</span> MULTIBOOT_MEMORY_AVAILABLE:<br>                pgdb_base[pfn].type = PAGE_NORMAL_MEM;<br>                pgdb_base[pfn].kc = <span class="hljs-literal">NULL</span>;<br>                pgdb_base[pfn].freelist = <span class="hljs-literal">NULL</span>;<br>                pgdb_base[pfn].obj_nr = <span class="hljs-number">0</span>;<br><br>                <span class="hljs-keyword">if</span> (base &lt; curr_avail || addr_is_in_used_range(base)) &#123;<br>                    <span class="hljs-comment">/* used page */</span><br>                    <span class="hljs-type">atomic_set</span>(&amp;pgdb_base[pfn].ref_count, <span class="hljs-number">0</span>);<br>                &#125; <span class="hljs-keyword">else</span> &#123;<br>                    <span class="hljs-comment">/* free page */</span><br>                    <span class="hljs-type">atomic_set</span>(&amp;pgdb_base[pfn].ref_count, <span class="hljs-number">-1</span>);<br>                &#125;<br>                <span class="hljs-keyword">break</span>;<br>            <span class="hljs-keyword">case</span> MULTIBOOT_MEMORY_RESERVED:<br>                pgdb_base[pfn].type = PAGE_RESERVED;<br>                <span class="hljs-keyword">break</span>;<br>            <span class="hljs-keyword">case</span> MULTIBOOT_MEMORY_ACPI_RECLAIMABLE:<br>                pgdb_base[pfn].type = PAGE_ACPI_RECLAIMABLE;<br>                <span class="hljs-keyword">break</span>;<br>            <span class="hljs-keyword">case</span> MULTIBOOT_MEMORY_NVS:<br>                pgdb_base[pfn].type = PAGE_NVS;<br>                <span class="hljs-keyword">break</span>;<br>            <span class="hljs-keyword">case</span> MULTIBOOT_MEMORY_BADRAM:<br>                pgdb_base[pfn].type = PAGE_BADRAM;<br>                <span class="hljs-keyword">break</span>;<br>            <span class="hljs-keyword">default</span>:<br>                pgdb_base[pfn].type = PAGE_UNKNOWN;<br>                <span class="hljs-keyword">break</span>;<br>            &#125;<br><br>            base += PAGE_SIZE;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>到目前为止，我们已经 <strong>基本完成进入高半部内核前的准备了</strong> ，接下来我们直接跳转到位于高地址的代码继续进行后续的内核初始化工作</p>
+<h3 id="Extra-添加原子操作与自旋锁支持"><a href="#Extra-添加原子操作与自旋锁支持" class="headerlink" title="Extra. 添加原子操作与自旋锁支持"></a><em>Extra. 添加原子操作与自旋锁支持</em></h3><p>原子操作（atomic operations）指的是独立而 <strong>不可被打断的操作</strong> ，这类操作可以由单个或多个子操作组成， <strong>原子内存操作</strong> 即提供了原子性的内存操作，即在同一时刻仅有单个核心能够访问指定内存，其通常被用来在并发环境中实现同步，比较常用的有：</p>
+<ul>
+<li>原子比较与赋值：对比指定内存位置上值是否与指定值相等，若是则赋予新值，否则报错</li>
+<li>原子自增自减：将指定内存位置上值加一或减一</li>
+<li>原子读写：获取&#x2F;覆写指定内存位置上值</li>
+</ul>
+<p>例如在 x86 下我们可以通过如添加了 <code>lock</code> 前缀的汇编指令在访问内存的同时完成对总线的控制，<strong>从而从硬件层面确保了内存访问的唯一性</strong>：</p>
+<blockquote>
+<p>注：该示例代码未用于 ClosureOS 中</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">uint32_t</span> <span class="hljs-title function_">atomic_xchg</span><span class="hljs-params">(<span class="hljs-keyword">volatile</span> <span class="hljs-type">uint32_t</span> *addr, <span class="hljs-type">uint32_t</span> newval)</span><br>&#123;<br>    <span class="hljs-type">uint32_t</span> result;<br><br>    <span class="hljs-keyword">asm</span> <span class="hljs-title function_">volatile</span><span class="hljs-params">(</span><br><span class="hljs-params">        <span class="hljs-string">&quot;lock; xchgl %0, %1&quot;</span></span><br><span class="hljs-params">        : <span class="hljs-string">&quot;+m&quot;</span> (*addr), <span class="hljs-string">&quot;=a&quot;</span> (result)</span><br><span class="hljs-params">        : <span class="hljs-string">&quot;1&quot;</span> (newval)</span><br><span class="hljs-params">        : <span class="hljs-string">&quot;cc&quot;</span></span><br><span class="hljs-params">    )</span>;<br>    <span class="hljs-keyword">return</span> result;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在 GCC 中，我们可以直接使用 <a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gcc-4.1.1/gcc/Atomic-Builtins.html">编译器内置的原子内存访问函数</a> 来实现原子操作，编译器在生成代码时便会自动生成带有 <code>lock</code> 等前缀的指令：</p>
+<p><img src="https://s2.loli.net/2024/06/26/ZD6mkxFzEyc4V9f.png" srcset="/img/loading.gif" lazyload></p>
+<p>我们将同一时间仅允许一个核心进行访问的资源称为临界资源（critical resource），将访问临界资源的代码称为临界区（critical region）—— <strong>锁</strong> （lock）是一种用来确保在同一时间仅有一个核心进入指定临界区的数据结构，软件设计规范中我们通常要求程序在访问临界资源前需要持有锁，在完成对临界资源的操作后释放锁，从而确保同一时间仅有单个核心在访问该临界资源</p>
+<p>通过原子内存操作中的 <code>比较与交换</code> 操作，我们可以很容易实现一个简单的锁：</p>
+<ul>
+<li>定义一个整形变量作为锁，0 为已释放，1 为仍被持有</li>
+<li>循环调用 GCC 内建函数 <code>__sync_bool_compare_and_swap()</code> 进行原子操作：检测锁变量的值，其为 0 时将其改为 1</li>
+<li>完成操作后将锁变量的值更改为 0</li>
+</ul>
+<p>由于锁在被持有的情况下请求锁的一方会循环不停地检查，因此这种锁被称为 <strong>自旋锁</strong> （spin lock），我们的实现如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> atomic_compare_and_swap(ptr, oldval, newval) \</span><br><span class="hljs-meta">        __sync_bool_compare_and_swap(ptr, oldval, newval)</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> atomic_set(ptr, newval) __sync_lock_test_and_set(ptr, newval)</span><br><br><span class="hljs-comment">/* ... */</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> SPINLOCK_LOCKED 1</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> SPINLOCK_FREE 0</span><br><br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> &#123;</span><br>    <span class="hljs-type">atomic_t</span> counter;<br>&#125; <span class="hljs-type">spinlock_t</span>;<br><br><span class="hljs-type">static</span> __always_inline <span class="hljs-type">void</span> <span class="hljs-title function_">spin_lock_init</span><span class="hljs-params">(<span class="hljs-type">spinlock_t</span> *lock)</span><br>&#123;<br>    <span class="hljs-type">atomic_set</span>(&amp;lock-&gt;counter, SPINLOCK_FREE);<br>&#125;<br><br><span class="hljs-type">static</span> __always_inline <span class="hljs-type">void</span> <span class="hljs-title function_">spin_lock</span><span class="hljs-params">(<span class="hljs-type">spinlock_t</span> *lock)</span><br>&#123;<br>    <span class="hljs-keyword">while</span> (!atomic_compare_and_swap(<br>        &amp;lock-&gt;counter, SPINLOCK_FREE, SPINLOCK_LOCKED<br>    )) &#123; &#125;<br>&#125;<br><br><span class="hljs-type">static</span> __always_inline <span class="hljs-type">void</span> <span class="hljs-title function_">spin_unlock</span><span class="hljs-params">(<span class="hljs-type">spinlock_t</span> *lock)</span><br>&#123;<br>    <span class="hljs-type">atomic_set</span>(&amp;lock-&gt;counter, SPINLOCK_FREE);<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="0x02-页级内存分配器：buddy-system"><a href="#0x02-页级内存分配器：buddy-system" class="headerlink" title="0x02. 页级内存分配器：buddy system"></a>0x02. 页级内存分配器：buddy system</h1><p>我们按管理将内核侧的内存分配分为两部分：一部分是以内存页为单位的粗粒度页级内存分配器，另一部分是从页级内存分配器分配内存页后再将其划分为更多小对象的细粒度内存分配器，本节我们将实现页级内存分配器</p>
+<p><strong>伙伴算法</strong> （ buddy memory allocation ）是笔者所见过的几种页级内存管理算法当中 <strong>比较优雅的一种</strong> ，因此在 ClosureOS 当中我们的页级内存分配器也采用这种算法，我们将这一内存分配器称为 <code>buddy system</code></p>
+<p>我们使用 <code>struct page</code> 结构体来管理空闲的内存页，并将连续的空闲内存页进行分阶 （order） 管理，一份 N 阶的空闲内存页表示 <code>2^N</code> 张连续的空闲内存页，最高阶设为 <code>10</code> ，位于同一阶的空闲内存页通过第一张页的 <code>list</code> 字段连接为双向链表</p>
+<p><img src="https://s2.loli.net/2024/06/22/XRFtE7I5NxB4hyv.png" srcset="/img/loading.gif" lazyload></p>
+<p>相同阶的两份页面互相称为 buddy，为了方便进行页面管理，简化页面分配模型， <strong>我们将一份 buddy pages 限制为页框号在</strong> <code>1 &lt;&lt; order</code> <strong>上分别为 0 与 1 的两份页面</strong> ：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> __always_inline <span class="hljs-type">size_t</span> <span class="hljs-title function_">buddy_page_pfn</span><span class="hljs-params">(<span class="hljs-type">pfn_t</span> pfn, <span class="hljs-type">int</span> order)</span><br>&#123;<br>    <span class="hljs-keyword">return</span> pfn ^ (<span class="hljs-number">1</span> &lt;&lt; order);<br>&#125;<br><br><span class="hljs-type">static</span> __always_inline <span class="hljs-keyword">struct</span> page* <span class="hljs-title function_">get_page_buddy</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> page *p, <span class="hljs-type">int</span> order)</span><br>&#123;<br>    <span class="hljs-type">pfn_t</span> pfn = page_to_pfn(p);<br>    <span class="hljs-keyword">return</span> pfn_to_page(buddy_page_pfn(pfn, order));<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="内存页分配：对齐到-2-N-张页，拆高阶页面"><a href="#内存页分配：对齐到-2-N-张页，拆高阶页面" class="headerlink" title="内存页分配：对齐到 2^N 张页，拆高阶页面"></a>内存页分配：对齐到 2^N 张页，拆高阶页面</h2><p>buddy 算法中的分配流程如下：</p>
+<ul>
+<li>首先会将请求的内存大小向 2 的幂次方张内存页大小对齐，之后从对应的下标取出连续内存页，若成功取到则直接返回</li>
+<li>若对应下标链表为空，则会从下一个 order 中取出内存页，一分为二，其中一份装载到当前下标对应链表中，另一份再返还给上层调用，若下一个 order 也为空则会继续向更高的 order 进行该请求过程，直到成功分配或超过最高阶</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">freelist</span>[<span class="hljs-title">MAX_PAGE_ORDER</span>];</span><br><br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *__<span class="hljs-title">alloc_page_direct</span>(<span class="hljs-title">int</span> <span class="hljs-title">order</span>)</span><br><span class="hljs-class">&#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *<span class="hljs-title">p</span> =</span> <span class="hljs-literal">NULL</span>;<br>    <span class="hljs-type">int</span> allocated = order;<br><br>    <span class="hljs-keyword">while</span> (allocated &lt; MAX_PAGE_ORDER) &#123;<br>        <span class="hljs-keyword">if</span> (!list_empty(&amp;freelist[allocated])) &#123;<br>            p = list_entry(freelist[allocated].next, <span class="hljs-keyword">struct</span> page, <span class="hljs-built_in">list</span>);<br>            list_del(&amp;p-&gt;<span class="hljs-built_in">list</span>);<br>            <span class="hljs-keyword">break</span>;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            allocated++;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-comment">/* failed */</span><br>    <span class="hljs-keyword">if</span> (!p) &#123;<br>        <span class="hljs-keyword">goto</span> out;<br>    &#125;<br><br>    <span class="hljs-comment">/* it means that we acquire pages from higher order */</span><br>    <span class="hljs-keyword">if</span> (allocated != order) &#123;<br>        <span class="hljs-comment">/* put half pages back to buddy */</span><br>        allocated--;<br>        <span class="hljs-keyword">while</span> (allocated &gt;= order) &#123;<br>            list_add_next(&amp;freelist[allocated],<br>                          &amp;get_page_buddy(p, allocated)-&gt;<span class="hljs-built_in">list</span>);<br>            allocated--;<br>        &#125;<br>    &#125;<br><br>out:<br>    <span class="hljs-keyword">return</span> p;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>完成内存页分配之后，我们还需要完成对分配的这一组内存页的标记，对于一份 <code>order=N</code> 的连续内存页，我们以其首页作为标识，其余页面则作为附属页，我们通过 <code>is_head</code> 标志位进行标识，并使用一个额外的 order 字段存储当前页面所属连续内存页的 order：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">spinlock_t</span> pgdb_lock;<br><br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *__<span class="hljs-title">alloc_pages</span>(<span class="hljs-title">int</span> <span class="hljs-title">order</span>)</span><br><span class="hljs-class">&#123;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *<span class="hljs-title">p</span> =</span> <span class="hljs-literal">NULL</span>;<br>    <span class="hljs-type">bool</span> redo = <span class="hljs-literal">false</span>;<br><br>    <span class="hljs-keyword">if</span> (order &gt;= MAX_PAGE_ORDER) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>    &#125;<br><br>    spin_lock(&amp;pgdb_lock);<br><br>redo:<br>    <span class="hljs-comment">/* try to alloc directly */</span><br>    p = __alloc_page_direct(order);<br>    <span class="hljs-keyword">if</span> (p) &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; (<span class="hljs-number">1</span> &lt;&lt; order); i++) &#123;<br>            p[i].is_head = <span class="hljs-literal">false</span>;<br>            p[i].order = order;<br>            p-&gt;is_free = <span class="hljs-literal">false</span>;<br>            list_head_init(&amp;p[i].<span class="hljs-built_in">list</span>);<br>        &#125;<br><br>        p-&gt;is_head = <span class="hljs-literal">true</span>;<br><br>        <span class="hljs-keyword">goto</span> out;<br>    &#125;<br><br>    <span class="hljs-comment">/* failed to allocate! try to reclaim memory... */</span><br>    <span class="hljs-keyword">if</span> (!redo) &#123;<br>        __reclaim_memory();<br>        redo = <span class="hljs-literal">true</span>;<br>        <span class="hljs-keyword">goto</span> redo;<br>    &#125;<br><br>out:<br>    spin_unlock(&amp;pgdb_lock);<br><br>    <span class="hljs-keyword">return</span> p;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>此外，我们设计一个增加页面引用计数的 API ，当页面被引用时我们应当调用该函数增加其引用计数，在 ClosureOS 开发规范中我们应当在分配页面后调用该 API 增加引用计数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> __always_inline <span class="hljs-type">void</span> <span class="hljs-title function_">get_page</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> page *p)</span><br>&#123;<br>    <span class="hljs-type">atomic_inc</span>(&amp;get_head_page(p)-&gt;ref_count);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="内存页释放：检测相邻空闲页组，-向上合并"><a href="#内存页释放：检测相邻空闲页组，-向上合并" class="headerlink" title="内存页释放：检测相邻空闲页组， 向上合并"></a>内存页释放：检测相邻空闲页组， 向上合并</h2><p>buddy 算法的内存页释放流程如下：</p>
+<ul>
+<li>检查同一 order 的物理相邻高地址页面，若为空闲则将其脱链，合并成为一份新 pages</li>
+<li>否则，检查同一 order 的物理相邻低地址页面，若为空闲则将其脱链，合并成为一份新 pages</li>
+<li>order 增加，进入下一轮循环直到超过最大 order 或是同一 order 的前向与后向页面都非空闲</li>
+<li>更新所有子页面信息，最后将页面挂到对应 order 的空闲页面链表上</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">void</span> __free_pages(<span class="hljs-keyword">struct</span> page *p, <span class="hljs-type">int</span> order)<br>&#123;<br>    <span class="hljs-keyword">if</span> (!p) &#123;<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (order &gt;= MAX_PAGE_ORDER) &#123;<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br><br>    spin_lock(&amp;pgdb_lock);<br><br>    <span class="hljs-comment">/* try to combine nearby pages */</span><br>    <span class="hljs-keyword">while</span> (order &lt; (MAX_PAGE_ORDER - <span class="hljs-number">1</span>)) &#123;<br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *<span class="hljs-title">buddy</span>;</span><br><br>        buddy = get_page_buddy(p, order);<br>        <span class="hljs-keyword">if</span> (buddy-&gt;type == PAGE_NORMAL_MEM &amp;&amp; buddy-&gt;is_free &amp;&amp; buddy-&gt;is_head)&#123;<br>            list_del(&amp;buddy-&gt;<span class="hljs-built_in">list</span>);<br>            <span class="hljs-keyword">if</span> (buddy &lt; p) &#123;<br>                p-&gt;is_head = <span class="hljs-literal">false</span>;<br>                p = buddy;<br>            &#125;<br>            order++;<br>            <span class="hljs-keyword">continue</span>;<br>        &#125;<br><br>        <span class="hljs-comment">/* we can&#x27;t combine forward or backward, just break */</span><br>        <span class="hljs-keyword">break</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; (<span class="hljs-number">1</span> &lt;&lt; order); i++) &#123;<br>        p[i].is_head = <span class="hljs-literal">false</span>;<br>        p[i].is_free = <span class="hljs-literal">true</span>;<br>        p[i].order = order;<br>        p-&gt;ref_count = p-&gt;map_count = <span class="hljs-number">-1</span>;<br>    &#125;<br>    p-&gt;is_head = <span class="hljs-literal">true</span>;<br><br>    list_add_next(&amp;(freelist[order]), &amp;p-&gt;<span class="hljs-built_in">list</span>);<br><br>    spin_unlock(&amp;pgdb_lock);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>不过我们在 ClosureOS 中通常 <strong>并不直接调用页面释放的这个 API</strong> ，而是根据引用计数的减少来决定是否该释放页面，在引用计数减少为负数值时自动释放该页面，从而将引用计数管理与页面释放相统一，而无需开发者手动检查：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> __always_inline <span class="hljs-type">void</span> <span class="hljs-title function_">put_page</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> page *p)</span><br>&#123;<br>    p = get_head_page(p);<br><br>    <span class="hljs-keyword">if</span> (<span class="hljs-type">atomic_dec</span>(&amp;p-&gt;ref_count) &lt; <span class="hljs-number">0</span>) &#123;<br>        free_pages(p, p-&gt;order);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>需要注意的是，目前还只是比较简陋的基础设计，尚未加入各种异常检测（例如 <code>page::ref_count</code> 小于 <code>-1</code> 的情况），我们将在后续添加上完整的错误处理系统（例如 <code>kernel panic</code> ）后再行补充</p>
+<h1 id="0x03-通用分配器：slub-allocator"><a href="#0x03-通用分配器：slub-allocator" class="headerlink" title="0x03. 通用分配器：slub allocator"></a>0x03. 通用分配器：slub allocator</h1><blockquote>
+<p>注：本章我们 <strong>暂时不考虑动态虚拟内存分配</strong> （即传统的 <code>vmalloc()</code> ），仅考虑基于直接映射区的内存分配</p>
+</blockquote>
+<p>现在我们基于页级内存分配器进行小对象分配器的设计：小对象分配器会先从 buddy system 分配页面，将其分割为多个小对象后，再将符合要求的内存对象返还给上层调用</p>
+<p>对于小对象分配器，我们使用 <strong>slub allocator</strong> ——这是一种应用于 Linux kernel 中的久经检验的内存分配算法，其核心思想如下：</p>
+<ul>
+<li>我们将不同大小的内存对象请求归到不同的内存池进行处理，例如对于大小为 <code>16</code> 字节的内存请求从 <code>kmalloc-16</code> 这一内存池进行分配，对于非对齐的内存分配大小则向上对齐到相应的内存池进行分配</li>
+<li>不同的内存池独立持有一组页面，在需要时自行向 buddy system 进行内存分配请求</li>
+<li>内存池向 buddy system 单次请求得到的一份连续内存页称为 <code>slub</code> ，一张 <code>slub</code> 会被分割为多个相同大小的小内存对象，空闲内存对象间连接成单向链表结构</li>
+</ul>
+<p>slub allocator 的好处在于 <strong>我们并不需要额外的数据字段去记录每个内存对象的状态信息</strong> ，我们使用 direct mapping area 的地址来分割 slub pages，由此很容易能根据内存对象的地址获取到其所属的页面与对应的 <code>page</code> 结构体，同时使用链表组织空闲对象可以让我们很方便地得知当前 slub pages 的状态</p>
+<p>我们使用 <code>page</code> 结构体中的一个字段记录其对应的 slub pages 的空闲对象链表，基本结构如下图所示：</p>
+<p><img src="https://s2.loli.net/2024/06/30/p1Ho9Vv5AWiNlXD.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>为什么使用二阶指针？主要是因为笔者个人比较喜欢的一种链表迭代写法：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">page-&gt;freelist = *page-&gt;freelist;<br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>然后是内存池结构的设计，我们使用一个 <code>struct kmem_cache</code> 结构定义一个指定大小的内存池，并为每个内存池设计两个链表：</p>
+<ul>
+<li><code>full</code> ：这个链表上的 slub pages 没有空闲对象</li>
+<li><code>partial</code> 这个链表上的 slub pages 有一定的空闲对象</li>
+</ul>
+<p>此外，我们在 <code>kmem_cache</code> 中记录其所需的 slub pages 上的对象数量等信息</p>
+<blockquote>
+<p>注：本章我们暂时不考虑针对多核的优化（如 cpu 独占的 <code>kmem_cache_cpu</code> ），等到完成多核环境初始化后再行考虑</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kmem_cache</span> &#123;</span><br>    <span class="hljs-type">spinlock_t</span> lock;<br>    <span class="hljs-type">size_t</span> obj_size;<br>    <span class="hljs-type">size_t</span> slub_obj_nr;<br>    <span class="hljs-type">size_t</span> slub_order;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">full</span>;</span>      <span class="hljs-comment">/* list of full pages */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">partial</span>;</span>   <span class="hljs-comment">/* list of partial pages */</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *<span class="hljs-title">slub</span>;</span>          <span class="hljs-comment">/* current slub page */</span><br>    <span class="hljs-type">void</span> **freelist;            <span class="hljs-comment">/* current freelist */</span><br>&#125;;<br><br><span class="hljs-class"><span class="hljs-keyword">enum</span> &#123;</span><br>    KOBJECT_16 = <span class="hljs-number">0</span>,<br>    KOBJECT_32,<br>    KOBJECT_64,<br>    KOBJECT_128,<br>    KOBJECT_192,<br>    KOBJECT_256,<br>    KOBJECT_512,<br>    KOBJECT_1K,<br>    KOBJECT_2K,<br>    KOBJECT_4K,<br>    KOBJECT_8K, <span class="hljs-comment">/* max allocation for 2 pages */</span><br>    NR_KOBJECT_SIZE,<br>&#125;;<br><br><span class="hljs-keyword">extern</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kmem_cache</span> <span class="hljs-title">kmem_cache_list</span>[<span class="hljs-title">NR_KOBJECT_SIZE</span>];</span><br><span class="hljs-keyword">extern</span> <span class="hljs-type">size_t</span> kmem_cache_obj_sz[NR_KOBJECT_SIZE];<br></code></pre></td></tr></table></figure>
+
+<p>我们的 <code>kmem_cache</code> 结构如下图所示：</p>
+<p><img src="https://s2.loli.net/2024/06/30/aueUx4hqbP9FZLR.png" srcset="/img/loading.gif" lazyload></p>
+<p>我们在内存管理模块初始化时进行内存池的初始化：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">size_t</span> kmem_cache_obj_sz[NR_KOBJECT_SIZE] = &#123;<br>    <span class="hljs-number">16</span>, <span class="hljs-number">32</span>, <span class="hljs-number">64</span>, <span class="hljs-number">128</span>,<br>    <span class="hljs-number">192</span>, <span class="hljs-number">256</span>, <span class="hljs-number">512</span>, <span class="hljs-number">1024</span>,<br>    <span class="hljs-number">2048</span>, <span class="hljs-number">4096</span>, <span class="hljs-number">8192</span><br>&#125;;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">kmem_cache_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; NR_KOBJECT_SIZE; i++) &#123;<br>        <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kmem_cache</span> *<span class="hljs-title">kc</span> =</span> &amp;kmem_cache_list[i];<br><br>        <span class="hljs-comment">/* list for partial and full used pages */</span><br>        list_head_init(&amp;kc-&gt;partial);<br>        list_head_init(&amp;kc-&gt;full);<br><br>        <span class="hljs-comment">/* list for current allocation */</span><br>        kc-&gt;freelist = <span class="hljs-literal">NULL</span>;<br>        kc-&gt;slub = <span class="hljs-literal">NULL</span>;<br><br>        <span class="hljs-comment">/* size for each kmem_cache, times 2 each time */</span><br>        kc-&gt;obj_size = kmem_cache_obj_sz[i];<br>        kc-&gt;slub_order = (kc-&gt;obj_size &gt;&gt; PAGE_SHIFT);<br>        kc-&gt;slub_obj_nr = (PAGE_SIZE &lt;&lt; kc-&gt;slub_order) / kc-&gt;obj_size;<br><br>        <span class="hljs-comment">/* other variables */</span><br>        spin_lock_init(&amp;kc-&gt;lock);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="内存对象分配策略"><a href="#内存对象分配策略" class="headerlink" title="内存对象分配策略"></a>内存对象分配策略</h2><p>首先是内存对象的分配，我们按照单次请求的大小将请求分为两类：</p>
+<ul>
+<li>对于小于内存池组最大大小的内存请求，我们将请求大小向上对齐到最近的内存池对象大小，从中进行分配</li>
+<li>对于大于内存池组最大大小的内存请求，我们将其对齐到 <code>(2 ^ N) * PAGE_SIZE</code> 大小，从 buddy system 进行页面分配请求</li>
+<li>我们使用从 buddy system 分配的一份页面的首个 <code>page</code> 结构体的 <code>page::kc</code> 字段标识其是否属于某个 <code>kmem_cache</code> ，从而区分这两类内存分配</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span>* <span class="hljs-title function_">kmalloc</span><span class="hljs-params">(<span class="hljs-type">size_t</span> sz)</span><br>&#123;<br>    <span class="hljs-keyword">if</span> (sz &lt;= KMALLOC_MAX_CACHE_SIZE) &#123;<br>        <span class="hljs-keyword">return</span> __kmalloc_normal(sz);<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> __kmalloc_large(sz);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="I-小对象分配：当前-slub-partial-list-buddy-system"><a href="#I-小对象分配：当前-slub-partial-list-buddy-system" class="headerlink" title="I. 小对象分配：当前 slub -&gt; partial list -&gt; buddy system"></a>I. 小对象分配：当前 slub -&gt; partial list -&gt; buddy system</h3><p>对于比较常见的小对象内存分配，我们的策略如下：</p>
+<ul>
+<li>首先向上对齐分配大小，检查对应内存池的当前 freelist 是否仍有对象，若是则直接分配并返回</li>
+<li>若否，检查当前是否有 slub page，若是则将其挂到 full list</li>
+<li>检查 partial list 是否仍有空闲内存页，若是则取下并分配为当前 slub page 并回到第一步</li>
+<li>若 partial list 也为空，向 buddy system 请求内存页，成功则回到第一步，失败则直接返回 NULL</li>
+</ul>
+<p>需要注意的是在我们的设计中内存池应当在多个核之间进行共享，因此所有操作需要全程加锁</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> __always_inline <span class="hljs-type">int</span> <span class="hljs-title function_">slub_index</span><span class="hljs-params">(<span class="hljs-type">size_t</span> sz)</span><br>&#123;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; NR_KOBJECT_SIZE; i++) &#123;<br>        <span class="hljs-keyword">if</span> (sz &lt;= kmem_cache_obj_sz[i]) &#123;<br>            <span class="hljs-keyword">return</span> i;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> -E2BIG;<br>&#125;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * @brief Fetch an object from a specific kmem_cache</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * @return void* allocated object, NULL for failure</span><br><span class="hljs-comment"> */</span><br><span class="hljs-type">static</span> <span class="hljs-type">void</span>* __kmem_cache_alloc(<span class="hljs-keyword">struct</span> kmem_cache *kc)<br>&#123;<br>    <span class="hljs-type">void</span> *obj = <span class="hljs-literal">NULL</span>;<br><br>    <span class="hljs-keyword">if</span> (!kc) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>    &#125;<br><br>    spin_lock(&amp;kc-&gt;lock);<br><br>redo:<br>    <span class="hljs-comment">/* we have objects on the kmem_cache now, just allocate one */</span><br>    <span class="hljs-keyword">if</span> (kc-&gt;freelist != <span class="hljs-literal">NULL</span>) &#123;<br>        obj = kc-&gt;freelist;<br>        kc-&gt;freelist = *kc-&gt;freelist;<br>        kc-&gt;slub-&gt;obj_nr--;<br>        <span class="hljs-keyword">goto</span> out;<br>    &#125;<br><br>    <span class="hljs-comment">/* no object on freelist, put the slub page on the full list */</span><br>    <span class="hljs-keyword">if</span> (kc-&gt;slub) &#123;<br>        list_add_next(&amp;kc-&gt;full, &amp;kc-&gt;slub-&gt;<span class="hljs-built_in">list</span>);<br>        kc-&gt;slub = <span class="hljs-literal">NULL</span>;<br>    &#125;<br><br>    <span class="hljs-comment">/* try to get the page from partial list */</span><br>    <span class="hljs-keyword">if</span> (!list_empty(&amp;kc-&gt;partial)) &#123;<br>        kc-&gt;slub = container_of(kc-&gt;partial.next, <span class="hljs-keyword">struct</span> page, <span class="hljs-built_in">list</span>);<br>        kc-&gt;freelist = kc-&gt;slub-&gt;freelist;<br>        list_del(&amp;kc-&gt;slub-&gt;<span class="hljs-built_in">list</span>);<br>        <span class="hljs-keyword">goto</span> redo;<br>    &#125;<br><br>    <span class="hljs-comment">/* no slub on the partial list, allocated from the buddy */</span><br>    kc-&gt;slub = slub_alloc(kc);<br>    <span class="hljs-keyword">if</span> (kc-&gt;slub) &#123;<br>        kc-&gt;freelist = kc-&gt;slub-&gt;freelist;<br>        <span class="hljs-keyword">goto</span> redo;<br>    &#125;<br><br>out:<br>    spin_unlock(&amp;kc-&gt;lock);<br><br>    <span class="hljs-keyword">return</span> obj;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span>* __kmalloc_normal(<span class="hljs-type">size_t</span> sz)<br>&#123;<br>    <span class="hljs-type">int</span> slub_idx;<br><br>    slub_idx = slub_index(sz);<br>    <span class="hljs-keyword">if</span> (slub_idx &lt; <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> __kmem_cache_alloc(&amp;kmem_cache_list[slub_idx]);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在进行新的 slub pages 分配时，我们应当根据当前内存池信息将其分割为相应数量的空闲对象，并将空闲对象链接为单向链表：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-keyword">struct</span> page* <span class="hljs-title function_">slub_alloc</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> kmem_cache *kc)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *<span class="hljs-title">new_slub</span>;</span><br>    <span class="hljs-type">void</span> *curr_obj;<br>    <span class="hljs-type">virt_addr_t</span> next_obj;<br>    <span class="hljs-type">void</span> **obj_ptr;<br><br>    new_slub = alloc_pages(kc-&gt;slub_order);<br><br>    <span class="hljs-comment">/* trim pages into chunks */</span><br>    <span class="hljs-keyword">if</span> (new_slub) &#123;<br>        next_obj = page_to_virt(new_slub);<br>        curr_obj = <span class="hljs-literal">NULL</span>;<br>        obj_ptr = (<span class="hljs-type">void</span>**) next_obj;<br><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; kc-&gt;slub_obj_nr; i++) &#123;<br>            *obj_ptr = curr_obj;<br>            curr_obj = (<span class="hljs-type">void</span>*) next_obj;<br>            next_obj += kc-&gt;obj_size;<br>            obj_ptr = (<span class="hljs-type">void</span>**) next_obj;<br>        &#125;<br><br>        new_slub-&gt;obj_nr = kc-&gt;slub_obj_nr;<br>        new_slub-&gt;freelist = curr_obj;<br>        new_slub-&gt;kc = kc;<br>        get_page(new_slub);<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> new_slub;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="II-大内存分配：退化至-buddy-system"><a href="#II-大内存分配：退化至-buddy-system" class="headerlink" title="II. 大内存分配：退化至 buddy system"></a>II. 大内存分配：退化至 buddy system</h3><p>对于较大的内存分配，我们直接将其交由 buddy system 进行分配即可：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">void</span>* __kmalloc_large(<span class="hljs-type">size_t</span> sz)<br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *<span class="hljs-title">p</span>;</span><br><br>    p = alloc_pages(sz &gt;&gt; (PAGE_SHIFT + <span class="hljs-number">1</span>));<br>    <span class="hljs-keyword">if</span> (!p) &#123;<br>        <span class="hljs-comment">/* failed to allocate */</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>    &#125;<br>    get_page(p);<br><br>    <span class="hljs-keyword">return</span> (<span class="hljs-type">void</span>*) page_to_virt(p);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="内存对象释放：对象回归与链表迁移"><a href="#内存对象释放：对象回归与链表迁移" class="headerlink" title="内存对象释放：对象回归与链表迁移"></a>内存对象释放：对象回归与链表迁移</h2><p>内存释放的逻辑则简单得多：</p>
+<ul>
+<li>首先根据虚拟地址找到对应的 page 结构体，若不属于任一 <code>kmem_cache</code> 则说明为大内存分配，直接释放回 buddy system</li>
+<li>否则，找到其对应的 <code>kmem_cache</code> ，判断当前 slub page 所属：<ul>
+<li>若为正在使用的 slub page，直接将对象挂回 <code>kmem_cache::freelist</code></li>
+<li>否则，挂回对应 page 的 freelist，若为 full list 则迁移至 partial list</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">void</span><br>__kmem_cache_free(<span class="hljs-keyword">struct</span> kmem_cache *kc, <span class="hljs-keyword">struct</span> page *slub, <span class="hljs-type">void</span> *obj)<br>&#123;<br>    spin_lock(&amp;kc-&gt;lock);<br><br>    kc-&gt;slub-&gt;obj_nr++;<br><br>    <span class="hljs-keyword">if</span> (slub == kc-&gt;slub) &#123;<br>        *(<span class="hljs-type">void</span>**) obj = kc-&gt;freelist;<br>        kc-&gt;freelist = obj;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-keyword">if</span> (slub-&gt;obj_nr == <span class="hljs-number">1</span>) &#123;    <span class="hljs-comment">/* on full list */</span><br>            list_del(&amp;slub-&gt;<span class="hljs-built_in">list</span>);<br>            list_add_next(&amp;kc-&gt;full, &amp;slub-&gt;<span class="hljs-built_in">list</span>);<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (slub-&gt;obj_nr == kc-&gt;slub_obj_nr) &#123;   <span class="hljs-comment">/* all freed */</span><br>            list_del(&amp;slub-&gt;<span class="hljs-built_in">list</span>);<br>            put_page(slub);<br>        &#125;<br>    &#125;<br><br>    spin_unlock(&amp;kc-&gt;lock);<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">kfree</span><span class="hljs-params">(<span class="hljs-type">void</span>* object)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> *<span class="hljs-title">p</span>;</span><br><br>    <span class="hljs-keyword">if</span> (!object) &#123;<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br><br>    p = get_head_page(virt_to_page((<span class="hljs-type">virt_addr_t</span>) object));<br>    <span class="hljs-keyword">if</span> (!p-&gt;kc) &#123;<br>        put_page(p);<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br><br>    __kmem_cache_free(p-&gt;kc, p, object);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="0x04-C-的初步引入"><a href="#0x04-C-的初步引入" class="headerlink" title="0x04. C++ 的初步引入"></a>0x04. C++ 的初步引入</h1><p>现在我们考虑进行 C++ 代码的引入，笔者选择引入 C++ 代码的主要原因是为了 OOP 特性，虽然说使用 C 同样可以编写面向对象的代码，但是总归没有 C++ 的原生 OOP 看起来那么直观</p>
+<p>在 bare bone 环境下，我们 <strong>无法使用标准库</strong> ，因此此时的 C++ <em>几乎</em> 是相当于 C with class,不过额外多了一些特性：</p>
+<ul>
+<li>隐式的对构造函数与析构函数的调用</li>
+<li>隐式的内存分配与释放</li>
+</ul>
+<p>对于构造函数与析构函数的自动调用，这是由编译器去决定的，因此大部分情况下我们可以不用处理， <strong>除了全局对象的构造函数</strong> —— <strong>我们应当确保其在我们完成内存管理子系统的初始化之后再进行</strong></p>
+<p>对于隐式的内存分配与释放，我们只需要 <strong>重载全局 new&#x2F;delete 运算符即可</strong></p>
+<p>此外，我们应当 <strong>禁用 C++ 的异常处理机制</strong> ，因为这个特性在内核上下文不好实现，同时会引入很多额外的开销，我们通过在编译时添加 <code> -fno-exceptions</code> 以关闭该特性</p>
+<h2 id="new-delete-运算符的重载"><a href="#new-delete-运算符的重载" class="headerlink" title="new&#x2F;delete 运算符的重载"></a>new&#x2F;delete 运算符的重载</h2><p>我们将运算符重载实现在一个单独的头文件 <code>cpp_base.hpp</code> 中，其实我们只需要在 <code>new</code> 中调用 <code>kmalloc()</code> 、在 <code>delete</code> 中调用 <code>kfree()</code> 即可，需要注意的是 C 与 C++ 之间的链接问题，我们应当使用 <code>extern &quot;C&quot;</code> 来为 C++ 代码引入 C ABI：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;closureos/types.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;closureos/compiler.h&gt;</span></span><br><br><span class="hljs-keyword">extern</span> <span class="hljs-string">&quot;C&quot;</span> &#123;<br>    <span class="hljs-function"><span class="hljs-type">void</span> *<span class="hljs-title">kmalloc</span><span class="hljs-params">(<span class="hljs-type">size_t</span> sz)</span></span>;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">kfree</span><span class="hljs-params">(<span class="hljs-type">void</span>* object)</span></span>;<br>&#125;<br><br><span class="hljs-function">__always_inline <span class="hljs-type">void</span>* <span class="hljs-keyword">operator</span> <span class="hljs-title">new</span><span class="hljs-params">(<span class="hljs-type">size_t</span> sz)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">kmalloc</span>(sz);<br>&#125;<br><br>__always_inline <span class="hljs-type">void</span>* <span class="hljs-keyword">operator</span> <span class="hljs-keyword">new</span>[](<span class="hljs-type">size_t</span> sz)<br>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">kmalloc</span>(sz);<br>&#125;<br><br><span class="hljs-function">__always_inline <span class="hljs-type">void</span> <span class="hljs-keyword">operator</span> <span class="hljs-title">delete</span><span class="hljs-params">(<span class="hljs-type">void</span> *p)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-built_in">kfree</span>(p);<br>&#125;<br><br>__always_inline <span class="hljs-type">void</span> <span class="hljs-keyword">operator</span> <span class="hljs-keyword">delete</span>[](<span class="hljs-type">void</span> *p)<br>&#123;<br>    <span class="hljs-built_in">kfree</span>(p);<br>&#125;<br><br><span class="hljs-function">__always_inline <span class="hljs-type">void</span> <span class="hljs-keyword">operator</span> <span class="hljs-title">delete</span><span class="hljs-params">(<span class="hljs-type">void</span> *p, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> sz)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-built_in">kfree</span>(p);<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>之后对于所有的 C++ 代码，我们只需要在开头引入该头文件即可</p>
+<h2 id="global-constructor-的调用"><a href="#global-constructor-的调用" class="headerlink" title="global constructor 的调用"></a>global constructor 的调用</h2><p>在用户态程序中对于全局初始化器（例如全局对象的构造函数，或是 constructor attribute 修饰的函数）的调用通常在 <code>main()</code> 函数前完成（这里我们仅考虑 <code>GCC</code> 编译器），编译器会生成对应的 <strong>调用构造器与析构器的函数</strong> （通常每个文件一个，函数中带有 <code>static_initialization_and_destruction</code> ），并将这些函数的地址单独存放到一个 <code>.init_array</code> 段，在运行 <code>main()</code> 函数前的 <code>__libc_start_main()</code> 会调用这些函数指针</p>
+<p>因此对于我们的 kernel 环境而言，若要初始化这些全局对象， <strong>我们只需要手动调用这些函数指针即可</strong> ，这里笔者将 <code>.init_array</code> 段放在了 <code>.data</code> 段中，并使用一个外部符号标识其位置：</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs haskell">.<span class="hljs-class"><span class="hljs-keyword">data</span> <span class="hljs-type">ALIGN</span>(4096) : <span class="hljs-type">AT</span> (<span class="hljs-title">__kernel_text_sz</span> + <span class="hljs-title">__boot_end</span>)</span><br>&#123;<br>	*(.<span class="hljs-class"><span class="hljs-keyword">data</span>)</span><br>	__init_array = .;<br>	*(.init_array)<br></code></pre></td></tr></table></figure>
+
+<p>之后我们直接引入该符号并调用对应的即可：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">extern</span> <span class="hljs-title function_">void</span> <span class="hljs-params">(*__init_array)</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">global_constructor_caller</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-type">void</span> (**init_array)(<span class="hljs-type">void</span>) =&amp;__init_array;<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; init_array[i]; i++) &#123;<br>        init_array[i]();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="global-destructor-的调用"><a href="#global-destructor-的调用" class="headerlink" title="global destructor 的调用"></a>global destructor 的调用</h2><p>全局析构器的实现则比构造器相对复杂一些，对每个存在全局构造器&#x2F;析构器的文件的 <code>*_static_initialization_and_destruction_*()</code> 函数，其除了调用构造器以外，还会 <strong>进行析构器信息的装填</strong> ，这通过 <code>int __cxa_atexit(void (*destructor) (void *), void *arg, void *__dso_handle)</code> 函数完成，其三个参数分别为：析构函数指针、待析构对象、一个特殊的标记值（对我们来说可以不用管）</p>
+<p>因此我们只需要自行实现一个 <code>__cxa_at_exit</code> 函数来记录析构器信息即可，为了实现动态的析构器数据记录，我们动态分配 <code>dtor_info</code> 结构体来记录待析构对象的信息，并将其链接为单向链表：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">dtor_info</span> &#123;<br>    <span class="hljs-keyword">struct</span> <span class="hljs-title class_">dtor_info</span> *next;<br>    <span class="hljs-built_in">void</span> (*destructor) (<span class="hljs-type">void</span> *);<br>    <span class="hljs-type">void</span> *arg;<br>    <span class="hljs-type">void</span> *__dso_handle;<br>&#125;;<br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">dtor_info</span> *global_dtors = <span class="hljs-literal">nullptr</span>;<br><br><span class="hljs-type">int</span> __cxa_atexit(<span class="hljs-built_in">void</span> (*destructor) (<span class="hljs-type">void</span> *), <span class="hljs-type">void</span> *arg, <span class="hljs-type">void</span> *__dso_handle)<br>&#123;<br>    <span class="hljs-keyword">struct</span> <span class="hljs-title class_">dtor_info</span> *new_info;<br>    <br>    new_info = <span class="hljs-keyword">new</span> <span class="hljs-keyword">struct</span> dtor_info;<br>    <span class="hljs-keyword">if</span> (new_info == <span class="hljs-literal">nullptr</span>) &#123;<br>        <span class="hljs-keyword">return</span> -ENOMEM;<br>    &#125;<br><br>    new_info-&gt;next = global_dtors;<br>    new_info-&gt;destructor = destructor;<br>    new_info-&gt;arg = arg;<br>    new_info-&gt;__dso_handle = __dso_handle;<br><br>    global_dtors = new_info;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>此外，我们还需要定义一个 <code>__dso_handle</code> 变量，并导出到我们的 <code>cpp_base.hpp</code> 中：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">void</span>* __dso_handle __attribute__((<span class="hljs-built_in">visibility</span>(<span class="hljs-string">&quot;hidden&quot;</span>)));<br></code></pre></td></tr></table></figure>
+
+<p>接下来是对析构器的调用，在 C++ ABI 规范中，对这些析构器的调用应当由 <code>void __cxa_finalize ( void *__dso_handle)</code> 函数完成，其应当将析构器条目的 <code>__dso_handle</code> 与其参数进行对比，相等则调用析构器（若传参为空则应当调用所有析构器）并将对应的条目无效化，因此在我们的 ClosureOS 内核中也应当实现一个 <code>__cxa_finalize()</code> 函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">spinlock_t</span> dtor_exit_lock;<br><br><span class="hljs-type">void</span> __cxa_finalize(<span class="hljs-type">void</span>* dso_handle)<br>&#123;<br>    <span class="hljs-keyword">struct</span> <span class="hljs-title class_">dtor_info</span> **pdtor = &amp;global_dtors;<br><br>    <span class="hljs-built_in">spin_lock</span>(&amp;dtor_exit_lock);<br><br>    <span class="hljs-keyword">while</span> (*pdtor) &#123;<br>        <span class="hljs-keyword">struct</span> <span class="hljs-title class_">dtor_info</span> *dtor = *pdtor;<br><br>        <span class="hljs-keyword">if</span> (!dso_handle || dtor-&gt;__dso_handle == dso_handle) &#123;<br>            *pdtor = dtor-&gt;next;<br>            dtor-&gt;<span class="hljs-built_in">destructor</span>(dtor-&gt;arg);<br>            <span class="hljs-keyword">delete</span> dtor;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            pdtor = &amp;dtor-&gt;next;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-built_in">spin_unlock</span>(&amp;dtor_exit_lock);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>需要注意的是 <strong>这个函数应当在程序退出时进行手动调用</strong> ，由于我们尚未编写电源管理模块，因此本章所涉及的代码不会调用该函数</p>
+<h2 id="纯虚函数"><a href="#纯虚函数" class="headerlink" title="纯虚函数"></a>纯虚函数</h2><p>虚函数是 C++ 的一个特性，简而言之其中的纯虚函数是一个类似占位符的存在，当程序调用纯虚函数时程序会报错，在内核环境中我们并没有各种库因此我们需要实现相应的 error handler</p>
+<p>对于 GCC 而言，这个 error handler 应当为 <code>__cxa_pure_virtual()</code> 函数，因此我们只需要在我们的内核中实现该函数即可， <em>目前我们暂且留空</em> ，在后续完成内核输出功能后再添加上类似 <code>printk()</code> 的报错信息输出：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">extern</span> <span class="hljs-string">&quot;C&quot;</span> <span class="hljs-type">void</span> __cxa_pure_virtual()<br>&#123;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * <span class="hljs-doctag">TODO:</span> add error message output</span><br><span class="hljs-comment">    */</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="0xFF-Reference"><a href="#0xFF-Reference" class="headerlink" title="0xFF. Reference"></a>0xFF. Reference</h1><p><a target="_blank" rel="noopener" href="https://arttnba3.cn/2022/06/30/OS-0X03-LINUX-KERNEL-MEMORY-5.11-PART-II/">【OS.0x03】Linux内核内存管理II - Buddy System</a></p>
+<p><a target="_blank" rel="noopener" href="https://arttnba3.cn/2023/02/24/OS-0X04-LINUX-KERNEL-MEMORY-6.2-PART-III/">【OS.0x04】Linux 内核内存管理浅析 III - Slub Allocator</a></p>
+<p><a target="_blank" rel="noopener" href="https://blogs.oracle.com/linux/post/linux-slub-allocator-internals-and-debugging-1">Linux SLUB Allocator Internals and Debugging, Part 1 of 4</a></p>
+<p><a target="_blank" rel="noopener" href="https://wiki.osdev.org/C++">C++ - OS Dev</a></p>
+<p><a target="_blank" rel="noopener" href="https://wiki.osdev.org/Calling_Global_Constructors">Calling Global Constructors - OS Dev</a></p>
+<p><a target="_blank" rel="noopener" href="https://itanium-cxx-abi.github.io/cxx-abi/abi.html">Itanium C++ ABI</a></p>
+<p> <a target="_blank" rel="noopener" href="https://refspecs.linuxfoundation.org/elf/elf.pdf">Linux Foundation - Executable and Linking Format (ELF) Specification</a> </p>
+<p><a target="_blank" rel="noopener" href="https://www.amd.com/content/dam/amd/en/documents/processor-tech-docs/programmer-references/24593.pdf">AMD64 Architecture Programmer’s Manual Volume 2</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/CODE/" class="category-chain-item">CODE</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%BC%80%E5%8F%91%E6%89%8B%E8%AE%B0/">#开发手记</a>
+      
+        <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>
+      
+        <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">#内存管理</a>
+      
+        <a href="/tags/C/">#C++</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【CODE.0x04】现代 64 位 OS 开发手记 II：内核内存分配器与 C++ 的初步引入</div>
+      <div>https://arttnba3.github.io/2024/06/30/CODE-0X04-OSDEV64-II_MEMORY-MANAGE/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年6月30日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/05/31/OS-0X05-LINUX-KERNEL-FILESYSTEM-SEQFILE/" title="【OS.0x05】Linux 内核文件系统 - 初探序列文件接口">
+                        <span class="hidden-mobile">【OS.0x05】Linux 内核文件系统 - 初探序列文件接口</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
