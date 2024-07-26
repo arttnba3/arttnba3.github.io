@@ -1,0 +1,892 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="出走字节 IaaS 开发实习两年，归来读安全 PhD 依然在做 DPU">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【PAPER.0x06】论文笔记：High-density Multi-tenant Bare-metal Cloud">
+<meta property="og:url" content="https://arttnba3.github.io/2024/07/27/PAPER-0X06-ASPLOS2020_BMHIVE/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="出走字节 IaaS 开发实习两年，归来读安全 PhD 依然在做 DPU">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/07/27/cSrynm3feav9RVB.png">
+<meta property="article:published_time" content="2024-07-26T20:25:38.000Z">
+<meta property="article:modified_time" content="2024-07-26T20:32:12.364Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="论文笔记">
+<meta property="article:tag" content="虚拟化">
+<meta property="article:tag" content="系统虚拟化">
+<meta property="article:tag" content="云计算">
+<meta property="article:tag" content="DPU">
+<meta property="article:tag" content="裸金属">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2024/07/27/cSrynm3feav9RVB.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【PAPER.0x06】论文笔记：High-density Multi-tenant Bare-metal Cloud - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"arttnba3.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://s2.loli.net/2024/07/27/yd9nsqoTvFLpxc5.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【PAPER.0x06】论文笔记：High-density Multi-tenant Bare-metal Cloud"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-07-27 06:25" pubdate>
+          2024年7月27日 早上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          71 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【PAPER.0x06】论文笔记：High-density Multi-tenant Bare-metal Cloud</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2024年7月27日 早上
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>出走字节 IaaS 开发实习两年，归来读安全 PhD 依然在做 DPU</p>
+<span id="more"></span>
+
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><p>最近不知道为什么又开始看 DPU 了（反正就是啥都想弄一点），所以先从这篇非常经典的论文入手：）</p>
+<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>虚拟化技术是 IaaS 的基石，虽然多租户共享同一物理机提高了数据中心服务器的利用率，但带来对安全问题的忧虑（尤其是侧信道攻击），且增加了资源开销；新兴的裸金属云提供了强隔离性与对硬件的完全访问，但只能将整台物理服务器租给用户，无法在出租后对用户程序控制，且扩展性差、成本效率低</p>
+<p>本文提出一种新的高密度、多租户裸金属云设计：<code>BM-Hive</code> ，每个裸金属客户运行在各自的计算板上——带有专有 CPU 与内存的 PCIe 扩展板，其软硬件混合 virtio I&#x2F;O 系统允许客户直接访问云网络与存储设备；<code>BM-Hive</code> 可以显著提升裸金属服务的成本效益，从硬件层分隔裸金属用户以提供更好的安全与隔离；<code>BM-Hive</code> 被作者部署在最大的公有云基础设施之一上，为数万用户同时服务</p>
+<h1 id="0x01-Introduction"><a href="#0x01-Introduction" class="headerlink" title="0x01. Introduction"></a>0x01. Introduction</h1><p>虚拟化技术是公有 IaaS 云的基石，EPT 这样的高级虚拟化技术显著提升了 VM 性能，但多租户共享同一物理机带来对安全与性能的忧虑，尤其是针对 CPU 缓存与超线程等紧密结合的资源的侧信道攻击，此外共享资源冲突可以带来不可预估的性能波动</p>
+<p><strong>Limitations of existing approach</strong> ：为了解决这些问题，租户独占物理机的裸金属服务出现了（称为单租户裸金属服务器，因为只能整个租出），但其仍有一些成本效益、性能、互通性上的限制：</p>
+<ul>
+<li><strong>Cost</strong> ：单租户裸金属服务器只能整个租出，但用户不一定需要这么多性能</li>
+<li><strong>Single-thread performance</strong> ：绝大多数云服务器使用核数多但单核弱的 Xeon ，裸金属服务的用户通常需要更高性能</li>
+<li><strong>Interoperability and manageability</strong> ：裸金属服务必须无缝结合到现有云系统中以从弹性云架构中受益，然而单租户裸金属服务与现有的基于 VM 的云不同，其通常由 Intel Management Engine 类已知不安全系统管理，且裸金属服务应当与 VM 镜像兼容以复用镜像</li>
+</ul>
+<p><strong>Our approach</strong> ：本文给出 <code>BM-Hive</code> 的设计：一个可以解决所有这些挑战的可扩展的多租户裸金属服务，其由三部分组成：一个裸金属 hypervisor （ <code>bm-hypervisor</code> ，对应传统的 <code>vm-hypervisor</code> ）、一组裸金属客户（ <code>bm-guest</code> ，对应传统的 <code>vm-guest</code>）、一个 IO 枢纽（<code>IO-Bond</code>）； <code>bm-hypervisor</code> 运行在服务器主 CPU 上管理所有 guests 的生命周期并作为 <code>IO-Bond</code> 后端，但不似 <code>vm-hypervisor</code> 那样要虚拟化 CPU 或内存，而是每个 <code>bm-guest</code> 都运行在各自的计算板上（由专有处理器、内存单元、PCIe 接口组成）； <code>IO-Bond</code> 作为硬件的一部分由 FPGA 进行实现以用于在主板与计算板间通信，其一方面模拟 I&#x2F;O 设备（例如 virtio 网络与块设备），另一方面将计算板与主板的 PCIe 总线连接并转发  <code>bm-guest</code> 的 I&#x2F;O 请求到  <code>bm-hypervisor</code> </p>
+<p> <code>BM-Hive</code> 的设计充分解决了单租户裸金属服务的限制， <strong>首先</strong> ， <code>BM-Hive</code> 可以在一个  <code>BM-Hive</code> 服务器上支持 16 个 <code>bm-guest</code> ，提升服务密度的同时降低开销， <strong>其次</strong> ，<code>bm-guest</code> 可以使用任何计算板所支持的 CPU, <strong>最后</strong> ， <code>BM-Hive</code> 可以无缝融合到现有云基础架构中；最主要的区别是 <code>vm-guest</code> 运行在虚拟 CPU 上，而 <code>bm-guest</code> 运行在计算板上，而这对云基础架构而言是无感知的（归功于 <code>bm-hypervisor</code> 与 <code>IO-Bond</code> ），表 1 对比了三种类型云服务的不同层；此外 <code>bm-guest</code> 无法完全控制整个服务器， <code>bm-hypervisor</code> 通过 PCIe 接口控制其执行，且 <code>IO-Bond</code> 在硬件中强制对 <code>bm-guest</code> 进行适当隔离</p>
+<p><img src="https://s2.loli.net/2024/07/25/xhGA7yFgsMUo1c4.png" srcset="/img/loading.gif" lazyload alt="Table 1. Comparison of three cloud services"></p>
+<p>作者在最大的 IaaS 公有云数据中心之一部署了 <code>BM-Hive</code> ，并彻底分析了其安全性与性能表现，其实验展示了 <code>BM-Hive</code> 的强隔离、安全与性能</p>
+<p>总而言之，本文贡献如下：</p>
+<ul>
+<li>作者提出来新的裸金属云设计，结合了现有基于 VM 的与单租户裸金属的服务器的优点，并提供安全、灵活、可操作的裸金属云服务</li>
+<li><code>BM-Hive</code> 有软硬件结合的 virtio 系统，让 guests 可以直接与现有云基础架构结合，直接获得云服务的可用性与弹性</li>
+<li>作者基于 <code>BM-Hive</code> 的设计构建了一个产品级的系统并在真实的云中部署，证明了 <code>BM-Hive</code> 的可行性</li>
+<li>作者在最大的公有云基础设施之一部署了 <code>BM-Hive</code> 并充分测量其性能，证明了其相对基于 VM 的云服务的优点</li>
+</ul>
+<h1 id="0x02-Background-and-Motivation"><a href="#0x02-Background-and-Motivation" class="headerlink" title="0x02. Background and Motivation"></a>0x02. Background and Motivation</h1><p><strong>Background</strong> ：虚拟化是传统云的关键技术，主要有 CPU、内存、I&#x2F;O 三个层面，CPU 与 内存虚拟化由处理器提供，云上 I&#x2F;O 则通常是半虚拟化，Guest侧内核直接请求与处理高级 I&#x2F;O 操作，而非模拟低级 I&#x2F;O 操作（如寄存器访问），或是直接硬件设备直通</p>
+<h2 id="2-1-Impact-on-Performance"><a href="#2-1-Impact-on-Performance" class="headerlink" title="2.1 Impact on Performance"></a>2.1 Impact on Performance</h2><p><strong>Performance overhead</strong> ：许多事件都能产生 VM exits 而造成大量开销（单个 exit 事件至少 10 µs 的情况下，每秒 5000+ 次 VM exit 将是不可忽视的开销），表 2 展示了在作者的云数据中心上 5 min 内的 300000 个 VM 的统计情况</p>
+<p><img src="https://s2.loli.net/2024/07/25/yPx3XfA87FgMTdZ.png" srcset="/img/loading.gif" lazyload alt="Table 2. Number of VM exits per second per vCPU"></p>
+<p>即便是 Guest 直接访问硬件的设备直通也会有开销，基于 IOMMU 的实现可以增加 60% 的网卡在 CPU 上使用（但吞吐量不变）</p>
+<p>此外还有其他会增加性能开销的层面（如 vCPU 锁、TLB等），但这些在 <code>BM-Hive</code> 服务器中都没有</p>
+<p><strong>Performance variation</strong> ：共享资源的冲突同样带来性能影响，如 I&#x2F;O 处理高峰期 host OS 可能抢占 guest VM 执行而造成性能开销与波动</p>
+<p>图 1 展示了作者的数据中心在 24 小时内的 20000 VM 由低到高的被 hypervisor 抢占率（shared 表示未与物理核心绑定），需要注意的是这种情况下没有 VM 主动尝试占有资源（否则会更糟）</p>
+<p><img src="https://s2.loli.net/2024/07/25/Oe3Li9aIoykAs7Z.png" srcset="/img/loading.gif" lazyload alt="Figure 1. VM preemption of the 99th and 99.9th percentile. The y-axis shows the percent of the CPU time used by the hypervisor/the host OS."></p>
+<h2 id="2-2-Security-Concerns"><a href="#2-2-Security-Concerns" class="headerlink" title="2.2 Security Concerns"></a>2.2 Security Concerns</h2><p>VM 间硬件资源共享可能导致侧信道攻击（如 Meltdown、Spectre、L1TF 等），但在 <code>bm-guest</code> 物理隔离的 <code>BM-Hive</code> 上不存在这个问题</p>
+<p>hypervisor 漏洞是云上主要攻击面，但 <code>bm-hypervisor</code> 无需 CPU&#x2F;内存 虚拟化且不能从 guests 侧直接访问</p>
+<blockquote>
+<p>笔者注：这一块实际上笔者感觉不是很彳亍，因为模拟设备在 DPU 上模拟（通常由 QEMU 实现）同样会有漏洞，对于攻击者而言似乎只是攻击的位置变了</p>
+</blockquote>
+<h2 id="2-3-Nested-Hypervisor"><a href="#2-3-Nested-Hypervisor" class="headerlink" title="2.3 Nested Hypervisor"></a>2.3 Nested Hypervisor</h2><p>传统云用户想要再跑虚拟机只能依赖嵌套虚拟化，这增大了 hypervisor 设计复杂度与性能开销</p>
+<h1 id="0x03-Design"><a href="#0x03-Design" class="headerlink" title="0x03. Design"></a>0x03. Design</h1><h2 id="3-1-Design-Requirements"><a href="#3-1-Design-Requirements" class="headerlink" title="3.1 Design Requirements"></a>3.1 Design Requirements</h2><p><code>BM-Hive</code> 设计要求如下：</p>
+<ul>
+<li><p><strong>Multi-tenancy</strong> ： <code>BM-Hive</code> 必须支持多租户共享同一物理服务器以实现细粒度 CPU 核心</p>
+</li>
+<li><p><strong>Security</strong> ： <code>BM-Hive</code> 必须提供基于硬件的 <code>bm-guests</code> 间强隔离</p>
+</li>
+<li><p><strong>Interoperability</strong> ：  <code>BM-Hive</code> 必须与现有云基础架构兼容以获取已有的可用性、依赖性、弹性，互通性（interoperability）要求 <code>bm-guest</code> 同样能运行在 VM 中，这个特性称为 <code>cold migration</code> ，其一个依赖项便是 <code>bm-guest</code> 必须能够与云存储与网络进行高性能连接（由 virtio 这样的半虚拟化支持）， <code>BM-Hive</code> 通过特制的软硬件混合 virtio 实现</p>
+</li>
+<li><p><strong>Performance</strong> ： <code>bm-guest</code> 应当有原生 CPU&#x2F;内存性能与近原生 IO 性能以及最小的性能波动</p>
+</li>
+<li><p><strong>Cost efficiency</strong> ：<code>bm-guest </code>在同配置下 开销应比 <code>vm-guest</code> 小</p>
+</li>
+</ul>
+<h2 id="3-2-System-Overview"><a href="#3-2-System-Overview" class="headerlink" title="3.2 System Overview"></a>3.2 System Overview</h2><p>图 2 对比了虚拟化架构与 <code>BM-Hive</code> 的区别，主要区别是 <code>vm-guest</code> 运行在虚拟化 CPU 与内存上而 <code>bm-guest</code> 运行在物理 CPU 与内存上，<code>bm-hypervisor</code> 是类似 <code>vm-hypervisor</code> 的用户态程序，管理 <code>vm-guest</code> 生命周期、提供 virtio 设备、与云基础架构交互等，其不需要虚拟化因而代码比 <code>vm-hypervisor</code> 简单得多，<code>bm-hypervisor</code> 进程与 <code>bm-guest</code> 间一一对应且只能通过 virtio 交互</p>
+<p><img src="https://s2.loli.net/2024/07/25/ACfzumlg1c6UDhI.png" srcset="/img/loading.gif" lazyload alt="Figure 2. Architecture of BM-Hive, compared to KVM"></p>
+<p><strong>Use scenario</strong> ：云基础架构选择一个可用的裸金属服务器并选择一个空闲计算卡启动（通过开启 PCIe power），板上固件开始执行 boot loader 并随后加载 <code>bm-guest</code> 内核，云上绝大部分 guests 无法使用本地存储，因此 bootloader 与内核通过 virtio-blk 获取，作者通过扩展 EFI 固件以实现这一点</p>
+<h2 id="3-3-System-Architecture"><a href="#3-3-System-Architecture" class="headerlink" title="3.3 System Architecture"></a>3.3 System Architecture</h2><p>图 3 展示了 <code>BM-Hive</code> 的系统架构，每个裸金属服务器由简化的 Xeon 服务器（<code>base</code> ）与一组计算卡（由 CPU、内存、PCIe 总线、FPGA 构建的 IO-Bond 组成的 PCIe 卡）组成，在 <code>bm-guest</code> 视角由计算卡模拟的 virtio 设备是常规的 PCIe 设备，IO-Bond 作为 <code>bm-guest</code> 中的 virtio 前端与 <code>bm-hypervisor</code> 中的 virtio 后端间的桥梁，并通过内置的 DMA 引擎进行命令与数据的转发；IO-Bond 目前支持 virtio 网络与存储设备，且可以轻易扩展，此外其可以由 ASIC 芯片实现</p>
+<p><img src="https://s2.loli.net/2024/07/25/bEaomMIZGgAkjX8.png" srcset="/img/loading.gif" lazyload alt="Figure 3. System architecture of BM-Hive"></p>
+<p>在 <code>bm-hypervisor</code> 的角度每个计算卡便是一个 PCIe 的 <code>bm-guest</code> 设备，一个 <code>base</code> 服务器可以支撑 16 张计算卡，<code>bm-hypervisor</code> 的功能主要有：1️⃣ 管理 <code>bm-guest</code> 生命周期与计算卡分配 2️⃣ 提供并维护 virtio 设备后端 3️⃣ 与现有云基础架构对接</p>
+<h2 id="3-4-IO-Bond"><a href="#3-4-IO-Bond" class="headerlink" title="3.4 IO-Bond"></a>3.4 IO-Bond</h2><p>IO-Bond 用于充当计算卡上 virtio 设备的代理</p>
+<p><strong>3.4.1 IO-Bond: Frontend.</strong>  IO-Bond 前端连接到计算板的 PCIe 总线，其 FPGA 模拟了 PCI 接口供 <code>bm-guest</code> 使用，并将 <code>bm-guest</code> 访问转发到后端</p>
+<p><code>BM-Hive</code> 无法直接使用虚拟化系统的共享环缓冲区设计（IO-Bond 前后端物理内存不共享），因此由 IO-Bond 为 <code>bm-hypervisor</code> 与 <code>bm-guest</code> 提供环缓冲区，并将 <code>bm-hypervisor</code> 的环缓冲区与其他进行同步（如图 4 所示），在一个缓冲区被添加上数据后 IO-Bond 的 DMA 引擎便会拷贝到其他缓冲区</p>
+<p><img src="https://s2.loli.net/2024/07/25/MNbjS7ifZ1ETYF3.png" srcset="/img/loading.gif" lazyload alt="Figure 4. Shadow ring buffers in BM-Hive"></p>
+<p><strong>3.4.2 IO-Bond: Backend.</strong> IO-Bond 后端将请求转发到对应云设备，其设计主要关注与云基础架构间的高性能 I&#x2F;O，在 <code>BM-Hive</code> 中所有 I&#x2F;O 请求通过 vhost-user 协议与云基础架构（修改版 DPDK vSwitch 和 SPDK 云存储，使用 poll mode driver 而非中断）交互，由此所有请求在用户空间完成处理，避免额外的内核与用户态间内存拷贝；此外 <code>BM-Hive</code> 支持 VGA 设备以连接 <code>bm-guest</code> 控制台</p>
+<p><img src="https://s2.loli.net/2024/07/25/BR9A5OYKZgHCSUj.png" srcset="/img/loading.gif" lazyload alt="Figure 5. Backend of BM-Hive"></p>
+<p><strong>3.4.3 IO-Bond Implementation.</strong> 每个 virtio 设备的每个 virtio 队列都有一个对应的后端 shadow vring（IO-Bond 与 <code>bm-hypervisor</code> 间的共享缓冲区，所有 shadow vring 被组织为一个缓冲区描述符列表并映射到 IO-Bond 中）， <code>bm-hypervisor</code> 与 IO-Bond 间通过一对 mailbox 寄存器传递 PCI 访问提醒，且每个 shadow vring 都有一对 head&#x2F;tail 寄存器</p>
+<p>图 6 展示了 IO-Bond 如何响应 guests 的一个传统的 virtio Tx&#x2F;Rx 工作流，<code>bm-guest</code> 写入 virtio 寄存器以通知 IO-Bond 、并在 Rx 数据到达时获得 MSI 中断；<code>bm-hypervisor</code> 中有一个专有线程拉取 IO mailbox 与 shadow vring head&#x2F;tail 寄存器以避免中断，图中 1 ～ 6 为标准 virtio 操作；最终 IO-Bond 通过更新 head 寄存器通知 <code>bm-hypervisor</code> ，收到的 Rx 缓冲区被保留</p>
+<p><img src="https://s2.loli.net/2024/07/25/QYZm57sTAGkjb1x.png" srcset="/img/loading.gif" lazyload alt="Figure 6. Tx/Rx example of IO-Bond"></p>
+<p>得益于 IO-Bond 中 FPGA 的低开销，<code>bm-guest</code> 到 IO-Bond 的 PCI 读写操作仅需要 0.8 µs，IO-Bond 到 mailbox 寄存器又要 0.8 µs，单次访问总开销仅 1.6 µs；IO-Bond 为每个 virtio 网络&#x2F;存储设备暴露一个 PCIe x4 接口，通过 PCIe x8 接口备份到 <code>bm-hypervisor</code> ，IO-Bond 内部 DMA 吞吐量为 50Gbps（每个 x4 接口为 32 Gbps），通过服务器共享网络接口（100 Gbps） 转发到云服务，且 <code>bm-guest</code> 间贷款消耗会动态平衡以保持公平</p>
+<h2 id="3-5-Costs-efficiency"><a href="#3-5-Costs-efficiency" class="headerlink" title="3.5 Costs efficiency"></a>3.5 Costs efficiency</h2><p>数据中心的盈利能力取决于 vCPU 密度，传统的基于 VM 的服务器需要为 hypervisor 与 host OS 保留 CPU 核心，而 <code>BM-Hive</code> 具有更高的 vCPU 成本效益（虽然需要额外的 CPU 与 FPGA 支出）</p>
+<p>能耗也是成本效率的一个点，但 <code>BM-Hive</code> 与传统 VM 服务器提供的 vCPU 不同，因此很难比较</p>
+<h1 id="0x04-Evaluation"><a href="#0x04-Evaluation" class="headerlink" title="0x04. Evaluation"></a>0x04. Evaluation</h1><h2 id="4-1-Environment-Setup"><a href="#4-1-Environment-Setup" class="headerlink" title="4.1 Environment Setup"></a>4.1 Environment Setup</h2><p>表 3 展示了作者部署 <code>BM-Hive</code> 的公有云上的实例配置，注意一个云实例的 I&#x2F;O 性能通常被限速以预防资源误用和提升整体服务质量</p>
+<p><img src="https://s2.loli.net/2024/07/26/kXH73A6xrRhWcwI.png" srcset="/img/loading.gif" lazyload alt="Table 3. Bare-metal instances available in our cloud. The last column shows the maximum number of the compute boards in a single BM-Hive server. This number depends on the server’s power supply, internal space, and I/O performance."></p>
+<h2 id="4-2-CPU-and-Memory-Performance"><a href="#4-2-CPU-and-Memory-Performance" class="headerlink" title="4.2 CPU and Memory Performance"></a>4.2 CPU and Memory Performance</h2><p>所有实验在带有相同的基于 CentOS 的系统的 Xeon E5-2682 v4 实例上完成，作者对比了 <code>BM-Hive</code> 与 VM 以及物理机（可行时）的性能，<code>vm-guest</code> 与 <code>bm-guest</code> 都运行在 64G 内存的 Xeon E5-2682 v4 CPU 上，<code>vm-guest</code> 独占实例且固定到有 NMUA 节点亲和力的物理 CPU 核心上</p>
+<p>作者将 <code>BM-Hive</code> 与 <code>vm-guest</code> 与物理机器的性能进行比较，内核版本为 <code>3.10.0-514.26.2.el7</code> ，但物理机有 2 个 CPU 插槽与 384G 内存，图 7 与 8 展示了 SPEC CINT 2006 与 STREAM 的多次测试结果</p>
+<p><img src="https://s2.loli.net/2024/07/26/zp1CjeF8Tn2BvNK.png" srcset="/img/loading.gif" lazyload alt="Figure 7. CPU performance by SPEC CPU2006 Figure 8. Memory bandwidth by STREAM multi-thread"></p>
+<p>CPU 的测试结果相近，<code>BM-Hive</code> 比物理机快 4%，VM 比物理机慢 4% ，注意到 <code>bm-guest</code> 与物理机性能并不完全相同（因为配置与设计不同）， <code>vm-guest</code> 则因为虚拟化的缘故存在开销</p>
+<p><code>BM-HIve</code> 在内存上同样占优，如图 8 所示<code>BM-HIve</code> 几乎与物理机完全相同，但 <code>vm-guest</code> 由于虚拟化开销最多只有 <code>bm-guest</code> 98% 的性能</p>
+<p><strong>Summary</strong> ：同配置 <code>bm-guest</code>比  <code>vm-guest</code> 有更好的 CPU 与内存性能，且 <code>BM-HIve</code> 可以利用单线程性能更高的 CPU</p>
+<h2 id="4-3-I-O-Performance"><a href="#4-3-I-O-Performance" class="headerlink" title="4.3 I&#x2F;O Performance"></a>4.3 I&#x2F;O Performance</h2><p><code>bm-guest</code> 与 <code>vm-guest</code> 有着近乎一样的基于 virtio 的 IO 路径，但 <code>BM-Hive</code> 有着软硬件结合的设计，本节我们对比同一云网络与存储下的性能，guests 网速被限制在 4M PPS 与 10Gbps 的带宽，存储被限制在 25 IOPS 与 300 MBps 的带宽</p>
+<p><strong>Network performance</strong> ：作者使用 <code>netperf-2.5</code> 在两个 <code>bm-guest</code> 间收发 UDP 包（并添加 <code>vm-guest</code> 对照组），结果如图 9 所示， <code>bm-guest</code> 与 <code>vm-guest</code> 都达到了 3.2M PPS，由于 <code>BM-Hive</code> 的 I&#x2F;O 路径更长所以 <code>vm-guest</code> 有着更少的抖动</p>
+<p><img src="https://s2.loli.net/2024/07/26/J9iERPS8zLXpCdU.png" srcset="/img/loading.gif" lazyload alt="Figure 9. UDP packet receive rate"></p>
+<p>作者使用不同的工具对比了 <code>bm-guest</code> 与 <code>vm-guest</code> 的延迟以测算 IO-Bond 开销，图 10 显示了使用 <code>sockperf-3.5</code> 测试 UDP 的结果（并使用 DPDK 绕过内核），由于 <code>BM-Hive</code> 的 I&#x2F;O 路径更长所以 <code>vm-guest</code> 结果更好（在 ICMP 上也是）</p>
+<p><img src="https://s2.loli.net/2024/07/26/7TVJfov5DQeHd8n.png" srcset="/img/loading.gif" lazyload alt="Figure 10. UDP and ping latency"></p>
+<p>吞吐量也是网络性能的重点，作者使用 <code>netperf-2.5</code> 测试 64  个单个数据包为 1400B 的 TCP 连接，<code>bm-guest</code> 为 9.6 Gbps， <code>vm-guest</code> 为 9.59 Gbps</p>
+<p>总之，<code>BM-Hive</code> 性能满足设计目的，此外作者通过取消 PPS 限制来测量其最大网络性能（可以达到 16M PPS）</p>
+<p><strong>Storage performance</strong> ：作者通过100Gbps 网络访问 SSD 云存储运行 fio benchmark 使用 8 线程进行 4KB 随机读写， <code>bm-guest</code> 与 <code>vm-guest</code> 都是饱和存储速率，但如图 11 所示 <code>bm-guest</code> 有更低的平均延迟与 99.9% 延迟</p>
+<p><img src="https://s2.loli.net/2024/07/26/BKcsrvJhi26TnO8.png" srcset="/img/loading.gif" lazyload alt="Figure 11. Storage I/O latency"></p>
+<p>作者还测试了无限制的访问本地 SSD 的存储性能， <code>BM-Hive</code> 在 IOPS 上比 VM 快 50%，在带宽上快 100%，平均延迟仅为 60µs</p>
+<p>总之，<code>BM-Hive</code> 的存储性能得益于 IO-Bond 的 DMA 引擎而比需要额外内存拷贝的 VM 更好</p>
+<p><strong>Summary</strong> ：<code>bm-guest</code> 与 <code>vm-guest</code> 都能达到基于云的网络与存储 IO 限制，但 <code>bm-guest</code> 在更坏情况（99.9 percentile）下更好，在无限制下比 <code>vm-guest</code> 性能显著提高</p>
+<h2 id="4-4-Application-Performance"><a href="#4-4-Application-Performance" class="headerlink" title="4.4 Application Performance"></a>4.4 Application Performance</h2><p>一个重要的实验是 <code>BM-Hive</code> 执行云上常用应用的性能，测试结果如图 12、13、14 所示</p>
+<blockquote>
+<p>详细的实验数据就不抄了，自己去看原文（笑）</p>
+</blockquote>
+<p><img src="https://s2.loli.net/2024/07/26/T4Pt6phkYzZOb2x.png" srcset="/img/loading.gif" lazyload alt="Figure 12. NGINX Figure 13. MariaDB ready-only Figure 14. MariaDB rd/wr and wr-only Figure 15. Redis with varying clients Figure 16. Redis with varying data size"></p>
+<p><strong>Summary</strong> ： <code>BM-Hive</code> 运行流行云上应用的性能比基于虚拟化的云服务更好</p>
+<h1 id="0x05-Related-Work"><a href="#0x05-Related-Work" class="headerlink" title="0x05. Related Work"></a>0x05. Related Work</h1><p><strong>Reducing world switches</strong> ：虚拟化的主要开销之一便是 guest 与 hypervisor 间的切换，有一部分工作便关注于减少切换，例如形如网卡的高速驱动会产生大量中断，<a target="_blank" rel="noopener" href="https://dl.acm.org/doi/pdf/10.1145/2248487.2151020">ELI</a> （Exit-Less Interrupt）致力于将 hypervisor 从中断路径上移除从而让 Guest 直接处理中断以提高吞吐量并减少延迟；此外在 guest 侧也有优化空间，如 KVM 最近引入的 <code>halt_polling</code> 特性在让 CPU 休眠前拉取唤醒请求以避免 guest 在休眠后又立即被等待中的唤醒请求唤醒；但 <code>BM-Hive</code> 不会有这些问题</p>
+<p><strong>Memory virtualization</strong> ：内存通常被虚拟化为两级页表：GVA➡️GPA➡️HPA，因此现有工作之一便是减少开销极大的 TLB miss ，如增大 TLB 覆盖率（例如使用大页）或减少 TLB 惩罚，如 <a target="_blank" rel="noopener" href="https://dl.acm.org/doi/10.1145/3140659.3080210">POM-TLB</a> 便是将内存的一部分作为 TLB 以增大 TLB，或是<a target="_blank" rel="noopener" href="https://www.usenix.org/conference/atc17/technical-sessions/presentation/amit">跟踪页访问以维护 TLB 而减少 TLB miss</a>；但 <code>BM-Hive</code> 不会有这些问题</p>
+<p><strong>Device virtualization</strong> ：现有虚拟设备大都通过半虚拟化实现，最流行的便是 virtio ，此外如 SR-IOV 网卡等也支持原生虚拟化；特别地，<code>BM-Hive</code> 通过混合方式实现了 virtio 以与现有云基础架构交互</p>
+<p><strong>Minimal hypervisor</strong> ：也有一些工作关注于创建最小的 hypervisor ，如 Intel 的 ACRN 便是用于嵌入式 IOT 设备的小型 hypervisor （ <del>笔者注：嵌入式设备还要跑 VM？</del> ）；<code>BM-Hive</code> 比传统的 hypervisor 都简单，因为其并不虚拟化任何东西，也不直接与 <code>bm-guest</code> 交互</p>
+<p><strong>Nest hypervisor</strong> ：<code>BM-Hive</code> 目标之一便是让用户能运行自己的虚拟机，在传统架构上嵌套虚拟化可以实现但开销较大，<code>BM-Hive</code> 的用户直接运行在物理 CPU 上因而有着完全的硬件虚拟化支持</p>
+<p><strong>Other bare-metal services</strong> ：绝大部分公有云都部署了单租户裸金属服务，限制如第 1 节所示；部分公有云也为 VM 部署了特殊的网络设备，例如 Azure 也有智能网卡，但据作者所知其更关注底层云基础架构的优化，而 <code>BM-Hive</code> 并不接触云基础架构层</p>
+<p>也有部分系统有着相似的整体架构，如 Intel 的 VCA2 便是一个带有三个 Xeon E3 v1258L 处理器的 PCIe 卡，但 <code>BM-Hive</code>  是为了云服务而生的</p>
+<h1 id="0x06-Discussion"><a href="#0x06-Discussion" class="headerlink" title="0x06. Discussion"></a>0x06. Discussion</h1><p>本节讨论 <code>BM-Hive</code> 的潜在提升与未来研究计划</p>
+<p><strong>Improvements to IO-Bond</strong> ： IO-Bond 的设计可以进行优化（例如将包处理从 <code>bm-hypervisor</code> 卸载到 IO-Bond 上），除了使用 FPGA 以外也可以使用 ASIC 实现</p>
+<p><strong>Live Migration and Upgrade</strong> ：虚拟机动态迁移非常重要，<a target="_blank" rel="noopener" href="https://dl.acm.org/doi/10.1145/3297858.3304034">Orthus</a> 被用于在不停止虚拟机的情况下动态升级 VMM，<code>BM-Hive</code> 的设计使其可以直接应用 Orthus 的方案升级 VMM，但 <code>bm-guest</code> 的迁移则更有挑战，目前的方案是插入一个虚拟化曾并将其转换为 <code>vm-guest</code> ，但仍存在优化空间</p>
+<p><strong>SGX Support</strong> ：SGX 是一个可信执行环境，但目前的虚拟机不好使用这个东西，作者计划在未来为 <code>BM-Hive</code> 添加原生 SGX 支持</p>
+<h1 id="0x07-Summary"><a href="#0x07-Summary" class="headerlink" title="0x07. Summary"></a>0x07. Summary</h1><p>作者设计了 <code>BM-Hive</code> 并进行了评估，很好很强大🎇🎆🎇</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/PAPER/" class="category-chain-item">PAPER</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">#论文笔记</a>
+      
+        <a href="/tags/%E8%99%9A%E6%8B%9F%E5%8C%96/">#虚拟化</a>
+      
+        <a href="/tags/%E7%B3%BB%E7%BB%9F%E8%99%9A%E6%8B%9F%E5%8C%96/">#系统虚拟化</a>
+      
+        <a href="/tags/%E4%BA%91%E8%AE%A1%E7%AE%97/">#云计算</a>
+      
+        <a href="/tags/DPU/">#DPU</a>
+      
+        <a href="/tags/%E8%A3%B8%E9%87%91%E5%B1%9E/">#裸金属</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【PAPER.0x06】论文笔记：High-density Multi-tenant Bare-metal Cloud</div>
+      <div>https://arttnba3.github.io/2024/07/27/PAPER-0X06-ASPLOS2020_BMHIVE/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年7月27日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/06/30/CODE-0X04-OSDEV64-II_MEMORY-MANAGE/" title="【CODE.0x04】现代 64 位 OS 开发手记 II：内核内存分配器与 C++ 的初步引入">
+                        <span class="hidden-mobile">【CODE.0x04】现代 64 位 OS 开发手记 II：内核内存分配器与 C++ 的初步引入</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
