@@ -1,0 +1,913 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Rabbit’s adventures in wonderland">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【PAPER.0x07】论文笔记：kAFL: Hardware-Assisted Feedback Fuzzing for OS Kernels">
+<meta property="og:url" content="https://arttnba3.github.io/2024/07/30/PAPER-0X07-KAFL/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="Rabbit’s adventures in wonderland">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20240130045624.png">
+<meta property="article:published_time" content="2024-07-30T11:53:16.000Z">
+<meta property="article:modified_time" content="2024-07-30T12:07:23.503Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="信息安全">
+<meta property="article:tag" content="FUZZ">
+<meta property="article:tag" content="论文笔记">
+<meta property="article:tag" content="虚拟化">
+<meta property="article:tag" content="系统虚拟化">
+<meta property="article:tag" content="Intel PT">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20240130045624.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【PAPER.0x07】论文笔记：kAFL: Hardware-Assisted Feedback Fuzzing for OS Kernels - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"arttnba3.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20240130045949.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【PAPER.0x07】论文笔记：kAFL: Hardware-Assisted Feedback Fuzzing for OS Kernels"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-07-30 21:53" pubdate>
+          2024年7月30日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          71 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【PAPER.0x07】论文笔记：kAFL: Hardware-Assisted Feedback Fuzzing for OS Kernels</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2024年7月30日 晚上
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>Rabbit’s adventures in wonderland</p>
+<span id="more"></span>
+
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><p>在<a target="_blank" rel="noopener" href="https://arttnba3.cn/2023/10/27/PAPER-0X04-HYPER_CUBE/">上一篇论文</a>当中我们介绍了这个作者针对虚拟机设计的 fuzzer，这次我们来看他的<a target="_blank" rel="noopener" href="https://www.usenix.org/system/files/conference/usenixsecurity17/sec17-schumilo.pdf">另一篇</a>使用 Intel PT 技术辅助的一个针对 OS kernel 设计的 fuzzer：<a target="_blank" rel="noopener" href="https://github.com/RUB-SysSec/kAFL">kAFL</a></p>
+<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>基于反馈的 fuzzing 非常强大，但对内核进行 fuzz 难以应用反馈机制（即代码覆盖率指导），且内核 crash 导致的 os 重启会影响 fuzz 的性能</p>
+<p>本文使用虚拟化技术与 Intel PT（Processor Trace）技术带来独立于 OS 的硬件辅助的 fuzzing 解决方案，这使得我们只需要额外开发一小部分与内核交互的用户空间组件；作者还开发了 <a target="_blank" rel="noopener" href="https://github.com/RUB-SysSec/kAFL">kernel-AFL 框架</a>，并在 Linux、Windows、macOS 上找到数个漏洞</p>
+<h1 id="0x01-Introduction"><a href="#0x01-Introduction" class="headerlink" title="0x01. Introduction"></a>0x01. Introduction</h1><blockquote>
+<p>经典的不用看的章节</p>
+</blockquote>
+<p>过去人们主要关注更容易被利用的用户态应用的安全漏洞，而随着用户态的各种加固，内核开始更加吸引攻击者</p>
+<p>模糊测试长期以来被用来寻找漏洞，最新的反馈驱动型 fuzzer 通过反馈机制学习输入的有趣性并以此生成更多可能触发新路径的输入，但最火的 AFL 仅限于用户空间，fuzz 内核存在一系列额外的挑战：crash 与 timeout 需要虚拟化技术捕获并优雅地继续、内核代码存在更多不确定性、缺少 fuzz 命令行程序那样通过 stdin 直接输入的简易方法、部分内核组件不开源而无法在性能不损耗的情况下插桩</p>
+<p>过去的内核 fuzzing 方法依赖于特定的驱动或是重编译，且由于使用模拟的缘故速度非常慢，或是非反馈驱动</p>
+<p>本文介绍一种无需 ring0 代码甚至特定于 OS 的代码便能够对任意（甚至闭源）x86-64 内核进行 feedback fuzzing 的技术，实现为 kernel-AFL，Intel PT 技术提供了控制流信息，且生成反馈信息的开销极小（5%）</p>
+<p>总而言之，本篇论文贡献如下：</p>
+<ul>
+<li><strong>OS independence</strong>：作者展示了使用 VMM 生成覆盖率来对大部分闭源内核组件进行反馈驱动 fuzzing 是可行的</li>
+<li><strong>Hardware-assisted feedback</strong>：作者使用了 Intel Process Trace 技术，其开销极小</li>
+<li><strong>Extensible and modular design</strong>：作者使用了模块化设计，方便支持其他的 x86 内核&#x2F;用户组件</li>
+<li><strong>kernel-AFL</strong>：作者使用自己的理念开发了原型系统 <a target="_blank" rel="noopener" href="https://github.com/RUB-SysSec/kAFL">kernel-AFL</a></li>
+</ul>
+<h1 id="0x02-Technical-Background"><a href="#0x02-Technical-Background" class="headerlink" title="0x02. Technical Background"></a>0x02. Technical Background</h1><p>本节介绍后续章节涉及的硬件特性</p>
+<h2 id="2-1-x86-64-Virtual-Memory-Layouts"><a href="#2-1-x86-64-Virtual-Memory-Layouts" class="headerlink" title="2.1 x86-64 Virtual Memory Layouts"></a>2.1 x86-64 Virtual Memory Layouts</h2><p>内核空间通常位于虚拟高地址部分而用户空间位于低地址部分，OS 处理任务通常不会切换 CR3，而是在同一地址空间处理</p>
+<h2 id="2-2-Intel-VT-x"><a href="#2-2-Intel-VT-x" class="headerlink" title="2.2 Intel VT-x"></a>2.2 Intel VT-x</h2><p>我们将 CPU 分为三类：物理 CPU、逻辑 CPU（超线程可能带来多于物理 CPU 数量的逻辑 CPU，但仅有一个同时活动）、虚拟 CPU（基于逻辑 CPU 建立）</p>
+<p>虚拟化中角色分为两种：虚拟机监视器（Virtual Machine Monitor）和虚拟机（Virtual Machine），VMM 管控 VM，VM 在 VMM 提供的透明上下文中执行</p>
+<p>Intel VT-x 技术提供了硬件辅助的 CPU 虚拟化特性，将 CPU 额外分为 VMXOFF（不开启虚拟化）与 VMXON（开启虚拟化）的运行模式，并区分 VMX non-root（用于 VM）与 VMX root（用于 VMM）两种执行模式</p>
+<p>VM 可能通过各种原因触发 VM-Exit 事件将控制权转交给 VMM 进行处理，VMM 通过包含 vCPU 信息的 VMCS 结构创建、启动、控制 VM</p>
+<h2 id="2-3-Intel-PT"><a href="#2-3-Intel-PT" class="headerlink" title="2.3 Intel PT"></a>2.3 Intel PT</h2><p>Intel 自第五代处理器引入 Intel PT 技术，提供执行和分支跟踪信息，不同于 <code>Intel Last Branch Record</code> 这样的分支记录技术，输出缓冲区的大小仅受主存大小而非特定寄存器的限制，输出格式基于数据包（packet-oriented）并分为通用执行信息与控制流信息包；Intel 在运行时提供各类控制流相关的数据包类型，因此我们需要用被跟踪的软件来翻译包含控制流分支地址的包</p>
+<p>Intel 指定了五种类型的控制流影响指令，称为 <code>Change of Flow Instruction</code> （CoFI），不同类型的 CoFI 执行结果产生不同的信息包流，与本文相关的三种为：</p>
+<ul>
+<li><strong>Taken-Not-Taken</strong>（TNT）：条件跳转是否执行</li>
+<li><strong>Target IP</strong>（TIP）：间接跳转或转移指令（<code>indirect branch, near ret, far transfer</code>）的目标</li>
+<li><strong>Flow Update Packets</strong>（FUP）：如中断或陷阱等异步事件， FUP 之后通常跟随一个 TIP 以指示接下来的指令</li>
+</ul>
+<p>为了限制生成的数据量，Intel PT 提供了多种运行时过滤选项，如指令指针地址范围或特权级别（CPL），kAFL 以此将追踪限制为内核模式，同时利用 CR3 过滤来限制为特定的软件</p>
+<p>Intel PT 支持为输出数据配置多目标域，kAFL 关注于允许指定多个输出区域的物理地址表（Table of Physical Addresses，ToPA）机制：每个 ToPA 表包含多个 ToPA 条目，其中包含用来存储追踪数据的内存块的物理地址、大小、类型（用于指示 CPU 访问 ToPA 表项时的行为）等信息</p>
+<h1 id="0x03-System-Overview"><a href="#0x03-System-Overview" class="headerlink" title="0x03. System Overview"></a>0x03. System Overview</h1><p>这节介绍系统总体架构，分为三个组件：fuzzing logic、VM infrastructure（ QEMU-PT 与 KVM-PT）、user mode agent，整体架构如图 1 所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20240130045624.png" srcset="/img/loading.gif" lazyload></p>
+<p>模糊测试过程如图 2 所示：</p>
+<ul>
+<li><p>在 VM 启动时 user mode agent 的第一部分（loader）使用 hypercall <code>HC_SUBMIT_PANIC</code> 来向 QEMU-PT 提交 <code>kernel panic handler</code>  （Windows 下为 <code>BugCheck()</code> ）的地址，QEMU-PT 将其更改为一个 hypercall 调用例程以让我们快速得知 VM 中的 crashes</p>
+</li>
+<li><p>loader 使用 hypercall <code>HC_GET_PROGRAM</code> 来获取实际的 user mode agent 并启动</p>
+</li>
+<li><p>fuzzer 开始初始化，agent 触发一个会由 KVM-PT 处理的 hypercall <code>HC_SUBMIC_CR3</code>，hypervisor 从当前运行的程序中提取 CR3 的值并交给 QEMU-PT 进行过滤</p>
+</li>
+<li><p>最后，agent 使用 hypercall <code>HC_SUBMIT_BUFFER</code> 来提交其想要获取输入的地址，接下来开始主 fuzzing 循环</p>
+</li>
+<li><p>在主循环中，agent 通过 hypercall  <code>HC_GET_INPUT</code> 来获取新的输入，fuzzing logic 生成一个新的输入并交给 QEMU-PT 由其拷贝到 guest 内存中</p>
+</li>
+<li><p>在 VM-Entry 恢复虚拟机执行时开启 PT 追踪机制，此时 agent 使用输入与内核交互，在 Fuzzing 过程中 QEMU-PT 解码追踪数据并在需要时更新位图</p>
+</li>
+<li><p>交互完成后 agent 通过 hypercall <code>HC_FINISHED</code> 告知 hypervisor 停止追踪，位图被传递给 fuzzing logic 后续使用</p>
+</li>
+<li><p>最后 agent 可以继续运行任何未被追踪的清理程序，然后发出另一个 <code>HC_GET_INPUT</code> 以启动下一次循环迭代</p>
+</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/rat3bant/BlogPic@master/20240130045949.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="3-1-Fuzzing-Logic"><a href="#3-1-Fuzzing-Logic" class="headerlink" title="3.1 Fuzzing Logic"></a>3.1 Fuzzing Logic</h2><p><code>fuzzing logic</code> 是 kAFL 的控制组件，负责管理种子、生成输入等，大量采用了 AFL 所用的算法（如使用位图记录块转移），且使用并行 VM 协调提升性能，并负责与 QEMU-PT 通信以及显示统计数据</p>
+<h2 id="3-2-User-Mode-Agent"><a href="#3-2-User-Mode-Agent" class="headerlink" title="3.2 User Mode Agent"></a>3.2 User Mode Agent</h2><p>在目标 OS 中运行的 <code>User Mode Agent</code> 通过 hypercall 与 <code>fuzzing logic</code> 同步并获取新输入以与内核交互，在实践中作者额外使用<code>loader component</code> 通过 hypercall 接收  <code>User Mode Agent</code> 二进制并执行，同时负责检查 agent 的状态</p>
+<h2 id="3-3-Virtualization-Infrastructure"><a href="#3-3-Virtualization-Infrastructure" class="headerlink" title="3.3 Virtualization Infrastructure"></a>3.3 Virtualization Infrastructure</h2><p><code>fuzzing logic</code> 使用 QEMU-PT 与 KVM-PT 交互以创建 VMs，KVM-PT 允许我们限定 Intel PT 范围为 vCPU 执行期间，QEMU-PT 负责与 KVM-PT 交互以配置 Intel PT 并访问与解码 output buffer 的追踪数据为被执行的条件跳转指令的地址的流，且基于已知非确定性基本款地址进行过滤（以预防假阳性）后以 AFL 兼容的位图格式提供给 fuzzing logic</p>
+<p>作者使用客制化的 Intel PT 解码器，与 Intel 的现有方案比带来了性能提升</p>
+<h2 id="3-4-Stateful-and-Non-Deterministic-Code"><a href="#3-4-Stateful-and-Non-Deterministic-Code" class="headerlink" title="3.4 Stateful and Non-Deterministic Code"></a>3.4 Stateful and Non-Deterministic Code</h2><p>内核层的状态与异步性导致的不确定性需要被处理，状态不会被重置因为快照加载成本过高，中断可能带来不确定性基本块转移，作者使用两种技术解决这些问题：</p>
+<p>第一种是过滤出中断及中断处理造成的转移，这可以通过 Intel PT 的追踪数据（带有 FUP 的 TIP）指示，丢弃直到 <code>iret</code> 指令前的基本块，同时通过一个简易的调用栈追踪所有中断（因为可能存在中断嵌套）</p>
+<p>第二种是拉黑所有非确定性出现的基本块，作者会在位图更新时连续多次重新运行输入，将没有在所有试验中出现的基本块拉入黑名单，在后续处理在过滤</p>
+<blockquote>
+<p>注：笔者认为作者使用的第二种技术可能会存在非常大的假阳性，因为内核在不同状态下同一输入的结果可能也是不同的</p>
+</blockquote>
+<h2 id="3-5-Hypercall"><a href="#3-5-Hypercall" class="headerlink" title="3.5 Hypercall"></a>3.5 Hypercall</h2><p>hypercall 由 <code>vmcall</code> 指令调起以主动触发 VM-Exit，作者修改了 KVM-PT 以接收 ring3 的 hypercall，并通过 <code>rcx</code> 寄存器传参，例如 <code>HC_SUBMIT_BUFFER</code> 通过 <code>rcx</code> 存储一个 guest 指针，另一个例子是告知 <code>fuzzing logic</code> 目标 OS 发生了 crash，注入的代码如 List 1 所示</p>
+<p><img src="https://s2.loli.net/2024/07/30/WHY1MB5kzoqf6cp.png" srcset="/img/loading.gif" lazyload alt="Listing 1: Hypercall crash notifier."></p>
+<h1 id="0x04-Implementation-Details"><a href="#0x04-Implementation-Details" class="headerlink" title="0x04. Implementation Details"></a>0x04. Implementation Details</h1><p>代码开源于 <a target="_blank" rel="noopener" href="https://github.com/RUB-SysSec/kAFL">https://github.com/RUB-SysSec/kAFL</a></p>
+<h2 id="4-1-KVM-PT"><a href="#4-1-KVM-PT" class="headerlink" title="4.1 KVM-PT"></a>4.1 KVM-PT</h2><p>Intel PT 允许我们在不修改&#x2F;重编译目标内核的情况下追踪分支转移，据作者所知过去不曾有公开可用的驱动能够使用 Intel PT 仅追踪单个 vCPU 的 guest 执行，如 <a target="_blank" rel="noopener" href="https://github.com/andikleen/simple-pt">Simple-PT</a> 在设计上不支持长期追踪，<a target="_blank" rel="noopener" href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/plain/tools/perf/Documentation/intel-pt.txt?id=refs/tags/v4.8">perf-subsystem</a> 可以长期追踪但仅能追踪逻辑 CPU 而非 vCPU</p>
+<p>为了解决这些缺点，作者开发了 KVM-PT，其允许我们在无限长的时间内追踪 vCPU ，并导出一个用户模式接口供 QEMU-PT 访问追踪数据</p>
+<h3 id="4-1-1-vCPU-Specific-Traces"><a href="#4-1-1-vCPU-Specific-Traces" class="headerlink" title="4.1.1 vCPU Specific Traces"></a>4.1.1 vCPU Specific Traces</h3><p>开启 Intel PT 需要在 ring0 启用 MSR 寄存器的 <code>IA32_RTIT_CTL_MSR.TraceEn</code> 位，这需要在进入 VM 前完成，在 VM-Exit 后则需要反向操作，而手动修改 MSR 会产生不必要的追踪数据，作者使用 Intel VT-x 的 MSR 自动加载功能（如修改 <code>VMCS.VM_ENTRY_CONTROL_MSR</code> ）来在 VM-Entry &amp; VM-Exit 时加载预配置 MSR</p>
+<blockquote>
+<p>笔者注：这点事都能写这么一大段❓</p>
+</blockquote>
+<h3 id="4-1-2-Continuous-Tracing"><a href="#4-1-2-Continuous-Tracing" class="headerlink" title="4.1.2 Continuous Tracing"></a>4.1.2 Continuous Tracing</h3><p>如图 3 所示的物理地址表（Table of Physical Addresses,ToPA）项结构体数组用以指示 Intel PT 如何填充缓冲区，在主缓冲区填满后 CPU 可以停止追踪或是产生能造成 VM-Exit 的中断（当前的实现为非即时）以让 VMM 重置缓冲区后恢复 VM 执行，overflow buffer 被放置在 main buffer 后以避免实际传递中断前可能的追踪数据丢失（其若也溢出则导致追踪停止，此时会新增一个数据表指示数据丢失）</p>
+<p><img src="https://s2.loli.net/2024/07/30/A4IKLpswex36Vi5.png" srcset="/img/loading.gif" lazyload alt="Figure 3: KVM-PT ToPA configuration."></p>
+<h2 id="4-2-QEMU-PT"><a href="#4-2-QEMU-PT" class="headerlink" title="4.2 QEMU-PT"></a>4.2 QEMU-PT</h2><p>QEMU-PT 通过 KVM-PT 的用户空间接口（<code>ioctl()</code> 与 <code>mmap()</code> ）配置 Intel PT 并定期检查 ToPA，并将 Intel PT 数据包解码为类似 AFL 的位图</p>
+<p><img src="https://s2.loli.net/2024/07/30/EaOTDcZjyh6oWrX.png" srcset="/img/loading.gif" lazyload alt="Figure 4: Overview of the pipeline that converts Intel PT traces to kAFL bitmaps."></p>
+<h3 id="4-2-1-PT-Decoder"><a href="#4-2-1-PT-Decoder" class="headerlink" title="4.2.1 PT Decoder"></a>4.2.1 PT Decoder</h3><p>解码器需要足够高效以应对产生速率为几百 MB 每秒的内核模糊测试追踪数据，且需要足够的精确</p>
+<p>Intel 为客制 Intel PT 解码器提供了自己的通用解码引擎 <a target="_blank" rel="noopener" href="https://github.com/intel/libipt">libipt</a> ，但 kAFL 仅依赖流信息，而 libipt 在提供执行数据与流信息的同时并不缓存反汇编指令，因此作者实现了一个类似即时（just-in-time）解码器的软件，并缓存所有反汇编指令以优化查找，同时忽视与测试用例无关的数据包</p>
+<p>作者的解码器在 ToPA 区域被填充后便开始解码（而非等待填满），并翻译为 AFL 位图格式</p>
+<h2 id="4-3-AFL-Fuzzing-Logic"><a href="#4-3-AFL-Fuzzing-Logic" class="headerlink" title="4.3 AFL Fuzzing Logic"></a>4.3 AFL Fuzzing Logic</h2><p>作者的 fuzzing logic 与 AFL 十分相似，每个基本块被给予一个随机 ID，从块 A 到 B 的转移被通过如下方程赋予一个偏移值到位图中：</p>
+<p><img src="https://s2.loli.net/2024/07/30/IiFG56ULtmM2qlZ.png" srcset="/img/loading.gif" lazyload></p>
+<p>不同于编译期随机，kAFL 使用基本块的地址作为 ID，在观测到转移后便增加位图中计数，在 fuzzing 迭代结束后将位图的每个 entry 舍入以仅保留最高位，并与全局静态位图对比以检查是否发现新位，若是则添加到全局静态位图并将触发新位的输入添加到队列中，当发现了有趣的输入时则进行逐字节变异，该阶段完成后在随机位置进行变异（若前阶段发现新的输入则将推迟），触发新转移的输入将会给予更高的优先级</p>
+<h1 id="0x05-Evaluation"><a href="#0x05-Evaluation" class="headerlink" title="0x05. Evaluation"></a>0x05. Evaluation</h1><p>作者的实验机器为 <code>Intel i7-6700 processor, 32 GB DDR4 RAM</code> ，为避免 IO 性能影响，所有基准测试在一个 RAM disk 上完成</p>
+<p>类似 AFL ，若一个造成 crash  的输入触发了此前未有的基本块转移，则作者认为其是唯一的（但不意味着底层错误唯一）</p>
+<h2 id="5-1-Fuzzing-Windows"><a href="#5-1-Fuzzing-Windows" class="headerlink" title="5.1 Fuzzing Windows"></a>5.1 Fuzzing Windows</h2><p>作者实现了一个小的特定于 Windows 10 的 user mode agent，通过虚拟磁盘对 NTFS 的 4 天 + 19 小时 fuzzing 后找到了 59 个独立的 crashes（都是除以 0 错误），经检查作者怀疑可能只有一个独立的错误</p>
+<p>此外作者还实现了一个通用 syscall fuzzing agent，但在 Windows 下 13 个小时的 6.3 百万次执行中未发现 crash，由于 kAFL 得益于覆盖率反馈很快习得如何生成有效载荷以执行有效系统调用，导致了 fuzzing agent 中的意外的用户回调，从而使得 agent 需要高昂开销以重启，导致美妙仅能执行约 134 次</p>
+<h2 id="5-2-Fuzzing-Linux"><a href="#5-2-Fuzzing-Linux" class="headerlink" title="5.2 Fuzzing Linux"></a>5.2 Fuzzing Linux</h2><p>作者为 Linux 实现了一个类似的 agent 以测试 ext4 ，但效率比 Windows 快得多（每秒 1k～2k次执行），从而在 12 天的测试中发现了 160 个独立的 crash 并确认了多个 bug，图 5 展示了另一个模糊测试的前 32 小时</p>
+<p><img src="https://s2.loli.net/2024/07/30/qjA8raLVybPzdWI.png" srcset="/img/loading.gif" lazyload alt="Figure 5: Fuzzing the ext4 kernel module for 32 hours."></p>
+<h2 id="5-3-Fuzzing-macOS"><a href="#5-3-Fuzzing-macOS" class="headerlink" title="5.3 Fuzzing macOS"></a>5.3 Fuzzing macOS</h2><p>作者在 HFS 驱动中找到了 150 个 crash 并手动确认了至少三个为导致内核崩溃的独立漏洞，这可以造成 DoS 攻击，此外 kAFL 在 APFS 内核扩展中发现了 220 个独立的 crash，目前都被上报给了 Apple</p>
+<h2 id="5-4-Rediscovery-of-Known-Bugs"><a href="#5-4-Rediscovery-of-Known-Bugs" class="headerlink" title="5.4 Rediscovery of Known Bugs"></a>5.4 Rediscovery of Known Bugs</h2><p>作者在 <code>keyctl()</code> 接口上评估了 kAFL，成功找到此前已知的 CVE-2016-07583，并找到了一个未知错误（已被分配为 CVE-2016-86504），其在短短一小时内成功触发 17 个独立的 KASan 报告与 15 个独立的 panic，生成了超过 3400 万个输入，发现了 295 个有趣的输入，每秒执行约 9k 次，该实验为 8 进程并行</p>
+<h2 id="5-5-Detected-Vulnerabilities"><a href="#5-5-Detected-Vulnerabilities" class="headerlink" title="5.5 Detected Vulnerabilities"></a>5.5 Detected Vulnerabilities</h2><p>kAFL 在测试过程中发现超过 1k 个独立的 crash，作者手动分析了一部分并与对应的维护者确认了如下漏洞：</p>
+<p><img src="https://s2.loli.net/2024/07/30/fiTSLREMCYJ3yUF.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="5-6-Fuzzing-Performance"><a href="#5-6-Fuzzing-Performance" class="headerlink" title="5.6 Fuzzing Performance"></a>5.6 Fuzzing Performance</h2><p>作者创建了一个基于 jsmn 的 JSON parser driver（如 List 2 所示，在 JSON 字符串以 <code>&quot;KAFL&quot;</code> 起始时触发 crash）并在三个系统上进行了测试，并与 TriforceAFL 和 syzkaller 进行对比</p>
+<p><img src="https://s2.loli.net/2024/07/30/SjNFMhyBD1oHze6.png" srcset="/img/loading.gif" lazyload alt="Listing 2: The JSON parser kernel module used for the coverage benchmarks."></p>
+<p>30 分钟的测试结果如表 1 所示，然而 TriforceAFL 未能触发崩溃路径，因而很难与 kAFL 比较覆盖率</p>
+<p><img src="https://s2.loli.net/2024/07/30/xW3cr8Zqo2fleR9.png" srcset="/img/loading.gif" lazyload alt="Table 1: kAFL and TriforceAFL fuzzing performance on the JSON sample driver."></p>
+<p>覆盖率结果如图 6 所示，不过随着 fuzzing 时间增长，新路径更难被发现，因此这不是个好的指标</p>
+<p><img src="https://s2.loli.net/2024/07/30/rYB9mdXJPUAhbRt.png" srcset="/img/loading.gif" lazyload alt="Figure 6: Coverage comparison of kAFL (initramfs) and TriforceAFL. kAFL takes less than 3 minutes to find the same number of paths as TriforceAFL does in 30 minutes (each running 1 process)."></p>
+<p>图 7 显示了 kAFL 与 TriforceAFL 在 raw execution 上的性能对比</p>
+<p><img src="https://s2.loli.net/2024/07/30/4ArNBvGP57hx8Hn.png" srcset="/img/loading.gif" lazyload alt="Figure 7: Raw execution performance comparison."></p>
+<p>与 syzkaller 间作者并未做性能对比，因为其是一个高度特定的 syzkaller fuzzer，且其知识使其可以在无反馈下产生更高的代码覆盖率，因此除非作者实现了相同的系统调用逻辑，否则覆盖率对比会存在误导性</p>
+<h2 id="5-7-KVM-PT-Overhead"><a href="#5-7-KVM-PT-Overhead" class="headerlink" title="5.7 KVM-PT Overhead"></a>5.7 KVM-PT Overhead</h2><p>作者在一个 <code>i5-6500@3.2Ghz</code> 桌面环境中对了不同的 KVM-PT 配置，将追踪限定在内核地址空间，图 8 说明了没有 KVM-PT 下的执行相对开销</p>
+<blockquote>
+<p>多的不抄了，自己看原文：）</p>
+</blockquote>
+<p><img src="https://s2.loli.net/2024/07/30/e1QHoCktLNDbGvu.png" srcset="/img/loading.gif" lazyload alt="Figure 8: Overhead for compiling QEMU-2.6.0 in a traced VM."></p>
+<h2 id="5-8-Decoder-Engine"><a href="#5-8-Decoder-Engine" class="headerlink" title="5.8 Decoder Engine"></a>5.8 Decoder Engine</h2><p>解码过程没有硬件加速，因此解码器对 fuzzing 整体性能有显著影响，作者将自己的解码器与 Intel ptxed 进行了对比，在一个 <code>i5-6500@3.2Ghz</code> 环境中进行了测试，结果如图 9 所示</p>
+<p><img src="https://s2.loli.net/2024/07/30/bZ7wTskyI1F2dm9.png" srcset="/img/loading.gif" lazyload alt="Figure 9: kAFL and ptxed decoding time on multiple copies of the same trace (kAFL is up to 30 times faster)."></p>
+<h1 id="0x06-Related-Work"><a href="#0x06-Related-Work" class="headerlink" title="0x06. Related Work"></a>0x06. Related Work</h1><h2 id="6-1-Black-Box-Fuzzers"><a href="#6-1-Black-Box-Fuzzers" class="headerlink" title="6.1 Black-Box Fuzzers"></a>6.1 Black-Box Fuzzers</h2><p>此类 fuzzer 与目标程序没有任何交互，为了提高效率通常会进行一些假设，例如 <a target="_blank" rel="noopener" href="https://github.com/aoh/radamsa">Radamsa</a> 或 <a target="_blank" rel="noopener" href="https://github.com/samhocevar/zzuf">zzuf</a> 会假设大量覆盖率良好的输入会反复发生变异与重组，而 <a target="_blank" rel="noopener" href="http://www.peachfuzzer.com/">Peach</a> 与 <a target="_blank" rel="noopener" href="https://github.com/OpenRCE/sulley">Sulley</a> 需要程序员指定如何生成看起来几乎像真正文件的半可用输入文件；上述这些都有一个重要缺陷：耗时过高</p>
+<p>为了提高黑盒 fuzzer 的性能，研究人员提出了不少技术，如 <a target="_blank" rel="noopener" href="https://www.usenix.org/conference/usenixsecurity12/technical-sessions/presentation/holler">Holler 提出了从旧的 crash 输入中习得输入语法的有趣部分</a> ，还有人提出根据程序追踪来推断输入语法等，<a target="_blank" rel="noopener" href="https://www.usenix.org/system/files/conference/usenixsecurity14/sec14-paper-rebert.pdf">Rebert 则优化了对有趣输入的选择</a></p>
+<h2 id="6-2-White-Box-fuzzers"><a href="#6-2-White-Box-fuzzers" class="headerlink" title="6.2 White-Box fuzzers"></a>6.2 White-Box fuzzers</h2><p>程序分析方法被引入以减少测试负担，类似 <a target="_blank" rel="noopener" href="https://dl.acm.org/doi/pdf/10.1145/2090147.2094081">SAGE</a> 、<a target="_blank" rel="noopener" href="https://dl.acm.org/doi/10.1145/1064978.1065036">DART</a> 、 <a target="_blank" rel="noopener" href="https://www.usenix.org/legacy/event/osdi08/tech/full_papers/cadar/cadar.pdf">KLEE</a> 、 <a target="_blank" rel="noopener" href="https://www.usenix.org/legacy/events/sec09/tech/full_papers/molnar.pdf">SmartFuzz</a> 、<a target="_blank" rel="noopener" href="https://ieeexplore.ieee.org/document/6234425">Mayhem</a> 这样的工具尝试使用符号执行与约束求解技术枚举复杂路径，<a target="_blank" rel="noopener" href="https://ieeexplore.ieee.org/document/5504701">TaintScope</a> 、<a target="_blank" rel="noopener" href="https://ieeexplore.ieee.org/document/5070546">BuzzFuzz</a> 、<a target="_blank" rel="noopener" href="https://www.ndss-symposium.org/ndss2017/ndss-2017-programme/vuzzer-application-aware-evolutionary-fuzzing/">Vuzzer</a> 利用污点追踪与类似的动态分析技术来发现新路径，他们通常都能找到隐藏在 checksum、magic constraint 等难以被随机输入满足的复杂代码路径，另一种办法是使用相同类型的信息来搜索危险行为而非新代码路径</p>
+<p>缺点是这些技术通常难以实现并扩展到大型程序上，据作者所知目前暂时没有针对操作系统的这样的工具</p>
+<h2 id="6-3-Gray-Box-Fuzzers"><a href="#6-3-Gray-Box-Fuzzers" class="headerlink" title="6.3 Gray-Box Fuzzers"></a>6.3 Gray-Box Fuzzers</h2><p>灰盒 fuzzer 在保留黑盒的高吞吐量与简易性获得白盒所使用的高级机制提供的额外覆盖，比较好的灰盒测试的例子是 AFL，其使用覆盖率信息指引以避免在不触发新状态的输入上耗费时间，其他的一些 fuzzer 也使用了类似机制</p>
+<p>为了进一步提高灰盒测试的有效性，许多用在黑盒测试中的技术也被使用，例如 <a target="_blank" rel="noopener" href="https://dl.acm.org/doi/10.1145/2976749.2978428">Böhme 展示了如何使用马尔可夫链来提高灰盒测试性能</a></p>
+<h2 id="6-4-Coverage-Guided-Kernel-Fuzzers"><a href="#6-4-Coverage-Guided-Kernel-Fuzzers" class="headerlink" title="6.4 Coverage-Guided Kernel Fuzzers"></a>6.4 Coverage-Guided Kernel Fuzzers</h2><p>Vyukov 放出的项目 <a target="_blank" rel="noopener" href="https://github.com/google/syzkaller">syzkaller</a> 是第一个公开的能够用于覆盖率引导的内核 fuzzer ；Nossum 与 Casanovas 通过一个<a target="_blank" rel="noopener" href="https://events.static.linuxfound.org/sites/events/files/slides/AFL%20filesystem%20fuzzing%2C%20Vault%202016_0.pdf">修改版 AFL</a> 证明了绝大部分 Linux 文件系统驱动对于反馈驱动的模糊测试都是脆弱的</p>
+<p>Hertz 和 Newsham 在 2016 年发布了名为 <a target="_blank" rel="noopener" href="https://github.com/nccgroup/TriforceAFL">TriforceAFL</a> 的 AFL 修改版，其基于一个修改版的 QEMU ，利用了对应的模拟后端通过在执行控制流更改指令后确定当前的指令指针来测量模糊测试进度，这理论上可以测试任何 QEMU 能模拟的操作系统，但事实上 TriforceAFL 仅限于能够从只读文件系统启动的操作系统（基本上只有 UNIX-like），无法测试 macOS 或 Windows 等闭源操作系统</p>
+<h1 id="0x07-Discussion"><a href="#0x07-Discussion" class="headerlink" title="0x07. Discussion"></a>0x07. Discussion</h1><p>作者的工作仍有一些缺陷</p>
+<p><strong>OS-Specific Code.</strong>  作者使用了少量特定于操作系统的代码来执行三个任务：将模糊测试输入转为与操作系统的交互、获取操作系统对崩溃处理程序的地址、返回某些驱动程序的地址</p>
+<p>这些功能都不是必须的，第一个问题可以用通用系统调用来避免，同时也不一定需要崩溃处理程序的地址来检测 VM crash</p>
+<p><strong>Supported CPUs.</strong> 本文的工作局限于支持 Intel VT-x 技术的 CPU，但对于哪些 CPU 确乎支持指令指针过滤、multi-entry ToPA 等含糊其辞，</p>
+<p><strong>Just-In-Time Code.</strong> intel PT 并不提供已执行指令指针的完整列表，这需要解码器完成控制流重建，但若程序在运行时被修改（例如 JIT）则无法准确恢复运行时控制流，因此解码器需要对程序应用的修改信息，如 <a target="_blank" rel="noopener" href="https://dl.acm.org/doi/10.1145/2523649.2523675">Deng 等人使用 EPT violation 实现</a>，更老的做法是<a target="_blank" rel="noopener" href="https://dl.acm.org/doi/10.1145/1455770.1455779">使用影子页表</a></p>
+<p><strong>Multibyte Compares.</strong> 本文的工作无法知道程序中较大的 magic values，但使用比如混合执行（如 <a target="_blank" rel="noopener" href="https://sites.cs.ucsb.edu/~vigna/publications/2016_NDSS_Driller.pdf">Driller</a> ）或是污点追踪（如 <a target="_blank" rel="noopener" href="https://www.ndss-symposium.org/ndss2017/ndss-2017-programme/vuzzer-application-aware-evolutionary-fuzzing/">Vuzzer</a> ）技术可以提高性能，但都无法轻易被应用到闭源操作系统内核中</p>
+<p><strong>Ring 3 Fuzzing.</strong> 作者仅针对内核代码使用了该技术，但这个方法也适用于用于用户态，作者预计其将由于基于动态二进制插桩的方法（如 <a target="_blank" rel="noopener" href="https://github.com/googleprojectzero/winafl">winAFL</a> ）</p>
+<h1 id="0x08-Conclusion"><a href="#0x08-Conclusion" class="headerlink" title="0x08. Conclusion"></a>0x08. Conclusion</h1><p>作者提出了使用 CPU 新特性的反馈驱动的内核模糊测试方法，性能明显优于其他方法，很好很强大🎆🎇🎇🎆</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/PAPER/" class="category-chain-item">PAPER</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/">#信息安全</a>
+      
+        <a href="/tags/FUZZ/">#FUZZ</a>
+      
+        <a href="/tags/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">#论文笔记</a>
+      
+        <a href="/tags/%E8%99%9A%E6%8B%9F%E5%8C%96/">#虚拟化</a>
+      
+        <a href="/tags/%E7%B3%BB%E7%BB%9F%E8%99%9A%E6%8B%9F%E5%8C%96/">#系统虚拟化</a>
+      
+        <a href="/tags/Intel-PT/">#Intel PT</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【PAPER.0x07】论文笔记：kAFL: Hardware-Assisted Feedback Fuzzing for OS Kernels</div>
+      <div>https://arttnba3.github.io/2024/07/30/PAPER-0X07-KAFL/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年7月30日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/07/27/PAPER-0X06-ASPLOS2020_BMHIVE/" title="【PAPER.0x06】论文笔记：High-density Multi-tenant Bare-metal Cloud">
+                        <span class="hidden-mobile">【PAPER.0x06】论文笔记：High-density Multi-tenant Bare-metal Cloud</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
