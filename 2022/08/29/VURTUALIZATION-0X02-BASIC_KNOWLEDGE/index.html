@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2022/08/05/GUxVBYWnbdzA6KD.png">
 <meta property="article:published_time" content="2022-08-28T18:39:22.000Z">
-<meta property="article:modified_time" content="2023-10-27T00:42:46.000Z">
+<meta property="article:modified_time" content="2024-07-31T09:04:16.911Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="虚拟化">
 <meta property="article:tag" content="系统虚拟化">
@@ -89,7 +89,8 @@
 
 
   
-<meta name="generator" content="Hexo 7.1.1"></head>
+<meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
 
 
 <body>
@@ -316,7 +317,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年10月27日 中午
+                    本文最后更新于：2024年7月31日 晚上
                   
                 
               </p>
@@ -438,7 +439,7 @@
 </li>
 </ul>
 <p>具体到技术细节上，我们应该如何去实现上述的虚拟化方案呢？我们先来介绍一个概念——「敏感指令」，即<strong>操作特权资源的指令</strong>，例如 IO 操作、修改页表寄存器等</p>
-<p>为了我们的 VMM 能够完全地控制系统资源，<strong>敏感质量必须在 VMM 的监控审查下完成，或是经由 VMM 来完成</strong>。因此，若一个架构中所有的特权指令都是敏感质量，则我们可以使用<strong>特权级压缩</strong>（Ring Compression）的方式来实现虚拟环境：</p>
+<p>为了我们的 VMM 能够完全地控制系统资源，<strong>敏感指令必须在 VMM 的监控审查下完成，或是经由 VMM 来完成</strong>。因此，若一个架构中所有的特权指令都是敏感指令，则我们可以使用<strong>特权级压缩</strong>（Ring Compression）的方式来实现虚拟环境：</p>
 <ul>
 <li>VMM 运行在最高特权级上，Guest VM 运行在低特权级上，当 Guest VM 执行到敏感指令时，其便会陷入位于最高特权级的 VMM，此时便能由 VMM 模拟敏感指令的行为</li>
 </ul>
