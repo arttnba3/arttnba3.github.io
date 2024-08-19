@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2024/06/03/ZahMeDXdWp2lgIK.png">
 <meta property="article:published_time" content="2024-05-30T21:36:25.000Z">
-<meta property="article:modified_time" content="2024-06-02T21:43:13.233Z">
+<meta property="article:modified_time" content="2024-08-19T06:25:57.624Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
@@ -265,7 +265,7 @@
         
         
         
-          198 分钟
+          199 分钟
         
       </span>
     
@@ -320,7 +320,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2024年6月3日 早上
+                    本文最后更新于：2024年8月19日 下午
                   
                 
               </p>
@@ -516,6 +516,9 @@
 
 <p>成功读取 <code>/proc/kallsyms</code> 文件：</p>
 <p><img src="https://s2.loli.net/2024/06/03/juGzqY8l1DJUeiK.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>注意到这里我们读取的数据似乎不太对？这实际上是因为权限不足的缘故（在 sudo insmod 下我们的主体凭证虽然提升到了 root，但是与文件权限相关的客体凭证不与 sudo 相关联，因此在打开文件之前我们需要 <strong>在内核中手动进行提权</strong> ，完成读取后再降回原权限（可选）</p>
+</blockquote>
 
                 
               </div>
