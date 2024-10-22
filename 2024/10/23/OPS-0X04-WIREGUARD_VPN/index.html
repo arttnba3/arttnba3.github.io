@@ -1,0 +1,894 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="龙哥就是龙！惹啊！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【OPS.0x04】使用 Wireguard 进行异地组网">
+<meta property="og:url" content="https://arttnba3.github.io/2024/10/23/OPS-0X04-WIREGUARD_VPN/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="龙哥就是龙！惹啊！">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/10/10/B81mwTe6Fthq3nC.png">
+<meta property="article:published_time" content="2024-10-22T13:26:19.000Z">
+<meta property="article:modified_time" content="2024-10-22T13:41:28.499Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="运维">
+<meta property="article:tag" content="VPN">
+<meta property="article:tag" content="WireGuard">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2024/10/10/B81mwTe6Fthq3nC.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【OPS.0x04】使用 Wireguard 进行异地组网 - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"arttnba3.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://s2.loli.net/2024/10/22/8M5FgnkYtdzCqVU.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【OPS.0x04】使用 Wireguard 进行异地组网"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-10-23 00:26" pubdate>
+          2024年10月23日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          36 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【OPS.0x04】使用 Wireguard 进行异地组网</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2024年10月23日 凌晨
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>龙哥就是龙！惹啊！</p>
+<span id="more"></span>
+
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><p>最近手上的各种服务器不知道为啥多了起来，但大都没有公网 IP，又都处在不同的局域网里，笔者的肉身连带自己的笔记本也没有办法同时处在这些不同的网络当中，因此笔者迫切需要一个可用且优雅的异地组网方案，从而让笔者能够无论身处何处都能随时访问不同局域网中的任意一台服务器， <del>当然现在看来这些服务器大部分情况下的用途似乎就是让笔者闲暇时刻运行 neofetch 和 btop 玩玩</del></p>
+<p>局域网（Local Area Network）也就是我们常说的内网，此类网络通常共用一个连接到互联网（公网）的路由器，共用同一公网 IP，利用网络地址转换（Network Address Translation）技术为内网中的设备与公网服务器建立连接（简而言之就是公网 <code>IP:端口</code> 到内网 <code>IP:端口</code> 整了个映射），因此要与内网中的设备进行通信，我们实质上要实现 <strong>内网穿透</strong> ，也叫 <strong>NAT 穿透</strong> （NAT traversal）</p>
+<p><img src="https://s2.loli.net/2024/10/10/MjaG5i82cKsqoXz.png" srcset="/img/loading.gif" lazyload></p>
+<p>这个需求的实现其实很简单，我们只需要把不同 LAN 当中的设备组到同一个虚拟网络当中就行—— <code>Virtual Private Network</code> 就是专业干这个的，我们可以使用 VPN 技术在设备间建立点对点的加密信道，从而将不同局域网当中的服务器连接起来，而若要为都处于内网的机器进行打洞，则通常需要有一台位于公网的服务器为他们进行中继：</p>
+<p><img src="https://s2.loli.net/2024/10/21/I62pACK4hQedEnB.png" srcset="/img/loading.gif" lazyload></p>
+<p>现有的比较成熟的无需用户自行在公网架设服务器的异地组网服务有 tailscale、zerotier 等，但由于其在中国大陆内通常没有相应的中继服务器，从而导致在国内想要通过此类服务进行连接则往往带有一定的延迟（反正笔者是忍受不了）</p>
+<p><img src="https://s2.loli.net/2024/10/21/gfMBh2R81baV5SG.png" srcset="/img/loading.gif" lazyload></p>
+<p>如何解决这个问题？不难想到我们可以在公网 VPS 上自行搭建 tailscale 的 DERP 节点，或是自建 zerotier 的 Moon 节点，但既然都要自建节点了， <em>那么我们为什么不直接自建 VPN 呢</em> —— 诸如 IPSec、OpenVPN 等老牌 VPN 方案可谓是应有尽有</p>
+<p>但相比于这些传统方案，笔者更愿意选择被 Linus 青睐甚至已经合并入 Linux kernel mainline 的 <strong>WireGuard</strong> —— 这是一个高性能的基于 UDP 的现代 VPN 协议，或许也是目前已知的最好的 VPN 解决方案</p>
+<p><img src="https://s2.loli.net/2024/10/22/8M5FgnkYtdzCqVU.png" srcset="/img/loading.gif" lazyload></p>
+<p>本篇博客主要讲述如何利用公网服务器搭建 WireGuard VPN 网络</p>
+<h1 id="0x01-公网服务器基本配置"><a href="#0x01-公网服务器基本配置" class="headerlink" title="0x01. 公网服务器基本配置"></a>0x01. 公网服务器基本配置</h1><h2 id="安装与配置-WireGuard"><a href="#安装与配置-WireGuard" class="headerlink" title="安装与配置 WireGuard"></a>安装与配置 WireGuard</h2><p>首先我们在公网服务器上安装 WireGuard，笔者这里是 <code>Ubuntu 24.04</code>：</p>
+<blockquote>
+<p>参考： <a target="_blank" rel="noopener" href="https://www.wireguard.com/install/">WireGuard - Installation</a></p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get update</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get upgrade</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get install wireguard</span><br></code></pre></td></tr></table></figure>
+
+<p>完成安装之后我们会获得一个内核模块，以及相应的用户态 CLI 程序 <code>wg</code> ：</p>
+<p><img src="https://s2.loli.net/2024/10/21/Aiw9cQTp4k537B6.png" srcset="/img/loading.gif" lazyload></p>
+<p>接下来使用 <code>wg</code> 生成一份私钥与对应的公钥，存放在 <code>/etc/wireguard</code> 目录下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">wg genkey | sudo <span class="hljs-built_in">tee</span> /etc/wireguard/privatekey | wg pubkey | sudo <span class="hljs-built_in">tee</span> /etc/wireguard/publickey</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来创建 WireGuard 配置文件，这里我们放在 <code>/etc/wireguard/wg0.conf</code> ，写入如下内容：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Interface]</span><br><span class="hljs-attr">PrivateKey</span> = 私钥文件内容<br><span class="hljs-attr">ListenPort</span> = 自定义的监听端口<br><span class="hljs-attr">Address</span> = 自定义的内网地址，例如 <span class="hljs-number">10.0</span>.<span class="hljs-number">0.1</span>/<span class="hljs-number">24</span><br><span class="hljs-attr">PostUp</span>   = iptables -A FORWARD -i wg0 -j ACCEPT<span class="hljs-comment">; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o 你的能访问公网的网卡名 -j MASQUERADE</span><br><span class="hljs-attr">PostDown</span> = iptables -D FORWARD -i wg0 -j ACCEPT<span class="hljs-comment">; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o 你的能访问公网的网卡名 -j MASQUERADE</span><br></code></pre></td></tr></table></figure>
+
+<p>这里的 <code>PostUp</code> 与 <code>PostDown</code> 参数分别为接口启动时与关闭时执行的命令，其中 <code>wg0</code> 为我们后面要创建的虚拟网卡名，该命令主要用于流量转发，这里不再赘叙</p>
+<p>对于可以访问公网的网卡的名称，可以简单通过如下命令进行获取：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">ip -o -4 route show to default | awk <span class="hljs-string">&#x27;&#123;print $5&#125;&#x27;</span></span><br></code></pre></td></tr></table></figure>
+
+<p>接下来使用如下命令启动该接口，其会创建一个虚拟网卡 <code>wg0</code> ：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo wg-quick up wg0</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://s2.loli.net/2024/10/21/nvVi1fWaR3ZLDEd.png" srcset="/img/loading.gif" lazyload></p>
+<p>最后，我们可以为 <code>wg0</code> 接口配置自启动：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl <span class="hljs-built_in">enable</span> wg-quick@wg0</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="配置防火墙"><a href="#配置防火墙" class="headerlink" title="配置防火墙"></a>配置防火墙</h2><p>为了让 iptables 规则正常工作，我们还需要修改防火墙以允许 IPV4 流量转发，首先编辑 <code>/etc/sysctl.conf</code> 文件，添加如下配置：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">net.ipv4.ip_forward</span> = <span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>也可以在 WireGuard 配置文件中的 <code>[Interface]</code> 添加如下配置：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">PostUp</span> = sysctl -w net.ipv4.ip_forward=<span class="hljs-number">1</span><br><span class="hljs-attr">PostDown</span> = sysctl -w net.ipv4.ip_forward=<span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+
+</blockquote>
+<p>然后重新载入配置：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo sysctl -p</span><br></code></pre></td></tr></table></figure>
+
+<p>最后开启 wireguard 监听端口上的 UDP 连接：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo ufw allow 你的自定义端口/udp</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果你使用阿里云这样比较专业的云服务器提供商，你可能还需要在相应的控制台页面添加规则：</p>
+<p><img src="https://s2.loli.net/2024/10/21/XmPRkVf6yJzWKCj.png" srcset="/img/loading.gif" lazyload></p>
+</blockquote>
+<h1 id="0x02-客户端基本配置"><a href="#0x02-客户端基本配置" class="headerlink" title="0x02. 客户端基本配置"></a>0x02. 客户端基本配置</h1><h2 id="Linux-客户端配置"><a href="#Linux-客户端配置" class="headerlink" title="Linux 客户端配置"></a>Linux 客户端配置</h2><h3 id="基础配置"><a href="#基础配置" class="headerlink" title="基础配置"></a>基础配置</h3><p>首先还是按惯例在本地安装 WireGuard，这里笔者的系统是 <code>openSUSE Tumbleweed</code> ：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo zypper <span class="hljs-keyword">in</span> wireguard-tools</span><br></code></pre></td></tr></table></figure>
+
+<p>然后按惯例生成公钥与私钥：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">wg genkey | sudo <span class="hljs-built_in">tee</span> /etc/wireguard/privatekey | wg pubkey | sudo <span class="hljs-built_in">tee</span> /etc/wireguard/publickey</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来修改服务端配置文件， <strong>添加</strong> 客户端配置如下：</p>
+<blockquote>
+<p>每新增一个客户端就添加一份 <code>[Peer]</code> 配置</p>
+</blockquote>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Peer]</span><br><span class="hljs-attr">PublicKey</span> = 客户端生成的公钥<br><span class="hljs-attr">AllowedIPs</span> = 自定义的内网地址，例如 <span class="hljs-number">10.0</span>.<span class="hljs-number">0.2</span>/<span class="hljs-number">32</span><br></code></pre></td></tr></table></figure>
+
+<p>重启服务端 WireGuard：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo wg-quick down wg0 &amp;&amp; sudo wg-quick up wg0</span><br></code></pre></td></tr></table></figure>
+
+<p>然后创建配置文件 <code>/etc/wireguard/wg0.conf</code> ，写入如下内容：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Interface]</span><br><span class="hljs-attr">PrivateKey</span> = 客户端生成的私钥<br><span class="hljs-attr">Address</span> = 上面配置的客户端地址<br><span class="hljs-attr">MTU</span> = <span class="hljs-number">1280</span><br><br><span class="hljs-section">[Peer]</span><br><span class="hljs-attr">PublicKey</span> = 服务端的公钥<br><span class="hljs-attr">Endpoint</span> = 服务端的公网地址或是域名:服务端的端口<br><span class="hljs-attr">AllowedIPs</span> = 服务端网段，例如 <span class="hljs-number">10.0</span>.<span class="hljs-number">0.0</span>/<span class="hljs-number">24</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果你不止想要组网，还想要让 WireGuard 服务端代理客户端的全部流量，只需要配置客户端的 <code>AllowedIPs = 0.0.0.0/0</code> 即可</p>
+</blockquote>
+<p>最后按惯例启动 WireGuard 即可：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo wg-quick up wg0</span><br></code></pre></td></tr></table></figure>
+
+<p>如果有需要，可以配置自启动：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl <span class="hljs-built_in">enable</span> wg-quick@wg0</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="配置-DDNS"><a href="#配置-DDNS" class="headerlink" title="配置 DDNS"></a>配置 DDNS</h3><p>作为中继的公网服务器的 IP 不一定是恒定的，虽然说域名通常是可以不变的，但有的时候域名对应的 IP 可能会发生改变，而 WireGuard 不会重复进行解析，仅会使用第一次的结果，从而可能造成组网失败 ：（</p>
+<p>对于 Linux，WireGuard 官方已经提供了 <a target="_blank" rel="noopener" href="https://github.com/WireGuard/wireguard-tools/tree/master/contrib/reresolve-dns">一份自动重新解析 DNS 的脚本</a> ，我们只需要设置一个定时执行任务即可，例如使用 <code>crontab</code> ：</p>
+<blockquote>
+<p>在 Ubuntu 下，该脚本似乎会默认在 <code>/usr/share/doc/wireguard-tools/examples/reresolve-dns/reresolve-dns.sh</code> 安装一份</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cron">1 * * * * 脚本所在目录/reresolve-dns.sh wg0 # 每小时执行一次<br></code></pre></td></tr></table></figure>
+
+<h2 id="Windows-客户端配置"><a href="#Windows-客户端配置" class="headerlink" title="Windows 客户端配置"></a>Windows 客户端配置</h2><blockquote>
+<p>不用 Windows 👋</p>
+</blockquote>
+<p>首先从<a target="_blank" rel="noopener" href="https://download.wireguard.com/windows-client/">官网</a>下载对应架构的安装包并安装，选择新建空隧道：</p>
+<p><img src="https://s2.loli.net/2024/10/22/mlQ3A6qL8pH7uW1.png" srcset="/img/loading.gif" lazyload></p>
+<p>其会自动生成一份私钥和公钥，我们只需要再按照前面的方式填写配置文件即可：</p>
+<p><img src="https://s2.loli.net/2024/10/22/osNnbW2zGuFT9I7.png" srcset="/img/loading.gif" lazyload></p>
+<p>之后在服务端也添加相应配置并重启 WireGuard 即可</p>
+<h1 id="0x03-利用-NGINX-反代-WireGuard（🕊🕊🕊）"><a href="#0x03-利用-NGINX-反代-WireGuard（🕊🕊🕊）" class="headerlink" title="0x03. 利用 NGINX 反代 WireGuard（🕊🕊🕊）"></a>0x03. 利用 NGINX 反代 WireGuard（🕊🕊🕊）</h1><p>懒得弄了，等👴什么时候有时间再看看</p>
+<h1 id="0x04-可能遇到的问题"><a href="#0x04-可能遇到的问题" class="headerlink" title="0x04. 可能遇到的问题"></a>0x04. 可能遇到的问题</h1><h2 id="客户端能握手但无法连接其他终端，wg-show-显示-allowed-ips-none"><a href="#客户端能握手但无法连接其他终端，wg-show-显示-allowed-ips-none" class="headerlink" title="客户端能握手但无法连接其他终端，wg show 显示 allowed ips: (none)"></a>客户端能握手但无法连接其他终端，wg show 显示 <code>allowed ips: (none)</code></h2><p>在多设备连接到同一网络时可能出现，客户端无法连接到包括服务端在内的其他终端， <em>但是可能会有一个奇异现象是仅有一个客户端能正常连接</em> ：</p>
+<p><img src="https://s2.loli.net/2024/10/21/4povIUfe3JaiyMb.png" srcset="/img/loading.gif" lazyload></p>
+<p>出现这种情况的原因可能是因为 <strong>IP 冲突</strong> ，大概原因是客户端之间的 IP 相互 overlap 了，从而只有其中一个能够正常工作</p>
+<p>最简单的解决方案是 <strong>把客户端的子网掩码 设为 &#x2F;32</strong> ，下面是一个示例配置文件：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Interface]</span><br><span class="hljs-attr">PrivateKey</span> = 客户端私钥<br><span class="hljs-attr">Address</span> = <span class="hljs-number">10.191</span>.<span class="hljs-number">98.10</span>/<span class="hljs-number">32</span><br><span class="hljs-attr">MTU</span> = <span class="hljs-number">1280</span><br><br><span class="hljs-section">[Peer]</span><br><span class="hljs-attr">PublicKey</span> = 服务端公钥<br><span class="hljs-attr">Endpoint</span> = 服务端公网IP或域名:服务端配置的端口<br><span class="hljs-attr">AllowedIPs</span> = <span class="hljs-number">10.191</span>.<span class="hljs-number">98.0</span>/<span class="hljs-number">24</span><br><span class="hljs-attr">PersistentKeepalive</span> = <span class="hljs-number">25</span><br></code></pre></td></tr></table></figure>
+
+<p>对应的服务端配置：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Interface]</span><br><span class="hljs-attr">Address</span> = <span class="hljs-number">10.191</span>.<span class="hljs-number">98.1</span>/<span class="hljs-number">24</span><br><span class="hljs-attr">PostUp</span>   = iptables -A FORWARD -i wg0 -j ACCEPT<span class="hljs-comment">; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE</span><br><span class="hljs-attr">PostDown</span> = iptables -D FORWARD -i wg0 -j ACCEPT<span class="hljs-comment">; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE</span><br><span class="hljs-attr">ListenPort</span> = 服务端配置的端口<br><span class="hljs-attr">PrivateKey</span> = 服务端私钥<br><br><span class="hljs-section">[Peer]</span><br><span class="hljs-attr">PublicKey</span> = 客户端公钥<br><span class="hljs-attr">AllowedIPs</span> = <span class="hljs-number">10.191</span>.<span class="hljs-number">98.10</span>/<span class="hljs-number">32</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="配置-WireGuard-后无法解析域名，但可以通过-IP-进行访问"><a href="#配置-WireGuard-后无法解析域名，但可以通过-IP-进行访问" class="headerlink" title="配置 WireGuard 后无法解析域名，但可以通过 IP 进行访问"></a>配置 WireGuard 后无法解析域名，但可以通过 IP 进行访问</h2><p>可能是 DNS 解析出现问题，在客户端配置文件当中你可能会额外配置如下：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Interface]</span><br><span class="hljs-attr">DNS</span> = <span class="hljs-number">8.8</span>.<span class="hljs-number">8.8</span><br></code></pre></td></tr></table></figure>
+
+<p>这会覆盖原有 DNS 配置，但 DNS 服务器未必是可达的（ <del>原因懂的都懂</del> ），最简单的解决方案是删除 DNS 配置或是更改成其他的可用的 DNS 服务器（例如 <code>114.114.114.114</code> ）</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/OPS/" class="category-chain-item">OPS</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+        <a href="/tags/%E8%BF%90%E7%BB%B4/">#运维</a>
+      
+        <a href="/tags/VPN/">#VPN</a>
+      
+        <a href="/tags/WireGuard/">#WireGuard</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【OPS.0x04】使用 Wireguard 进行异地组网</div>
+      <div>https://arttnba3.github.io/2024/10/23/OPS-0X04-WIREGUARD_VPN/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年10月23日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/09/23/OPS-0X03-OLD_UBUNTU_EOL_RELEASE_UPGRADE/" title="【OPS.0x03】将 EOL 的 Ubuntu 升级为 LTS 版本">
+                        <span class="hidden-mobile">【OPS.0x03】将 EOL 的 Ubuntu 升级为 LTS 版本</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
