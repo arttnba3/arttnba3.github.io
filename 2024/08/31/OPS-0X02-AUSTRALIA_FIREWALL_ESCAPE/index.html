@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2024/09/11/7PhaTAnFjBvLJGM.png">
 <meta property="article:published_time" content="2024-08-30T15:46:31.000Z">
-<meta property="article:modified_time" content="2024-10-10T05:29:42.022Z">
+<meta property="article:modified_time" content="2024-11-08T07:21:38.889Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="运维">
 <meta property="article:tag" content="原神">
@@ -254,7 +254,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          17k 字
+          18k 字
         
       </span>
     
@@ -265,7 +265,7 @@
         
         
         
-          146 分钟
+          147 分钟
         
       </span>
     
@@ -320,7 +320,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2024年10月10日 下午
+                    本文最后更新于：2024年11月8日 晚上
                   
                 
               </p>
@@ -382,7 +382,7 @@
 </blockquote>
 <p><img src="https://s2.loli.net/2024/09/11/s1GDHYUCQ7IVWEB.png" srcset="/img/loading.gif" lazyload></p>
 <blockquote>
-<p>当然，如果你只是纯粹的 VPS 爱好者，单纯想随便买点 VPS 来玩玩，笔者也有一些非常非常便宜的 VPS 可以推荐，例如 Cloudcone 的 <a target="_blank" rel="noopener" href="https://app.cloudcone.com.cn/vps/263/create?token=cc-turns-7-cs-2">10刀一年的小 VPS</a>  或是 <a target="_blank" rel="noopener" href="https://app.cloudcone.com.cn/vps/262/create?token=cc-turns-7-cs-1">12刀一年的小 VPS</a> ：</p>
+<p>当然，如果你只是纯粹的 VPS 爱好者，单纯想随便买点 VPS 来玩玩，笔者也有一些非常非常便宜的 VPS 可以推荐，例如 Cloudcone 的 <a target="_blank" rel="noopener" href="https://app.cloudcone.com.cn/vps/263/create?token=cc-turns-7-cs-2">10刀一年的小 VPS</a>  或是 <a target="_blank" rel="noopener" href="https://app.cloudcone.com.cn/vps/262/create?token=cc-turns-7-cs-1">12刀一年的小 VPS</a> ，或者是 RackNerd 的 <a target="_blank" rel="noopener" href="https://www.rnvps.com/go-358">11 刀一年的小 VPS</a> ，<del>当然这种便宜货就不要想有太好的质量了</del>：</p>
 <p><img src="https://s2.loli.net/2024/09/30/ijyQ2LxfCn4STkv.png" srcset="/img/loading.gif" lazyload alt="反正笔者是买了一台以备不时之需"></p>
 </blockquote>
 <h2 id="Pre-域名购买"><a href="#Pre-域名购买" class="headerlink" title="Pre. 域名购买"></a>Pre. 域名购买</h2><p>因为我们后面要用 Cloudflare 做 CDN，所以直接上 Cloudflare 买一个就好了，反正不同的域名提供商之间价格差别也不算太大，在其他域名提供商买了再转到 Cloudflare 还会比较麻烦</p>
@@ -407,29 +407,32 @@
 <p>完成 Cloudflare 安装后使用官网给的参数启动：</p>
 <p><img src="https://s2.loli.net/2024/09/12/ZDevGiAkytf6BU9.png" srcset="/img/loading.gif" lazyload></p>
 <p>成功连接上后配置一下 Tunnel 类型等信息即可，注意这个域名不能与现有域名记录冲突：</p>
+<blockquote>
+<p><code>URL</code> 可以直接写 <code>127.0.0.1:22</code></p>
+</blockquote>
 <p><img src="https://s2.loli.net/2024/09/12/ANOrRq7LtK4ZUvH.png" srcset="/img/loading.gif" lazyload></p>
-<p>最后在本地也安装一个 <code>cloudflared</code> ，并在 <code>.ssh/config</code> 中添加如下配置：</p>
+<p>最后在本地也安装一个 <code>cloudflared</code> （本地不用创建 tunnel），并在 <code>.ssh/config</code> 中添加如下配置：</p>
 <figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">Host 你的自定义域名<br>        HostName 你的自定义域名<br>        TCPKeepAlive yes<br>        <span class="hljs-keyword">User</span> <span class="hljs-title">arttnba3</span><br>        ServerAliveInterval <span class="hljs-number">15</span><br>        IdentityFile 你的私钥位置，例如~/.ssh/id_ed25519<br>        Port <span class="hljs-number">22</span><br>        ProxyCommand cloudflared access ssh --hostname %h<br></code></pre></td></tr></table></figure>
 
 <p>之后便能通过域名连接了：</p>
 <p><img src="https://s2.loli.net/2024/09/12/68RhKDnl2FWjoI3.png" srcset="/img/loading.gif" lazyload></p>
-<h2 id="TLS-证书配置"><a href="#TLS-证书配置" class="headerlink" title="TLS 证书配置"></a>TLS 证书配置</h2><blockquote>
-<p>注：你也可以选择似乎是更加方便的 <a target="_blank" rel="noopener" href="https://github.com/acmesh-official/acme.sh/wiki/%E8%AF%B4%E6%98%8E">ACME</a> ，<del>反正笔者懒得研究这个东西该怎么用</del></p>
+<h2 id="TLS-证书配置"><a href="#TLS-证书配置" class="headerlink" title="TLS 证书配置"></a>TLS 证书配置</h2><h3 id="方法一：Let’s-Encrypt-ACMS-自动更新-TLS-证书（🕊）"><a href="#方法一：Let’s-Encrypt-ACMS-自动更新-TLS-证书（🕊）" class="headerlink" title="方法一：Let’s Encrypt + ACMS 自动更新 TLS 证书（🕊）"></a>方法一：Let’s Encrypt + ACMS 自动更新 TLS 证书（🕊）</h3><blockquote>
+<p>你可以选择似乎是更加方便的 <a target="_blank" rel="noopener" href="https://github.com/acmesh-official/acme.sh/wiki/%E8%AF%B4%E6%98%8E">ACME</a> ，<del>反正笔者懒得研究这个东西该怎么用</del></p>
 </blockquote>
-<p>Cloudflare 提供了免费的 TLS 证书，直接创建即可：</p>
-<p><img src="https://s2.loli.net/2024/09/11/8bKsuFVLBHNIde1.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="方法二：直接使用-Cloudflare-的免费-TLS-证书"><a href="#方法二：直接使用-Cloudflare-的免费-TLS-证书" class="headerlink" title="方法二：直接使用 Cloudflare 的免费 TLS 证书"></a>方法二：直接使用 Cloudflare 的免费 TLS 证书</h3><p>Cloudflare 提供了免费的 TLS 证书，直接创建即可：</p>
+<p><img src="https://s2.loli.net/2024/09/11/8bKsuFVLBHNIde1.png" srcset="/img/loading.gif" lazyload alt="有效期有tm的15年，这还要啥自行车！"></p>
 <p>之后会保存下来一份 PEM 和一份 KEY 文件，我们将在后续配置 NGINX 时使用到这个东西</p>
 <p>以及别忘了把 Cloudflare 中的 TLS 加密改为严格，否则很容易莫名其妙就 404 了：</p>
 <p><img src="https://s2.loli.net/2024/09/12/vmE4h23kVWMw6Hr.png" srcset="/img/loading.gif" lazyload></p>
 <h2 id="NGINX-搭建"><a href="#NGINX-搭建" class="headerlink" title="NGINX 搭建"></a>NGINX 搭建</h2><blockquote>
 <p> 这个网上教程就非常多了，笔者这里仅简略讲讲，你也可以不用参照笔者所写的这一节：）</p>
 </blockquote>
-<p>首先配置防火墙，开启正常网站所需的 80 和 443 端口：</p>
+<p>首先配置防火墙，开启正常网站所需的 80 和 443 端口，这里以 <code>firewalld</code> 为例：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo firewall-cmd --zone=public --add-port=80/tcp --permanent</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo firewall-cmd --zone=public --add-port=443/tcp --permanent</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo firewall-cmd --reload</span><br></code></pre></td></tr></table></figure>
 
-<blockquote>
-<p>如果你觉得麻烦，且不在乎任何的安全隐患，可以直接 <code>sudo systemctl stop firewalld</code> 来简单整个裸奔，然后所有人都能探测你所有端口： ）</p>
-</blockquote>
+<p>如果你的服务器使用的是 <code>ufw</code> ，则参照如下命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo ufw allow 80/tcp</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo ufw allow 443/tcp</span><br></code></pre></td></tr></table></figure>
+
 <p>然后安装 NGINX：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo zypper <span class="hljs-keyword">in</span> nginx</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl <span class="hljs-built_in">enable</span> --now nginx.service</span><br></code></pre></td></tr></table></figure>
 
@@ -464,8 +467,8 @@
 <p>创建空白 git 仓库，并添加 hook 执行权限：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">git init --bare ~/blog.git</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">touch</span> ~/blog.git/hooks/post-receive</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">chmod</span> +x ~/blog.git/hooks/post-receive</span><br></code></pre></td></tr></table></figure>
 
-<p>然后修改 git 仓库目录下的 <code>hooks/post-receive</code> 文件以配置推送上来的文件存放的目录（别忘了给相应文件夹访问权限）：</p>
-<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">git <span class="hljs-attribute">--work-tree</span>=/srv/www/hexo-blog <span class="hljs-attribute">--git-dir</span>=/home/git/blog.git checkout -f<br></code></pre></td></tr></table></figure>
+<p>然后修改 git 仓库目录下的 <code>hooks/post-receive</code> 文件写入如下内容以配置推送上来的文件存放的目录（别忘了给相应文件夹访问权限）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">git --work-tree=/srv/www/hexo-blog --git-dir=/home/git/blog.git checkout -f<br></code></pre></td></tr></table></figure>
 
 <p>然后修改 hexo blog 文件夹根目录的 <code>_config.yml</code> ，在末尾添加 git 相关配置：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">deploy:<br>  type: git<br>  repo: git@你的ssh域名:~/blog.git<br></code></pre></td></tr></table></figure>
@@ -498,7 +501,7 @@
 
 <p>显示如下结果说明配置文件正常：</p>
 <p><img src="https://s2.loli.net/2024/09/12/EYHDBwvkuoXnOtN.png" srcset="/img/loading.gif" lazyload></p>
-<p>然后启动 xray：</p>
+<p>然后重启 xray：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl restart xray</span><br></code></pre></td></tr></table></figure>
 
 <h2 id="配置-NGINX-转发-Xray"><a href="#配置-NGINX-转发-Xray" class="headerlink" title="配置 NGINX 转发 Xray"></a>配置 NGINX 转发 Xray</h2><p>目前有两种主流方案：Xray 前置与 NGINX 前置，前置意味着该节点负责接收所有流量，并分流到相应的服务上，Xray 前置则意味着由 Xray 检测协议，并将非 <code>VLESS/Trojan/...</code> 协议“回落”到 NGINX，NGINX 前置则反过来</p>
