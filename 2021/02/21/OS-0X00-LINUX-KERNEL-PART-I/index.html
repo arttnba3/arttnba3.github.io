@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/02/24/IYaievPRZpAVMH7.png">
 <meta property="article:published_time" content="2021-02-21T10:02:14.000Z">
-<meta property="article:modified_time" content="2023-11-08T23:58:40.000Z">
+<meta property="article:modified_time" content="2024-11-11T00:11:27.598Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
@@ -319,7 +319,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年11月9日 上午
+                    本文最后更新于：2024年11月11日 上午
                   
                 
               </p>
@@ -495,7 +495,7 @@
 <h3 id="II-进行系统调用"><a href="#II-进行系统调用" class="headerlink" title="II. 进行系统调用"></a>II. 进行系统调用</h3><p>Linux下的系统调用以<code>eax/rax</code>寄存器作为<strong>系统调用号</strong>，参数传递约束如下：</p>
 <ul>
 <li>32 位：<code>ebx、ecx、edx、esi、edi、ebp</code> 作为第一个参数、第二个参数…进行参数传递</li>
-<li>64 位：<code>rdi、rsi、rdx、rcx、r8、r9 </code>作为第一个参数、第二个参数…进行参数传递</li>
+<li>64 位：<code>rdi、rsi、rdx、r10、r8、r9 </code>作为第一个参数、第二个参数…进行参数传递</li>
 </ul>
 <p>对于 32 位系统调用而言，Linux 实际上通过 0x80 号软中断实现系统调用的基本功能，即用户态程序通过 <code>int 0x80</code> 指令触发一个软中断陷入内核题，对应的中断处理程序会根据系统调用号在系统调用表中调用对应的处理</p>
 <p><img src="https://cdn.jsdelivr.net/gh/arttnba3/BlogPic@master/20231109205928.png" srcset="/img/loading.gif" lazyload alt="0x80 号中断：系统调用"></p>
