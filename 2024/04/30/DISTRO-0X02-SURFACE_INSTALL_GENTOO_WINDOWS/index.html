@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://steamuserimages-a.akamaihd.net/ugc/43107956178667128/BC3271F0AA6DFA2EF54A2D119994087298A53BC6/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false">
 <meta property="article:published_time" content="2024-04-29T19:23:41.000Z">
-<meta property="article:modified_time" content="2024-05-14T17:07:21.374Z">
+<meta property="article:modified_time" content="2024-12-17T12:40:55.533Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Gentoo Linux">
@@ -262,7 +262,7 @@
         
         
         
-          166 分钟
+          167 分钟
         
       </span>
     
@@ -317,7 +317,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2024年5月15日 凌晨
+                    本文最后更新于：2024年12月17日 晚上
                   
                 
               </p>
@@ -558,11 +558,14 @@
 <p>通常我们会在 Linux 系统中维护一个指向当前内核源码的符号链接 <code>/usr/src/linux</code>，在 Gentoo 下我们通过如下命令手动创建（序号由 <code>eselect</code> 命令获得）：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">eselect kernel <span class="hljs-built_in">set</span> 1</span><br></code></pre></td></tr></table></figure>
 
-<p>接下来创建配置文件 <code>.config</code> ，这里笔者使用 <code>make localyesconfig</code> 来检测硬件并决定开启的内核模块，你也可以用默认的 <code>make defconfig</code> ，根据自己的需求进行选择即可：</p>
+<p>接下来创建配置文件 <code>.config</code> ，这里笔者使用 <code>make localmodconfig</code> 来检测硬件并决定开启的内核模块，你也可以用默认的 <code>make defconfig</code> ，根据自己的需求进行选择即可：</p>
 <blockquote>
-<p>内核模块会被编译到 vmlinuz 中，如果你想让内核模块独立存在，使用 <code>localmodconfig</code></p>
+<p>内核模块会独立存在，如果你想让内核模块被编译到 vmlinuz 中，使用 <code>localyesconfig</code> </p>
+<blockquote>
+<p> 但是集成到内核中的内核模块可能会有点小问题（例如笔者曾经碰到过网卡驱动独立存在可以正常存活但集成到内核中便无法正常工作的情况）</p>
 </blockquote>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cd</span> /usr/src/linux</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">make localyesconfig</span><br></code></pre></td></tr></table></figure>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cd</span> /usr/src/linux</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">make localmodconfig</span><br></code></pre></td></tr></table></figure>
 
 <p>接下来用 menuconfig 手动改一些选项，其会在已有的 <code>.config</code> 基础上进行修改，这里我们要决定的包括 OpenRC&#x2F;systemd 的选择、常用文件系统支持、额外选一些 Surface 相关的驱动等，具体参见 <a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Kernel#Alternative:_Manual_configuration">Gentoo handbook</a>：</p>
 <blockquote>
