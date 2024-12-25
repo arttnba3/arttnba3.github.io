@@ -1,0 +1,1110 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="「I’M THE STORM THAT IS APPROACHING」">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【CODE.0x02】本科毕业设计：基于可装载内核模块的 Linux 杀毒软件设计与实现">
+<meta property="og:url" content="https://arttnba3.github.io/2023/06/04/CODE-0X02-ANTI_ROOTKIT_SAMPLE/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="「I’M THE STORM THAT IS APPROACHING」">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/12/21/uq8lSvZBgsDyj1M.png">
+<meta property="article:published_time" content="2023-06-03T22:09:19.000Z">
+<meta property="article:modified_time" content="2024-12-25T16:42:25.856Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Linux Kernel">
+<meta property="article:tag" content="开发手记">
+<meta property="article:tag" content="RootKit">
+<meta property="article:tag" content="Virus">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2024/12/21/uq8lSvZBgsDyj1M.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【CODE.0x02】本科毕业设计：基于可装载内核模块的 Linux 杀毒软件设计与实现 - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"arttnba3.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://s2.loli.net/2024/12/21/uq8lSvZBgsDyj1M.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【CODE.0x02】本科毕业设计：基于可装载内核模块的 Linux 杀毒软件设计与实现"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-06-04 08:09" pubdate>
+          2023年6月4日 早上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          34k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          285 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【CODE.0x02】本科毕业设计：基于可装载内核模块的 Linux 杀毒软件设计与实现</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2024年12月26日 凌晨
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>「I’M THE STORM THAT IS APPROACHING」</p>
+<span id="more"></span>
+
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><p>约莫半年以前笔者此前一直在焦虑毕业设计该做一些什么有意思的东西会比较好，虽然笔者知道网络安全领域有着非常多的有意思的方向可以做，但问题就在于能做的东西实在是太多了了，笔者很难真正下定决心去选择其中的某一个东西，毕竟作为自己的毕业设计，笔者还是希望能够真正做出一些有意义的东西</p>
+<p>然而时间不等拖延症，纵使笔者如何纠结，决定题目的 DDL 总归会在预定的时间到来，因此笔者最终还是不得不在当天提交一个长得还算像个样子的题目上去——虽然此前一直很纠结，但真到了要提交的那一天，再多的纠结与焦虑也是没有办法解决任何实际问题的——逃避到最后终归是要直面人生</p>
+<p>于是，在最后关头，笔者选择了一个很久以前就想做的一个东西作为这次毕业设计的题目，虽然相比起以毕设设计的形式去做而言笔者更想作为一个偏日常的开源代码项目来实现这个东西，不过就目前的代码质量而言大家后面真正看到这个东西的时候应该还会是以一个普通的开源项目的形式出现，因为现在的代码确实写的太烂了，几乎所有代码笔者都认为有必要进行重构，这也是为什么尚未开源这个项目的代码的缘故：）</p>
+<p>那么，作为西安电子科技大学 2019 级网络空间安全实验班吊车尾，在这次毕业设计当中所制作的依托答辩的详细文章如下：</p>
+<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>随着 Linux 操作系统成为世界范围内最为流行的开源操作系统，其所面临的安全问题越来越成为一个不可小觑的问题。Linux 下的计算机病毒种类繁多，但现代计算机病毒防护工程主要放在 Windows 操作系统上，少有的针对 Linux 操作系统开发的病毒防护软件仅服务于企业用户。而现有的免费 Linux 反病毒软件大都运行在用户态，缺少基于内核层面进行检测与主动防护的手段，这使得 Linux 操作系统缺乏有效的病毒主动拦截与清除能力。使用 Linux 操作系统的大部分服务器、桌面设备、个人终端设备等仍然面临着被各类病毒入侵的风险。</p>
+<p>为了解决Linux下的病毒威胁，本文综合研究了现有的Linux病毒与反病毒技术实现，并基于可装载内核模块（Loadable Kernel Module）开发了一款轻量级的、通用性与可扩展性高的 Linux 杀毒软件，从操作系统内核层面完成对计算机系统的动态修补，从而实现对现有的主流 Linux 病毒的检测、查杀等主动防护功能，以弥补Linux操作系统在病毒防御领域的缺陷。经过实验评估与对比测试，相较于现有的开源 Linux 反病毒软件，本软件能更为有效地识别与拦截不同类型病毒的恶意攻击行为。</p>
+<p><strong>关键词 ： Linux 操作系统   反病毒   可装载内核模块</strong></p>
+<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>As Linux has become the the most popular open-source operating system, the security issues it faces are gradually becoming a significant concern. While there are various types of daunting computer viruses under Linux, most of the modern anti-virus researchers are mainly focusing on the Windows operating system, leaving only a few antivirus software under Linux developed for enterprise users. Additionally, almost every existing free anti-virus software developed for Linux are running in user mode, lacking the abilities of kernel-level detection and active protection for viruses, resulting in the situation that the Linux are weak in effective virus interception and removal capabilities. As a result, most of servers, desktop devices, and personal devices using Linux are under the risk of being hacked by the virus.</p>
+<p>To resolve the virus threats under Linux, we comprehensively study the existing Linux viruses and anti-virus technologies, and develop a lightweight, highly universal, and extensible anti-virus software for Linux based on the Loadable Kernel Module, which performs the anti-virus functions like detection and defence against existing mainstream Linux viruses by the kernel-level dynamic patching, thereby compensating for the defect of Linux operating system in active virus defense. Through experimental evaluations and comparative tests, the software is more effective in identifying and intercepting malicious attacks by various types of viruses compared to existing open-source Linux antivirus software.</p>
+<p><strong>Key words : Linux   Anti-Virus   Loadable Kernel Module</strong></p>
+<h1 id="0x01-绪论"><a href="#0x01-绪论" class="headerlink" title="0x01. 绪论"></a>0x01. 绪论</h1><h2 id="1-1-概述"><a href="#1-1-概述" class="headerlink" title="1.1 概述"></a>1.1 概述</h2><p>Linux 操作系统最初由 Linus Torvalds 开发[1]，现已成为世界范围内最为流行的开源操作系统之一，不仅被广泛应用于包括桌面系统、嵌入式系统、安卓系统内核在内的多个领域，更在服务器领域确立了不可动摇的统治地位。然而，随着 Linux 的应用面愈发广泛，其所面临的安全问题越来越成为一个不可小觑的问题，仍然存在着蠕虫病毒、特洛伊木马、挖矿病毒、rootkit 等多种可能危害 Linux 操作系统安全的计算机病毒软件。</p>
+<p>但针对现代操作系统的病毒防护工程主要放在 Windows 操作系统上，少有针对 Linux 操作系统开发的病毒防护软件，同时在Linux下缺乏有效的病毒主动拦截与扫描手段，诸如 SELinux、MAC 访问控制等原生防护机制并不能很好地阻止各类病毒的运行，再加上运维人员安全意识的缺失，这导致了大部分 Linux 系统都缺少有效的病毒防护手段，成为黑客们眼中的“香饽饽”。</p>
+<p>而 Linux 操作系统不仅在服务器领域占据统治地位，同时也被越来越多地应用于个人桌面设备与终端设备，但现有的开源免费的 Linux 杀毒软件无法像 Windows 操作系统上的 360 安全卫士、Windows Defender 等反病毒软件那样为用户提供足够强大的主动防御功能，无法应对各类 Linux 病毒的入侵，大量的服务器、桌面设备、个人终端设备仍然面临着被各类Linux病毒入侵的风险。</p>
+<p>随着病毒技术的发展与种类的增多，病毒隐藏自身的能力逐步提高，同时诸如挖矿病毒等类型的病毒并不会直接攻击计算机系统，这使得对此类 Linux 病毒的检测与防护存在不少困难，诸如 SELinux、MAC 访问控制等原生防护机制并不能很好地阻止各类病毒的运行。此外，过去的开源 Linux 杀毒软件大都运行在用户态，缺少基于内核层面进行主动防护的手段，因此也缺少了对内核态病毒（如 rootkit ）的检测与防护手段；而 Linux 下针对 rootkit 进行查杀的主流免费开源杀毒软件仍存在局限性，对于高度客制化的 rootkit 并不能做到比较完美的查杀与防护，同时也缺乏针对用户态病毒的主动防御手段。</p>
+<p>由于上述问题的存在，Linux 用户对于高可用性的反病毒软件的需求逐渐增强。为了解决Linux下的病毒威胁，弥补Linux操作系统在病毒主动防御领域的缺陷，开发一款从操作系统内核层面进行防护的开源反病毒软件是很有必要的。</p>
+<h2 id="1-2-研究现状与相关工作"><a href="#1-2-研究现状与相关工作" class="headerlink" title="1.2 研究现状与相关工作"></a>1.2 研究现状与相关工作</h2><p>本节将详细阐述国内外对相关领域的研究现状和发展趋势。</p>
+<h3 id="1-2-1-计算机病毒发展现状"><a href="#1-2-1-计算机病毒发展现状" class="headerlink" title="1.2.1 计算机病毒发展现状"></a>1.2.1 计算机病毒发展现状</h3><p>计算机病毒（computer virus）是一种特殊的计算机程序，其功能主要是在用户不知情或未授权的情况下执行病毒开发者所编写的恶意指令，如文件窃取、文件损坏、资源占用、提供后门等，从而损害计算机系统的安全。计算机病毒除了基本的攻击功能以外，通常还有主动复制、传播与隐藏自身的能力，由于这一特性与自然界中的病毒类似，因而这类软件得名“计算机病毒”，在涉及计算机系统安全的特定语境下有时也简称“病毒”。</p>
+<p>最初关于计算机病毒的研究由冯·诺依曼于1949年完成，在他的论文中[2]描述了一个计算机程序如何复制自身；Veith Risak于1972年基于冯·诺依曼的工作开发了一个以西门子4004&#x2F;35计算机系统为目标的具有完整功能的计算机病毒[3]。</p>
+<p>而计算机病毒技术得以进入蓬勃发展阶段实际上更多来自于非学术界的开发成果，自1986年的第一个PC病毒“Brain”的出现开始，计算机病毒开始呈现“井喷式”的发展，并逐渐造成越来越多的重大安全事件，如2006年由李俊编写的“熊猫烧香”病毒肆虐中国大陆，其所具有的自我更新功能让其能够实现在卡巴斯基等主流杀毒软件下的“免疫逃逸”，2017年的“WannaCry”病毒则利用1-day漏洞在互联网上迅速传播并席卷全球，对世界各国各族人民与各类机构造成重大经济损失。</p>
+<p>时至今日，随着反病毒技术的提高，在各类杀毒软件与系统安全机制的保护之下，那些曾经声名显赫的计算机病毒逐渐退出了人们的视野，“计算机病毒”这个词似乎逐渐变成了历史。但 60 多年来，计算机病毒早已成为人类集体意识的一部分，只不过由曾经单纯展现开发者自我技术的网络破坏行为逐渐转变为了动机更为明确、行为更为隐蔽的专业网络犯罪行为。例如以高隐藏、高持久化为主要特点的 rootkit 病毒便是这类犯罪行为的典型代表，在以情报收集、破坏、经济利益为目的的高级持续性威胁（Advanced Persistent Threat，APT）[4]攻击当中，各类不同的 rootkit 病毒发挥着至关重要的作用，APT 组织可以利用 rootkit 病毒提前完成在目标网络中的潜伏工作，长期监控与窃取庞大的情报数据，并为攻击者提供了一个能长期维持其在目标主机上的控制权的后门。</p>
+<h3 id="1-2-2-Linux下的病毒技术"><a href="#1-2-2-Linux下的病毒技术" class="headerlink" title="1.2.2 Linux下的病毒技术"></a>1.2.2 Linux下的病毒技术</h3><p>Linux 下的病毒本质上同样是可执行的 Linux 程序。根据病毒程序所在的不同运行级别，我们可以将 Linux 下的病毒简要分为两类：用户态病毒与内核态病毒。</p>
+<p>在现代的网络安全攻防战中，用户态病毒与内核态病毒通常并不单独出现，而往往会组合出现。通常情况下，内核态病毒负责从内核层面实现入侵痕迹的隐藏，用户态病毒则负责完成一般的功能性工作。</p>
+<p>除了功能性的病毒技术以外，让防守方更难进行行为识别与分析自身逻辑也是现代病毒技术的一个分支。自修改代码（Self-Modified Code）、反调试、VMProtect等技术常被用来对病毒二进制文件进行加固，从而使得反病毒研究者难以通过逆向工程的与软件动态调试方式分析病毒本体逻辑。</p>
+<h4 id="1-2-2-1-内核态病毒"><a href="#1-2-2-1-内核态病毒" class="headerlink" title="1.2.2.1 内核态病毒"></a>1.2.2.1 内核态病毒</h4><p>内核态病毒是最常见的 Linux 病毒类型，其主要以可装载内核模块（Loadable Kernel Module，LKM）的形式存在，作为内核的一部分直接以 ring0 权限向入侵者提供服务。当攻击者拿到某台计算机的控制权并通过相应的漏洞提权到 root 权限之后，其便可以在计算机中留下内核态 rootkit，以为攻击者后续入侵行为提供驻留的 root 后门。由于内核态病毒本身作为内核的一部分运行于内核态，这类病毒通常能实现多种特殊的功能，如进程隐藏、网络端口隐藏等。除了传统的LKM以外，也有多种其他类型的内核态病毒，例如部分内核态病毒便是基于eBPF编写的[5]。</p>
+<p>得益于运行在内核态下的代码有着计算机最高权限的特性，内核态病毒能直接改变操作系统内核的行为，从而实现高隐藏、高持久化，使其更难被系统管理员所发现与消除，这也是为何内核态病毒最受入侵者青睐的缘故。如通过直接修改 PCB 相关内核结构体可以直接实现进程的隐藏，通过对 VFS 相关函数的劫持可以直接完成文件隐藏，通过位于内核中的内联函数钩取（inline hook）技术可以直接改变多个内核函数的逻辑。内核态病毒的强大使其在真实世界的网络攻防中大放异彩，多种内核态 rootkit 被广泛应用于 APT 攻击实战中，而 rootkit 也是最为常见的内核态病毒形态。</p>
+<p>但内核编程需要更加复杂与谨慎的开发，同时多变的Linux内核API也让通用内核态病毒的开发变得困难， 攻击者往往需要针对不同内核版本进行相应的代码适配工作，这使得攻击成本变得更高。此外，内核编程中的任何错误都可能导致操作系统崩溃，从而更容易暴露出入侵者的存在。</p>
+<p>经过多年的网络攻防战争，Linux 内核病毒攻防早已进入到了恐怖的深水区。内核病毒攻防的本质其实是在比拼攻防双方对操作系统了解的深入程度，比拼谁能够深入到操作系统内核中更加底层的位置。随着内核病毒攻防的白热化，除了在 LKM 技术实现上的探索之外，越来越多不同种类的内核态病毒也开始进入到大众视野中，如 Guillaume 在 2021 年的 BlackHat USA 大会上便展示了使用 eBPF 技术编写的 rootkit [5] 。</p>
+<h4 id="1-2-2-2-用户态病毒"><a href="#1-2-2-2-用户态病毒" class="headerlink" title="1.2.2.2 用户态病毒"></a>1.2.2.2 用户态病毒</h4><p>用户态病毒则为比较传统的病毒形态，其通常以一个用户态进程的形式存在，用以实现一些更常规的功能，如用户态的勒索病毒对用户文件进行加密、用户态的挖矿病毒占用CPU资源、用户态的后门程序向黑客提供后续的远程控制权等。由于用户态病毒本质上与普通的应用程序没有区别，因而用户态病毒的开发工作会更为方便，因此大部分攻击者通常选择使用用户态病毒来实现一些比较复杂的功能。</p>
+<p>相较于内核态编程，用户态程序的编写更为方便，因此绝大多数 Linux 病毒的传播都是通过用户态程序完成的。Linux 病毒在网络间进行传播的方式主要有两种，一是利用其他主机上开放的服务中存在的漏洞获取远程主机控制权，如利用 Redis 未授权访问漏洞攻击其他主机，二是利用弱口令爆破等方式获取网络上其他主机的控制权。在实战当中这两种方式通常被混合起来同时使用，即一个病毒同时内置漏洞扫描与口令爆破模块，从而实现在目标网络中的高效传播。</p>
+<p>与 Windows 系统下病毒种类繁多谱系复杂的情况不同，Linux 下的用户态病毒以几个较大的家族及其变种为主，其中大部分为蠕虫病毒，且最主要的恶意行为都是利用宿主机计算资源进行挖矿，如 RainbowMiner、SystemMiner、WatchdogsMiner 等。由于挖矿所需的技术与攻击成本都相对较低，且能给攻击者带来较高的非法收益，由此在 Linux 下的用户态病毒的恶意行为大部分都是进行挖矿。</p>
+<p>用户态下的 rootkit 病毒同样受到许多黑产组织的喜爱，相较于内核态 rootkit 而言，用户态 rootkit 所涉及的技术简单且成熟，这类病毒通常通过替换系统文件、劫持动态链接库等方式实现自身功能。在实战当中用户态 rootkit 并不单独存在，而是被集成到原有的一些恶意软件当中。</p>
+<p>近年来，用户态 rootkit 逐渐受到越来越多攻击者们的青睐，越来越多的黑产组织以某些开源 rootkit 为基础，将用户态 rootkit 技术加入到了自己的技术栈，持续对网络世界造成新的威胁。</p>
+<h3 id="1-2-3-反病毒技术"><a href="#1-2-3-反病毒技术" class="headerlink" title="1.2.3 反病毒技术"></a>1.2.3 反病毒技术</h3><p>反病毒技术主要围绕两个领域展开：病毒的扫描与拦截。其中前者为被动的防御，即对计算机内已经存在的病毒程序或文件进行识别，主要通过特征匹配的方式识别已知的病毒，这种方法只能扫描出特征库中已知的病毒；后者则是使用类似于行为模式匹配的方式在病毒程序进行危险行为的时候进行识别，通过拦截程序可疑行为的方式进行主动防护，这通常需要从操作系统内核层面完成。</p>
+<p>病毒识别技术的发展从最初的广谱特征码识别、启发式行为识别、云查杀技术再到现在的人工智能查杀，经历了多个不同的发展阶段，查杀病毒的能力也在逐步增强，现有的反病毒软件的主动防御模块并不需要已知病毒才能查杀，而是可以通过对病毒程序的行为进行模式匹配、对病毒程序文件进行静态分析等方式直接识别出病毒库中不存在的新病毒，并在病毒危害到计算机系统之前进行拦截与移除，从而更好地保护系统安全。</p>
+<h3 id="1-2-4-Linux下的反病毒软件"><a href="#1-2-4-Linux下的反病毒软件" class="headerlink" title="1.2.4 Linux下的反病毒软件"></a>1.2.4 Linux下的反病毒软件</h3><p>由于个人桌面设备的安全更能吸引安全界的目光，现有的反病毒技术的研究主要围绕着最主流的桌面操作系统Windows 开展，如360安全卫士、卡巴斯基、火绒等都是较为著名的Windows杀毒软件。Linux操作系统虽然在服务器领域占据统治地位，在嵌入式设备等领域也得到广泛应用，但安全界对于Linux操作系统的病毒防护领域并没有足够的重视。同时，Linux 用户更倾向于从主观可信来源获取文件，这使得大部分 Linux 用户都认为没有必要在 Linux 下使用杀毒软件，从而在主观层面缺少对于 Linux 杀毒软件的需求。因此不同于 Windows 下各类反病毒软件百花齐放的盛况，Linux 下的反病毒业务主要针对于企业与政府用户，面向个人用户开发的可用反病毒软件乏善可陈。</p>
+<p>目前对于桌面用户与个人用户而言 Linux 下可用且最为流行的杀毒软件为 ClamAV[6] ，其通过哈希、文件内容特征库、逻辑特征库、二进制特征码、ASCII特征码多维度匹配等方式，对磁盘上的文件进行扫描，从而检测计算机上存在的病毒、木马、恶意软件与其他威胁。作为目前个人用户可用的最为优秀的开源 Linux 杀毒软件，ClamAV 虽然可以查找出病毒特征库当中已知的病毒，并能通过模糊行为匹配的方式查找新的病毒，但缺乏反制病毒入侵的手段，同时缺少从内核层面对病毒的检测手段，从而无法检测出一些内核态病毒。</p>
+<p>除了 ClamAV 以外，rkhunter [7] 也是一个有着一定知名度的杀毒软件，其主要被用于检测 Linux 系统下可能存在的 rootkit 类病毒。该软件可以通过比较传统的 md5 校验方式检测系统文件是否被改动、通过特征码检测的方式发现计算机上存在的病毒、通过对配置文件与端口进行检查来找寻病毒可能存在的痕迹。由于该软件仅能通过扫描已知 rootkit 特征以及对比已知文件指纹的方式进行病毒查杀，效果极其有限。目前该软件已经有 5 年未再继续更新。</p>
+<p>chkrootkit[8] 也是一个经典的 Linux rootkit 检测程序，其通过检测 procfs 及一些系统文件目录的方式检测可能存在的隐藏进程、隐藏模块等 rootkit 病毒特征。该软件同样缺少反制病毒入侵的手段，同时存在误报率高与漏报率高的问题，且已将近 4 年不再更新，已经不再适用于如今的网络安全攻防的战场。</p>
+<p>由于主观需求的缺失，主流的安全企业逐渐不再为用户占比最大的个人与中小组织 Linux 用户提供反病毒软件，如小红伞 Avira 于2016年全面停止对Linux平台的支持，360 为 Linux 所开发的反病毒软件也逐渐收缩市场，目前仅为企业用户提供服务，Comodo Antivirus 与Bitdefender 更是分别在 2013 年与 2010 年便已停止更新。非商业的开源解决方案如 ClamAV 虽然仍在持续发展，但仍存在功能的单一性等问题，这类解决方案往往也不足以提供足够强大的主动防御能力。</p>
+<h2 id="1-3-研究意义"><a href="#1-3-研究意义" class="headerlink" title="1.3 研究意义"></a>1.3 研究意义</h2><p>虽然个人 Linux 用户对于反病毒的关注度与主观需求都较低，但 Linux 下的各类病毒依然在白热化的网络攻防战场上蓬勃发展，在网络攻防的战场上大放异彩。但由于各大安全企业逐渐不再开发Linux下的反病毒软件、社区关注度较低、开源反病毒方案的发展不足，目前 Linux 操作系统上仍不存在足以提供足够强大的主动防御能力的开源免费的反病毒软件，从而导致个人及中小组织 Linux 用户仍然面临着被各类不同的 Linux 病毒入侵的风险。</p>
+<p>由此，本课题拟基于可装载内核模块开发一款简单易用方便扩展的开源Linux反病毒软件，从操作系统内核层面应用启发式行为识别等主流反病毒方案，从而弥补 Linux 操作系统在这一领域的不足。</p>
+<h2 id="1-4-研究成果与章节安排"><a href="#1-4-研究成果与章节安排" class="headerlink" title="1.4 研究成果与章节安排"></a>1.4 研究成果与章节安排</h2><p>本文结合 Linux 操作系统实现原理详细阐述了现有的主流 Linux 病毒技术实现原理及反病毒技术实现原理，并基于可装载内核模块设计了一个具有高可用性与高扩展性的 Linux 反病毒软件，结合操作系统内核与用户态两个层面完成对主流 Linux 病毒的查杀与主动防御功能。</p>
+<p>下面对本文的章节安排进行解释，全文共分五章：</p>
+<p>第一章对 Linux 下的计算机病毒发展趋势、病毒与反病毒技术研究现状、反病毒软件发展趋势进行了简要阐述，讲述了本文的研究意义与主要研究工作。</p>
+<p>第二章对本软件项目实现所需的背景知识进行了详细的阐述，包括 Linux 操作系统内核几个主要模块的基本实现原理、不同类型 Linux 病毒的基本实现原理、不同层面的各类反病毒技术的实现方案。</p>
+<p>第三章对本软件项目的整体实现架构进行了较为详细的阐述，软件主体分为内核态下的可装载内核模块部分与用户态下的守护进程部分，通过多方协同与异步通信的方式基于操作系统内核视角并辅以用户态视角进行高效的病毒识别查杀与主动防御工作。</p>
+<p>第四章对本软件的可用性进行了评估，对软件测试方案进行实现与部署，在虚拟机环境下使用多个不同类型的真实世界病毒样本对该软件的查杀性能进行测试评估，并与 Linux 下现有的主流开源反病毒软件进行了对比实验，证明了我们的软件在反病毒技术上存在优势。</p>
+<p>第五章将对全文的工作进行总结，并对未来的后续开发工作进行下一步的展望。</p>
+<h1 id="0x02-背景知识"><a href="#0x02-背景知识" class="headerlink" title="0x02. 背景知识"></a>0x02. 背景知识</h1><p>本章我们将简单介绍本项目实现方案所涉及到的背景知识。</p>
+<h2 id="2-1-Linux-操作系统实现"><a href="#2-1-Linux-操作系统实现" class="headerlink" title="2.1 Linux 操作系统实现"></a>2.1 Linux 操作系统实现</h2><p>Linux 操作系统最初由 Linus Torvalds 开发，现已成为世界范围内最为流行的开源操作系统之一。本节将介绍 Linux 操作系统内核的简要实现原理，并介绍几个主要的子系统的具体实现。</p>
+<h3 id="2-1-1-内存管理"><a href="#2-1-1-内存管理" class="headerlink" title="2.1.1 内存管理"></a>2.1.1 内存管理</h3><p>内存管理是计算机操作系统当中最为基础也是最为核心的部分之一，本节我们将阐述 Linux 操作系统内核如何对物理内存进行管理。由于不同处理器架构下部分代码实现方案不同，本文主要讲述 Intel x86 架构下的实现方案。</p>
+<p>x86 计算机启动时以实模式（realmode）启动，此时对内存的访问都是对物理内存的直接访问。在实模式下计算机仅有 20 条地址总线被启用，且仅使用寄存器的 16 位部分，故若要访问到 20 条地址线所能代表的物理地址空间则需要额外使用段寄存器辅助完成，在寻址时将段寄存器中的段基址左移四位，再加上段内偏移，从而寻到 1 MB 的内存地址了。</p>
+<p>自 Intel 80286 起引入了一种新的执行模式，名为保护模式（protected mode），相较于实模式而言其提供了更加强大的内存保护与隔离等功能。控制寄存器（control register）组被用以管理控制处理器当前所在的操作模式，保护模式便通过控制寄存器组中的 <code>CR0</code> 寄存器的 <code>PE</code> 位控制开关。保护模式引入了两种内存管理隔离机制：分段（segment）与分页（paging），其中分段模式在进入保护模式后便默认开启，而分页则需要通过设置 <code>CR0</code> 寄存器的 <code>PG</code> 位开启。</p>
+<p>在分段模式下计算机使用一个长度为 8 字节的段描述符（segment descriptor）结构描述一块内存区域，所有的段描述符都被存放在内存当中一个名为描述符表（descriptor table）的结构当中。描述符表分为全局描述符表（Global Descriptor Table，GDT）与局部段描述符表（Local Descriptor Table）两种，CPU 分别在 <code>GDTR</code> 与 <code>LDTR</code> 寄存器当中存放内存中全局描述符表与局部段描述符表的物理地址。在现代操作系统设计当中通常仅用到全局描述符表，很少用到局部段描述符表。</p>
+<p>在保护模式下段寄存器并没有升级成 32 位，而仍仅有 16 位的宽度，因此段寄存器在保护模式下不再被设计为存放直接的段基址值，而是被设计为存放段选择子（segment selector），其中包含着段描述符在描述符表中的索引值、归属全局&#x2F;局部描述符表、特权级信息。在开启分段时所有的地址便都为虚拟地址（Virtual Address），当 CPU 要对一个地址进行访问时，内存管理单元（Memory Management Unit）首先通过对应的段寄存器中的段选择子获取到描述符表中的段描述符中的基地址（Base Address），再将要访问的地址作为偏移值（Offset），由基地址加上偏移值所得到的便是最后要访问的地址，称之为线性地址（Linear Address）。在未开启分页机制的情况下，线性地址便是物理地址。</p>
+<p><img src="https://s2.loli.net/2024/12/20/bWUtFH1MyD4gfVN.png" srcset="/img/loading.gif" lazyload></p>
+<p>分页机制则大幅扩展了内存的隔离性，将物理内存以单张页框（Page Frame）为粒度进行管理，通过页表（Page Table）这一数据结构完成线性地址到物理地址之间的映射。页表结构被存储在内存当中，其中的单个条目通常占用 8 字节，其中存储着一个页框的物理地址与访问权限等信息，在多级页表结构的每一级页表当中都存储着下一级页表的物理地址，通过逐级转换的方式将一个线性地址转换为物理地址。最顶级页表的物理地址被存放在控制寄存器组的 <code>CR3</code> 寄存器当中，当 CPU 在访问内存并完成了虚拟地址到线性地址的转换之后，<code>MMU</code> 便会根据页表继续将线性地址转换为相应的物理地址。而当 CPU 尝试访问一个在页表中不存在相应映射关系的线性地址时，便会触发缺页异常（Page Fault），触发了该异常的访问目标地址会被存放在控制寄存器组的 <code>CR2</code> 寄存器当中，以便操作系统预先设置的相应处理程序进行处理。</p>
+<p><img src="https://s2.loli.net/2024/12/20/yZw4MdsLRhJ6TgE.png" srcset="/img/loading.gif" lazyload></p>
+<p>在现代操作系统设计当中，通常仅使用分页机制进行内存管理，并将所有的段选择子都设为指向基址为 0 的段描述符以淡化分段机制的存在，操作系统通过为不同的进程使用不同的页表以分隔出不同的虚拟地址空间，而在内核虚拟地址空间当中通常存在着对整个物理内存空间的映射以供内核进行管理。</p>
+<p>Linux 内核使用 <code>page</code> 结构体来唯一标识每一个物理页框，所有的 <code>page</code> 结构体被放置在内核虚拟地址空间中以 <code>vmemmap_base</code> 起始的一段虚拟内存上，即存在一个 <code>page</code> 结构体数组线性地与实际存在的物理页框地址一一对应，对于内存空洞则是不存在相应的内存映射。内核根据内存页的不同性质与用途将其组织为页（page）→区（zone）→节点（node）三级结构。</p>
+<p>Linux 内核通过对 <code>page</code> 结构体的组织来完成以页框为粒度的内存管理，Binary Buddy Allocator（Buddy System）主要在区这一级用以管理空闲的物理内存页框，其基本算法是按照连续空闲页面的数量进行以 <code>2</code> 为底的分阶管理。当用户向 buddy system 进行内存分配请求时，其会尝试从对应的空闲链表进行内存分配，若当前阶的空闲页面链表为空则会递归式地向更高阶寻找可用的空闲内存页，并递归式地将其向下分为两份：其中一份返还给用户，另一份则放回对应阶的空闲链表（<code>freelist</code>）。当用户向 Buddy System 返还内存页时，空闲内存页会根据其对应的阶被挂回相应的空闲列表。若与其相邻的连续内存页（称之为该内存页的“buddy”）也为空闲，则这两份空闲内存页会被递归式地合并——不断向上找寻更高阶的 buddy 内存页并进行合并，直到无法继续合并（buddy 内存页不为空闲或是已经达到最高的阶）后将其挂回 <code>freelist</code>。</p>
+<p><img src="https://s2.loli.net/2024/12/20/kFG36JdXhwvUobj.png" srcset="/img/loading.gif" lazyload></p>
+<p>内核当中更为通用的内存管理器为 Slab Allocator，其通过向 Buddy System 请求空闲的内存页并分割成多个较小的空闲对象的方式来完成内存管理，单次请求的一份连续空闲内存页称为 <code>Slab</code> 。Slab Allocator 有着三种不同的实现，目前的主流版本被称为 <code>slub</code>。</p>
+<p>Slab Allocator 将不同尺寸与不同用途的空闲内核对象通过不同的内存池进行分配，在内核当中使用 <code>kmem_cache</code> 结构体表示一个slab内存池。一个 <code>kmem_cache</code> 分为两部分：</p>
+<ul>
+<li>由所有CPU核心共享的内存池 <code>kmem_cache_node</code> ，其中有一个 <code>partial slab</code> 双向链表存放有着一部分空闲对象的 <code>slab</code> 。</li>
+<li>不同核心独占的内存池 <code>kmem_cache_cpu</code> ，其上有一份 <code>slab</code> 用于进行内存分配。</li>
+</ul>
+<p>在进行内存分配时首先从CPU独占内存池进行分配，若失败则向共享内存池进行请求 <code>partial slab</code>，若仍失败则向buddy system请求新的<code>slab</code>。当进行对象释放时则根据虚拟地址与page间对应关系将其直接挂回对应的 <code>slab</code> 的 <code>freelist</code>，若为当前 <code>slab</code> 上第一个被释放的对象则该slab会被挂回 <code>partial slab</code> 链表，若<code>partial slab</code> 链表长度达到上限且完成内存释放后刚好存在全空的 <code>slab</code> 则将该份连续内存页返还给buddy system。</p>
+<p><img src="https://s2.loli.net/2024/12/20/SdJk9VDs25rRq6X.png" srcset="/img/loading.gif" lazyload></p>
+<p>Buddy System 与 Slab Allocator 进行的都是物理内存连续的内存分配，但在非高性能场景下并不总是需要物理内存连续，因此在 Linux 内核当中提供了<code>vmap</code> 机制用以分配一块以页框为粒度的虚拟内存区域，其并不保证分配的内存区域在物理上连续，内部实现实际上仍是通过 buddy system 获取到足够数量的空闲内存页后再建立映射。</p>
+<p>所有通过 vmap 机制（例如内核模块的内存空间）进行分配的虚拟内存区域都有一个 <code>vmap_area</code> 表示，所有的 <code>vmap_area</code> 之间构成一个全局链表，并根据起始地址的大小组织为红黑树，同时每个 <code>vmap_area</code> 都对应有着一个 <code>vm_struct</code> 结构体用以标识这块虚拟地址空间当中所用到的所有物理页框。</p>
+<p><img src="https://s2.loli.net/2024/12/20/IBD1xmpEHafXjWF.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="2-1-2-进程管理"><a href="#2-1-2-进程管理" class="headerlink" title="2.1.2 进程管理"></a>2.1.2 进程管理</h3><p>进程管理子系统也是 Linux 内核中较为重要的一部分。本节讲述内核如何组织并调度不同的进程。</p>
+<p>Linux内核当中并不直接区分进程与线程，所有的调度单元都被称之为进程（process），使用一个名为 <code>task_struct</code> 的结构体作为一个进程的进程控制块（Process Control Block，PCB），其中存放了关于一个进程的所有信息（如地址空间、信号处理、文件系统等），所有的 <code>task_struct</code> 之间构成一个双向链表，并根据进程间的亲子关系组织为树形结构。</p>
+<p><img src="https://s2.loli.net/2024/12/20/s3cDz9WaeRj2fSX.png" srcset="/img/loading.gif" lazyload></p>
+<p>进程标识符（Process Identifier，PID）用来对不同的进程进行标识，其被设计为独立的 <code>pid</code> 结构体，其中存放了一个进程在不同的命名空间中的 PID 具体值，相应地在 PCB 中存放着指向 <code>pid</code> 结构体的指针。在老版本内核当中 <code>pid</code> 结构体以哈希表的形式进行组织，在蛟新版本的内核当中则被组织为基数树。</p>
+<p>进程权限凭证（Credentials）用来标识一个进程在不同子系统当中所属的用户id，由此进行权限的标识。在Linux内核当中使用一个独立的 <code>cred</code> 结构体来标识进程所属的用户、用户组等信息，相应地在 PCB 当中根据不同用途存放着多个指向 <code>cred</code> 结构体的指针。</p>
+<p>在 Linux 中每个进程都有着其独立的页表所划分出的独立内存空间，除此之外内核为每个进程使用一个 <code>mm_struct</code> 结构体来记录其地址空间的具体信息，对于进程的每一块连续的虚拟内存空间（动态共享库、堆栈段、代码段、堆段、mmap 映射区等），内核使用一个 <code>vm_area_struct</code> 结构体进行标识，类似于 <code>vm_struct</code> ，多个 <code>vm_area_struct</code> 之间分别形成链表结构与树形结构，在 <code>mm_struct</code> 当中存放着相应的节点头结构。</p>
+<p><img src="https://s2.loli.net/2024/12/20/vQCnrfzbP8NOZg6.png" srcset="/img/loading.gif" lazyload></p>
+<p>虽然除了动态链接库与共享内存以外不同的进程间通常并不共享彼此独有的物理页框，但是在每个进程的页表当中都存在着对 Linux 内核内存的映射。自 Linux 内核 4.15 版本起引入内核页表隔离（Kernel Page Table Isolation，KPTI）之后每个进程都有两份页表，即内核空间与用户空间分别使用两组不同的页表集，在这两张页表上都有着对用户内存空间的完整映射，但在用户页表中只映射了少量的内核代码（例如系统调用入口点、中断处理等），而只有在内核页表中才有着对内核内存空间的完整映射，但两张页表都有着对用户内存空间的完整映射。</p>
+<p>Linux的进程调度机制采用了高可扩展性的多调度器结构，根据不同调度器的优先级高低进行运行不同的调度器，目前最主流的进程调度器为完全公平调度（Completely Fair Schedule），其通过调度周期与进程权重等信息为不同的进程计算虚拟运行时间（vruntime）以进行调度，通过红黑树组织有着不同虚拟运行时间的进程。</p>
+<p>每一个 CPU 核心在其独占内存区域 <code>.percpu</code> 段上都有着属于自己的运行队列，由此可能会出现一部分 CPU 调度队列负载过重而另一部分 CPU 调度队列负载过轻的情况，因此 Linux 内核会通过定期检查不同 CPU 调度队列并进行任务迁移的方式来实现多核心间的负载均衡。</p>
+<h3 id="2-1-3-文件管理"><a href="#2-1-3-文件管理" class="headerlink" title="2.1.3 文件管理"></a>2.1.3 文件管理</h3><p>在 UNIX&#x2F;Linux 系统中有着一个广为人知的概念：“万物皆文件”，即 Linux 系统中绝大部分对象都可以通过操作文件的方式进行访问，因此文件系统是 Linux 操作系统当中非常重要的一部分。本节我们将阐述 Linux 内核上层文件系统的实现机制，不涉及如 ext4、ntfs 等具体文件系统的实现。</p>
+<p>Linux内核提供了虚拟文件系统（Virtual File System），用以将不同的文件系统进行组织，从而向用户及内核的其他部分提供文件操作的统一 API。不同的文件系统需要在VFS当中进行注册从而完成功能对接，内核中使用一个 <code>super_block</code> 结构体来表示一个文件系统，使用 <code>inode</code> 表示一个实际的&#x2F;虚拟的文件节点，使用 <code>dentry</code> 表示一个目录项，多个 <code>dentry</code> 之间根据从属关系组织成类树形结构。</p>
+<p><img src="https://s2.loli.net/2024/12/20/lET5OW8SxevRit2.png" srcset="/img/loading.gif" lazyload></p>
+<p>当用户打开一个文件时，会在内核当中创建一个文件描述符（file descriptor），在内核当中使用 <code>file</code> 结构体进行表示，VFS层会找到文件对应的 <code>inode</code> 结构体并将其函数表指针赋给 <code>file</code> 结构体，当用户对文件进行操作时实际上会调用到 <code>file</code> 结构体当中的函数表中对应的不同函数指针。</p>
+<p>在每个进程的进程控制块 <code>task_struct</code> 当中都存放着一个指向 <code>files_struct</code> 结构体的指针，该结构体用于管理一个进程打开的所有文件的相关信息。</p>
+<p>每当进程打开一个新的文件时内核便会分配一个  <code>file</code> 结构体作为该文件的描述符，指向这些描述符的指针被存放在一个名为文件描述符表的结构当中，对应内核结构体 <code>fd_table</code>，在 <code>files_struct</code> 结构体中存放着指向文件描述符表的指针。</p>
+<p>在进程控制块 <code>task_struct</code> 当中还有一个指向 <code>fs_struct</code> 结构体的指针，该结构体用来标识进程当前运行环境根目录等信息。</p>
+<p><img src="https://s2.loli.net/2024/12/20/CFQB2wKhHN8Za4O.png" srcset="/img/loading.gif" lazyload></p>
+<p>除了EXT4、NTFS等实际存在于磁盘上的文件系统，Linux内核当中还实现了一些仅存在于内存中的文件系统，用于向用户提供不同的系统功能接口，如进程文件系统（procfs）用于向用户提供不同进程的基本信息，sysfs用于向用户提供系统的基本信息。</p>
+<h3 id="2-1-4-可装载内核模块"><a href="#2-1-4-可装载内核模块" class="headerlink" title="2.1.4 可装载内核模块"></a>2.1.4 可装载内核模块</h3><p>Linux 内核采用的是宏内核架构，这种设计虽然有着较高的运行效率，但缺乏可扩展性与可维护性，新功能的提供往往意味着要重新编译整个内核；同时内核需要装载很多可能用到的服务，但这些服务最终可能未必会用到，还会占据大量内存空间。</p>
+<p>为了提高内核的可扩展性与灵活性，ELF格式的可装载内核模块（Loadable Kernel Modules，LKM）被设计为内核的可扩展模块，其可以动态地被装载到内核当中或是从内核中卸载，从而极大提高了内核的可拓展性与可维护性。例如常见的外设驱动便通常使用 LKM 实现。</p>
+<p>LKM 的加载通过 <code>load_module()</code> 系统调用实现，该系统调用会解析 LKM 文件的结构，并通过 vmap 机制在内核中分配转载该模块所需的空间，在完成数据拷贝之后便会跳转到模块自定义的初始化函数执行。</p>
+<h2 id="2-2-Linux-病毒实现技术"><a href="#2-2-Linux-病毒实现技术" class="headerlink" title="2.2 Linux 病毒实现技术"></a>2.2 Linux 病毒实现技术</h2><p>大部分功能性病毒技术可以通过“劫持”来实现，如rootkit通过劫持内核函数来改变系统行为、特洛伊木马通过劫持正常的程序来完成自身的代码执行等。根据劫持的数据层面不同，病毒所能实现的功能级别也不同，实现的复杂度也不同。</p>
+<p>除了在目标系统环境中进行恶意行为以外，为了保护自身不被清除或是破解，部分病毒也采用了一些加密、驻留等技术来保护自身。</p>
+<p>本节我们将阐述 Linux 下一些主流的病毒技术。</p>
+<h3 id="2-2-1-通用病毒技术"><a href="#2-2-1-通用病毒技术" class="headerlink" title="2.2.1 通用病毒技术"></a>2.2.1 通用病毒技术</h3><p>本节我们将阐述通用于用户态与内核态病毒间的一些技术。</p>
+<h4 id="2-2-1-1-自我加固"><a href="#2-2-1-1-自我加固" class="headerlink" title="2.2.1.1 自我加固"></a>2.2.1.1 自我加固</h4><p>软件逆向工程（Reverse Engineering）技术常被用来分析未开放源代码的软件的运行逻辑，而这项技术也被用来进行软件破解，因此现代软件开发者也会使用一些加密技巧来加固自己所开发的软件，使其更难被通过软件逆向工程的方式进行分析。而病毒的开发者同样不希望其对手能够轻松破解自己的恶意软件运行逻辑并找到相应的反制策略，因此在现代网络攻防战争中大部分的病毒开发者都会选择使用一些技术完成对自己所开发的病毒的加固，从而使得防守方难以“见招拆招”。</p>
+<p>比较常见的静态软件加固技术为代码混淆（Obfuscation），即将软件原有的一些指令替换为功能等价但是实现更难以阅读与理解的形式。代码混淆可以在源码上或是编译的中间代码阶段进行，比较流行的代码混淆方式有 OLLVM[9]、花指令等。</p>
+<p>动态软件加固技术也常被用来加固目标可执行文件，这类技术本质上是在程序的可执行文件中仅保存加密后的代码数据以及一个解密器，在运行时再对代码进行解密工作后进行运行。常见的这类技术有自修改代码（Self-Modified Code）、VM Protect等。</p>
+<p>除了软件加密混淆技术以外，反调试（Anti Debugging）同样被用于对抗逆向当中。软件逆向工程师往往会选择通过动态调试的方式来帮助理解程序逻辑，因此反调试技术被开发以阻碍通过动态调试的方式进行软件逆向。Linux 下的反调试技术包括 ptrace 检测、多进程校验等。</p>
+<p>不同于商业软件，病毒对于运行性能往往没有太高的需求，因此病毒开发者更乐意使用那些能够使得其开发的病毒难以被破解的技术，尽管这可能带来更大的性能损耗。</p>
+<h4 id="2-2-1-2-注入"><a href="#2-2-1-2-注入" class="headerlink" title="2.2.1.2 注入"></a>2.2.1.2 注入</h4><p>注入（injection）技术即将病毒自身的数据与代码注入到计算机上已有的可执行程序当中，从而与其他程序一起“共生”，这种做法避免了直接在磁盘中留下新文件从而导致病毒自身被检测到的可能性。</p>
+<p>Linux 下的可执行文件为 ELF 格式，包括用户态的可执行程序、内核镜像文件、LKM 都以该形式存储，因此对 ELF 文件的注入技术同时适用于用户态与内核态的病毒。</p>
+<h3 id="2-2-2-内核态病毒技术"><a href="#2-2-2-内核态病毒技术" class="headerlink" title="2.2.2 内核态病毒技术"></a>2.2.2 内核态病毒技术</h3><p>在现代网络攻防战当中，以 rootkit 为主的内核态病毒是后渗透阶段中最重要的一部分，入侵者在取得目标主机最高权限之后往往会选择通过植入内核 rootkit 的方式完成权限维持。</p>
+<p>本节我们将阐述常见的内核 rootkit 技术。</p>
+<h4 id="2-2-2-1-进程权限变更"><a href="#2-2-2-1-进程权限变更" class="headerlink" title="2.2.2.1 进程权限变更"></a>2.2.2.1 进程权限变更</h4><p>一个进程的权限由其进程控制块 <code>task_struct</code> 结构体中的 <code>cred</code> 结构体决定，位于内核空间中的 rootkit 可以很方便地通过修改、替换 <code>cred</code> 结构体等方式来帮助我们的恶意进程进行提权。</p>
+<p>由于内核态 rootkit 编程本质上便是 Linux 内核编程，因此当用户态恶意程序向内核态 rootkit 发起请求时，其可以很方便地通过 <code>current</code> 宏获取到存放在 <code>percpu</code> 段上的指向当前进程控制块的指针，从而获取到 <code>cred</code> 的地址并通过直接将 <code>uid</code>、<code>gid</code> 等字段修改为 <code>0</code> 的方式直接完成用户态恶意进程的提权。除了这个方法之外，内核态 rootkit 也可以通过进程控制块所形成的树形结构直接找到 <code>init</code> 进程对应的 PCB，从而获取到有着 root 权限的 <code>init_cred</code>。</p>
+<p>除了通过 <code>current</code> 宏直接修改当前进程的权限以外，内核态 rootkit 也可以通过 <code>find_vpid()</code> 函数找到指定进程 id 所对应的 <code>task_struct</code> 结构体，从而直接修改对应进程的权限。</p>
+<h4 id="2-2-2-2-只读内存修改"><a href="#2-2-2-2-只读内存修改" class="headerlink" title="2.2.2.2 只读内存修改"></a>2.2.2.2 只读内存修改</h4><p>内核态 rootkit 病毒有时需要通过修改内核中的重要数据来实现其恶意功能，而这些数据的内存区域往往都被设为只读，由此内核态 rootkit 还需要通过一些手段绕过只读保护来达成写入只读内存的目的。</p>
+<p>由于只读保护的开启又控制寄存器组中的 <code>CR0</code> 寄存器中的 <code>WP</code> 位控制，因此现有的主流内核态 rootkit 往往选择通过修改 <code>CR0</code> 寄存器的方式来关闭写保护，从而实现对只读内存区域的改写。</p>
+<p>除了修改 <code>CR0</code> 寄存器以外，也有部分内核态 rootkit 选择通过修改页表项或是建立到目标物理内存的新映射的方式完成对指定只读内存区域的修改。</p>
+<h4 id="2-2-2-3-控制流劫持"><a href="#2-2-2-3-控制流劫持" class="headerlink" title="2.2.2.3 控制流劫持"></a>2.2.2.3 控制流劫持</h4><p><img src="https://s2.loli.net/2024/12/20/4wN3jtZl6GdOseq.png" srcset="/img/loading.gif" lazyload></p>
+<p>劫持内核控制流是最为常见的实现内核态 rootkit 恶意功能的办法，内联钩子（inline hook）是一个比较经典的控制流劫持思路，其核心原理是在内核函数的特定位置（称为 hook 点位）上插入一个 <code>jmp</code> 、<code>call</code> 等可以改变控制流的指令，从而使得内核跳转到恶意代码处执行，完成恶意代码的执行之后再恢复执行被控制流调准指令所覆盖的部分指令，之后跳转回原 hook 点位的下一条指令继续执行，这样便在保证了原函数基础功能的情况下完成了恶意代码执行。</p>
+<p>由于 x86 为 CISC 指令集，指令长度并不固定，因此 inline hook 往往需要一个额外且庞大的模块来帮我们识别 hook 点位的数条指令，这令 inline hook 的流程变得较为复杂，目前比较流行的动态识别指令的 hook 框架有 khook[10] 等。相较于复杂的指令识别，部分病毒也会选择称之为动态 inline hook 的简单技术，即直接保存被跳转指令所覆盖的数据，在自定义的恶意函数中重新将这些数据写回 hook 点位后调用被 hook 的函数，完成对结果的篡改后再重新将跳转指令写回 hook 点位，不过这种方法需要多次重新覆写只读内存，因此对于一些被频繁使用的函数而言其会造成一定的开销。</p>
+<p>一些内核 rootkit 也使用 <code>ftrace</code> 技术完成控制流劫持， <code>ftrace</code> 是内核提供的一个调试框架，当内核开启了 <code>CONFIG_FUNCTION_TRACER</code> 编译选项时开发者可以使用 <code>ftrace</code> 来追踪内核中的函数调用。 <code>ftrace</code> 通过在函数开头插入 <code>fentry()</code> 或 <code>mcount()</code> 实现，为了降低性能损耗，在编译时会在函数的开头插入 <code>nop</code> 指令，当开启  <code>ftrace</code> 时再动态地将待跟踪函数开头的 <code>nop</code> 指令替换为跳转指令，而这样的机制也为内核 rootkit 开发者提供了非常便捷的控制流劫持方法。</p>
+<p><img src="https://s2.loli.net/2024/12/20/CvyjSTaV82dktZn.png" srcset="/img/loading.gif" lazyload></p>
+<p>而除了上述的直接针对代码结构本体进行劫持的技术以外，得益于 Linux 系统 “万物皆文件” 的特性，内核中多种不同功能的实现其实都要直接或间接地经过 VFS 或是与之相类似的一些结构，为了通用性和扩展性通常对于单个子模块而言不会将调用的函数写死，而是会选择使用函数表的结构存储相应的函数指针的方式来实现多态性。基于这样的特性，我们也可以通过劫持内核当中相应结构的函数表来完成对内核控制流的劫持。</p>
+<h4 id="2-2-2-4-文件隐藏"><a href="#2-2-2-4-文件隐藏" class="headerlink" title="2.2.2.4 文件隐藏"></a>2.2.2.4 文件隐藏</h4><p>文件隐藏是一个内核 rootkit 较为基础的功能，入侵者通常不想让管理员发现自己存在过的痕迹，而无论是内核态病毒还是用户态病毒，通常都需要在目标主机的磁盘空间上以可执行文件的形式有着一份存在，因此隐藏病毒文件便是隐藏入侵痕迹的最基本要求。</p>
+<p>在 Linux 下对指定文件夹下文件的遍历实质上通过 <code>getdents64</code> 、<code>getdents</code> 、 <code>compat_getdents</code> 这三个系统调用之一完成，而他们的核心函数皆为 <code>iterate_dir()</code> ，在该函数中实际上会调用对应文件的函数表中的 <code>iterate_shared()</code> 或是 <code>iterate()</code> 函数，而其中用以将数据填充回用户空间的则为 <code>filldir()</code> 、<code>filldir64()</code> 、 <code>compat_filldir()</code> 这三个函数之一，对于内核态 rootkit 而言这些都是比较常见的 hook 目标点位，其可以通过劫持对应的函数或是对应文件系统的函数表来实现文件隐藏的功能。</p>
+<p>对于那些不实际存在于硬盘上的文件系统而言（例如 <code>procfs</code> 与 <code>sysfs</code> ），其遍历是通过 <code>dentry</code> 链表完成的，但访问则不是，因此通过将对应文件的 <code>dentry</code> 结构体从相应链表中脱链也是一个能保证文件读写功能正常的文件隐藏方式，这项技术通常被用来隐藏内核 rootkit 在 <code>/proc</code> 或是 <code>/dev</code> 目录下向用户态恶意程序所提供的功能接口。</p>
+<h4 id="2-2-2-5-内核模块隐藏"><a href="#2-2-2-5-内核模块隐藏" class="headerlink" title="2.2.2.5 内核模块隐藏"></a>2.2.2.5 内核模块隐藏</h4><p>内核态病毒通常以 LKM 的形式存在，而 LKM 的载入则会在内核当中留下相当多的痕迹，因此隐藏自身痕迹往往是内核态 rootkit 病毒在被载入后所需要做的第一件事情。</p>
+<p>一个被载入到内核当中的 LKM 主要有三大组件：存储模块自身信息的 <code>module</code> 结构体、模块对应的 <code>kobj</code> 层次结构、模块内存所对应的 <code>vmap_area</code> 结构，对于那些通过设备文件系统 <code>devtmpfs</code> 提供用户态接口的内核 rootkit 而言则还有额外的设备类相关 <code>kobj</code> 结构，这些信息可以被很轻易地通过 <code>procfs</code> 、 <code>sysfs</code> 等接口获取，从而暴露出入侵者的存在。</p>
+<p>早年间的一些 Linux 内核态病毒选择通过文件隐藏的方式简单地隐藏掉自身在 <code>procfs</code> 、 <code>sysfs</code> 等接口当中的痕迹，但随着 Linux 内核病毒攻防战的深入，这样简陋的方法早已无法逃过一些专业反病毒人员基于内核对象的搜索方法，因此现代内核 rootkit 通常还会将自身在载入时在内核当中所创建的结构体从对应的内核对象层次结构中脱离，这通常不会影响其功能实现，且能让防守方难以发现病毒在这几个地方所留下来的痕迹。</p>
+<p>但不同于 <code>module</code> 结构体等基本信息， 一个 LKM 所占用的内存及其难以被隐藏，这也是 Linux 内核态病毒的“阿喀琉斯之踵”。一些激进的内核病毒开发者还会选择将其内存对应的 <code>vmap_area</code> 从全局链表与全局红黑树中脱离，使得防守方无法轻易找到内核病毒内存的存在痕迹，但这种方法意味着放弃病毒自身对其所占用的虚拟地址空间的控制权，在有新的 LKM 载入到内存当中时这块虚拟地址空间很有可能被复用，从而导致内核病毒自身的存在“被抹去”，更严重的是若仍存在按照原有病毒逻辑访问这块虚拟地址空间的病毒，则往往会导致内核崩溃，从而暴露出入侵者的存在。</p>
+<p>除了常规的 LKM 载入方式以外，也有入侵者选择通过读写 <code>/dev/mem</code> 或是读写 <code>/dev/kmem</code> 的方式直接将病毒写入到内存当中，这种方法在内核当中留下的痕迹最小，但需要更加强大的内核编程能力。</p>
+<h4 id="2-2-2-6-进程隐藏"><a href="#2-2-2-6-进程隐藏" class="headerlink" title="2.2.2.6 进程隐藏"></a>2.2.2.6 进程隐藏</h4><p>由于内核编程的高复杂度与不稳定性，现代网络攻防战中并不仅使用内核态 rootkit 病毒，而是选择将部分无需内核参与的任务卸载（offload）到用户态病毒程序中，内核态部分仅负责文件隐藏等基本工作。但无论是内核进程还是用户进程，病毒进程的直接存在总归是容易被发现的，因此内核态病毒通常还需要完成对指定进程的隐藏工作。</p>
+<p>用户程序获取计算机上的进程信息的方式通常是通过 <code>procfs</code> 文件系统接口，但仅是隐藏文件的方式早已无法在白热化的内核攻防当中生存下来，因此现代内核病毒的开发者往往选择更为深入地去改变内核中的相关数据结构的方式来完成对指定进程的隐藏。</p>
+<p>一个进程在系统当中主要的直接组成部分为 <code>pid</code> 、 <code>task_struct</code> 结构体与进程所占用的物理内存，诸如 <code>mm_struct</code> 、 <code>fs_struct</code> 等结构其实是直接隶属于 <code>task_struct</code> 的，因此完成上层结构体的隐藏便能同时完成这些结构体的隐藏。</p>
+<p>一个进程在不同的 <code>pid</code> 命名空间内可能有着不同的 <code>pid</code>（其中子命名空间对父命名空间完全可见），内核通过 <code>upid</code> 结构体存储一个 <code>pid</code> 结构体在相应命名空间中的值，根据命名空间的父子层次结构存储在 <code>pid</code> 结构体中动态分配的 <code>upid</code> 数组中。为了提高查找速度 ，<code>pid</code> 在内核中被组织成基数树（在老版本内核当中为哈希表），当进行 <code>pid</code> 结构体查找时实际上会先获取到当前进程的 pid 命名空间再进行基数树搜索。因此比较经典的隐藏方法便是将 <code>pid</code> 结构体从对应的 pid 命名空间与所有上层 pid 命名空间中的基数树进行删除，并将 <code>task_struct</code> 结构体 从 <code>pid_links</code> 链接上摘除。</p>
+<p>进程控制块 <code>task_struct</code> 结构体在内核中有两种组织方式，一是所有的 <code>task_struct</code> 根据进程创建时间构成一个双向链表，二是所有的 <code>task_struct</code> 结构体根据创建关系构成树形结构（如 图2.6 所示，同一级节点还会构成一个双向链表结构）。因此更深一步隐藏一个进程的方式便是将 <code>task_struct</code> 结构体从对应的链表上摘除。</p>
+<h4 id="2-2-2-7-网络连接隐藏"><a href="#2-2-2-7-网络连接隐藏" class="headerlink" title="2.2.2.7 网络连接隐藏"></a>2.2.2.7 网络连接隐藏</h4><p>入侵者通常需要维持对被入侵主机的控制权，而远程控制将会在被入侵主机中建立新的网络连接，因此这类网络连接也是需要被完成隐藏的。</p>
+<p>比较经典的隐藏网络连接的方式还是通过隐藏 <code>procfs</code> 中的对应文件完成，比较新的内核 rootkit 还会通过劫持 <code>tcp4_seq_show()</code> 等函数进行网络连接的隐藏，不过这类方法由于不涉及内核层结构的修改，可以很轻易地被从内核层面发现隐藏的网络连接。且网络连接的存在本身也会使得防守方很容易通过端口遍历的方式发现被隐藏起来的被占用端口。</p>
+<p>得益于 Linux 网络协议栈的复杂与完备，一些现代内核 rootkit 会通过 Netfilter + NAT 的方式实现正向端口复用，从而很好地实现自身网络连接的端口隐藏。</p>
+<h4 id="2-2-2-8-键盘事件监听"><a href="#2-2-2-8-键盘事件监听" class="headerlink" title="2.2.2.8 键盘事件监听"></a>2.2.2.8 键盘事件监听</h4><p>键盘敲击事件本质上是由键盘这一外部设备向 CPU 发送了新的中断，CPU 通过 APIC 获取到中断后会调用中段描述符表中对应的处理程序进行处理，因此通过劫持中段描述符表的方式内核态病毒便能够截获到键盘事件，从而获取到用户在键盘上输入的每一个字符。</p>
+<h4 id="2-2-2-9-反反病毒技术"><a href="#2-2-2-9-反反病毒技术" class="headerlink" title="2.2.2.9 反反病毒技术"></a>2.2.2.9 反反病毒技术</h4><p>除了被动的进行防御之外，部分病毒也会主动与反病毒软件进行对抗，例如通过劫持 <code>load_module</code> 系统调用加上反向应用如广谱特征码识别的方式可以使得已知的一些企业级的基于 LKM 的反病毒软件无法被载入到内核当中，与此同时其他的内核模块还能被进行正常的载入。</p>
+<p>有的反病毒软件会通过对比 <code>/proc/kcore</code> 的方式检测内核代码段或是一些静态数据是否被修改，针对这样的检测手段，一些内核态病毒会劫持该文件在 VFS 当中对应的函数表，从而向用户态的反病毒软件提供未被修改的正常数据。</p>
+<h3 id="2-2-3-用户态病毒"><a href="#2-2-3-用户态病毒" class="headerlink" title="2.2.3 用户态病毒"></a>2.2.3 用户态病毒</h3><p>相较于内核态各种大放异彩的 rootkit，用户态 Linux 病毒则没有那么大的知名度，对于各类系统节点的劫持深度似乎也不如内核态 rootkit，但在现代网络攻防战中同样扮演着不可或缺的角色。</p>
+<p>本节我们将阐述一些基本的用户态病毒技术。</p>
+<h4 id="2-2-3-1-动态链接库劫持"><a href="#2-2-3-1-动态链接库劫持" class="headerlink" title="2.2.3.1 动态链接库劫持"></a>2.2.3.1 动态链接库劫持</h4><p>通常情况下 Linux 下绝大部分的可执行文件当中并不会直接包括 raw syscall 与各类库函数的代码，而是会将这些库函数都放到动态链接库（Dynamic Link Library）当中，所有的进程共享一份动态链接库文件，这样便大幅减少了存储空间的占用。</p>
+<p>但库函数结果的可靠性来源于动态链接库的可靠性，因此用户态病毒可以通过直接篡改动态链接库文件（通常位于 <code>/lib</code> 目录下）的形式来劫持一些比较关键的库函数，从而实现恶意功能，例如通过劫持动态链接库中对 <code>getdents</code> 系统调用的 wrapper 便能实现文件隐藏的功能。</p>
+<h4 id="2-2-3-2-网络传播"><a href="#2-2-3-2-网络传播" class="headerlink" title="2.2.3.2 网络传播"></a>2.2.3.2 网络传播</h4><p>用户态病毒在网络中传播的方式类似于入侵者对目标主机攻击过程的自动化，这类型病毒通常会带有多个不同漏洞的攻击载荷（payload），并会自动化扫描网络上其他主机所开放的服务，若存在已知漏洞则使用自身携带的攻击载荷以进行自动攻击。除此之外，大部分主机通常都会开放 ssh 服务以供运维人员登录，而这也给入侵者创造了一个新的攻击点，即通过爆破 ssh 口令的方式获取目标主机的控制权，由于大部分运维人员都缺乏一定的安全意识，在真实世界的攻防当中使用一些弱口令字典爆破 ssh 口令的方式往往屡试不爽。以 2019 年被发现的 WatchdogsMiner 病毒为例，其会同时通过一个 Redis 未授权访问漏洞与 ssh 口令爆破进行传播。</p>
+<p>由于大部分的运维人员都有着一定的安全意识，不仅会设置较为复杂的口令，更会定期更新计算机上的各类服务，因此病毒在网络中的自动化传播通常并不容易。但对于一些缺乏安全意识的网络主机而言（例如部分政府机关单位的服务器），这类病毒往往能利用很多上古漏洞与简单的弱口令字典完成攻击，从而在内网中迅速传播。</p>
+<h2 id="2-3-Linux-反病毒技术"><a href="#2-3-Linux-反病毒技术" class="headerlink" title="2.3 Linux 反病毒技术"></a>2.3 Linux 反病毒技术</h2><p>反病毒（anti-virus）便是针对于计算机病毒所出现的一项技术，反病毒技术通常通过实时检测程序行为以及将文件特征与病毒数据库进行比对等方式来达到识别并移除计算机系统中病毒的目的。反病毒软件便是能够实时监测病毒敏感行为并移除计算机系统中病毒的一类软件，其通常被赋予很高的系统权限，从而能实时监测计算机系统的运行状况，这类软件也被称为“杀毒软件”。</p>
+<p>不同于 Windows 下反病毒技术蓬勃发展的情况，Linux下的反病毒软件并未得到很好的发展，目前仅有面向企业用户提供的极少部分反病毒软件应用上了启发式行为识别与云查杀等高级技术，绝大部分开源免费的反病毒软件的实现方案依旧较为简陋。</p>
+<p>本节我们将阐述 Linux 下的一些主流反病毒技术。</p>
+<h3 id="2-3-1-用户态反病毒技术"><a href="#2-3-1-用户态反病毒技术" class="headerlink" title="2.3.1 用户态反病毒技术"></a>2.3.1 用户态反病毒技术</h3><p>用户态下的 Linux 反病毒技术的研究主要关注于被动防御领域，即通过各类手段识别出计算机系统当中已经存在的病毒，通常有以下几个检测点：</p>
+<ul>
+<li><p>系统关键文件是否被篡改</p>
+<ul>
+<li><code>/bin</code> 目录下的可执行程序</li>
+<li><code>/lib</code> 目录下的动态链接库</li>
+<li><code>/var/log</code> 目录下的日志文件</li>
+</ul>
+</li>
+<li><p>操作系统内核状态是否存在异常</p>
+<ul>
+<li><code>/proc/kcore</code> 文件中的代码与静态数据是否与当前系统的内核镜像文件不一致</li>
+<li><code>/proc/vmallocinfo</code> 当中是否存在未知的内存映射区域</li>
+<li><code>/proc/modules</code> 与 <code>/sys/module</code> 下是否存在未知的内核模块</li>
+<li><code>/dev</code> 、 <code>/proc</code> 、<code>/sys</code> 目录下是否存在未知的文件</li>
+</ul>
+</li>
+<li><p>是否存在未知的进程或网络连接</p>
+</li>
+<li><p>磁盘上是否存在已知病毒文件或被病毒感染的文件</p>
+</li>
+</ul>
+<p>以经典的 rootkit 查杀软件 chkrootkit[8] 为例，其会通过检测 <code>/bin</code> 目录的方式来发现可能存在的用户态 rootkit 对系统中可执行文件的劫持，主要是检查该目录下的可执行文件当中是否存在可疑的字符串。</p>
+<p>对磁盘上病毒文件的扫描是用户态反病毒技术的主要研究方向，主要的识别方式是通过将文件的特征与已知的病毒库进行匹配，从而发现可能存在的病毒文件。最基础的办法则是检查文件名是否比较可疑，例如 rkhunter[7] 便使用这种方式扫描可能存在的病毒。ClamAV 则应用了病毒自动脱壳分析、md5与通配符匹配、特征识别等多种方式来进行病毒扫描。</p>
+<h3 id="2-3-2-内核态反病毒技术"><a href="#2-3-2-内核态反病毒技术" class="headerlink" title="2.3.2 内核态反病毒技术"></a>2.3.2 内核态反病毒技术</h3><p>基于内核态进行反病毒的方案与操作系统内核一同有着对整个计算机系统的完全掌控权，故不仅可以进行更为深入的被动防御，且能实现各种不同的主动防御功能。</p>
+<p>对于可能存在的隐藏进程，内核态反病毒软件可以通过遍历 <code>task_struct</code> 相应链表的方式找到可能被用户态 rootkit 所隐藏的进程，也可以通过特征匹配的方式找到脱离全局链表而隐藏在内存当中的恶意进程的 <code>task_struct</code> 结构体，从而更为高效地找出被隐藏的恶意进程。特征匹配的方式还可以帮助找到 LKM rootkit 对应的 <code>module</code>  结构体，从而找出被隐藏的 LKM rootkit。此外，通过检查页表映射空间与 <code>vmap_area</code> 链表对比的方式还可以找到那些被隐藏的 LKM rootkit 所占用的内存。</p>
+<p>对于被篡改的系统函数，内核态反病毒软件则可以通过直接比对内核代码段与内核镜像文件的方式判断内核代码是否被篡改，并可以通过二进制代码匹配的方式找到内核代码段中的 <code>jmp</code> 、 <code>call</code> 等指令，比对其跳转范围是否离开了内核代码段的范围，从而判断内核代码是否被篡改，并能通过分析这些指令的目标跳转地址直接找到 LKM rootkit 在虚拟地址空间中所占用的区域。</p>
+<p>由于内核编程需要更加复杂与谨慎的开发，且内核 API 在不同版本间变化较大，加上缺乏社区的支持，Linux 下几乎没有可用的开源免费内核态反病毒软件，但在一些面向企业与政府机构提供的解决方案中使用了内核态反病毒技术。</p>
+<h3 id="2-3-3-基于虚拟化的反病毒技术"><a href="#2-3-3-基于虚拟化的反病毒技术" class="headerlink" title="2.3.3 基于虚拟化的反病毒技术"></a>2.3.3 基于虚拟化的反病毒技术</h3><p>基于虚拟化技术进行反病毒软件的开发也是一个可行的方案，得益于 hypervisor 对于 guest VM 的完全掌控权，反病毒软件可以轻易截获例如修改 <code>CR0</code> 等控制寄存器组的危险操作，从而实现对病毒的主动防御。</p>
+<p>VTW[11] 便是一个基于虚拟化的反病毒软件，其通过截获诸如修改内核代码段的方式完成对内核态 rootkit 的防护。</p>
+<h2 id="2-4-本章小结"><a href="#2-4-本章小结" class="headerlink" title="2.4 本章小结"></a>2.4 本章小结</h2><p>本章介绍了开发一款基于可装载内核模块的 Linux 反病毒软件所需要的基础知识。开头首先介绍了 Linux 内核的基本运行原理，让读者对于 Linux 内核的运行原理有了基本了解。接下来介绍了主流的 Linux 病毒的实现方式，包括内核态病毒与用户态病毒的不同功能的具体运作原理。最后介绍了 Linux 下已被应用的一些主流反病毒方案，为后续本文所设计的基于可装载内核模块的 Linux 反病毒软件的开发奠定了基础。</p>
+<h1 id="0x03-基于可装载内核模块的反病毒软件实现方案"><a href="#0x03-基于可装载内核模块的反病毒软件实现方案" class="headerlink" title="0x03. 基于可装载内核模块的反病毒软件实现方案"></a>0x03. 基于可装载内核模块的反病毒软件实现方案</h1><h2 id="3-1-软件架构设计"><a href="#3-1-软件架构设计" class="headerlink" title="3.1 软件架构设计"></a>3.1 软件架构设计</h2><p>本节将介绍本文所设计的基于可装载内核模块的 Linux 反病毒软件的基本架构。</p>
+<h3 id="3-1-1-软件基本架构设计"><a href="#3-1-1-软件基本架构设计" class="headerlink" title="3.1.1 软件基本架构设计"></a>3.1.1 软件基本架构设计</h3><p>软件基本架构如图 3.1 所示。软件总体分为三大部分：</p>
+<ul>
+<li>内核层的可装载内核模块（Loadable Kernel Module）</li>
+<li>用户层的守护进程（Daemon Process）</li>
+<li>用户层的用户界面（User Interface）</li>
+</ul>
+<p>该软件的核心部分为一个可装载内核模块，负责在内核层进行反病毒工作，如检测内核代码是否被篡改、是否存在被隐藏的进程、是否存在被隐藏的模块等，同时还负责处理来自用户态守护进程的请求，如病毒扫描请求、指定物理内存读写请求等。当用户态守护进程被意外中止，内核模块会截获到这一事件并重新启动守护进程。</p>
+<p>用户态守护进程与内核态模块之间的通信方式为异步通信，用户态与内核态之间的通信通过两个单向消息队列完成。守护进程通过内核模块提供的接口所提交的请求会被放入到内核模块中的 <code>u2k</code>  (user-to-kernel)队列当中，内核模块中有多个内核线程负责定时轮询 <code>u2k</code>队列。当任一内核进程从队列当中获取到一条消息之后，其会解析消息类型并进行相应的任务。当内核进程完成请求处理之后，其会将任务结果放入到 <code>k2u</code> (kernel-to-user)队列当中，由用户态进程定时轮询该队列。</p>
+<p>用户态的守护进程主要负责实现内核层不容易完成的任务，如检测磁盘上是否存在病毒文件、系统配置文件是否被病毒所篡改、系统中是否存在病毒的痕迹等。</p>
+<p>当用户想要进行相应的反病毒任务时（如，进行全盘扫描），实际上并不直接通过守护进程完成，而是通过启动一个新的 UI 进程完成。守护进程会向 UI 进程提供可访问的接口，并同样通过一个请求队列与一个回复队列完成通信。</p>
+<p><img src="https://s2.loli.net/2024/12/21/uq8lSvZBgsDyj1M.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="3-1-2-插件机制实现方案"><a href="#3-1-2-插件机制实现方案" class="headerlink" title="3.1.2 插件机制实现方案"></a>3.1.2 插件机制实现方案</h3><p>本软件具有一定的扩展性，支持内核层与用户层的插件扩展功能，从而动态扩展本软件的反病毒能力。为了保证插件系统不被入侵者所滥用，自定义插件的载入需要经过我们自定义的用户鉴权系统。</p>
+<p>支持的内核层的扩展插件以 LKM 的形式存在。当守护进程发起一个内核态插件载入请求后，内核线程会检验待载入模块是否可信，并调用 <code>load_module</code> 系统调用中的相关函数进行模块载入，完成之后在数据库中注册该模块。在扩展模块当中应当存在一个可供调用的导出函数，当主内核模块收到用户态守护进程中属于对应扩展模块的请求之后，其便会调用扩展模块的导出函数以将控制权移交给扩展模块。为了保证插件来源可信，该模块的载入工作应当仅能由本软件的内核模块部分完成。</p>
+<p>支持的用户层扩展插件则以可执行文件的形式存在，工作机制类似于内核层的插件扩展系统，这里不再赘叙。</p>
+<h2 id="3-2-内核层技术实现"><a href="#3-2-内核层技术实现" class="headerlink" title="3.2 内核层技术实现"></a>3.2 内核层技术实现</h2><p>本节阐述本软件内核层的各个模块实现原理。由于内核态病毒技术具有较高的通用性，因此我们也会借鉴一部分不同的病毒实现技术以完成我们的软件的内核模块部分实现。</p>
+<h3 id="3-2-1-用户态守护进程保活"><a href="#3-2-1-用户态守护进程保活" class="headerlink" title="3.2.1 用户态守护进程保活"></a>3.2.1 用户态守护进程保活</h3><p>部分入侵者在获取最高权限后可能会尝试向用户态守护进程发送 <code>SIGKILL</code> 命令强行终止该进程，从而破坏反病毒系统的完整性。因此本软件需要保证守护进程的存活。</p>
+<p>由于守护进程持有内核模块接口的文件描述符，而内核模块接口以文件形式存在，因此我们通过自定义 <code>file_operations</code> 结构体中的函数指针来完成对应事件的处理。当进程退出时，其会逐一关闭其所持有的文件描述符，其中包括内核模块接口对应的文件描述符，此时便会触发自定义 <code>file_operations</code> 结构体中的 <code>close</code> 函数，由此我们便能截获到用户态守护进程退出的事件，并重新启动用户态的守护进程。</p>
+<p>对于计算机关机的情况我们并不需要继续确保守护进程的存活，因此此时我们不应当继续重启守护进程。由于在计算机关机之前每个进程都会收到一个 <code>SIGTERM</code> 信号，因此用户态守护进程会在初始化时注册对应的信号处理函数，当收到代表计算机关机的 <code>SIGTERM</code> 信号时用户态守护进程便告知内核模块无需继续保活。</p>
+<p><img src="https://s2.loli.net/2024/12/21/QVEToFKuMPSD9H1.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="3-2-2-内核层与用户层间通信"><a href="#3-2-2-内核层与用户层间通信" class="headerlink" title="3.2.2 内核层与用户层间通信"></a>3.2.2 内核层与用户层间通信</h3><p>部分内核层任务较为耗时（例如内核内存扫描等），因此我们并不让用户态 <code>daemon</code> 进程在发送任务请求后阻塞等待内核层完成，而是采用异步通信的方式完成内核层与用户层之间的通信。</p>
+<p>如图 <code>3.3</code> 所示，用户态与内核态之间使用两个单向的环形队列进行通信，<code>u2k</code> 即 <code>user-to-kernel</code> 队列，负责从用户态向内核态发送信息，<code>k2u</code> 即 <code>kernel-to-user</code> 队列，负责从内核态向用户态发送信息，两个队列都由内核层完成管控。</p>
+<p><img src="https://s2.loli.net/2024/12/23/arZQ9dpyqJSvEV2.png" srcset="/img/loading.gif" lazyload></p>
+<p>当用户态 <code>daemon</code> 进程想要向内核发送请求时，其需要通过 <code>ioctl</code> 系统调用向内核提交指定格式的消息，该消息会被插入到 <code>u2k</code> 队列当中。在内核中有多个 <code>Message Handler</code> 进程会定时轮询 <code>u2k</code> 队列当中是否有未处理的信息，若有则将其取下并根据消息类型执行对应操作。当 <code>Message Handler</code> 进程完成对单个请求的对应任务之后，其会将处理结果封装到一个指定格式的信息当中，该信息会被插入到 <code>k2u</code> 队列当中。用户层的 <code>daemon</code> 进程则同样需要不断通过 <code>ioctl</code> 系统调用轮询 <code>k2u</code> 队列，若存在未处理的消息则取下并根据消息类型进行相应的处理。该架构实际上也允许内核层主动向用户态的 <code>daemon</code> 进程发起请求以完成一些内核层不方便完成但用户层方便完成的任务（例如读取 <code>/proc/kallsyms</code> 文件）。</p>
+<p>若 <code>u2k</code> 环形队列已满，则 <code>daemon</code> 进程会将该结果通过用户界面告知用户，用户需要暂缓直到内核处理完相应的任务之后再提交新的任务。若 <code>k2u</code> 环形队列已满，则内核中对应的 <code>Message Handler</code> 进程会一直阻塞，直到用户态 <code>daemon</code> 进程完成消息处理之后再将消息插入队列中，这项技术我们通过 <code>mutex</code> 互斥锁实现。</p>
+<h3 id="3-2-3-用户态守护进程鉴权"><a href="#3-2-3-用户态守护进程鉴权" class="headerlink" title="3.2.3 用户态守护进程鉴权"></a>3.2.3 用户态守护进程鉴权</h3><p>由于内核模块可以向用户态守护进程提供可以允许一些危险操作的敏感功能（如物理内存直接读写），我们并不希望这些功能被入侵者或是其他恶意软件所滥用，因此我们需要确保该接口仅能由指定的用户态守护进程访问。</p>
+<p>用户态守护进程的置信应当由内核完成，即由内核模块完成用户态守护进程的启动与相关信息的保存，从而确保能够访问内核模块接口的进程为已知的可信进程。由于不同进程的进程控制块 <code>task_struct</code> 都是唯一的，因此我们通过判断尝试打开内核模块接口的进程的进程控制块是否与守护进程一致的方式来保证仅有可信进程能够打开内核模块接口。</p>
+<p>Linux 内核提供了  <code>call_usermodehelper()</code> 函数以在内核层启动一个新的用户态进程，其基本原理是先通过 <code>call_usermodehelper_setup()</code> 创建待启动进程信息后再调用  <code>call_usermodehelper_exec()</code> 正式启动进程，由此我们可以直接调用这两个函数，从而为守护进程定义一个初始化函数，并在该函数中记录守护进程的 <code>task_struct</code> 的地址，从而完成后续的鉴权工作。</p>
+<p>鉴权系统初始化的代码核心逻辑如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">daemon_init</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> subprocess_info *info, <span class="hljs-keyword">struct</span> cred *new)</span><br>&#123;<br>    <span class="hljs-comment">//...</span><br><br>    <span class="hljs-comment">/* record the PCB of daemon process */</span><br>    daemon_task = current;<br>    <br>    <span class="hljs-comment">//...</span><br>    <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">daemon_process_start</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-comment">//...</span><br>    info = call_usermodehelper_setup(argv[<span class="hljs-number">0</span>], argv, envp, GFP_KERNEL, <br>                                     daemon_init, <span class="hljs-literal">NULL</span>, <span class="hljs-literal">NULL</span>);<br>    <span class="hljs-keyword">if</span> (!info) &#123;<br>        <span class="hljs-keyword">return</span> -ENOMEM;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> call_usermodehelper_exec(info, UMH_WAIT_EXEC);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-2-4-用户敏感操作鉴权机制"><a href="#3-2-4-用户敏感操作鉴权机制" class="headerlink" title="3.2.4 用户敏感操作鉴权机制"></a>3.2.4 用户敏感操作鉴权机制</h3><p>用户有时需要进行一些敏感操作（例如在更新内核相关设备驱动时需要卸载旧的 LKM 并载入新的 LKM），而入侵者同样会进行此类敏感操作，因此我们需要对进行敏感操作的用户进行鉴权，从而确保仅有真正的系统管理员能够完成这些任务。</p>
+<p>当用户在安装本软件时，本软件要求其设定一个 <code>secret key</code> ；当用户在进行敏感操作之前，其应当向本软件的内核态部分提交一个附带用户自定义 <code>key</code> 的特殊请求，内核会将该 <code>key</code> 与软件安装时用户所设定的值进行对比，以确保该操作确实来自可信用户。在完成鉴权之后，这些敏感操作会被准许开放特定的时间，用户可以通过重复提交开放请求以延长敏感操作权限开放时间。当开放时间结束之后，敏感操作的权限将会被再次关闭。</p>
+<p>为了保证该 <code>key</code> 不被破解，我们在内核中仅存储该 <code>key</code> 的哈希值，当用户提交请求时我们会将用户所提交的 <code>key</code> 通过指定哈希算法计算出其哈希值，并与内核中存储的 <code>key</code> 进行对比。</p>
+<p><img src="https://s2.loli.net/2024/12/25/zl2VRc3BuC5amNj.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="3-2-5-内核模块保活"><a href="#3-2-5-内核模块保活" class="headerlink" title="3.2.5 内核模块保活"></a>3.2.5 内核模块保活</h3><p>入侵者有可能获取到 root 权限，从而通过 <code>rmmod</code> 命令直接卸载掉我们的内核模块，以破坏反病毒系统的完整性。因此我们还需要完成内核模块的保活。</p>
+<p>内核模块的卸载本质上是通过 <code>delete_module</code> 系统调用完成的，而卸载成功的要求是内核模块相关的内核对象结构正常，因此这里我们选择应用病毒技术中的模块隐藏技术，使得我们的反病毒软件的内核模块对于操作系统内核而言也是不可见的，从而使得攻击者无法直接卸载掉我们的内核模块，以保证内核模块的存活。</p>
+<h3 id="3-2-6-主动防御"><a href="#3-2-6-主动防御" class="headerlink" title="3.2.6 主动防御"></a>3.2.6 主动防御</h3><p>主动防御即在入侵者在系统中植入病毒之前进行防御，从而阻止计算机系统受到进一步的侵害。</p>
+<p>本节我们将阐述我们所使用的内核层主动防御技术。</p>
+<h4 id="3-2-6-1-危险行为拦截"><a href="#3-2-6-1-危险行为拦截" class="headerlink" title="3.2.6.1 危险行为拦截"></a>3.2.6.1 危险行为拦截</h4><p>当入侵者成功入侵一台主机之后，其通常会尝试在系统中植入病毒或是更改一些其他系统选项，我们将根据可能涉及的行为进行拦截。</p>
+<ul>
+<li>内核模块载入拦截</li>
+</ul>
+<p>绝大部分内核态 rootkit 通过可装载内核模块的形式完成，而通常情况下用户并不需要载入新的内核模块，因此最简单的防护办法便是通过劫持 <code>load_module</code> 系统调用以拦截一切 LKM 的载入，从而阻止内核态 rootkit 的入侵。</p>
+<p>有时用户确乎需要载入新的内核模块（例如，更新网卡驱动），因此我们将内核模块相关操作并入到敏感操作集合中，由此用户可以通过我们的用户敏感操作鉴权机制短暂地开启敏感操作权限。</p>
+<ul>
+<li>内存读写拦截</li>
+</ul>
+<p><code>/dev/mem</code> 、 <code>/dev/kmem</code> 、 <code>/proc/kcore</code> 是 Linux 内核提供的物理内存与内核虚拟内存空间访问接口，若是入侵者获取到 root 权限则仍旧有可能通过直接修改内存的方式破坏反病毒系统与计算机系统的完整性，因此我们还需要保证内存的完整性。</p>
+<p>由于几乎没有任何软件会直接使用这些仅供开发调试的接口，禁用这些接口并不会影响计算系统的功能完整性，因此我们通过 hook 技术劫持对应文件的函数表中的 <code>open</code> 函数指针，并限制仅有我们的用户态守护进程可以访问，从而保证了物理内存不会被入侵者直接修改。</p>
+<p>若用户想要自行调试内核，则仍可以通过我们的用户敏感操作鉴权机制短暂地开启敏感操作权限完成。</p>
+<h4 id="3-2-6-2-异常行为识别与拦截"><a href="#3-2-6-2-异常行为识别与拦截" class="headerlink" title="3.2.6.2 异常行为识别与拦截"></a>3.2.6.2 异常行为识别与拦截</h4><p>在攻击者获取到一台主机的远程控制权之后，其通常需要通过一些可能存在的漏洞来完成权限提升以获取到 root 权限，我们将根据内核漏洞利用中可能涉及到的操作进行拦截。</p>
+<ul>
+<li>堆喷射利用拦截</li>
+</ul>
+<p>堆喷射（heap spraying）是一种辅助攻击手法，即通过大量分配相同的结构体来达成某种特定的内存布局，从而帮助攻击者完成后续的利用过程。在内核漏洞利用中常被用来进行堆喷射的内核对象通常有 <code>msg_msg</code> 、 <code>user_key_payload</code> 、 <code>pipe_buffer</code> 、 <code>cred</code> 等，对于正常的进程而言其通常并不需要在内核中创建如此大量的此类结构体，由此我们通过劫持对应系统调用的方式为指定进行进行数据记录，当达到用户所设定的阈值时则说明可能攻击者正在尝试进行漏洞利用，此时我们将在内核层面终止该进程并进行告警与日志记录，从而阻止攻击者通过内核漏洞完成提权。</p>
+<p>由于该拦截机制可能造成误报，我们允许用户自行设定不同结构体创建操作的警戒值，并允许用户自行决定是否开启该保护。</p>
+<ul>
+<li>Kernel Oops 记录</li>
+</ul>
+<p>攻击往往者并不一定能够仅通过一次攻击便能直接获取到 root 权限，针对一些内存损坏型（memory corruption）的漏洞的利用失败可能造成 <code>kernel oops</code> 记录（内核默认的报警机制），由于用户通常不会主动查看堆积大量无用日志信息的内核 <code>dmesg</code> 缓冲区，我们将额外对 <code>kernel oops</code> 进行记录并主动告知用户。</p>
+<h3 id="3-2-7-被动防御"><a href="#3-2-7-被动防御" class="headerlink" title="3.2.7 被动防御"></a>3.2.7 被动防御</h3><p>被动防御即在入侵者在系统中植入病毒之后进行防御，通过识别并清除计算机系统中已经存在的病毒并将病毒所篡改的部分进行复原以阻止计算机系统受到进一步的侵害。</p>
+<p>本节我们将阐述我们所使用的内核层被动防御技术。</p>
+<h4 id="3-2-7-1-内核病毒扫描与检测"><a href="#3-2-7-1-内核病毒扫描与检测" class="headerlink" title="3.2.7.1 内核病毒扫描与检测"></a>3.2.7.1 内核病毒扫描与检测</h4><p>内核态病毒往往会直接修改内核数据，因此我们通过识别出被修改的内核数据以找出可能存在的病毒。</p>
+<ul>
+<li>特征匹配与结构体完整性检查</li>
+</ul>
+<p>内核态 rootkit 病毒通常通过将进程控制块 <code>task_struct</code> 、模块控制块 <code>module</code> 等结构体从对应全局链表中脱链的方式完成相应的隐藏工作，为了能够更加完整地找到这些入侵特征，我们通过物理内存扫描的方式找寻内存中存在的所有此类结构体，并检查其是否存在于对应的全局链表当中。如图 3.5 所示，若发现一个不存在于对应全局链表中的结构体，则我们认为该结构体为入侵者的入侵痕迹。</p>
+<p>我们通过链表完整性检查的方式检查待测试结构体是否仍属于指定的全局链表。主要有两个检查点：一是检查该结构体对应链表的 <code>prev</code> 与 <code>next</code> 指针所指结构体是否在合法内核地址范围内，并检查 <code>prev</code> 与 <code>next</code> 指针所指结构体的 <code>next</code> 与 <code>prev</code> 指针是否同样指回待测试结构体；二是分别沿着该结构体的 <code>prev</code> 与 <code>next</code> 指针进行遍历，查看是否能够访问到全局链表头节点，以此进行完整性检查。</p>
+<p><img src="https://s2.loli.net/2024/12/25/rEXH9SghywUe8QO.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li>内核代码数据完整性检查</li>
+</ul>
+<p>部分内核态 rootkit 还会直接修改内核代码段（.text）的指令、系统调用表、中断描述符表、只读数据段(.rodata)的一些函数表等内核数据，从而劫持内核执行流。由此我们会动态地扫描整个内核的代码段与只读数据段，识别所有更改 <code>IP</code> 指针的跳转指令（如 <code>jmp</code> 、<code>jnz</code> 等）并检查函数表中所有的函数指针，若目标跳转范围不在原始的内核代码段范围或是本反病毒软件的代码范围当中，则说明对应的代码位置可能被内核态病毒劫持，此时我们将进行日志记录并告警。</p>
+<h4 id="3-2-7-2-系统内核动态修补技术"><a href="#3-2-7-2-系统内核动态修补技术" class="headerlink" title="3.2.7.2 系统内核动态修补技术"></a>3.2.7.2 系统内核动态修补技术</h4><p>为了保证计算机系统仍能继续正常工作，我们还需要对被修改的内核数据进行修复。</p>
+<p>对于被篡改的内核代码数据，我们会通过向用户态的 <code>daemon</code> 守护进程发送原始数据读取请求， <code>daemon</code> 进程会从硬盘上读取原始内核镜像文件，并将相应的数据发送给内核层，从而使得我们能够完成对被篡改的数据的修复。</p>
+<h2 id="3-3-用户层技术实现"><a href="#3-3-用户层技术实现" class="headerlink" title="3.3 用户层技术实现"></a>3.3 用户层技术实现</h2><p>本节阐述本软件用户层的各个模块实现原理。</p>
+<h3 id="3-3-1-用户界面通信"><a href="#3-3-1-用户界面通信" class="headerlink" title="3.3.1 用户界面通信"></a>3.3.1 用户界面通信</h3><p>在本软件架构设计中，与内核层直接通信的用户态 <code>daemon</code> 进程为守护进程，而用户则通过启动一个新的用户界面（User Interface，UI）进程与 <code>daemon</code> 进程间进行通信并进行对应的操作请求。</p>
+<p>用户界面进程与 <code>daemon</code> 进程间的通信通过 UNIX 域套接字（UNIX Domain Socket， UDS） 实现，<code>daemon</code> 进程会在指定目录创建对应的本地套接字文件，当 <code>UI</code> 进程启动时其会连接上该套接字以完成与 <code>daemon</code> 进程间的通信。类似于内核层与 <code>daemon</code> 进程间的通信方式， <code>daemon</code> 进程与 <code>UI</code> 进程同样通过两个单向队列结构进行通信，不同的是 <code>daemon</code> 进程仅会从 <code>UI</code> 进程接收请求消息并完成工作后将结果返回，而不会向 <code>UI</code> 进程发出请求消息。</p>
+<p><img src="https://s2.loli.net/2024/12/25/wp5JH7aziICQfno.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="3-3-2-被动防御"><a href="#3-3-2-被动防御" class="headerlink" title="3.3.2 被动防御"></a>3.3.2 被动防御</h3><p>由于 Linux 下的用户态进程很难直接对各种危险行为进行检测与拦截，因此我们在用户态主要实现针对于入侵后场景的病毒检测与清除等被动防御技术。</p>
+<p>本节我们将阐述本软件用户态部分所实现的被动防御技术。</p>
+<h4 id="3-3-2-1-病毒特征扫描与检测"><a href="#3-3-2-1-病毒特征扫描与检测" class="headerlink" title="3.3.2.1 病毒特征扫描与检测"></a>3.3.2.1 病毒特征扫描与检测</h4><p>绝大部分 Linux 病毒都会在系统中留下可以被观察到的痕迹，例如部分内核态 rootkit 会在 <code>procfs</code> 或是 <code>sysfs</code> 下留下可供观测的痕迹，我们会根据已知的病毒特征对指定目录进行扫描，从而检索出存在于系统中的病毒。</p>
+<h4 id="3-3-2-2-病毒文件扫描与检测"><a href="#3-3-2-2-病毒文件扫描与检测" class="headerlink" title="3.3.2.2 病毒文件扫描与检测"></a>3.3.2.2 病毒文件扫描与检测</h4><p>绝大部分 Linux 病毒都会在硬盘上留下自己的可执行文件，亦或是感染硬盘上现有的文件，因此我们通过扫描硬盘上所有文件的方式查找可能存在的病毒文件。主要通过以下几种检查：</p>
+<ul>
+<li>检查该文件哈希值是否与病毒库中已知病毒相匹配</li>
+<li>检查文件是否存在与已知病毒相似的特征，例如一些通用的特征字符串</li>
+<li>检查该文件是否被使用加密或加壳技术进行加密，例如 UPX 壳</li>
+</ul>
+<p>当发现可能为病毒的文件时，我们会进行日志记录，并对用户进行告警，由用户决定是否删除该文件。</p>
+<h2 id="3-4-本章小结"><a href="#3-4-本章小结" class="headerlink" title="3.4 本章小结"></a>3.4 本章小结</h2><p>本章详细记录了本文所设计的基于可装载内核模块的 Linux 反病毒软件的实现方式，包括软件的基本架构与用户态和内核态所采用的不同反病毒技术。相较于传统的纯用户态反病毒软件，我们的实现方案能够从内核层进行更为细致与深入的扫描以具有更高的病毒检测率，并从内核层实现了一定的主动防御能力，同时支持使用用户自定义的反病毒插件，从而具有较高的可扩展性。</p>
+<h1 id="0x04-反病毒软件功能测试与评估"><a href="#0x04-反病毒软件功能测试与评估" class="headerlink" title="0x04. 反病毒软件功能测试与评估"></a>0x04. 反病毒软件功能测试与评估</h1><p>本章阐述了对本文所设计的基于可装载内核模块的 Linux 反病毒软件的部署测试工作与结果，测试内容主要围绕着对病毒检测的准确性展开。我们在不同的系统环境下植入不同的来自真实世界的病毒，并使用包括本软件在内的不同的开源杀毒软件进行查杀，最后汇总结果并进行分析，对比不同软件的病毒识别率与正确率。</p>
+<h2 id="4-1-测试方案设计"><a href="#4-1-测试方案设计" class="headerlink" title="4.1 测试方案设计"></a>4.1 测试方案设计</h2><p>在现有的使用 Linux 操作系统的服务器、个人桌面终端等设备上通常使用如 Ubuntu、CentOS 等成熟的发行版，因此为了更为贴近真实环境的情况，我们选择在目前最为流行的 Linux 发行版 Ubuntu 上进行测试，通过虚拟机管理软件 VMWare 创建本地虚拟机进行实验。</p>
+<p>我们选用 Github 上较为流行的开源病毒以及笔者本人自行编写的一部分病毒植入到测试环境中，对比我们的软件与其他开源病毒查杀软件之间的查杀效果。由于 Linux 下可用开源反病毒软件较少的缘故，这里仅选择较为成熟的反病毒软件 chkrootkit [8]进行对比实验。</p>
+<p>除了以扫描计算机上已有的病毒为主的被动防御以外，我们还将测试防止病毒入侵的主动防御功能。</p>
+<h3 id="4-1-1-测试环境"><a href="#4-1-1-测试环境" class="headerlink" title="4.1.1 测试环境"></a>4.1.1 测试环境</h3><p>测试环境如下表所示：</p>
+<p><img src="https://s2.loli.net/2024/12/25/FBRix5hKnesGwg1.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="4-1-2-测试对象"><a href="#4-1-2-测试对象" class="headerlink" title="4.1.2 测试对象"></a>4.1.2 测试对象</h3><p>待测试病毒如下表所示：</p>
+<p><img src="https://s2.loli.net/2024/12/25/KZvpnmSPgWUFrQ9.png" srcset="/img/loading.gif" lazyload></p>
+<p>待测试反病毒软件如下表所示：</p>
+<p><img src="https://s2.loli.net/2024/12/25/iR9u8cqVPlzXnky.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="4-1-3-测试结果分析与对比"><a href="#4-1-3-测试结果分析与对比" class="headerlink" title="4.1.3 测试结果分析与对比"></a>4.1.3 测试结果分析与对比</h3><h4 id="4-1-3-1-无病毒环境"><a href="#4-1-3-1-无病毒环境" class="headerlink" title="4.1.3.1 无病毒环境"></a>4.1.3.1 无病毒环境</h4><p>我们首先在无病毒环境下尝试对计算机进行扫描，进行误报率检测，结果如下图所示。可以看到的是我们的反病毒软件并没有存在误报的情况，而 chkrootkit 则会将 Gnome 桌面组件识别为可疑进程。</p>
+<p><img src="https://s2.loli.net/2024/12/25/8adDiyCcvAtwOf4.png" srcset="/img/loading.gif" lazyload></p>
+<p>此外，chkrootit 有时也会出现误报的情况：</p>
+<p><img src="https://s2.loli.net/2024/12/25/AdQ52OPpD4elqxU.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="4-1-3-2-主动防御测试"><a href="#4-1-3-2-主动防御测试" class="headerlink" title="4.1.3.2 主动防御测试"></a>4.1.3.2 主动防御测试</h4><p>我们首先测试主动防御机制。如图所示，当我们没有提供一个正确的密钥时，我们无法在被本文软件所保护的机器上载入不可信的未知内核模块，因为此类操作被视为敏感操作。只有当我们提供了一个正确的密钥之后，对敏感操作的执行权限才会放开：</p>
+<p><img src="https://s2.loli.net/2024/12/25/v9FrlTQdZxtSMHn.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="4-1-3-3-Reptile-病毒"><a href="#4-1-3-3-Reptile-病毒" class="headerlink" title="4.1.3.3 Reptile 病毒"></a>4.1.3.3 Reptile 病毒</h4><p>Reptile[12] 是最经典也是最为流行的开源 LKM rootkit 病毒，实战中有相当一部分 rootkit 病毒基于该病毒进行改编。</p>
+<p>接下来我们将对该病毒进行查杀测试，首先安装该病毒：</p>
+<p><img src="https://s2.loli.net/2024/12/25/qDxochNEOvljQZB.png" srcset="/img/loading.gif" lazyload></p>
+<p>接下来我们分别使用 chkrootkit 以及本文软件进行查杀，可以看到的是 chkrootkit 并未能发现隐藏的 Reptile 模块，仅能发现被隐藏的一个文件，而本文软件则可以直接发现内核中属于该病毒的数个 hook 点位信息：</p>
+<p><img src="https://s2.loli.net/2024/12/25/kycUo6B7SD29svG.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="4-1-3-4-a3khook-病毒"><a href="#4-1-3-4-a3khook-病毒" class="headerlink" title="4.1.3.4 a3khook 病毒"></a>4.1.3.4 a3khook 病毒</h4><p>a3khook[13] 是一个通过动态修改内存来完成函数劫持的轻量级 LKM rootkit 病毒框架，该项目提供了一个示例病毒，接下来我们将对该病毒进行查杀测试，首先还是安装该病毒：</p>
+<p><img src="https://s2.loli.net/2024/12/25/76z83BcvJ4uNWig.png" srcset="/img/loading.gif" lazyload></p>
+<p>接下来我们分别使用 chkrootkit 以及本文软件进行查杀，可以看到的是 chkrootkit 并未能发现隐藏的 a3khook 模块，而本文软件则可以直接发现内核中属于该病毒的 hook 点位信息：</p>
+<p><img src="https://s2.loli.net/2024/12/25/LYZp4iKmBfdWrCA.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="4-2-本章小结"><a href="#4-2-本章小结" class="headerlink" title="4.2 本章小结"></a>4.2 本章小结</h2><p>本章记录了对本文所设计的基于可装载内核模块的 Linux 杀毒软件的测试方案与部署测试过程，证明了该软件相比于现有的主流开源反病毒方案，其有着更高的稳定性、准确性、功能性，且具有全新的主动防御方案，能够更好地适应如今的 Linux 操作系统的反病毒需求，具有一定的实用价值。</p>
+<h1 id="0x05-总结与展望"><a href="#0x05-总结与展望" class="headerlink" title="0x05. 总结与展望"></a>0x05. 总结与展望</h1><h2 id="5-1-论文总结"><a href="#5-1-论文总结" class="headerlink" title="5.1 论文总结"></a>5.1 论文总结</h2><p>本文在现有的反病毒技术的基础上基于可装载内核模块开发了一款综合性的开源 Linux 反病毒软件。在本文所设计软件的架构中，核心部分为一个可装载内核模块，负责在内核层进行反病毒工作，针对内核数据与代码进行分析找出内核层的病毒，并实现了基于行为检测的主动防御功能；在用户层则有一个 <code>daemon</code> 守护进程负责与内核模块进行交互，并辅助内核完成在内核层不易完成的一些任务；<code>ui</code> 进程则为用户接口，其负责接收用户的指令并传输给 <code>daemon</code> 进程。</p>
+<p>本文对所设计的反病毒软件进行了测试与评估，将其与现有的主流 Linux 反病毒软件进行对比，证明了本文所设计的反病毒软件具有更高的稳定性与准确性，功能也更为强大。</p>
+<h2 id="5-2-下一步工作与展望"><a href="#5-2-下一步工作与展望" class="headerlink" title="5.2 下一步工作与展望"></a>5.2 下一步工作与展望</h2><p>Linux 下的反病毒工程还有更多值得我们探索的工作，本文所设计的反病毒软件在实现上仍然存在一定的缺陷，病毒查杀的完备率仍然不够高，仍旧难以应对如今网络攻防战场中高度客制化的各种病毒。此外，基于行为模式匹配的主动防御功能仍然存在开销过大、针对性不足的问题。希望在未来能与开源社区一起合作改进，为 Linux 操作系统提供更为成熟的反病毒解决方案。</p>
+<h1 id="0xFE-致谢"><a href="#0xFE-致谢" class="headerlink" title="0xFE. 致谢"></a>0xFE. 致谢</h1><p>随着论文上“致谢”二字的落下，不知不觉间四年的大学本科生涯似乎也悄然来到了终点。可惜笔者也不是多么擅长写作的人，本想写点什么却又不知道说些什么好，只能无奈地放下敲击键盘的手。但无论如何，笔者相信这会是自己人生中最难忘的四年。</p>
+<p>首先笔者要感谢西安电子科技大学网络与信息安全学院的张宁老师，在我的四年大学生涯当中，张老师为我提供了很多的建议与支持，使我在学习生活与研究工作中收获了很多宝贵的经验。感谢张老师在我的大学本科生涯中对我的亲切关怀与鼓励，衷心祝愿张老师身体健康，工作顺利。</p>
+<p>其次笔者要感谢笔者的论文指导老师傅晓彤老师，有了她的帮助我才能在本次毕业设计中做一个我自己一直想做的一个项目。衷心祝愿傅老师身体健康，工作顺利。</p>
+<p>笔者还要感谢在西电信息安全协会认识的伙伴们，我们因为相同的爱好而走到一起，共同在相互的交流与无数的比赛中学到了无数宝贵的知识与经验。是你们让我认识到了网络安全的魅力，让我的大学生活更为精彩。</p>
+<p>最后笔者要感谢笔者的父母对笔者一路走来的支持，无论我作出了什么样的选择能尽自己所能支持我，让我能够没有顾虑地创造自己的人生前景。</p>
+<p>在致谢的结尾处好像大家都会写一句 slogan，但笔者还是想要来一点不一样的，可惜想了想又不知道能写点什么新奇的东西，不过其实也无所谓了，就好像这一次毕业设计的旅程中有很多不尽笔者意的地方，但仔细想来笔者的人生似乎便一直都是如此，那便无所谓了（笑）。</p>
+<p>苟利国家生死以，岂因祸福避趋之。希望我们都能够在更加美好的明天相见。</p>
+<h1 id="0xFF-参考文献"><a href="#0xFF-参考文献" class="headerlink" title="0xFF. 参考文献"></a>0xFF. 参考文献</h1><p>[1] FOUNDATION L. Linux is a clone of the operating system Unix, written from scratch by Linus Torvalds with assistance from a loosely-knit team of hackers across the Net.[Z]. <a target="_blank" rel="noopener" href="https://www.kernel.org/category/about.html">https://www.kernel.org/category/about.html</a>.<br>[2] NEUMANN V. Theory of self-reproducing automata[J]., 1949.<br>[3] RISAK V. Self-reproducing automata with minimal information exchange[J]., 1972.<br>[4] YANG L X, LI P, TANG Y Y, et al. A Risk Management Approach to Defending Against the Advanced Persistent Threat[J]. IEEE Transactions on Dependable and Secure Computing, 2020.<br>[5] FOURNIER G, AFCHAIN S, BAUBEAU S. With Friends Like eBPF, Who Needs Enemies?[C]&#x2F;&#x2F;Black Hat USA 2021. 2021.<br>[6] ClamAV. An open-source antivirus engine for detecting trojans, viruses, malware &amp; other malicious threats[Z]. <a target="_blank" rel="noopener" href="https://www.clamav.net/">https://www.clamav.net/</a>.<br>[7] BOELEN M. The Rootkit Hunter project[Z]. <a target="_blank" rel="noopener" href="https://rkhunter.sourceforge.net/">https://rkhunter.sourceforge.net/</a>.<br>[8] MURILO N, STEDING-JESSEN K. chkrootkit: a tool to locally check for signs of a rootkit[Z].<a target="_blank" rel="noopener" href="https://github.com/Magentron/chkrootkit">https://github.com/Magentron/chkrootkit</a>.<br>[9] JUNOD P, RINALDINI J, WEHRLI J, et al. Obfuscator-LLVM —Software Protection for the Masses[C]&#x2F;&#x2F;SPRO’15. 2015.<br>[10] Milabs. KHOOK - Linux Kernel hooking engine.[Z]. <a target="_blank" rel="noopener" href="https://github.com/milabs/khook">https://github.com/milabs/khook</a>.<br>[11] LI Y G, CHUNG Y C, HWANG K, et al. Virtual Wall: Filtering Rootkit Attacks To Protect Linux Kernel Functions[J]. IEEE Transactions on Computers, 2022.<br>[12] F0rb1dd3n. Reptile - LKM Linux rootkit[Z]. <a target="_blank" rel="noopener" href="https://github.com/f0rb1dd3n/Reptile">https://github.com/f0rb1dd3n/Reptile</a>.<br>[13] Arttnba3. Another lightweight dynamic-hooking engine for Linux kernel.[Z]. <a target="_blank" rel="noopener" href="https://github.com/arttnba3/a3khook">https://github.com/arttnba3/a3khook</a>.</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/CODE/" class="category-chain-item">CODE</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+        <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
+      
+        <a href="/tags/%E5%BC%80%E5%8F%91%E6%89%8B%E8%AE%B0/">#开发手记</a>
+      
+        <a href="/tags/RootKit/">#RootKit</a>
+      
+        <a href="/tags/Virus/">#Virus</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【CODE.0x02】本科毕业设计：基于可装载内核模块的 Linux 杀毒软件设计与实现</div>
+      <div>https://arttnba3.github.io/2023/06/04/CODE-0X02-ANTI_ROOTKIT_SAMPLE/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年6月4日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/07/14/CTF-0X09_CISCN_2023_HDBFQS/" title="【CTF.0x09】CISCN 2023 华东北分区赛 minidb、kkk 出题手记">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【CTF.0x09】CISCN 2023 华东北分区赛 minidb、kkk 出题手记</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/06/04/CVE-0X0A-CVE-2021-3490/" title="【CVE.0x0A】CVE-2021-3490 漏洞复现及简要分析">
+                        <span class="hidden-mobile">【CVE.0x0A】CVE-2021-3490 漏洞复现及简要分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      桂ICP备2022005068号-1
+    </a>
+  </span>
+  
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
