@@ -1,0 +1,971 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="世界第一 DMA-BUF 大师是对的！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【OS.0x06】Linux 共享内存:DMA-BUF 初探（一）">
+<meta property="og:url" content="https://arttnba3.github.io/2024/11/30/OS-0X06-LINUX-DMABUF/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="世界第一 DMA-BUF 大师是对的！">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/10/08/li3mnaFSkyrcpOW.png">
+<meta property="article:published_time" content="2024-11-30T03:33:42.000Z">
+<meta property="article:modified_time" content="2024-12-30T22:19:25.687Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Linux Kernel">
+<meta property="article:tag" content="操作系统">
+<meta property="article:tag" content="DMA-BUF">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2024/10/08/li3mnaFSkyrcpOW.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【OS.0x06】Linux 共享内存:DMA-BUF 初探（一） - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"arttnba3.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://s2.loli.net/2024/09/19/3Mn475YFeybCXz8.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【OS.0x06】Linux 共享内存:DMA-BUF 初探（一）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-11-30 14:33" pubdate>
+          2024年11月30日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          15k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          124 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【OS.0x06】Linux 共享内存:DMA-BUF 初探（一）</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2024年12月31日 上午
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>世界第一 DMA-BUF 大师是对的！</p>
+<span id="more"></span>
+
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><p>最近刚好看到一个与 DMA buffer 相关的有意思的东西，所以简单写一篇博客记录一下这是个什么玩意：）</p>
+<p>本文涉及到的内核版本为 <code>6.11.2</code> </p>
+<h1 id="0x01-DMA-BUF-简介"><a href="#0x01-DMA-BUF-简介" class="headerlink" title="0x01. DMA-BUF - 简介"></a>0x01. DMA-BUF - 简介</h1><h2 id="基本原理"><a href="#基本原理" class="headerlink" title="基本原理"></a>基本原理</h2><p><a target="_blank" rel="noopener" href="https://docs.kernel.org/driver-api/dma-buf.html">dma-buf 子系统</a> 为不同设备驱动与其他子系统提供了一个方便统一的 <strong>内存共享框架</strong> ，常用于 GPU 及显示驱动等，其主要有三个用于交互的部分：</p>
+<ul>
+<li><code>dma-buf</code> ：表示一个 <code>sg_table</code> ，并作为文件描述符导出到用户空间以允许在进程、子系统、设备间传递（注：UNIX domain socket）</li>
+<li><code>dma-fence</code> ：提供了对异步硬件操作是否完成的检测机制</li>
+<li><code>dma-resv</code> ：为一个特定的 <code>dma-buf</code> 管理一组 <code>dma-fence</code> ，通过隐式的（内核排序的）同步工作以保持表面上的一致访问</li>
+</ul>
+<p>在 dma-buf 框架中主要有两个对象，分别是：</p>
+<ul>
+<li><code>exporter</code> ：共享内存的生产者（内核驱动）<ul>
+<li>负责为内存实现 <code>struct dma_buf_ops</code> 操作函数表</li>
+<li>允许通过 dma_buf API 共享内存</li>
+<li>通过 <code>struct dma_buf</code> 管理内存分配的细节</li>
+<li>决定实际的分配，并负责所有共享用户的 <a target="_blank" rel="noopener" href="https://www.wowotech.net/memory_management/scatterlist.html">scatterlist</a> （page 为单位的物理连续内存块）迁移</li>
+</ul>
+</li>
+<li><code>importer/user</code> ：共享内存的消费者（可以是用户态程序也可以是内核态驱动）<ul>
+<li>不关心内存来源</li>
+<li>通过 <code>struct dma_buf_attachment</code> 接口访问共享内存（一般通过共享的文件描述符获取）</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://s2.loli.net/2024/12/20/RUPS1INVcml4kiL.png" srcset="/img/loading.gif" lazyload></p>
+<!-- ![](https://s2.loli.net/2024/09/19/3Mn475YFeybCXz8.png) -->
+
+<blockquote>
+<h3 id="扩展阅读：sg-table-与-scatterlist-离散连续内存"><a href="#扩展阅读：sg-table-与-scatterlist-离散连续内存" class="headerlink" title="扩展阅读：sg_table 与 scatterlist - 离散连续内存"></a>扩展阅读：sg_table 与 scatterlist - 离散连续内存</h3><p>简而言之，<strong>单个</strong> <code>scatterlist</code> 用来表示一块 <strong>物理连续</strong> 的 <strong>以页为单位</strong> 的内存块，<code>sg_table</code> 则表示一个离散 <code>scatterlist</code> <strong>数组</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">scatterlist</span> &#123;</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">long</span>	page_link;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>	offset;<br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>	length;<br>	<span class="hljs-type">dma_addr_t</span>	dma_address;<br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_NEED_SG_DMA_LENGTH</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>	dma_length;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_NEED_SG_DMA_FLAGS</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span>    dma_flags;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>&#125;;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sg_table</span> &#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">scatterlist</span> *<span class="hljs-title">sgl</span>;</span>	<span class="hljs-comment">/* the list */</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> nents;		<span class="hljs-comment">/* number of mapped entries */</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> orig_nents;	<span class="hljs-comment">/* original size of list */</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>其通常结构如下图所示：</p>
+<p><img src="https://s2.loli.net/2024/09/20/Rr5akvXyLQCbMUd.png" srcset="/img/loading.gif" lazyload alt="自己画的图"></p>
+<p>对于分配的 scatterlist 数组长度大于一张内存页的情况，其会被分割成多块，其中单张 scatterlist 数组页面上的最后一个成员的 <code>page_link</code> 字段会用于标识是否存在下一份页面以及下一份 scatterlist 页面所在内存页：</p>
+<p><img src="https://s2.loli.net/2024/09/20/V8w2i9QyE7Ndrg5.png" srcset="/img/loading.gif" lazyload alt="自己画的图"></p>
+</blockquote>
+<p>具体而言，dma-buf 的通常使用流程如下：</p>
+<ul>
+<li><p>exporter 侧用 <code>DEFINE_DMA_BUF_EXPORT_INFO()</code> 创建一个临时 <code>dma_buf_export_info</code> 结构体，并定义导出信息，这通常包括：</p>
+<ul>
+<li><code>::ops</code>：自定义的 <code>struct dma_buf_ops</code> </li>
+<li><code>::priv</code>：自定义私有数据的指针</li>
+<li><code>::size</code> ：共享内存大小</li>
+<li><code>::flags</code> ：内存读写权限</li>
+</ul>
+</li>
+<li><p>exporter 侧调用 <code>dma_buf_export()</code> 创建 <code>dma_buf</code> 对象</p>
+</li>
+<li><p>exporter 侧调用 <code>dma_buf_fd()</code> 将 <code>dma_buf</code> 对象关联到一个新的文件描述符 <code>fd</code> 中（注：使用 fd 进行传递是比较常见的方式，但不唯一）</p>
+</li>
+<li><p>exporter 侧将 <code>fd</code> 传给 importer</p>
+</li>
+<li><p>importer 调用 <code>dma_buf_get(fd)</code> 获取 <code>dma_buf</code> 对象</p>
+</li>
+<li><p>importer 调用 <code>dma_buf_attach()</code> 和 <code>dma_buf_map_attachment()</code> 获取共享缓存的信息</p>
+</li>
+<li><p>importer 使用 <code>sg_table</code> 的内容</p>
+</li>
+<li><p>importer 调用 <code>dma_buf_detach()</code> 和 <code>dma_buf_unmap_attachment()</code> 释放对 <code>dma_buf</code> 的引用</p>
+</li>
+<li><p>importer 调用 <code>dma_buf_put(fd)</code> 释放文件描述符</p>
+</li>
+</ul>
+<p><img src="https://s2.loli.net/2024/10/08/li3mnaFSkyrcpOW.png" srcset="/img/loading.gif" lazyload></p>
+<p>对于涉及用户态的 DMA-BUF 使用而言，将 <code>dma_buf</code> 封装到 fd 当中通常是必须的：exporter 获取共享内存对应的 <code>dma-buf</code> 的文件描述符 <code>fd</code> ，通过 ioctl 或是 UNIX domain socket 等方式发送给 importer，importer 再 <code>mmap(fd)</code> 以访问共享内存：</p>
+<p><img src="https://s2.loli.net/2024/09/20/5kEc7D8T3gaHw4l.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>需要注意的是 exporter 与 importer 并不总是分离的，也可以有同时存在于同一驱动的情况（例如 DRM）</p>
+</blockquote>
+<h2 id="dma-buf-结构体"><a href="#dma-buf-结构体" class="headerlink" title="dma_buf 结构体"></a>dma_buf 结构体</h2><p>在 dmabuf 框架中，<code>struct dma_buf</code> 是一个重要的结构体，其用于表示一个共享内存对象，包括内存大小、绑定的文件描述符等：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dma_buf</span> &#123;</span><br>	<span class="hljs-type">size_t</span> size;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file</span> *<span class="hljs-title">file</span>;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">attachments</span>;</span><br>	<span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dma_buf_ops</span> *<span class="hljs-title">ops</span>;</span><br>	<span class="hljs-type">unsigned</span> vmapping_counter;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">iosys_map</span> <span class="hljs-title">vmap_ptr</span>;</span><br>	<span class="hljs-type">const</span> <span class="hljs-type">char</span> *exp_name;<br>	<span class="hljs-type">const</span> <span class="hljs-type">char</span> *name;<br>	<span class="hljs-type">spinlock_t</span> name_lock;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">module</span> *<span class="hljs-title">owner</span>;</span><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> IS_ENABLED(CONFIG_DEBUG_FS)</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">list_head</span> <span class="hljs-title">list_node</span>;</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>	<span class="hljs-type">void</span> *priv;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dma_resv</span> *<span class="hljs-title">resv</span>;</span><br>	<span class="hljs-type">wait_queue_head_t</span> poll;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dma_buf_poll_cb_t</span> &#123;</span><br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dma_fence_cb</span> <span class="hljs-title">cb</span>;</span><br>		<span class="hljs-type">wait_queue_head_t</span> *poll;<br><br>		<span class="hljs-type">__poll_t</span> active;<br>	&#125; cb_in, cb_out;<br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_DMABUF_SYSFS_STATS</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dma_buf_sysfs_entry</span> &#123;</span><br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">kobject</span> <span class="hljs-title">kobj</span>;</span><br>		<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dma_buf</span> *<span class="hljs-title">dmabuf</span>;</span><br>	&#125; *sysfs_entry;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>比较关键的字段如下：</p>
+<ul>
+<li><p><code>size</code> ：共享内存的大小，在 dmabuf 的生命周期中不会发生改变</p>
+</li>
+<li><p><code>file</code> ： 与 dmabuf 相关联的文件描述符，供用户态操作</p>
+</li>
+<li><p><code>attachments</code> ：</p>
+</li>
+<li><p><code>ops</code> ：dmabuf 操作函数表</p>
+</li>
+<li><p><code>priv</code> ：即 private，私有字段，你可以在其中按需存放数据</p>
+</li>
+</ul>
+<p>对于 exporter 侧而言，其需要根据需求自行实现 <code>struct dma_buf_ops</code> 当中的相应操作：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dma_buf_ops</span> &#123;</span><br>	<span class="hljs-type">int</span> (*attach)(<span class="hljs-keyword">struct</span> dma_buf *, <span class="hljs-keyword">struct</span> dma_buf_attachment *);<br>	<span class="hljs-type">void</span> (*detach)(<span class="hljs-keyword">struct</span> dma_buf *, <span class="hljs-keyword">struct</span> dma_buf_attachment *);<br>	<span class="hljs-type">int</span> (*pin)(<span class="hljs-keyword">struct</span> dma_buf_attachment *attach);<br>	<span class="hljs-type">void</span> (*unpin)(<span class="hljs-keyword">struct</span> dma_buf_attachment *attach);<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sg_table</span> * (*<span class="hljs-title">map_dma_buf</span>)(<span class="hljs-keyword">struct</span> <span class="hljs-title">dma_buf_attachment</span> *,</span><br><span class="hljs-class">					 <span class="hljs-title">enum</span> <span class="hljs-title">dma_data_direction</span>);</span><br>	<span class="hljs-type">void</span> (*unmap_dma_buf)(<span class="hljs-keyword">struct</span> dma_buf_attachment *,<br>			      <span class="hljs-keyword">struct</span> sg_table *,<br>			      <span class="hljs-keyword">enum</span> dma_data_direction);<br>	<span class="hljs-type">void</span> (*release)(<span class="hljs-keyword">struct</span> dma_buf *);<br>	<span class="hljs-type">int</span> (*begin_cpu_access)(<span class="hljs-keyword">struct</span> dma_buf *, <span class="hljs-keyword">enum</span> dma_data_direction);<br>	<span class="hljs-type">int</span> (*end_cpu_access)(<span class="hljs-keyword">struct</span> dma_buf *, <span class="hljs-keyword">enum</span> dma_data_direction);<br>	<span class="hljs-type">int</span> (*mmap)(<span class="hljs-keyword">struct</span> dma_buf *, <span class="hljs-keyword">struct</span> vm_area_struct *vma);<br>	<span class="hljs-type">int</span> (*vmap)(<span class="hljs-keyword">struct</span> dma_buf *dmabuf, <span class="hljs-keyword">struct</span> iosys_map *<span class="hljs-built_in">map</span>);<br>	<span class="hljs-type">void</span> (*vunmap)(<span class="hljs-keyword">struct</span> dma_buf *dmabuf, <span class="hljs-keyword">struct</span> iosys_map *<span class="hljs-built_in">map</span>);<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>所有可用操作包括：</p>
+<ul>
+<li><code>attach</code> ：用于建立 dma-buf 与设备间的连接关系，并存放中新创建的 <code>struct dma_buf_attachment</code> 对象中</li>
+<li><code>detach</code> ：</li>
+<li><code>pin</code> ：</li>
+<li><code>unpin</code> ：</li>
+<li><code>map_dma_buf</code> ：</li>
+<li><code>unmap_dma_buf</code> ：</li>
+<li><code>release</code> ：</li>
+<li><code>begin_cpu_access</code> ：</li>
+<li><code>end_cpu_access</code> ：</li>
+<li><code>mmap</code> ：</li>
+<li><code>vmap</code> ：</li>
+<li><code>vunmap</code> ：</li>
+</ul>
+<h1 id="0x02-简易-DMA-BUF-开发"><a href="#0x02-简易-DMA-BUF-开发" class="headerlink" title="0x02. 简易 DMA-BUF 开发"></a>0x02. 简易 DMA-BUF 开发</h1><p>前面讲到 dmabuf 的基本操作序列如下图所示，我们后续将以此为示例进行开发</p>
+<p><img src="https://s2.loli.net/2024/10/08/li3mnaFSkyrcpOW.png" srcset="/img/loading.gif" lazyload></p>
+<p>需要注意的是 DMA-BUF 相关函数在 <code>DMA_BUF</code> 命名空间中，我们应当在内核模块代码中进行导入：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">MODULE_IMPORT_NS(DMA_BUF);<br></code></pre></td></tr></table></figure>
+
+<h2 id="基本的-exporter"><a href="#基本的-exporter" class="headerlink" title="基本的 exporter"></a>基本的 exporter</h2><p>对于 exporter 而言，最重要的是实现 <code>struct dma_buf_ops</code> 中不可或缺的基本操作</p>
+<h3 id="map-dma-buf-：映射-dma-buf-共享内存"><a href="#map-dma-buf-：映射-dma-buf-共享内存" class="headerlink" title="map_dma_buf ：映射 dma-buf 共享内存"></a><code>map_dma_buf</code> ：映射 dma-buf 共享内存</h3><p>该函数指针的作用主要是将 dma-buf 的共享内存进行映射，并将结果写到到一个 <code>sg_table</code> 结构当中，下面是一个最简单的示例，我们假定在此 <code>dma_buf</code> 中已经通过 <code>kmalloc()</code> 分配了内存并存放到 <code>dma_buf::priv</code> 中：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-keyword">struct</span> sg_table*<br><span class="hljs-title function_">a3exporter_map_dma_buf</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> dma_buf_attachment *attachment,</span><br><span class="hljs-params">                       <span class="hljs-keyword">enum</span> dma_data_direction direction)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sg_table</span> *<span class="hljs-title">table</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dma_buf</span> *<span class="hljs-title">buf</span>;</span><br>    <span class="hljs-type">int</span> ret;<br>    <span class="hljs-type">void</span> *err;<br>    <br>    table = kzalloc(<span class="hljs-keyword">sizeof</span>(*table), GFP_KERNEL);<br>    <span class="hljs-keyword">if</span> (!table) &#123;<br>        printk(KERN_ERR<br>               <span class="hljs-string">&quot;[a3exporter:] Failed to allocate memory for sg_table!\n&quot;</span>);<br>        err = ERR_PTR(-ENOMEM);<br>        <span class="hljs-keyword">goto</span> err_table_no_mem;<br>    &#125;<br><br>    ret = sg_alloc_table(table, <span class="hljs-number">1</span>, GFP_KERNEL);<br>    <span class="hljs-keyword">if</span> (unlikely(ret)) &#123;    <span class="hljs-comment">/* table will be freed in this function if error */</span><br>        printk(KERN_ERR <span class="hljs-string">&quot;[a3exporter:] Failed to allocate scatterlist!\n&quot;</span>);<br>        err = ERR_PTR(ret);<br>        <span class="hljs-keyword">goto</span> err_sg_alloc;<br>    &#125;<br><br>    buf = attachment-&gt;dmabuf;<br>    sg_dma_len(table-&gt;sgl) = buf-&gt;size;<br>    sg_dma_address(table-&gt;sgl) = dma_map_single(mdev, <span class="hljs-comment">/* cannot be NULL*/</span><br>                                                buf-&gt;priv,<br>                                                buf-&gt;size,<br>                                                direction);<br><br>    <span class="hljs-keyword">if</span> (dma_mapping_error(mdev, sg_dma_address(table-&gt;sgl))) &#123;<br>        printk(KERN_ERR <span class="hljs-string">&quot;[a3exporter:] Unable to map for dmabuf!\n&quot;</span>);<br>        err = ERR_PTR(-EFAULT);<br>        <span class="hljs-keyword">goto</span> err_dma_map;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> table;<br><br>err_dma_map:<br>    sg_free_table(table);<br>err_sg_alloc:<br>    kfree(table);<br>err_table_no_mem:<br>    <span class="hljs-keyword">return</span> err;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="unmap-dma-buf-：-解除-dma-buf-共享内存映射"><a href="#unmap-dma-buf-：-解除-dma-buf-共享内存映射" class="headerlink" title="unmap_dma_buf ： 解除 dma-buf 共享内存映射"></a><code>unmap_dma_buf</code> ： 解除 dma-buf 共享内存映射</h3><p>这个函数指针的作用主要就是将 <code>sg_table</code> 相关的内存释放掉，并解除掉 dmabuf 的内存映射，下面是一个简单的例子：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">a3exporter_unmap_dma_buf</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> dma_buf_attachment *attachment,</span><br><span class="hljs-params">                                     <span class="hljs-keyword">struct</span> sg_table *table,</span><br><span class="hljs-params">                                     <span class="hljs-keyword">enum</span> dma_data_direction direction)</span><br>&#123;<br>    dma_unmap_single(mdev,<br>                     sg_dma_address(table-&gt;sgl),<br>                     sg_dma_len(table-&gt;sgl),<br>                     direction);<br>    sg_free_table(table);<br>    kfree(table);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="release-：-释放-dma-buf-的内存"><a href="#release-：-释放-dma-buf-的内存" class="headerlink" title="release ： 释放 dma-buf 的内存"></a><code>release</code> ： 释放 dma-buf 的内存</h3><p>该函数指针的作用是真正释放掉 dmabuf 中的内存，下面是一个简单的例子，这里我们假定我们的 dmabuf 中的内存是通过 <code>kmalloc()</code> 进行分配的：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title function_">a3exporter_buf_release</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> dma_buf *buf)</span><br>&#123;<br>    kfree(buf-&gt;priv);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="定义-dma-buf"><a href="#定义-dma-buf" class="headerlink" title="定义 dma_buf"></a>定义 <code>dma_buf</code></h3><p>定义了上面这三个函数之后，我们的 <code>dma_buf</code> 的基本功能算是完备了，现在我们可以开始进行 <code>dma_buf</code> 的分配与导出，这里我们给出一个简单的示例，在 exporter 驱动的初始化函数中分配一块常规的内存并包装到 <code>dma_buf</code> 中，为了简化开发流程且方便 importer 驱动使用，这里我们直接将 <code>a3dmabuf</code> 作为一个符号导出：</p>
+<blockquote>
+<p>这里我们在 <code>a3exporter_create_dev()</code> 中创建了一个空白设备节点，仅用作 DMA 占位，其实现比较简单故此处不再给出</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">device</span> *<span class="hljs-title">mdev</span>  =</span> <span class="hljs-literal">NULL</span>;<br><br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dma_buf_ops</span> <span class="hljs-title">a3exporter_dmabuf_ops</span> =</span> &#123;<br>    .map_dma_buf    = a3exporter_map_dma_buf,<br>    .unmap_dma_buf  = a3exporter_unmap_dma_buf,<br>    .release        = a3exporter_buf_release,<br>&#125;;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dma_buf</span> *<span class="hljs-title">a3dmabuf</span> =</span> <span class="hljs-literal">NULL</span>;<br>EXPORT_SYMBOL(a3dmabuf);<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> __init <span class="hljs-title function_">a3exporter_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    DEFINE_DMA_BUF_EXPORT_INFO(exp_info);<br>    <span class="hljs-type">char</span> *buf;<br>    <span class="hljs-type">int</span> err;<br><br>    err = a3exporter_create_dev();<br>    <span class="hljs-keyword">if</span> (err) &#123;<br>        printk(KERN_ERR <span class="hljs-string">&quot;[a3exporter:] Unable to create exporter device, &quot;</span><br>               <span class="hljs-string">&quot;error code: %d\n&quot;</span>, err);<br>        <span class="hljs-keyword">goto</span> err_dev;<br>    &#125;<br><br>    buf = kmalloc(PAGE_SIZE * <span class="hljs-number">8</span>, GFP_KERNEL);<br>    <span class="hljs-keyword">if</span> (!buf) &#123;<br>        printk(KERN_ERR <span class="hljs-string">&quot;[a3exporter:] Failed to allocate memory for buf!\n&quot;</span>);<br>        err = -ENOMEM;<br>        <span class="hljs-keyword">goto</span> err_buf_no_mem;<br>    &#125;<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">8</span>; i++) &#123;<br>        *(<span class="hljs-type">uint64_t</span>*) &amp;buf[PAGE_SIZE * i] = *(<span class="hljs-type">uint64_t</span>*) <span class="hljs-string">&quot;arttnba0&quot;</span>;<br>        buf[PAGE_SIZE * i + <span class="hljs-number">7</span>] += i;<br>    &#125;<br><br>    exp_info.ops    = &amp;a3exporter_dmabuf_ops;<br>    exp_info.size   = PAGE_SIZE * <span class="hljs-number">8</span>;<br>    exp_info.priv   = buf;<br>    exp_info.flags  = O_RDWR | O_CLOEXEC;<br><br>    a3dmabuf = dma_buf_export(&amp;exp_info);<br>    <span class="hljs-keyword">if</span> (IS_ERR(a3dmabuf)) &#123;<br>        printk(KERN_ERR <span class="hljs-string">&quot;[a3exporter:] Failed to allocate dma_buf!\n&quot;</span>);<br>        err = PTR_ERR(a3dmabuf);<br>        <span class="hljs-keyword">goto</span> err_exp_info;<br>    &#125;<br><br>    printk(KERN_INFO <span class="hljs-string">&quot;[a3exporter:] Module initialization done.\n&quot;</span>);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br><br>err_exp_info:<br>    kfree(buf);<br>err_buf_no_mem:<br>err_dev:<br>    class_destroy(mclass);<br>    unregister_chrdev(major_num, DEVICE_NAME);<br>    <span class="hljs-keyword">return</span> err;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> __exit <span class="hljs-title function_">a3exporter_exit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-keyword">if</span> (a3dmabuf) &#123;<br>        dma_buf_put(a3dmabuf);<br>        a3dmabuf = <span class="hljs-literal">NULL</span>;<br>    &#125;<br><br>    class_destroy(mclass);<br>    unregister_chrdev(major_num, DEVICE_NAME);<br><br>    printk(KERN_INFO <span class="hljs-string">&quot;[a3exporter:] See you next time.\n&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="importer-驱动简单示例"><a href="#importer-驱动简单示例" class="headerlink" title="importer 驱动简单示例"></a>importer 驱动简单示例</h2><p>接下来编写测试用的 importer 驱动，要在内核空间中使用一个 <code>dma_buf</code> ，我们只需要如下步骤：</p>
+<ul>
+<li>获取 <code>dma_buf</code> 并增加引用计数，这里注意 <code>dma_buf</code> 的引用计数是通过文件描述符 <code>dma_buf::fd</code> 进行记录的</li>
+<li>将所选设备节点 <code>struct device</code> 给 attach 到 <code>dma_buf</code> 上</li>
+<li>调用 <code>map_dma_buf()</code> 获取 <code>sg_table</code></li>
+</ul>
+<p>接下来直接访问 <code>sg_table-&gt;scatterlist</code> 即可，需要注意的是这里是一个给外设使用的 DMA 地址，而我们只是在内核中测试使用，因此我们需要再转回内核虚拟地址，下面是一个简易的示例 importer 代码核心部分：</p>
+<blockquote>
+<p>以及需要注意的是 DMA-BUF 依赖于设备节点，因此这里我们使用 <code>a3importer_create_dev()</code> 创造一个占位设备，代码比较简单这里不再展开</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/module.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/kernel.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/dma-buf.h&gt;</span></span><br><br>MODULE_IMPORT_NS(DMA_BUF);<br><br><span class="hljs-keyword">extern</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dma_buf</span> *<span class="hljs-title">a3dmabuf</span>;</span><br><br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">device</span> *<span class="hljs-title">mdev</span>  =</span> <span class="hljs-literal">NULL</span>;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">a3importer_import_dmabuf</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dma_buf_attachment</span> *<span class="hljs-title">attach</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">dma_data_direction</span> <span class="hljs-title">direction</span> =</span> DMA_BIDIRECTIONAL;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sg_table</span> *<span class="hljs-title">sgt</span>;</span><br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">scatterlist</span> *<span class="hljs-title">sg</span>;</span><br>    <span class="hljs-type">size_t</span> bufsz;<br>    <span class="hljs-type">char</span> *buf;<br>    <span class="hljs-type">int</span> i;<br><br>    <span class="hljs-keyword">if</span> (!a3dmabuf) &#123;<br>        printk(KERN_ERR <span class="hljs-string">&quot;[a3importer:] No dma_buf got! &quot;</span><br>               <span class="hljs-string">&quot;Exporter not working properly?\n&quot;</span>);<br>        <span class="hljs-keyword">return</span> -EFAULT;<br>    &#125;<br><br>    attach = dma_buf_attach(a3dmabuf, mdev);<br>    <span class="hljs-keyword">if</span> (IS_ERR(attach)) &#123;<br>        printk(KERN_ERR <span class="hljs-string">&quot;[a3importer:] Unable to attach to dma_buf!\n&quot;</span>);<br>        <span class="hljs-keyword">return</span> PTR_ERR(attach);<br>    &#125;<br><br>    sgt = dma_buf_map_attachment(attach, direction);<br>    <span class="hljs-keyword">if</span> (IS_ERR(sgt)) &#123;<br>        printk(KERN_ERR <span class="hljs-string">&quot;[a3importer:] Unable to map the dma_buf!\n&quot;</span>);<br>        <span class="hljs-keyword">return</span> PTR_ERR(sgt);<br>    &#125;<br><br>    for_each_sg(sgt-&gt;sgl, sg, sgt-&gt;nents, i) &#123;<br>        buf = (<span class="hljs-type">char</span>*) sg_dma_address(sg) + page_offset_base;<br>        bufsz = sg_dma_len(sg);<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> loc = <span class="hljs-number">0</span>; loc &lt; bufsz; loc += PAGE_SIZE) &#123;<br>            printk(KERN_INFO <span class="hljs-string">&quot;[a3importer:] Got data: %s\n&quot;</span>, buf + loc);<br>        &#125;<br>    &#125;<br><br>    dma_buf_unmap_attachment(attach, sgt, direction);<br><br>    dma_buf_detach(a3dmabuf, attach);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> __init <span class="hljs-title function_">a3importer_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    barrier();<br>    <span class="hljs-keyword">return</span> a3importer_create_dev() || a3importer_import_dmabuf();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>Makefile 编写如下，别忘了替换 kernel 路径：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs makefile">CURRENT_PATH := <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> pwd)</span><br>LINUX_KERNEL_SRC := your_path_to_kernel_build,e.g.,/lib/modules/<span class="hljs-variable">$(<span class="hljs-built_in">shell</span> uname -r)</span>/build<br>CC=clang<br><br><span class="hljs-section">all:</span><br>	make CC=<span class="hljs-variable">$(CC)</span> -C <span class="hljs-variable">$(LINUX_KERNEL_SRC)</span> M=<span class="hljs-variable">$(CURRENT_PATH)</span> modules<br><span class="hljs-section">clean:</span><br>	make CC=<span class="hljs-variable">$(CC)</span> -C <span class="hljs-variable">$(LINUX_KERNEL_SRC)</span> M=<span class="hljs-variable">$(CURRENT_PATH)</span> clean<br><br></code></pre></td></tr></table></figure>
+
+<p>Kbuild 编写如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs kbuild">EXPORTER_MODULE_NAME ?= exporter-test<br>IMPORTER_MODULE_NAME ?= importer-test<br><br>obj-m += $(EXPORTER_MODULE_NAME).o<br>obj-m += $(IMPORTER_MODULE_NAME).o<br><br>$(EXPORTER_MODULE_NAME)-y += exporter.o<br>$(IMPORTER_MODULE_NAME)-y += importer.o<br></code></pre></td></tr></table></figure>
+
+<p>测试，成功完成内核驱动间的数据传递：</p>
+<p><img src="https://s2.loli.net/2024/12/31/rXuWZY1g78wjGFK.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="importer-应用程序示例"><a href="#importer-应用程序示例" class="headerlink" title="importer 应用程序示例"></a>importer 应用程序示例</h2><p>接下来我们看一种可能更常见的 DMA-BUF 的使用场景：由内核态 exporter 驱动导出给用户态应用程序，在这种场景下 exporter 需要将 <code>dma_buf</code> 通过 <code>dma_buf_fd()</code> 封装到一个 <strong>新分配的文件描述符</strong>当中传递给用户态，用户态再通过 <code>mmap()</code> 映射该文件描述符以使用这块共享内存</p>
+<p><img src="https://s2.loli.net/2024/12/31/JZ95bEQ67OG1V48.png" srcset="/img/loading.gif" lazyload></p>
+<p>这里我们直接在设备节点的 <code>ioctl()</code> 当中实现该功能，在上面的驱动代码中增加代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">long</span><br><span class="hljs-title function_">a3exporter_ioctl</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file *filp, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> cmd, <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> args)</span><br>&#123;<br>    <span class="hljs-type">int</span> buf_fd;<br><br>    <span class="hljs-keyword">if</span> (cmd != <span class="hljs-number">0xdeadbeef</span>) &#123;<br>        <span class="hljs-keyword">return</span> -EINVAL;<br>    &#125;<br><br>    buf_fd = dma_buf_fd(a3dmabuf, O_CLOEXEC);<br>    <span class="hljs-keyword">if</span> (buf_fd &lt; <span class="hljs-number">0</span>) &#123;<br>        printk(<span class="hljs-string">&quot;[a3exporter:] Unable to allocate new file descriptor.\n&quot;</span>);<br>        <span class="hljs-keyword">return</span> -EMFILE;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (copy_to_user((<span class="hljs-type">void</span>*) args, &amp;buf_fd, <span class="hljs-keyword">sizeof</span>(buf_fd))) &#123;<br>        printk(<span class="hljs-string">&quot;[a3exporter:] Unable to copy dma_buf fd to userland.\n&quot;</span>);<br>        <span class="hljs-keyword">return</span> -EFAULT;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_operations</span> <span class="hljs-title">a3exporter_dev_fops</span> =</span> &#123;<br>    .unlocked_ioctl = a3exporter_ioctl,<br></code></pre></td></tr></table></figure>
+
+<p>此外，由于用户态通过调用 <code>mmap()</code> 来使用这块内存，因此我们还需要在 exporter 驱动当中实现 <code>dma_buf_ops::mmap()</code> 函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">a3exporter_buf_mmap</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> dma_buf *buf, <span class="hljs-keyword">struct</span> vm_area_struct *vma)</span><br>&#123;<br>    <span class="hljs-keyword">return</span> remap_pfn_range(<br>        vma,<br>        vma-&gt;vm_start,<br>        page_to_pfn(virt_to_page(buf-&gt;priv)),<br>        buf-&gt;size,<br>        vma-&gt;vm_page_prot<br>    );<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">dma_buf_ops</span> <span class="hljs-title">a3exporter_dmabuf_ops</span> =</span> &#123;<br>    .mmap           = a3exporter_buf_mmap,<br></code></pre></td></tr></table></figure>
+
+<p>下面我们实现 importer 应用程序，我们只需要用 <code>ioctl()</code> 获取 <code>dma_buf</code> 的文件描述符并用 <code>mmap()</code> 进行映射即可：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;fcntl.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdint.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/ioctl.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/mman.h&gt;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv, <span class="hljs-type">char</span> **envp)</span><br>&#123;<br>    <span class="hljs-type">int</span> dma_fd, dev_fd;<br>    <span class="hljs-type">char</span> *buf;<br><br>    dev_fd = open(<span class="hljs-string">&quot;/dev/a3exporter-dev&quot;</span>, O_RDONLY);<br>    <span class="hljs-keyword">if</span> (dev_fd &lt; <span class="hljs-number">0</span>) &#123;<br>        perror(<span class="hljs-string">&quot;Failed to open dev file&quot;</span>);<br>        <span class="hljs-built_in">exit</span>(EXIT_FAILURE);<br>    &#125;<br><br>    <span class="hljs-keyword">if</span>(ioctl(dev_fd, <span class="hljs-number">0xdeadbeef</span>, &amp;dma_fd) &lt; <span class="hljs-number">0</span>) &#123;<br>        perror(<span class="hljs-string">&quot;Failed to ioctl dev file&quot;</span>);<br>        <span class="hljs-built_in">exit</span>(EXIT_FAILURE);<br>    &#125;<br><br>    buf = mmap(<span class="hljs-literal">NULL</span>, <span class="hljs-number">0x1000</span> * <span class="hljs-number">8</span>, PROT_READ|PROT_WRITE, MAP_FILE | MAP_SHARED, dma_fd, <span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">if</span> (!buf) &#123;<br>        perror(<span class="hljs-string">&quot;Failed to map dma_fd&quot;</span>);<br>        <span class="hljs-built_in">exit</span>(EXIT_FAILURE);<br>    &#125;<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">8</span>; i++) &#123;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Get data: %s\n&quot;</span>, &amp;buf[<span class="hljs-number">0x1000</span> * i]);<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>测试，成功完成内核到用户态的数据传递：</p>
+<p><img src="https://s2.loli.net/2024/12/31/MQbFuS1cDP7htm3.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p> 当然，内核的开发实际上是非常灵活的，事实上，我们可以直接实现设备文件接口的 <code>mmap()</code> 并在其中映射 <code>dma_buf</code> ，从而简化代码流程：）</p>
+</blockquote>
+<h1 id="0x03-udmabuf：简易封装接口"><a href="#0x03-udmabuf：简易封装接口" class="headerlink" title="0x03. udmabuf：简易封装接口"></a>0x03. udmabuf：简易封装接口</h1><p>得益于 <code>dma_buf</code> 的好用，Linux kernel <a target="_blank" rel="noopener" href="https://patchwork.kernel.org/project/qemu-devel/patch/20180313154826.20436-1-kraxel@redhat.com/">于 2018 年</a>引入了一个封装好的 <code>dma_buf</code> 设备驱动——<code>udmabuf</code> ，其在内核中实现了一个封装好的 exporter，并支持通过 <code>ioctl()</code> 创建 <code>dma_buf</code> 以在用户态程序之间进行内存共享</p>
+<h2 id="使用方式"><a href="#使用方式" class="headerlink" title="使用方式"></a>使用方式</h2><p><code>udmabuf</code> 的基本使用方式非常简单：</p>
+<ul>
+<li>使用 <code>memfd_create()</code> 创建一个文件描述符</li>
+<li>封装 <code>udmabuf_create</code> 请求，通过 <code>ioctl(&quot;/dev/udmabuf&quot;)</code> 获取 <code>dma_buf</code> 的 fd</li>
+<li>通过 <code>mmap()</code> 进行访问</li>
+</ul>
+<p>有了 <code>dma_buf</code> 的 fd，后面的内存访问操作就和之前没什么区别了，在进程间进行共享只需要共享这个文件描述符即可（例如使用 UNIX domain socket）</p>
+<p>这里给出一个示例程序，文件描述符直接通过 <code>fork()</code> 共享：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> _GNU_SOURCE </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;fcntl.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdint.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/ioctl.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/mman.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/wait.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/udmabuf.h&gt;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv, <span class="hljs-type">char</span> **envp)</span><br>&#123;<br>    <span class="hljs-type">int</span> dma_fd, dev_fd, mem_fd;<br>    <span class="hljs-type">char</span> *buf1, *buf2;<br>    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">udmabuf_create</span> <span class="hljs-title">info</span>;</span><br><br>    mem_fd = memfd_create(<span class="hljs-string">&quot;test&quot;</span>, MFD_ALLOW_SEALING);<br>    <span class="hljs-keyword">if</span> (mem_fd &lt; <span class="hljs-number">0</span>) &#123;<br>        perror(<span class="hljs-string">&quot;Failed to create mem_fd&quot;</span>);<br>        <span class="hljs-built_in">exit</span>(EXIT_FAILURE);<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (ftruncate(mem_fd, <span class="hljs-number">0x1000</span> * <span class="hljs-number">8</span>) &lt; <span class="hljs-number">0</span>) &#123;<br>        perror(<span class="hljs-string">&quot;Failed to change size of mem_fd&quot;</span>);<br>        <span class="hljs-built_in">exit</span>(EXIT_FAILURE);<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (fcntl(mem_fd, F_ADD_SEALS, F_SEAL_SHRINK) &lt; <span class="hljs-number">0</span>) &#123;<br>        perror(<span class="hljs-string">&quot;Failed to seal mem_fd&quot;</span>);<br>        <span class="hljs-built_in">exit</span>(EXIT_FAILURE);<br>    &#125;<br><br>    dev_fd = open(<span class="hljs-string">&quot;/dev/udmabuf&quot;</span>, O_RDWR);<br>    <span class="hljs-keyword">if</span> (dev_fd &lt; <span class="hljs-number">0</span>) &#123;<br>        perror(<span class="hljs-string">&quot;Failed to open udmabuf dev file&quot;</span>);<br>        <span class="hljs-built_in">exit</span>(EXIT_FAILURE);<br>    &#125;<br><br>    <span class="hljs-built_in">memset</span>(&amp;info, <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(info));<br>    info.memfd = mem_fd;<br>    info.size = <span class="hljs-number">0x1000</span> * <span class="hljs-number">8</span>;<br><br>    dma_fd = ioctl(dev_fd, UDMABUF_CREATE, &amp;info);<br>    <span class="hljs-keyword">if</span> (dma_fd &lt; <span class="hljs-number">0</span>) &#123;<br>        perror(<span class="hljs-string">&quot;Failed to create dma_buf&quot;</span>);<br>        <span class="hljs-built_in">exit</span>(EXIT_FAILURE);<br>    &#125;<br><br>    buf1 = mmap(<span class="hljs-literal">NULL</span>, <span class="hljs-number">0x1000</span> * <span class="hljs-number">8</span>, PROT_READ | PROT_WRITE, MAP_FILE | MAP_SHARED, dma_fd, <span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">if</span> (!buf1) &#123;<br>        perror(<span class="hljs-string">&quot;Failed to map dma_fd&quot;</span>);<br>        <span class="hljs-built_in">exit</span>(EXIT_FAILURE);<br>    &#125;<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">8</span>; i++) &#123;<br>        *(<span class="hljs-type">size_t</span>*) &amp;buf1[i * <span class="hljs-number">0x1000</span>] = *(<span class="hljs-type">size_t</span>*) <span class="hljs-string">&quot;arttnba0&quot;</span>;<br>        buf1[i * <span class="hljs-number">0x1000</span> + <span class="hljs-number">7</span>] += i;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (!fork()) &#123;<br>        buf2 = mmap(<span class="hljs-literal">NULL</span>, <span class="hljs-number">0x1000</span> * <span class="hljs-number">8</span>, PROT_READ|PROT_WRITE, MAP_FILE | MAP_SHARED, dma_fd, <span class="hljs-number">0</span>);<br>        <span class="hljs-keyword">if</span> (!buf2) &#123;<br>            perror(<span class="hljs-string">&quot;Failed to map dma_fd&quot;</span>);<br>            <span class="hljs-built_in">exit</span>(EXIT_FAILURE);<br>        &#125;<br><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">8</span>; i++) &#123;<br>            <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Get data: %s\n&quot;</span>, &amp;buf2[<span class="hljs-number">0x1000</span> * i]);<br>        &#125;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        wait(<span class="hljs-literal">NULL</span>);<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>测试，成功完成数据传递：</p>
+<p><img src="https://s2.loli.net/2024/12/31/JOojDcGvU4XK1T5.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="内部实现（🕊）"><a href="#内部实现（🕊）" class="headerlink" title="内部实现（🕊）"></a>内部实现（🕊）</h2><p>udmabuf 的实现非常简单，主要就是注册了一个杂项设备 <code>/dev/udmabuf</code> ，并支持两个自定义的 IOCTL 命令：</p>
+<blockquote>
+<p>&#x2F;drivers&#x2F;dma-buf&#x2F;udmabuf.c</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">long</span> <span class="hljs-title function_">udmabuf_ioctl</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> file *filp, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> ioctl,</span><br><span class="hljs-params">			  <span class="hljs-type">unsigned</span> <span class="hljs-type">long</span> arg)</span><br>&#123;<br>	<span class="hljs-type">long</span> ret;<br><br>	<span class="hljs-keyword">switch</span> (ioctl) &#123;<br>	<span class="hljs-keyword">case</span> UDMABUF_CREATE:<br>		ret = udmabuf_ioctl_create(filp, arg);<br>		<span class="hljs-keyword">break</span>;<br>	<span class="hljs-keyword">case</span> UDMABUF_CREATE_LIST:<br>		ret = udmabuf_ioctl_create_list(filp, arg);<br>		<span class="hljs-keyword">break</span>;<br>	<span class="hljs-keyword">default</span>:<br>		ret = -ENOTTY;<br>		<span class="hljs-keyword">break</span>;<br>	&#125;<br>	<span class="hljs-keyword">return</span> ret;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_operations</span> <span class="hljs-title">udmabuf_fops</span> =</span> &#123;<br>	.owner		= THIS_MODULE,<br>	.unlocked_ioctl = udmabuf_ioctl,<br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_COMPAT</span><br>	.compat_ioctl   = udmabuf_ioctl,<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>&#125;;<br><br><span class="hljs-type">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">miscdevice</span> <span class="hljs-title">udmabuf_misc</span> =</span> &#123;<br>	.minor          = MISC_DYNAMIC_MINOR,<br>	.name           = <span class="hljs-string">&quot;udmabuf&quot;</span>,<br>	.fops           = &amp;udmabuf_fops,<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/OS/" class="category-chain-item">OS</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+        <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
+      
+        <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">#操作系统</a>
+      
+        <a href="/tags/DMA-BUF/">#DMA-BUF</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【OS.0x06】Linux 共享内存:DMA-BUF 初探（一）</div>
+      <div>https://arttnba3.github.io/2024/11/30/OS-0X06-LINUX-DMABUF/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年11月30日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/10/23/OPS-0X04-WIREGUARD_VPN/" title="【OPS.0x04】使用 Wireguard 进行异地组网">
+                        <span class="hidden-mobile">【OPS.0x04】使用 Wireguard 进行异地组网</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      桂ICP备2022005068号-1
+    </a>
+  </span>
+  
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
