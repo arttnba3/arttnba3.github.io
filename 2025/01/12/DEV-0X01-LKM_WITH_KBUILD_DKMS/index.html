@@ -1,0 +1,949 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="我在 5:20 make install—— 13：14 准时 kernel panic">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【DEV.0x01】如何优雅地开发树外内核模块">
+<meta property="og:url" content="https://arttnba3.github.io/2025/01/12/DEV-0X01-LKM_WITH_KBUILD_DKMS/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="我在 5:20 make install—— 13：14 准时 kernel panic">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2025/02/25/SyhlZopYNu9vHc7.png">
+<meta property="article:published_time" content="2025-01-12T08:22:33.000Z">
+<meta property="article:modified_time" content="2025-02-25T23:33:25.633Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Linux Kernel">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2025/02/25/SyhlZopYNu9vHc7.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【DEV.0x01】如何优雅地开发树外内核模块 - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"arttnba3.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://s2.loli.net/2025/02/25/tGJEH4reK71mych.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【DEV.0x01】如何优雅地开发树外内核模块"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-01-12 19:22" pubdate>
+          2025年1月12日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          12k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          97 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【DEV.0x01】如何优雅地开发树外内核模块</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2025年2月26日 上午
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>我在 5:20 make install—— 13：14 准时 kernel panic</p>
+<span id="more"></span>
+
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><p>虽然说已经做了这么多年的内核开发（？）了，但是笔者开发的内核模块一般都仅局限于极其狭隘的特定用途（例如写点 <a target="_blank" rel="noopener" href="https://github.com/arttnba3/Nornir-Rootkit">小 rootkit</a> 之类的），也没咋组织过比较优雅的代码结构，基本上都是一个丑陋的 Makefile 包办一切，需要这个内核模块的时候直接粗糙地手动 <code>insmod</code> ——能用是能用，但确实也就局限于自用了：（</p>
+<p>因此这篇博客主要讲讲如何使用 <a target="_blank" rel="noopener" href="https://docs.kernel.org/kbuild/kbuild.html">Kbuild</a> 组织代码并使用 <a target="_blank" rel="noopener" href="https://github.com/dell/dkms">DKMS</a> 等工具优雅地开发与打包一个 out-of-tree 的 Linux 内核模块</p>
+<h1 id="0x01-基本的内核模块"><a href="#0x01-基本的内核模块" class="headerlink" title="0x01. 基本的内核模块"></a>0x01. 基本的内核模块</h1><p>我们首先写一个基础的内核模块：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Copyright (c) 2025 arttnba3 &lt;arttnba@gmail.com&gt;</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * This work is licensed under the terms of the GNU GPL, version 2 or later.</span><br><span class="hljs-comment"> */</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/kernel.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/module.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/init.h&gt;</span></span><br><br><span class="hljs-type">static</span> __init <span class="hljs-type">int</span> <span class="hljs-title function_">a3kmod_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    printk(KERN_INFO <span class="hljs-string">&quot;Hello kernel world!\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">static</span> __exit <span class="hljs-type">void</span> <span class="hljs-title function_">a3kmod_exit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    printk(KERN_INFO <span class="hljs-string">&quot;Goodbye kernel world!\n&quot;</span>);<br>&#125;<br><br>module_init(a3kmod_init);<br>module_exit(a3kmod_exit);<br>MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);<br>MODULE_LICENSE(<span class="hljs-string">&quot;GPL v2&quot;</span>);<br><br></code></pre></td></tr></table></figure>
+
+<p>下面我们开始搭建模块源码文件结构，组织如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">tree .</span><br>.<br>├── Makefile<br>└── src<br>    ├── Kbuild<br>    └── main.c<br><br>2 directories, 3 files<br></code></pre></td></tr></table></figure>
+
+<h2 id="使用-Kbuild-组织源码文件"><a href="#使用-Kbuild-组织源码文件" class="headerlink" title="使用 Kbuild 组织源码文件"></a>使用 Kbuild 组织源码文件</h2><h3 id="基础的-Kbuild-示例"><a href="#基础的-Kbuild-示例" class="headerlink" title="基础的 Kbuild 示例"></a>基础的 Kbuild 示例</h3><p><a target="_blank" rel="noopener" href="https://docs.kernel.org/kbuild/kbuild.html">Kbuild</a> 是 Linux kernel 构建系统的一部分，简而言之，当我们在源码目录下编写了 <code>Kbuild</code> 文件之后，在编译时 Linux kernel 的编译基础设施便会根据 <code>Kbuild</code> 来自动地编译好我们的内核模块，若没有 <code>Kbuild</code> 则会选择寻找 <code>Makefile</code> </p>
+<p>相比起把所有待编译文件与配置都写到一个 Makefile 里（例如 <a target="_blank" rel="noopener" href="https://github.com/NVIDIA/open-gpu-kernel-modules">nvidia-open</a> 便是这么做的，看起来并不美观），拆分到多级 Makefile 当中通常是更易于维护的做法，而使用 Kbuild 组织编译结构则是更加优雅的一种方式</p>
+<p>下面是一个最基础的 Kbuild 文件的示例，语法上有点类似于 Makefile：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-comment"># module name</span><br>MODULE_NAME ?= a3kmod<br>obj-m += <span class="hljs-variable">$(MODULE_NAME)</span>.o<br><br><span class="hljs-comment"># compiler flags</span><br>ccflags-y += -I<span class="hljs-variable">$(src)</span>/<span class="hljs-keyword">include</span><br><br><span class="hljs-comment"># entry point</span><br><span class="hljs-variable">$(MODULE_NAME)</span>-y += main.o<br></code></pre></td></tr></table></figure>
+
+<p>各符号说明如下：</p>
+<ul>
+<li><p><code>MODULE_NAME</code> ：一个简单的自定义变量，我们用来定义我们的模块名</p>
+</li>
+<li><p><code>obj-m</code> ：这个符号用来指定要被编译的内核模块列表，<code>+=</code> 意味着添加上我们的内核模块，而 <code>$(MODULE_NAME).o</code> 则是我们的内核模块编译的后期产物，这通常由单个或多个目标文件合并而成，最后会被链接为 <code>$(MODULE_NAME).ko</code> 文件，也就是我们所熟悉的 LKM ELF</p>
+<blockquote>
+<p>如果要将模块编译进内核 ELF 文件（vmlinux）中，则应当使用 <code>obj-y</code></p>
+</blockquote>
+</li>
+<li><p><code>ccflags-y</code> ：<code>ccflags</code> 意味着编译选项，<code>-y</code> 意味着开启的编译选项，这里我们添加了 <code>-I</code> 选项以引入我们自己的头文件目录，更多编译选项可以参见 <a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gcc/Invoking-GCC.html">GCC 的文档</a></p>
+</li>
+<li><p><code>$(MODULE_NAME)-y</code> ：<code>$(MODULE_NAME).o</code>所需要的目标文件，<code>-y</code> 意味着编译过程需要该文件，这里我们加入了一个 <code>main.o</code> ，意味着我们的源码目录下应当有一个 <code>main.c</code></p>
+</li>
+</ul>
+<p>注意到这里有很多的 <code>-字符</code> ，这个设定其实是为了让我们灵活地配置编译选项，例如我们可以将 <code>-y</code> 替换为 <code>-$(某个变量名)</code> ，从而在该变量为 <code>y</code> 的时候才包含该选项，例如以下示例意味着在选项配置中包含 <code>CONFIG_X86_64=y</code> 时才会在模块中编译入 <code>x86_64_tools.c</code> ：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-variable">$(MODULE_NAME)</span>-<span class="hljs-variable">$(CONFIG_X86_64)</span> += x86_64_tools.o<br></code></pre></td></tr></table></figure>
+
+<p>这同样适用于对内核模块的配置，对于树内模块，我们可以在 <code>.config</code> 文件当中配置某个指定变量的值为 <code>=y</code> 或 <code>=m</code> ，从而决定将该模块编译进内核或是作为独立的 ELF 存在，例如以下示例意味着这个模块是否编译进内核由变量 <code>CONFIG_MY_A3KMODULE</code> 的值决定：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs makefile">A3KMODULE_NAME ?= a3kmod<br>obj-<span class="hljs-variable">$(CONFIG_MY_A3KMODULE)</span> += <span class="hljs-variable">$(A3KMODULE_NAME)</span>.o<br></code></pre></td></tr></table></figure>
+
+<h3 id="多级目录的多级-Kbuild-组织"><a href="#多级目录的多级-Kbuild-组织" class="headerlink" title="多级目录的多级 Kbuild 组织"></a>多级目录的多级 Kbuild 组织</h3><p>鉴于绝大部分的内核模块都是各种不同类型设备的驱动，他们通常都只有单级结构，但不乏有一些场景会需要结构设计较为复杂的内核模块，如果把所有源码文件都堆到同一级子目录下未免不太雅观，因此根据代码架构设计拆分到不同的多级目录中是较为常见的做法，而文件一多起来再将所有编译配置选项都放到同一个 Kbuild 或是 Makefile 当中对维护者而言自然是一种地狱般的体验（例如应该不太会有人想去细看<a target="_blank" rel="noopener" href="https://github.com/NVIDIA/open-gpu-kernel-modules/blob/main/src/nvidia/srcs.mk">这个文件</a>）</p>
+<p>因此拆分成多级 Kbuild 文件在软件工程中通常是比较恰当的做法，我们以如下代码目录作为示例讲解：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">tree .</span><br>.<br>├── Makefile<br>└── src<br>    ├── Kbuild<br>    ├── main.c<br>    └── sub<br>        ├── Kbuild<br>        ├── sub.c<br>        └── sub_sub<br>            ├── Kbuild<br>            └── sub_sub.c<br><br>4 directories, 7 files<br></code></pre></td></tr></table></figure>
+
+<p>首先是 <code>src/sub/sub_sub</code> 目录，我们使用 <code>Kbuild</code> 文件配置这个子目录下需要编译的文件，这里简单编写如下，需要注意的是这里应当和源码根目录下的 Kbuild 一样以源码根目录文件作为相对根目录（后面我们会解释为什么）：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-comment"># SPDX-License-Identifier: GPL-2.0</span><br><br><span class="hljs-variable">$(MODULE_NAME)</span>-y += sub/sub_sub/sub_sub.o<br></code></pre></td></tr></table></figure>
+
+<p>在 <code>src/sub/sub_sub/sub_sub.c</code> 当中我们简单定义一个打印函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Copyright (c) 2025 arttnba3 &lt;arttnba@gmail.com&gt;</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * This work is licensed under the terms of the GNU GPL, version 2 or later.</span><br><span class="hljs-comment"> */</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/kernel.h&gt;</span></span><br><br><span class="hljs-type">void</span> <span class="hljs-title function_">foo_sub_sub</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    printk(KERN_INFO <span class="hljs-string">&quot;[a3kmod:] Here&#x27;s the sub_sub!\n&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>然后是 <code>src/sub</code> 目录，我们使用 <code>Kbuild</code> 文件配置这个子目录下需要编译的文件，同样是以源码根目录文件作为相对根目录来包含入咱们的 <code>sub.c</code> 源码文件，但在此之外我们额外地使用 <code>include</code> 语句<strong>将 sub_sub 目录的 Kbuild 文件包含到该文件当中</strong>：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-comment"># SPDX-License-Identifier: GPL-2.0</span><br><br><span class="hljs-variable">$(MODULE_NAME)</span>-y += sub/sub.o<br><br><span class="hljs-keyword">include</span> <span class="hljs-variable">$(src)</span>/sub/sub_sub/Kbuild<br></code></pre></td></tr></table></figure>
+
+<p>在 <code>src/sub/sub.c</code> 当中我们同样简单定义一个打印函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Copyright (c) 2025 arttnba3 &lt;arttnba@gmail.com&gt;</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * This work is licensed under the terms of the GNU GPL, version 2 or later.</span><br><span class="hljs-comment">**/</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/kernel.h&gt;</span></span><br><br><span class="hljs-keyword">extern</span> <span class="hljs-type">void</span> <span class="hljs-title function_">foo_sub_sub</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">foo_sub</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    printk(KERN_INFO <span class="hljs-string">&quot;[a3kmod:] Here&#x27;s the sub!\n&quot;</span>);<br>    foo_sub_sub();<br>&#125;<br> <br></code></pre></td></tr></table></figure>
+
+<p>现在大家应该明白为什么以源码根目录文件作为相对根目录，因为我们最终要在源码根目录下的 <code>Kbuild</code> 文件当中 <code>include</code> 下一级子目录的 <code>Kbuild</code> 文件，<strong>通过多级包含的方式完成多级 Kbuild 的配置</strong> ，根目录下的 Kbuild 便<strong>仅需要包含次一级子目录的 Kbuild 文件</strong>，而无需再去管理更细的细节：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-comment"># module name</span><br>MODULE_NAME ?= a3kmod<br>obj-m += <span class="hljs-variable">$(MODULE_NAME)</span>.o<br><br><span class="hljs-comment"># compiler flags</span><br>ccflags-y += -I<span class="hljs-variable">$(src)</span>/<span class="hljs-keyword">include</span><br><br><span class="hljs-comment"># entry point</span><br><span class="hljs-variable">$(MODULE_NAME)</span>-y += main.o<br><br><span class="hljs-comment"># sub directory</span><br><span class="hljs-keyword">include</span> <span class="hljs-variable">$(src)</span>/sub/Kbuild<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="使用-Kconfig-配置动态编译选项"><a href="#使用-Kconfig-配置动态编译选项" class="headerlink" title="使用 Kconfig 配置动态编译选项"></a>使用 Kconfig 配置动态编译选项</h2><p>现在我们来看 <a target="_blank" rel="noopener" href="https://docs.kernel.org/kbuild/kconfig-language.html">Kconfig</a> ——内核的编译选项配置系统，在我们编译内核时通常需要先 <code>make menuconfig</code> 创建配置文件 <code>.config</code> ，其中便包含了配置选项，这些选项会被 Kconfig 系统解析给编译器，通过宏定义的方式作用于源代码，例如下面这个配置决定了是否启用 procfs 文件系统：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">CONFIG_PROC_FS</span>=y<br></code></pre></td></tr></table></figure>
+
+<p>在内核或是驱动源码中便可以根据是否定义了 <code>CONFIG_PROC_FS</code> 宏来决定是否将 procfs 相关的代码编译进来，以 <code>arch/arm/kernel/dma.c</code> 为例：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_PROC_FS</span><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">proc_dma_show</span><span class="hljs-params">(<span class="hljs-keyword">struct</span> seq_file *m, <span class="hljs-type">void</span> *v)</span><br>&#123;<br>	<span class="hljs-type">int</span> i;<br><br>	<span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span> ; i &lt; MAX_DMA_CHANNELS ; i++) &#123;<br>		<span class="hljs-type">dma_t</span> *dma = dma_channel(i);<br>		<span class="hljs-keyword">if</span> (dma &amp;&amp; dma-&gt;lock)<br>			seq_printf(m, <span class="hljs-string">&quot;%2d: %s\n&quot;</span>, i, dma-&gt;device_id);<br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> __init <span class="hljs-title function_">proc_dma_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>	proc_create_single(<span class="hljs-string">&quot;dma&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-literal">NULL</span>, proc_dma_show);<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br>__initcall(proc_dma_init);<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
+
+<p>Kconfig 配置文件则通过 Kconfig 源文件进行生成，这类文件的语法定义参见 <a target="_blank" rel="noopener" href="https://docs.kernel.org/kbuild/kconfig-language.html">Kconfig Language</a> ，下面是一个来自 <a target="_blank" rel="noopener" href="https://github.com/arttnba3/Nornir-Rootkit">Nornir-Rootkit</a> 项目的简单的例子，其定义了一个编译选项 <code>CONFIG_NORNIR_PROCFS_UAPI</code> ，默认值为 <code>=y</code> ：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs kconfig">config NORNIR_PROCFS_UAPI<br>    bool &quot;Enable user interface under /proc&quot;<br>    default y<br>    help <br>        Create a node `/proc/nornir` as a user interface<br></code></pre></td></tr></table></figure>
+
+<p>在实际工程中的 Kconfig 文件通常更加复杂，包括多级的选项菜单定义，这通常是为了实现一个比较友好的用户菜单，这里我们依旧以 <a target="_blank" rel="noopener" href="https://github.com/arttnba3/Nornir-Rootkit">Nornir-Rootkit</a> 项目为例，其基于 <a target="_blank" rel="noopener" href="https://github.com/espressif/kconfig-frontends">kconfig-frontends</a> 项目（从内核 Kconfig 系统中拆分出来的独立项目，不过已年久失修）的图形化 Kconfig 的配置界面如下：</p>
+<p><img src="https://s2.loli.net/2025/02/25/tGJEH4reK71mych.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>注：虽然 fork 出来的 <a target="_blank" rel="noopener" href="https://github.com/espressif/kconfig-frontends">kconfig-frontends</a> 项目已经年久失修，但我们依然能用一些其他的开源 Kconfig 支持项目（或是自己再从内核里拆分一下）来为我们的代码使用 Kconfig 进行配置</p>
+</blockquote>
+<p>当 Kconfig 系统完成 Kconfig 配置文件的解读与设定之后，通常会生成一份正式的配置文件，其中给出了各个配置的值，对于 Linux kernel 而言这通常是源码目录下的 <code>.config</code> 文件，以 IRQ 子系统为例：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-comment">#</span><br><span class="hljs-comment"># IRQ subsystem</span><br><span class="hljs-comment">#</span><br>CONFIG_GENERIC_IRQ_PROBE=y<br>CONFIG_GENERIC_IRQ_SHOW=y<br>CONFIG_GENERIC_IRQ_EFFECTIVE_AFF_MASK=y<br>CONFIG_GENERIC_PENDING_IRQ=y<br>CONFIG_GENERIC_IRQ_MIGRATION=y<br></code></pre></td></tr></table></figure>
+
+<p>下面我们改进一下上面的的代码结构，添加一个我们自己的 Kconfig 文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">tree .</span><br>.<br>├── Makefile<br>└── src<br>    ├── Kbuild<br>    ├── Kconfig<br>    ├── main.c<br>    └── sub<br>        ├── Kbuild<br>        ├── sub.c<br>        └── sub_sub<br>            ├── Kbuild<br>            └── sub_sub.c<br><br>4 directories, 8 files<br></code></pre></td></tr></table></figure>
+
+<p>在这个 Kconfig 当中，我们配置一个二级菜单，以及两个编译配置选项：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs kconfig">mainmenu &quot;A3KMOD Test Configuration&quot;<br><br>menu &quot;First-level sub directory&quot;<br><br>    config ENABLE_SUB<br>        bool &quot;Enable first-level sub directory&quot;<br>        default y<br><br>    menu &quot;Second-level sub directory&quot;<br>        depends on ENABLE_SUB<br><br>        config ENABLE_SUB_SUB<br>        bool &quot;Enable second-level sub directory&quot;<br>        default y<br><br>    endmenu<br><br>endmenu<br></code></pre></td></tr></table></figure>
+
+<p>下面我们使用 <a target="_blank" rel="noopener" href="https://pypi.org/project/kconfiglib/#history">kconfiglig</a> 来演示配置文件的生成，对于上面的配置文件我们有这样一个简单的二级菜单入口，其中第二级菜单依赖于第一级菜单的开启：</p>
+<p><img src="https://s2.loli.net/2025/02/25/JtBSgapyAjmvFQb.png" srcset="/img/loading.gif" lazyload></p>
+<p>我们控制第一级菜单开启，而第二级菜单不开启，生成的 <code>.config</code> 文件如下：</p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs haxe"><br><span class="hljs-meta">#</span><br><span class="hljs-meta"># First-level sub directory</span><br><span class="hljs-meta">#</span><br>CONFIG_ENABLE_SUB=y<br><br><span class="hljs-meta">#</span><br><span class="hljs-meta"># Second-level sub directory</span><br><span class="hljs-meta">#</span><br><span class="hljs-meta"># CONFIG_ENABLE_SUB_SUB is not set</span><br><span class="hljs-meta"># <span class="hljs-keyword">end</span> of Second-level sub directory</span><br><span class="hljs-meta"># <span class="hljs-keyword">end</span> of First-level sub directory</span><br><br></code></pre></td></tr></table></figure>
+
+<p>和前面类似，我们通过文件包含的形式将生成的 <code>.config</code> 配置文件纳入到我们的编译体系当中，我们将  <code>src/Kbuild</code>  修改如下：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-comment"># module name</span><br>MODULE_NAME ?= a3kmod<br>obj-m += <span class="hljs-variable">$(MODULE_NAME)</span>.o<br><br><span class="hljs-comment"># compiler flags</span><br>ccflags-y += -I<span class="hljs-variable">$(src)</span>/<span class="hljs-keyword">include</span><br><br><span class="hljs-comment"># custom config options</span><br><span class="hljs-keyword">include</span> <span class="hljs-variable">$(src)</span>/../.config<br><br><span class="hljs-comment"># entry point</span><br><span class="hljs-variable">$(MODULE_NAME)</span>-y += main.o<br><br><span class="hljs-comment"># sub directory</span><br><span class="hljs-keyword">include</span> <span class="hljs-variable">$(src)</span>/sub/Kbuild<br></code></pre></td></tr></table></figure>
+
+<p>在 <code>src/sub/Kbuild</code> 当中，我们通过 <code>$(模块名)-(选项名)</code> 的方式 <strong>控制源文件的编译</strong> ，通过 <code>ccflags-$(选项名) += -D选项名</code> 的方式来<strong>在编译过程中动态定义该宏</strong> ：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-comment"># SPDX-License-Identifier: GPL-2.0</span><br><br><span class="hljs-variable">$(MODULE_NAME)</span>-<span class="hljs-variable">$(CONFIG_ENABLE_SUB)</span> += sub/sub.o<br>ccflags-<span class="hljs-variable">$(CONFIG_ENABLE_SUB)</span> += -DCONFIG_ENABLE_SUB<br><br><span class="hljs-keyword">include</span> <span class="hljs-variable">$(src)</span>/sub/sub_sub/Kbuild<br></code></pre></td></tr></table></figure>
+
+<p>我们将 <code>src/main.c</code> 修改如下，以判定是否引入对应函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Copyright (c) 2025 arttnba3 &lt;arttnba@gmail.com&gt;</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * This work is licensed under the terms of the GNU GPL, version 2 or later.</span><br><span class="hljs-comment"> */</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/kernel.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/module.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/init.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_ENABLE_SUB</span><br>    <span class="hljs-keyword">extern</span> <span class="hljs-type">void</span> <span class="hljs-title function_">foo_sub</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><br><span class="hljs-type">static</span> __init <span class="hljs-type">int</span> <span class="hljs-title function_">a3kmod_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    printk(KERN_INFO <span class="hljs-string">&quot;[a3kmod:] Hello kernel world!\n&quot;</span>);<br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_ENABLE_SUB</span><br>    foo_sub();<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">static</span> __exit <span class="hljs-type">void</span> <span class="hljs-title function_">a3kmod_exit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    printk(KERN_INFO <span class="hljs-string">&quot;[a3kmod:] Goodbye kernel world!\n&quot;</span>);<br>&#125;<br><br>module_init(a3kmod_init);<br>module_exit(a3kmod_exit);<br>MODULE_AUTHOR(<span class="hljs-string">&quot;arttnba3&quot;</span>);<br>MODULE_LICENSE(<span class="hljs-string">&quot;GPL v2&quot;</span>);<br><br></code></pre></td></tr></table></figure>
+
+<p>对于  <code>src/sub/sub_sub/Kbuild</code>  我们同样进行这样的修改：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-comment"># SPDX-License-Identifier: GPL-2.0</span><br><br><span class="hljs-variable">$(MODULE_NAME)</span>-<span class="hljs-variable">$(CONFIG_ENABLE_SUB_SUB)</span> += sub/sub_sub/sub_sub.o<br>ccflags-<span class="hljs-variable">$(CONFIG_ENABLE_SUB_SUB)</span> += -DCONFIG_ENABLE_SUB_SUB<br></code></pre></td></tr></table></figure>
+
+<p>我们将 <code>src/sub/sub.c</code> 修改为如下，以判定是否引入该函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Copyright (c) 2025 arttnba3 &lt;arttnba@gmail.com&gt;</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * This work is licensed under the terms of the GNU GPL, version 2 or later.</span><br><span class="hljs-comment">**/</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/kernel.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_ENABLE_SUB_SUB</span><br>    <span class="hljs-keyword">extern</span> <span class="hljs-type">void</span> <span class="hljs-title function_">foo_sub_sub</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><br><span class="hljs-type">void</span> <span class="hljs-title function_">foo_sub</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>    printk(KERN_INFO <span class="hljs-string">&quot;[a3kmod:] Here&#x27;s the sub!\n&quot;</span>);<br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> CONFIG_ENABLE_SUB_SUB</span><br>    foo_sub_sub();<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br>&#125;<br> <br></code></pre></td></tr></table></figure>
+
+<p>编译载入，可以看到确实没有调用二级目录的 <code>foo_sub_sub()</code> 函数：</p>
+<p><img src="https://s2.loli.net/2025/02/25/B4aQLRM29JiyhZt.png" srcset="/img/loading.gif" lazyload></p>
+<p>重新配置 <code>.config</code> ，开启 <code>CONFIG_ENANLE_SUB_SUB</code> 选项：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># First-level sub directory</span><br><span class="hljs-comment">#</span><br>CONFIG_ENABLE_SUB=y<br><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Second-level sub directory</span><br><span class="hljs-comment">#</span><br>CONFIG_ENABLE_SUB_SUB=y<br><span class="hljs-comment"># end of Second-level sub directory</span><br><span class="hljs-comment"># end of First-level sub directory</span><br><br></code></pre></td></tr></table></figure>
+
+<p>重新编译载入，可以看到二级目录的 <code>foo_sub_sub()</code> 函数被引入并调用：</p>
+<p><img src="https://s2.loli.net/2025/02/25/MCDp6dn4ZyAuOvk.png" srcset="/img/loading.gif" lazyload></p>
+<p>灵活使用 Kbuild 与 Kconfig，我们便能比较优雅地编写一个内核模块：）</p>
+<h1 id="0x02-使用-DKMS-为开源内核模块添加自动升级"><a href="#0x02-使用-DKMS-为开源内核模块添加自动升级" class="headerlink" title="0x02. 使用 DKMS 为开源内核模块添加自动升级"></a>0x02. 使用 DKMS 为开源内核模块添加自动升级</h1><p>内核模块需要针对当前内核版本进行编译，而内核版本的升级不一定会带着树外的内核模块一起重编译，从而导致内核版本与模块版本的不匹配而使得内核模块无法被载入（例如过去很多 Ubuntu 用户老生常谈的 NVIDIA 显卡驱动在内核升级之后就掉了的问题）</p>
+<blockquote>
+<p>笔者自己是有在 Gentoo 上遇到过这个问题，安装 DKMS 之前每次编译安装完内核之后还要手动重新安装一次 NVIDIA 显卡驱动</p>
+<blockquote>
+<p>不过 NVIDIA 仅为开源驱动提供了 DKMS 支持，对于闭源驱动而言仍旧需要在每次升级内核后手动安装，而开源驱动目前缺少了一部分电源管理相关的模块， <em>这会使得笔者的笔记本无法正常地进行休眠</em> ，因此笔者只好继续驻留在 NVIDIA 闭源驱动上，保持每次更新内核后都重新安装 NVIDIA 闭源驱动的习惯（虽然一行 <code>emerge</code> 就解决了）……</p>
+</blockquote>
+</blockquote>
+<p>由 Dell 公司开发的 <a target="_blank" rel="noopener" href="http://github.com/dell/dkms">Dynamic Kernel Module System</a> 尝试通过自动化地重编译内核模块来解决这个问题，作为一个构建安装内核模块的框架，其支持通过一些钩子以在内核更新后自动检测与重编译一些内核模块并安装，同时还为用户提供了一个简易的管理界面</p>
+<p>DKMS 对内核模块的管理过程如下图状态机所示，这实质上代表了 DKMS 支持的五个命令：</p>
+<p><img src="https://s2.loli.net/2025/02/25/SyhlZopYNu9vHc7.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li>add：将树外模块添加到树中，模块状态变为 <code>Added</code> </li>
+<li>build：构建内核模块，模块状态变为 <code>Built</code></li>
+<li>install：安装内核模块，模块状态变为 <code>Installed</code></li>
+<li>uninstall：卸载内核模块，模块状态变回 <code>Built</code></li>
+<li>remove：从树中移除内核模块，模块状态变回 <code>Not in tree</code></li>
+</ul>
+<h2 id="基本的-DKMS-使用与配置文件编写"><a href="#基本的-DKMS-使用与配置文件编写" class="headerlink" title="基本的 DKMS 使用与配置文件编写"></a>基本的 DKMS 使用与配置文件编写</h2><p>要使用 DKMS 管理我们的内核模块，我们首先要准备一份这样的 <code>dkms.conf</code> 文件，这里还是以我们前面的内核模块为例，变量字面含义都比较明显所以笔者这里就不再赘述了：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-comment"># package information</span><br>PACKAGE_NAME=<span class="hljs-string">&quot;a3kmod&quot;</span><br>PACKAGE_VERSION=<span class="hljs-string">&quot;1.1.4&quot;</span><br><br><span class="hljs-comment"># basic configuration</span><br>AUTOINSTALL=<span class="hljs-string">&quot;yes&quot;</span><br><br><span class="hljs-comment"># module information</span><br>BUILT_MODULE_NAME[0]=<span class="hljs-string">&quot;$PACKAGE_NAME&quot;</span><br>BUILT_MODULE_LOCATION=<span class="hljs-string">&quot;src/&quot;</span><br><br><span class="hljs-comment"># compilation configuration</span><br>MAKE[0]=<span class="hljs-string">&quot;make -C $&#123;kernel_source_dir&#125; M=$&#123;dkms_tree&#125;/$&#123;PACKAGE_NAME&#125;/$&#123;PACKAGE_VERSION&#125;/build/src&quot;</span> <span class="hljs-comment"># source code will be copied to /build/, so our M=/build/src</span><br>CLEAN=<span class="hljs-string">&quot;make -C $&#123;kernel_source_dir&#125; M=$&#123;dkms_tree&#125;/$&#123;PACKAGE_NAME&#125;/$&#123;PACKAGE_VERSION&#125;/build/src clean&quot;</span> <span class="hljs-comment"># source code will be copied to /build/, so our M=/build/src</span><br>DEST_MODULE_LOCATION=<span class="hljs-string">&quot;/extra&quot;</span> <span class="hljs-comment"># relative path to /lib/modules/$(shell uname -r)/</span><br></code></pre></td></tr></table></figure>
+
+<p>要使用 DKMS，首先我们的内核模块源码 <strong>应当位于 &#x2F;usr&#x2F;src 目录下，且格式应当为</strong> <code>/usr/src/&lt;PACKAGE_NAME&gt;-&lt;PACKAGE_VERSION&gt;</code>，因此我们的测试模块应当放在 <code>/usr/src/a3kmod-1.1.4</code> 目录下：</p>
+<blockquote>
+<p>这里的 <code>.config</code> 文件你可以选择准备一份默认配置，而不需要再手动选择生成选项</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">tree -a /usr/src/a3kmod-1.1.4/</span><br>/usr/src/a3kmod-1.1.4/<br>├── .config<br>├── Makefile<br>├── dkms.conf<br>└── src<br>    ├── Kbuild<br>    ├── Kconfig<br>    ├── main.c<br>    └── sub<br>        ├── Kbuild<br>        ├── sub.c<br>        └── sub_sub<br>            ├── Kbuild<br>            └── sub_sub.c<br><br>4 directories, 10 files<br></code></pre></td></tr></table></figure>
+
+<p>接下来将我们的内核模块添加到 DKMS 追踪列表当中，从而在后续能够自动更新：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo dkms add -m a3kmod -v 1.1.4 <span class="hljs-comment"># replace with your PACKAGE_NAME and PACKAGE_VERSION</span></span><br>Creating symlink /var/lib/dkms/a3kmod/1.1.4/source -&gt; /usr/src/a3kmod-1.1.4<br></code></pre></td></tr></table></figure>
+
+<p>然后开始构建内核模块，需要注意的是在此阶段我们尚未为内核模块添加签名支持：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo dkms build -m a3kmod -v 1.1.4 <span class="hljs-comment"># replace with your PACKAGE_NAME and PACKAGE_VERSION</span></span><br>The kernel is built without module signing facility, modules won&#x27;t be signed<br><br>Cleaning build area... done.<br>Building module(s)... done.<br>Cleaning build area... done.<br></code></pre></td></tr></table></figure>
+
+<p>完成构建之后进行安装：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo dkms install -m a3kmod -v 1.1.4 <span class="hljs-comment"># replace with your PACKAGE_NAME and PACKAGE_VERSION</span></span><br><br>Installing /lib/modules/6.6.67-gentoo-gentoo-dist/extra/a3kmod.ko.xz<br>Running depmod.... done.<br></code></pre></td></tr></table></figure>
+
+<p>此时我们的测试模块 <code>a3kmod</code> 就进入到树中了，我们可以使用 <code>dkms status</code> 命令查看 dkms 管理的内核模块：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo dkms status</span><br>a3kmod/1.1.4, 6.6.67-gentoo-gentoo-dist, x86_64: installed<br></code></pre></td></tr></table></figure>
+
+<p>不过此时我们的内核模块尚未装载到内核当中，我们可以像其他模块那样使用 <code>modprobe</code> 来手动地即时 <code>insmod</code> ：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo modprobe a3kmod</span><br></code></pre></td></tr></table></figure>
+
+<p>简单测试一下，可以发现确实被成功载入：</p>
+<p><img src="https://s2.loli.net/2025/02/25/A3PTexqnc9JwFyV.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>不过重启后我们的内核模块并不会被自动载入，因为这不属于 DKMS 的职能范围，我们若是需要这个功能，则可以在 <code>/etc/modules-load.d/</code> 中新建一个 <code>a3kmod.conf</code> 文件，并添加我们的内核模块名：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">a3kmod<br></code></pre></td></tr></table></figure>
+
+<p>此时再重启便能看到我们的内核模块被自动载入了：</p>
+<p><img src="https://s2.loli.net/2025/02/25/ocmPAKM4B6vp7qk.png" srcset="/img/loading.gif" lazyload></p>
+</blockquote>
+<p>接下来我们测试一下内核更新后的自动编译，我们编译一个新版本的内核并安装，之后重启：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">make -j$(<span class="hljs-built_in">nproc</span>) bzImage &amp;&amp; make -j$(<span class="hljs-built_in">nproc</span>) modules</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo make modules_install</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo make install</span><br></code></pre></td></tr></table></figure>
+
+<p>在 <code>make install</code> 的日志中我们可以看到 dkms 的输出内容（这里忘了截图了被后面的输出覆盖了），重启计算机，可以看到我们的内核模块成功地在新内核上被载入，而无需我们再手动进行编译：</p>
+<p><img src="https://s2.loli.net/2025/02/25/7mnXGaWCN9q6lAc.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="为内核模块添加签名支持（🕊）"><a href="#为内核模块添加签名支持（🕊）" class="headerlink" title="为内核模块添加签名支持（🕊）"></a>为内核模块添加签名支持（🕊）</h2><h2 id="打包一个支持-DKMS-的内核模块的软件包（🕊）"><a href="#打包一个支持-DKMS-的内核模块的软件包（🕊）" class="headerlink" title="打包一个支持 DKMS 的内核模块的软件包（🕊）"></a>打包一个支持 DKMS 的内核模块的软件包（🕊）</h2><blockquote>
+<p>按各大发行版要求去打成对应的格式就行，没什么好说的：）</p>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/DEV/" class="category-chain-item">DEV</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+        <a href="/tags/Linux-Kernel/">#Linux Kernel</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【DEV.0x01】如何优雅地开发树外内核模块</div>
+      <div>https://arttnba3.github.io/2025/01/12/DEV-0X01-LKM_WITH_KBUILD_DKMS/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年1月12日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/12/31/CVE-0X0B-CVE-2023-2008/" title="【CVE.0x0B】CVE-2023-2008 漏洞复现及简要分析">
+                        <span class="hidden-mobile">【CVE.0x0B】CVE-2023-2008 漏洞复现及简要分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      桂ICP备2022005068号-1
+    </a>
+  </span>
+  
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
