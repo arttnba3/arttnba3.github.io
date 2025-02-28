@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/03/03/JXPaRGtvIKU3rzk.png">
 <meta property="article:published_time" content="2021-03-03T07:36:24.000Z">
-<meta property="article:modified_time" content="2023-12-17T20:04:48.000Z">
+<meta property="article:modified_time" content="2025-02-26T00:28:50.566Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
@@ -258,7 +258,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          149k 字
+          150k 字
         
       </span>
     
@@ -269,7 +269,7 @@
         
         
         
-          1240 分钟
+          1254 分钟
         
       </span>
     
@@ -324,7 +324,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年12月18日 早上
+                    本文最后更新于：2025年2月26日 上午
                   
                 
               </p>
@@ -1381,6 +1381,22 @@
 <p><a target="_blank" rel="noopener" href="https://arttnba3.cn/2023/05/02/CTF-0X08_D3CTF2023_D3KCACHE/">Writeup 地址</a></p>
 </blockquote>
 <h1 id="0x0B-Kernel-tricks"><a href="#0x0B-Kernel-tricks" class="headerlink" title="0x0B. Kernel tricks"></a>0x0B. Kernel tricks</h1><p>在学习了以上内核基本利用技巧之后，我们可以很容易地发现 kernel pwn 中的一些通用 tricks 与通用解法</p>
+<h2 id="在-0x9d000-处泄漏内核地址"><a href="#在-0x9d000-处泄漏内核地址" class="headerlink" title="在 0x9d000 处泄漏内核地址"></a>在 0x9d000 处泄漏内核地址</h2><p>关于 X86 下 Linux kernel 为何会在物理内存 <code>0x9d000</code> 处存放 <code>secondary_startup_64</code> 函数的地址，其主要原因与 X86 下 Linux 在 BIOS 下的启动流程相关（因此，在 UEFI 启动中，似乎不一定存在这一特性，感兴趣可以自行查证是否仍旧存在）。在内核源码 <code>arch/x86/kernel/x86_init.c</code> 当中声明了结构体变量 <code>x86_platform</code> ，其用于定义与 X86 平台相关的一系列操作，其中包括 <strong>实模式</strong> 下的初始化函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">x86_platform_ops</span> <span class="hljs-title">x86_platform</span> __<span class="hljs-title">ro_after_init</span> =</span> &#123;<br><span class="hljs-comment">/* ... */</span><br>.realmode_init = init_real_mode,<br><span class="hljs-comment">/* ... */</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>因而在实模式的初始化阶段，我们有如下调用链：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-built_in">do_init_real_mode</span>()<br>    x86_platform<span class="hljs-selector-class">.realmode_init</span>();<br>        <span class="hljs-built_in">init_real_mode</span>()<br>            <span class="hljs-built_in">setup_real_mode</span>()<br></code></pre></td></tr></table></figure>
+
+<p>在该函数中， <code>secondary_startup_64</code> 函数的地址会被给到一个变量 <code>trampoline_header-&gt;start</code> ：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-type">void</span> __init <span class="hljs-title function_">setup_real_mode</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br><span class="hljs-comment">/* ... */</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">trampoline_header</span> *<span class="hljs-title">trampoline_header</span>;</span><br><span class="hljs-comment">/* ... */</span><br><br><span class="hljs-comment">/* Must be performed *after* relocation. */</span><br>trampoline_header = (<span class="hljs-keyword">struct</span> trampoline_header *)<br>__va(real_mode_header-&gt;trampoline_header);<br><br><span class="hljs-comment">/* ... */</span><br><br>trampoline_header-&gt;start = (u64) secondary_startup_64;<br></code></pre></td></tr></table></figure>
+
+<p>而 <code>real_mode_header</code> 在 <code>set_real_mode_mem()</code> 中被赋值：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title function_">set_real_mode_mem</span><span class="hljs-params">(<span class="hljs-type">phys_addr_t</span> mem)</span><br>&#123;<br>real_mode_header = (<span class="hljs-keyword">struct</span> real_mode_header *) __va(mem);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>该函数在 <code>reserve_real_mode()</code> 中被调用，注意到其参数通过 <code>memblock_phys_alloc_range()</code> 获得：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> __init <span class="hljs-title function_">reserve_real_mode</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br><span class="hljs-type">phys_addr_t</span> mem;<br><span class="hljs-type">size_t</span> size = real_mode_size_needed();<br><br><span class="hljs-keyword">if</span> (!size)<br><span class="hljs-keyword">return</span>;<br><br>WARN_ON(slab_is_available());<br><br><span class="hljs-comment">/* Has to be under 1M so we can execute real-mode AP code. */</span><br>mem = memblock_phys_alloc_range(size, PAGE_SIZE, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>&lt;&lt;<span class="hljs-number">20</span>);<br><span class="hljs-keyword">if</span> (!mem)<br>pr_info(<span class="hljs-string">&quot;No sub-1M memory is available for the trampoline\n&quot;</span>);<br><span class="hljs-keyword">else</span><br>set_real_mode_mem(mem);<br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment">* Unconditionally reserve the entire first 1M, see comment in</span><br><span class="hljs-comment">* setup_arch().</span><br><span class="hljs-comment">*/</span><br>memblock_reserve(<span class="hljs-number">0</span>, SZ_1M);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p> <code>memblock_phys_alloc_range()</code> 函数是内核初始化初期阶段用来进行临时内存分配的一个函数，由于内核早期初始化所用的内存大小通常是恒定值，内存分配的物理起始地址也是固定的，因而在运行到该处代码时所分配得到的内存通常都会位于同一物理地址，经调试可知为 <code>0x9d000</code> 。</p>
 <h2 id="initramfs-在内存中直接搜索-flag"><a href="#initramfs-在内存中直接搜索-flag" class="headerlink" title="initramfs 在内存中直接搜索 flag"></a>initramfs 在内存中直接搜索 flag</h2><p><strong>Initial RAM disk</strong>（<code>initrd</code>）提供了在 boot loader 阶段载入一个 RAM disk 并挂载为根文件系统的能力，从而在该阶段运行一些用户态程序，在完成该阶段工作之后才是挂载真正的根文件系统</p>
 <p>initrd 文件系统镜像通常为 gzip 格式，在启动阶段由 boot loader 将其路径传给 kernel，自 2.6 版本后出现了使用 cpio 格式的initramfs，从而无需挂载便能展开为一个文件系统</p>
 <p>initrd&#x2F;initramfs 的特点便是<strong>文件系统中的所有内容都会被读取到内存当中</strong>，而大部分 CTF 中的 kernel pwn 题目都选择直接将 initrd 作为根文件系统，因此若是我们有着内存搜索能力，我们便能<strong>直接在内存空间中搜索 flag 的内容</strong>：）</p>

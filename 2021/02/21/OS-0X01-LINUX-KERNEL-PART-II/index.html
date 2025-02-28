@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/05/08/fqdbRMhuKCrIozk.png">
 <meta property="article:published_time" content="2021-02-21T11:02:14.000Z">
-<meta property="article:modified_time" content="2024-05-15T04:17:29.961Z">
+<meta property="article:modified_time" content="2025-02-28T02:27:07.758Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
@@ -253,7 +253,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          42k 字
+          45k 字
         
       </span>
     
@@ -264,7 +264,7 @@
         
         
         
-          352 分钟
+          377 分钟
         
       </span>
     
@@ -319,7 +319,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2024年5月15日 下午
+                    本文最后更新于：2025年2月28日 下午
                   
                 
               </p>
@@ -330,7 +330,7 @@
                 <p>今天👴要吃🐧火锅！</p>
 <span id="more"></span>
 
-<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00.一切开始之前"></a>0x00.一切开始之前</h1><p>这一篇文章主要讲<del>如何快速成为 kernel ylg</del>如何编译构建一个最基本的 Linux 运行环境；）</p>
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00.一切开始之前"></a>0x00.一切开始之前</h1><p>这一篇文章主要讲 <del>如何快速成为 kernel ylg</del> 如何编译构建一个最基本的 Linux 运行环境；）</p>
 <h2 id="Pre-安装依赖"><a href="#Pre-安装依赖" class="headerlink" title="Pre.安装依赖"></a>Pre.安装依赖</h2><p>环境是Ubuntu20.04</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get update</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get install git fakeroot build-essential ncurses-dev xz-utils qemu flex libncurses5-dev libssl-dev bc bison libglib2.0-dev libfdt-dev libpixman-1-dev zlib1g-dev libelf-dev</span><br></code></pre></td></tr></table></figure>
 
@@ -340,17 +340,55 @@
 <li>直接下载现成的的内核镜像，不过这样我们就不能自己魔改内核了2333</li>
 <li>直接使用自己系统的镜像</li>
 </ul>
-<h2 id="方法一：自行编译内核源码"><a href="#方法一：自行编译内核源码" class="headerlink" title="方法一：自行编译内核源码"></a>方法一：自行编译内核源码</h2><h3 id="I-获取内核源码"><a href="#I-获取内核源码" class="headerlink" title="I.获取内核源码"></a>I.获取内核源码</h3><p>前往<a target="_blank" rel="noopener" href="https://www.kernel.org/">Linux Kernel Archive</a>下载对应版本的内核源码</p>
-<p>笔者这里选用5.11这个版本的内核镜像</p>
+<h2 id="方法一：自行编译内核源码"><a href="#方法一：自行编译内核源码" class="headerlink" title="方法一：自行编译内核源码"></a>方法一：自行编译内核源码</h2><p><a target="_blank" rel="noopener" href="https://www.kernel.org/">The Linux Kernel Archives</a> 为我们提供了原始的主线内核不同版本的源代码，我们可以在该网站上下载自己所需要的版本的内核源码，或是在不同的镜像站中获取，例如<a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/kernel/">清华大学开源软件镜像站</a>便提供了不同版本的内核源码。</p>
+<p>根据 <a target="_blank" rel="noopener" href="https://www.kernel.org/category/releases.html">Archive kernel releases</a>，我们可以知道内核主要有以下几种类别：</p>
+<ul>
+<li>Prepatch (RC) ：主线内核的预发布版本，包含了最新的待测试的内核特性，由 Linus Torvalds 维护</li>
+<li>Mainline：主线内核版本，RC 版本的新特性经过测试后便会合并到主线，每9～10周发一个版本，由 Linus Torvalds 维护</li>
+<li>Stable：主线内核发布后便会变为 Stable 状态，其仅会被 stable kernel 维护者从主线树后向移植一些漏洞修复，直到下个内核版本释出。Stable kernel 根据需要进行更新，通常是一周一次</li>
+<li>Longterm：部分内核版本会被选作长期支持版（LTS），相比起 Stable 内核有着更久的支持时长，通常仅会被后向移植重要的漏洞修复，且更新周期较慢（尤其是对于更老的版本）</li>
+</ul>
+<h3 id="I-获取内核源码"><a href="#I-获取内核源码" class="headerlink" title="I.获取内核源码"></a>I.获取内核源码</h3><p>这里我们直接前往 <a target="_blank" rel="noopener" href="https://www.kernel.org/">Linux Kernel Archive</a> 下载对应版本的内核源码（你也可以选择镜像站），笔者这里选用5.11这个版本的内核镜像：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.11.tar.xz</span><br></code></pre></td></tr></table></figure>
 
-<h3 id="II-配置编译选项"><a href="#II-配置编译选项" class="headerlink" title="II.配置编译选项"></a>II.配置编译选项</h3><p>解压我们下载来的内核源码</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">tar -xvf linux-5.11.tar.xz</span><br></code></pre></td></tr></table></figure>
+<p>完成下载后进行解压：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">unxz linux-5.11.tar.xz</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">tar -xf linux-5.11.tar</span><br></code></pre></td></tr></table></figure>
 
-<p>完成后进入文件夹内，执行如下命令开始配置编译选项</p>
+<blockquote>
+<h3 id="Extra-校验内核签名"><a href="#Extra-校验内核签名" class="headerlink" title="Extra. 校验内核签名"></a>Extra. 校验内核签名</h3><p>为了防止内核被恶意修改，内核团队提供了签名校验，在发布内核时，发布者会对内核进行签名。因此为了校验，我们首先需要导入内核维护者的公钥，这里我们选择导入 Linus Torvalds 和 Greg Kroah-Hartman 的公钥：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">gpg2 --locate-keys torvalds@kernel.org gregkh@kernel.org</span><br>pub   rsa4096 2011-09-23 [SC]<br>      647F28654894E3BD457199BE38DBBDC86092693E<br>uid           [ unknown] Greg Kroah-Hartman &lt;gregkh@kernel.org&gt;<br>sub   rsa4096 2011-09-23 [E]<br><br>pub   rsa2048 2011-09-20 [SC]<br>      ABAF11C65A2970B130ABE3C479BE3E4300411886<br>uid           [ unknown] Linus Torvalds &lt;torvalds@kernel.org&gt;<br>sub   rsa2048 2011-09-20 [E]<br></code></pre></td></tr></table></figure>
+
+<p>接下来我们使用 TOFU 信任对应的密钥：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">gpg2 --tofu-policy good 38DBBDC86092693E</span><br>gpg: Setting TOFU trust policy for new binding &lt;key: 647F28654894E3BD457199BE38DBBDC86092693E, user id: Greg Kroah-Hartman &lt;gregkh@kernel.org&gt;&gt; to good.<br></code></pre></td></tr></table></figure>
+
+<p>然后我们可以开始校验内核签名了，首先下载签名文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.11.tar.sign</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来进行校验，可以看到校验结果正常：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">gpg2 --trust-model tofu --verify linux-5.11.tar.sign</span><br>gpg: assuming signed data in &#x27;linux-5.11.tar&#x27;<br>gpg: Signature made Mon Feb 15 20:11:32 2021 AEDT<br>gpg:                using RSA key 647F28654894E3BD457199BE38DBBDC86092693E<br>gpg: Good signature from &quot;Greg Kroah-Hartman &lt;gregkh@kernel.org&gt;&quot; [full]<br>gpg: gregkh@kernel.org: Verified 2 signatures in the past 3 hours.  Encrypted<br>     0 messages.<br><br></code></pre></td></tr></table></figure>
+
+
+</blockquote>
+<h3 id="II-配置编译选项"><a href="#II-配置编译选项" class="headerlink" title="II.配置编译选项"></a>II.配置编译选项</h3><p>在正式进行内核源码编译之前，我们还需要准备一份编译选项，其包含了内核编译相关的配置，通常存放于源码目录下的 <code>.config</code> 文件中。不过我们不需要从零开始手动编写，而是可以通过内核的编译配置系统进行动态生成。</p>
+<p>通常情况下，我们在内核源码目录下使用如下命令进入图形化的内核配置面板， <strong>这也是最常用的内核配置方法</strong> ，其会读取 <code>.config</code> 文件的配置并允许我们在图形化的界面中进行修改，并在该文件不存在时则是会调用 <code>make defconfig</code> 先生成一份默认配置：</p>
+<blockquote>
+<p>需要注意，图形化配置界面依赖于 ncurses 库，这通常可以从你的发行版仓库安装。</p>
+</blockquote>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">make menuconfig</span><br></code></pre></td></tr></table></figure>
 
-<p>进入如下配置界面</p>
+<p>由此我们可以知道以下命令会直接生成上面命令的默认输出结果——<code>make defconfig</code> 生成一份默认的内核配置，其会读取 <code>arch/架构/configs</code> 目录下的配置文件作为基础配置，其包括一份默认启用的内核功能以及驱动编译配置等，这通常会编译上绝大部分常见的驱动，并根据当前系统环境进行相应的微调（例如与硬件平台相关的一些配置）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">make defconfig</span><br></code></pre></td></tr></table></figure>
+
+<p>相应地，你可以手动地为每个内核编译选项进行配置，下面的这个命令不会读取默认配置，而会逐条询问每一条内核配置是否开启，用户需要在命令行逐条回复 <code>y</code> （编译进内核）、<code>m</code> （作为内核模块编译，部分配置会提供该选项） 、<code>n</code>（不编译），如果你有较多的空闲时间且对内核架构有着较为完整的了解，可以考虑运行这个命令进行配置：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">make config</span><br></code></pre></td></tr></table></figure>
+
+<p>此外，你可以使用如下的命令（任选一条）来动态检测当前环境所包含的内核模块（lsmod 命令所显示的内核模块），并在内核编译过程中<strong>仅</strong>编译这些模块，这通常适合嵌入式开发等需要定制化精简与裁剪内核的场景， <em>但往往不适合通用场景</em> ：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">make localyesconfig <span class="hljs-comment"># 将驱动编译到内核当中</span></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">make localmodconfig <span class="hljs-comment"># 让驱动以独立内核模块的形式存在</span></span><br></code></pre></td></tr></table></figure>
+
+<p>相对应的，如下命令（任选一条）会尽可能多地启用可用的内核选项，在生成的配置中包含了尽可能多的内核特性与驱动：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">make allyesconfig <span class="hljs-comment"># 将驱动编译到内核当中</span></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">make allmodconfig <span class="hljs-comment"># 让驱动以独立内核模块的形式存在</span></span><br></code></pre></td></tr></table></figure>
+
+<p>这里我们选择最常用的 <code>make menuconfig</code> ，进入如下配置界面</p>
 <p><img src="https://i.loli.net/2021/02/21/YXVQhel4vjMHDSa.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>保证勾选如下配置（默认都是勾选了的）：</p>
 <ul>
@@ -360,7 +398,6 @@
 <li>kernel hacking —&gt; Compile the kernel with frame pointers</li>
 </ul>
 <p>一般来说不需要有什么改动，直接保存退出即可，你也可以根据你的需求手动更改一些编译选项</p>
-<p>通常保存的路径在当前目录下的 <code>.config</code> 文件中，如果你在生成配置文件后才想起来忘了改某个选项也可以直接编辑这个文件</p>
 <h3 id="III-开始编译"><a href="#III-开始编译" class="headerlink" title="III.开始编译"></a>III.开始编译</h3><p>运行如下命令开始编译，生成内核镜像</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">make -j$(<span class="hljs-built_in">nproc</span>) bzImage</span><br></code></pre></td></tr></table></figure>
 
@@ -395,7 +432,8 @@
 <h6 id="zImage-bzImage"><a href="#zImage-bzImage" class="headerlink" title="zImage &amp;&amp; bzImage"></a>zImage &amp;&amp; bzImage</h6><p>zImage–是vmlinux经过gzip压缩后的文件。<br>bzImage–bz表示“big zImage”，不是用bzip2压缩的，而是要偏移到一个位置，使用gzip压缩的。两者的不同之处在于，zImage解压缩内核到低端内存(第一个 640K)，bzImage解压缩内核到高端内存(1M以上)。如果内核比较小，那么采用zImage或bzImage都行，如果比较大应该用bzImage。 </p>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/xiaotengyi2012/article/details/8582886">https://blog.csdn.net/xiaotengyi2012/article/details/8582886</a></p>
 </blockquote>
-<h3 id="EXTRA-添加系统调用"><a href="#EXTRA-添加系统调用" class="headerlink" title="EXTRA.添加系统调用"></a>EXTRA.添加系统调用</h3><h5 id="1-分配系统调用号"><a href="#1-分配系统调用号" class="headerlink" title="1.分配系统调用号"></a>1.分配系统调用号</h5><p>在<code>arch/x86/entry/syscalls/syscall_64.tbl</code>中添加我们自己的系统调用号，这里用笔者个人比较喜欢的数字<code>114514</code></p>
+<h3 id="EXTRA-添加系统调用"><a href="#EXTRA-添加系统调用" class="headerlink" title="EXTRA.添加系统调用"></a>EXTRA.添加系统调用</h3><p>本节主要进行一个常见的操作系统实验：添加一个系统调用</p>
+<h5 id="1-分配系统调用号"><a href="#1-分配系统调用号" class="headerlink" title="1.分配系统调用号"></a>1.分配系统调用号</h5><p>在<code>arch/x86/entry/syscalls/syscall_64.tbl</code>中添加我们自己的系统调用号，这里用笔者个人比较喜欢的数字<code>114514</code></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs asm">114514    64    arttnba3_test        sys_arttnba3_test<br></code></pre></td></tr></table></figure>
 
 <h5 id="2-声明系统调用"><a href="#2-声明系统调用" class="headerlink" title="2.声明系统调用"></a>2.声明系统调用</h5><p>在<code>include/linux/syscalls.h</code>中添加如下函数声明：</p>
@@ -416,41 +454,40 @@
 </blockquote>
 <p><img src="https://i.loli.net/2021/02/24/Zx4wOlkRpoHfSVu.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>可以看到，我们的系统调用<code>arttnba3_test</code>被成功地嵌入了内核当中，并成功地被测试例程所调用，撒花~🌸</p>
-<h2 id="方法二：下载现有内核镜像"><a href="#方法二：下载现有内核镜像" class="headerlink" title="方法二：下载现有内核镜像"></a>方法二：下载现有内核镜像</h2><p>我们也可以自己下载现有的内核镜像，而不需要自行编译一整套Linux内核</p>
-<p>使用如下命令列出可下载内核镜像</p>
+<h2 id="方法二：下载现有内核镜像"><a href="#方法二：下载现有内核镜像" class="headerlink" title="方法二：下载现有内核镜像"></a>方法二：下载现有内核镜像</h2><p>我们也可以自己下载发行版仓库中已有的内核镜像，而不需要自行编译一整套Linux内核，以 Ubuntu 为例，我们可以使用如下命令列出可下载内核镜像</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt search linux-image-</span> <br></code></pre></td></tr></table></figure>
 
 <p>选一个自己喜欢的下载就行，笔者所用的阿里云源似乎没有最新的5.11的镜像，这里用5.8的做个示范：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt download linux-image-5.8.0-43-generic</span><br></code></pre></td></tr></table></figure>
 
-<p>下载下来是一个deb文件，解压</p>
+<p>下载下来是一个deb文件，解压：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">dpkg -X ./linux-image-5.8.0-43-generic_5.8.0-43.49~20.04.1_amd64.deb extract</span><br>./<br>./boot/<br>./boot/vmlinuz-5.8.0-43-generic<br>./usr/<br>./usr/share/<br>./usr/share/doc/<br>./usr/share/doc/linux-image-5.8.0-43-generic/<br>./usr/share/doc/linux-image-5.8.0-43-generic/changelog.Debian.gz<br>./usr/share/doc/linux-image-5.8.0-43-generic/copyright<br></code></pre></td></tr></table></figure>
 
-<p>其中的<code>./boot/vmlinuz-5.8.0-43-generic</code>便是<code>bzImage</code>内核镜像文件</p>
-<h2 id="方法三：使用系统内核镜像"><a href="#方法三：使用系统内核镜像" class="headerlink" title="方法三：使用系统内核镜像"></a>方法三：使用系统内核镜像</h2><p>一般位于<code>/boot/</code>目录下，也可以直接拿出来用</p>
-<h1 id="0x02-使用-busybox-构建文件系统"><a href="#0x02-使用-busybox-构建文件系统" class="headerlink" title="0x02.使用 busybox 构建文件系统"></a>0x02.使用 busybox 构建文件系统</h1><p> BusyBox 是一个集成了三百多个最常用Linux命令和工具的软件，包含了例如ls、cat和echo等一些简单的工具，我们将用 busybox 为我们的内核提供一个基本的用户环境</p>
-<h2 id="一、编译busybox"><a href="#一、编译busybox" class="headerlink" title="一、编译busybox"></a>一、编译busybox</h2><h4 id="I-获取busybox源码"><a href="#I-获取busybox源码" class="headerlink" title="I.获取busybox源码"></a>I.获取busybox源码</h4><p>在<a target="_blank" rel="noopener" href="https://busybox.net/downloads/">busybox.net</a>下载自己想要的版本，笔者这里选用<code>busybox-1.33.0.tar.bz2</code>这个版本</p>
+<p>其中的 <code>./boot/vmlinuz-5.8.0-43-generic</code> 便是<code>bzImage</code>内核镜像文件</p>
+<h2 id="方法三：使用系统自带的内核镜像"><a href="#方法三：使用系统自带的内核镜像" class="headerlink" title="方法三：使用系统自带的内核镜像"></a>方法三：使用系统自带的内核镜像</h2><p>一般位于<code>/boot/</code>目录下，也可以直接拿出来用，实际上其来源通常和方法二是一样的</p>
+<h1 id="0x02-使用-busybox-构建文件系统"><a href="#0x02-使用-busybox-构建文件系统" class="headerlink" title="0x02.使用 busybox 构建文件系统"></a>0x02.使用 busybox 构建文件系统</h1><p><a target="_blank" rel="noopener" href="https://www.busybox.net/">BusyBox</a> 是一个集成了三百多个最常用 Linux 命令和工具的软件，包含了例如 ls 、cat 和 echo 等常见的命令，相比起各大发行版中常用的 <a target="_blank" rel="noopener" href="https://www.gnu.org/software/coreutils/">GNU core utilities</a> ，BusyBox 更加的轻量化，且更容易进行配置，因此我们将用 busybox 为我们的内核提供一个基本的用户环境</p>
+<h2 id="一、编译busybox"><a href="#一、编译busybox" class="headerlink" title="一、编译busybox"></a>一、编译busybox</h2><h4 id="I-获取-busybox-源码"><a href="#I-获取-busybox-源码" class="headerlink" title="I.获取 busybox 源码"></a>I.获取 busybox 源码</h4><p>我们首先在 <a target="_blank" rel="noopener" href="https://busybox.net/downloads/">busybox.net</a> 下载自己想要的版本，笔者这里选用 <code>busybox-1.33.0.tar.bz2</code> 这个版本：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">wget https://busybox.net/downloads/busybox-1.33.0.tar.bz2</span><br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>外网下载的速度可能会比较慢，可以在前面下载Linux源码的时候一起下载，也可以选择去国内的镜像站下载</p>
 </blockquote>
-<p>解压</p>
+<p>然后进行解压：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">tar -jxvf busybox-1.33.0.tar.bz2</span><br></code></pre></td></tr></table></figure>
 
-<h4 id="II-编译busybox源码"><a href="#II-编译busybox源码" class="headerlink" title="II.编译busybox源码"></a>II.编译busybox源码</h4><p>进入配置界面</p>
+<h4 id="II-编译-busybox-源码"><a href="#II-编译-busybox-源码" class="headerlink" title="II.编译 busybox 源码"></a>II.编译 busybox 源码</h4><p>接下来我们配置编译选项，进入到源码根目录运行如下命令进入图形化配置界面：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">make menuconfig</span><br></code></pre></td></tr></table></figure>
 
 <p>勾选 <code>Settings</code> —&gt; <code>Build static binary file (no shared lib)</code></p>
 <blockquote>
 <p> 若是不勾选则需要单独配置 libc，比较麻烦</p>
 </blockquote>
-<p>接下来就是编译了，速度会比编译内核快很多</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">make install</span><br></code></pre></td></tr></table></figure>
+<p>接下来就是编译了，速度会比编译内核快很多：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">make -j$(<span class="hljs-built_in">nproc</span>)</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">make install</span><br></code></pre></td></tr></table></figure>
 
-<p>编译完成后会生成一个<code>_install</code>目录，接下来我们将会用它来构建我们的磁盘镜像</p>
+<p>编译完成后会生成一个 <code>_install</code> 目录，接下来我们将会用它来构建我们的文件系统</p>
 <h2 id="二、建立文件系统"><a href="#二、建立文件系统" class="headerlink" title="二、建立文件系统"></a>二、建立文件系统</h2><h4 id="I-初始化文件系统"><a href="#I-初始化文件系统" class="headerlink" title="I.初始化文件系统"></a>I.初始化文件系统</h4><p>一些简单的初始化操作…</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cd</span> _install</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">mkdir</span> -pv &#123;bin,sbin,etc,proc,sys,home,lib64,lib/x86_64-linux-gnu,usr/&#123;bin,sbin&#125;&#125;</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">touch</span> etc/inittab</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">mkdir</span> etc/init.d</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">touch</span> etc/init.d/rcS</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">chmod</span> +x ./etc/init.d/rcS</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cd</span> _install</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">mkdir</span> -pv &#123;bin,sbin,etc,proc,sys,dev,home/ctf,root,tmp,lib64,lib/x86_64-linux-gnu,usr/&#123;bin,sbin&#125;&#125;</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">touch</span> etc/inittab</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">mkdir</span> etc/init.d</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">touch</span> etc/init.d/rcS</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">chmod</span> +x ./etc/init.d/rcS</span><br></code></pre></td></tr></table></figure>
 
 <h4 id="II-配置初始化脚本"><a href="#II-配置初始化脚本" class="headerlink" title="II.配置初始化脚本"></a>II.配置初始化脚本</h4><p>首先配置 <code>etc/inttab</code> ，写入如下内容：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell">::sysinit:/etc/init.d/rcS<br>::askfirst:/bin/ash<br>::ctrlaltdel:/sbin/reboot<br>::shutdown:/sbin/swapoff -a<br>::shutdown:/bin/umount -a -r<br>::restart:/sbin/init<br></code></pre></td></tr></table></figure>
@@ -459,14 +496,14 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/sh</span><br>mount -t proc none /proc<br>mount -t sysfs none /sys<br>mount -t devtmpfs devtmpfs /dev<br>mount -t tmpfs tmpfs /tmp<br>mkdir /dev/pts<br>mount -t devpts devpts /dev/pts<br><br>echo -e &quot;\nBoot took $(cut -d&#x27; &#x27; -f1 /proc/uptime) seconds\n&quot;<br>setsid cttyhack setuidgid 1000 sh<br><br>poweroff -d 0  -f<br><br></code></pre></td></tr></table></figure>
 
 <p>也可以在根目录下创建 <code>init</code> 文件，写入如下内容：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/sh</span><br><br>mount -t proc none /proc<br>mount -t sysfs none /sys<br>mount -t devtmpfs devtmpfs /dev<br><br>exec 0&lt;/dev/console<br>exec 1&gt;/dev/console<br>exec 2&gt;/dev/console<br><br>echo -e &quot;\nBoot took $(cut -d&#x27; &#x27; -f1 /proc/uptime) seconds\n&quot;<br>setsid cttyhack setuidgid 1000 sh<br><br>umount /proc<br>umount /sys<br>poweroff -d 0  -f<br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/sh</span><br>chown -R root:root /<br>chmod 700 /root<br>chown -R ctf:ctf /home/ctf<br><br>mount -t proc none /proc<br>mount -t sysfs none /sys<br>mount -t tmpfs tmpfs /tmp<br>mkdir /dev/pts<br>mount -t devpts devpts /dev/pts<br><br>echo 1 &gt; /proc/sys/kernel/dmesg_restrict<br>echo 1 &gt; /proc/sys/kernel/kptr_restrict<br><br>echo -e &quot;\nBoot took $(cut -d&#x27; &#x27; -f1 /proc/uptime) seconds\n&quot;<br><br>cd /home/ctf<br>su ctf -c sh<br><br>poweroff -d 0  -f<br></code></pre></td></tr></table></figure>
 
 <p>别忘了添加可执行权限：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">chmod</span> +x ./init</span><br></code></pre></td></tr></table></figure>
 
 <h4 id="III-配置用户组"><a href="#III-配置用户组" class="headerlink" title="III.配置用户组"></a>III.配置用户组</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;root:x:0:0:root:/root:/bin/sh&quot;</span> &gt; etc/passwd</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;ctf:x:1000:1000:ctf:/home/ctf:/bin/sh&quot;</span> &gt;&gt; etc/passwd</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;root:x:0:&quot;</span> &gt; etc/group</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;ctf:x:1000:&quot;</span> &gt;&gt; etc/group</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;none /dev/pts devpts gid=5,mode=620 0 0&quot;</span> &gt; etc/fstab</span><br></code></pre></td></tr></table></figure>
 
-<p>在这里建立了两个用户组<code>root</code>和<code>ctf</code>，以及两个用户<code>root</code>和<code>ctf</code></p>
+<p>在这里建立了两个用户组 <code>root</code> 和 <code>ctf</code> ，以及两个用户 <code>root</code> 和 <code>ctf</code> </p>
 <h4 id="IV-配置glibc库"><a href="#IV-配置glibc库" class="headerlink" title="IV.配置glibc库"></a>IV.配置glibc库</h4><p>将需要的动态链接库拷到相应位置即可</p>
 <blockquote>
 <p>为了方便笔者这里就先不弄了，直接快进到下一步，以后有时间再补充（咕咕咕</p>
@@ -515,31 +552,33 @@
 <p>部分参数说明如下：</p>
 <ul>
 <li><code>-m</code>：虚拟机内存大小</li>
-<li><code>-kernel</code>：内存镜像路径</li>
-<li><code>-initrd</code>：磁盘镜像路径</li>
+<li><code>-kernel</code>：内核镜像路径</li>
+<li><code>-initrd</code>：初始文件系统路径，cpio 文件系统会被载入到内存当中（initramfs）</li>
+<li><code>-monitor</code>：将监视器重定向到主机设备 <code>/dev/null</code>，这里重定向至 null 主要是防止CTF 中被人通过监视器直接拿 flag</li>
 <li><code>-append</code>：附加参数选项<ul>
-<li><code>nokalsr</code>：关闭内核地址随机化，方便我们进行调试</li>
-<li><code>rdinit</code>：指定初始启动进程，<code>/sbin/init</code>进程会默认以 <code>/etc/init.d/rcS</code> 作为启动脚本</li>
-<li><code>loglevel=3 </code> &amp; <code>quiet</code>：不输出log</li>
-<li><code>console=ttyS0</code>：指定终端为<code>/dev/ttyS0</code>，这样一启动就能进入终端界面</li>
+<li><code>kaslr</code>：开启内核地址随机化，你也可以改为 <code>nokaslr</code> 进行关闭以方便我们进行调试</li>
+<li><code>rdinit</code>：指定初始启动进程，这里我们指定了 <code>/sbin/init</code> 作为初始进程，其会默认以 <code>/etc/init.d/rcS</code> 作为启动脚本</li>
+<li><code>loglevel=3</code> &amp; <code>quiet</code>：不输出log</li>
+<li><code>console=ttyS0</code>：指定终端为 <code>/dev/ttyS0</code>，这样一启动就能进入终端界面</li>
 </ul>
 </li>
-<li><code>-monitor</code>：将监视器重定向到主机设备<code>/dev/null</code>，这里重定向至null主要是防止CTF中被人给偷了qemu拿flag</li>
-<li><code>-cpu</code>：设置CPU安全选项，在这里开启了smep保护</li>
+<li><code>-cpu</code>：设置CPU选项，在这里开启了smep保护</li>
+<li><code>-smp</code>：设置对称多处理器配置，这里设置了两个核心，每个核心一个线程</li>
+<li><code>-nographic</code>：不提供图形化界面，此时内核仅有串口输出，输出内容会被 QEMU 重定向至我们的终端</li>
 <li><code>-s</code>：相当于<code>-gdb tcp::1234</code>的简写（也可以直接这么写），后续我们可以通过gdb连接本地端口进行调试</li>
 </ul>
 <p>运行<code>boot.sh</code>，成功启动~撒花~🌸🌸🌸</p>
-<p><img src="https://i.loli.net/2021/02/22/Aj9sYfLCrgZFVxI.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
-<blockquote>
-<p>在这里遇到了一条报错信息：</p>
-<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">mount: mounting <span class="hljs-keyword">none</span> <span class="hljs-keyword">on</span> /sys failed: <span class="hljs-keyword">No</span> such device<br></code></pre></td></tr></table></figure>
+<p><img src="https://s2.loli.net/2025/02/27/ZebjBa7fo4yNptv.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="II-使用-ext4-镜像作为文件系统"><a href="#II-使用-ext4-镜像作为文件系统" class="headerlink" title="II. 使用 ext4 镜像作为文件系统"></a>II. 使用 ext4 镜像作为文件系统</h4><p>编写如下启动脚本即可：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-meta">#!/bin/bash</span><br>qemu-system-x86_64 \<br>    -m 256M \<br>    -cpu kvm64,+smep,+smap \<br>    -smp cores=2,threads=2 \<br>    -kernel bzImage \<br>    -hda ./rootfs.img \<br>    -nographic \<br>    -monitor /dev/null \<br>    -append <span class="hljs-string">&quot;console=ttyS0 root=/dev/sda rw rdinit=/sbin/init kaslr pti=on quiet oops=panic panic=1&quot;</span> \<br>    -no-reboot \<br>	-s<br></code></pre></td></tr></table></figure>
 
-<p>暂且没查到原因…</p>
-</blockquote>
-<h4 id="II-使用-ext4-镜像作为文件系统"><a href="#II-使用-ext4-镜像作为文件系统" class="headerlink" title="II. 使用 ext4 镜像作为文件系统"></a>II. 使用 ext4 镜像作为文件系统</h4><p>编写如下启动脚本即可，实际上只是将 <code>-initrd</code> 换成了 <code>-hda</code>，这里也可以写成 <code>-drive file=./rootfs.img,format=raw</code>：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-meta">#!/bin/bash</span><br>qemu-system-x86_64 \<br>    -m 256M \<br>    -cpu kvm64,+smep,+smap \<br>    -smp cores=2,threads=2 \<br>    -kernel bzImage \<br>    -hda ./rootfs.img \<br>    -nographic \<br>    -monitor /dev/null \<br>    -snapshot \<br>    -append <span class="hljs-string">&quot;console=ttyS0 root=/dev/sda rw rdinit=/sbin/init kaslr pti=on quiet oops=panic panic=1&quot;</span> \<br>    -no-reboot \<br><br></code></pre></td></tr></table></figure>
-
-<p><img src="https://s2.loli.net/2023/01/14/LTqV7wCukEOgKvx.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>涉及改动的参数如下：</p>
+<ul>
+<li><code>-hda</code>：我们将 ext4 镜像挂载为一个真正的硬盘设备，优点在于更贴近真实环境（同时 flag 不会被在内存中泄漏），缺点在于所有对文件系统的操作都会“落盘”</li>
+<li><code>-append</code>：我们修改了 <code>root=/dev/sda rw</code> ，因为 ext4 镜像被挂载为一个 SATA 硬盘，而 Linux 中第一个 SATA 硬盘的路径为 <code>/dev/sda</code> ，因此我们将根文件系统路径指向设备路径，并给予可读写权限</li>
+</ul>
+<p>成功运行：</p>
+<p><img src="https://s2.loli.net/2023/01/14/LTqV7wCukEOgKvx.png" srcset="/img/loading.gif" lazyload></p>
 <h1 id="0x04-编写可装载内核模块（LKMs）"><a href="#0x04-编写可装载内核模块（LKMs）" class="headerlink" title="0x04.编写可装载内核模块（LKMs）"></a>0x04.编写可装载内核模块（LKMs）</h1><blockquote>
 <p>写这一部分把我的虚拟机搞崩了好几次…Or2</p>
 </blockquote>
@@ -564,7 +603,7 @@
 </ul>
 <h2 id="二、编译内核模块：makefile-与-Kbuild"><a href="#二、编译内核模块：makefile-与-Kbuild" class="headerlink" title="二、编译内核模块：makefile 与 Kbuild"></a>二、编译内核模块：makefile 与 Kbuild</h2><p>与一般的可执行文件所不同的是，我们应当使用 Makefile 来构建一个内核模块，并使用 Kbuild 说明编译规则</p>
 <p>首先创建一个 <code>Kbuild</code> 文件，写入如下内容：</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs ruby"><span class="hljs-variable constant_">MODULE_NAME</span> <span class="hljs-string">?=</span> hellokernel<br><br>obj-m += <span class="hljs-variable">$(</span><span class="hljs-variable constant_">MODULE_NAME</span>).o<br><br><span class="hljs-variable">$(</span><span class="hljs-variable constant_">MODULE_NAME</span>)-y += main.o<br></code></pre></td></tr></table></figure>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs makefile">MODULE_NAME ?= hellokernel<br><br>obj-m += <span class="hljs-variable">$(MODULE_NAME)</span>.o<br><br><span class="hljs-variable">$(MODULE_NAME)</span>-y += main.o<br></code></pre></td></tr></table></figure>
 
 <p>简单说明一下这个 Kbuild：</p>
 <ul>
