@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2022/08/05/GUxVBYWnbdzA6KD.png">
 <meta property="article:published_time" content="2022-08-28T18:39:22.000Z">
-<meta property="article:modified_time" content="2024-07-31T09:04:16.911Z">
+<meta property="article:modified_time" content="2025-03-07T21:23:23.655Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="虚拟化">
 <meta property="article:tag" content="系统虚拟化">
@@ -317,7 +317,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2024年7月31日 晚上
+                    本文最后更新于：2025年3月8日 早上
                   
                 
               </p>
@@ -792,8 +792,8 @@
 <h3 id="II-VRing：virtqueue-的基本结构"><a href="#II-VRing：virtqueue-的基本结构" class="headerlink" title="II. VRing：virtqueue 的基本结构"></a>II. VRing：virtqueue 的基本结构</h3><p>virtqueue 核心的数据结构便是 <code>vring</code>，这是一个<strong>环形缓冲区队列</strong>，其由三部分组成：</p>
 <ul>
 <li>描述符表（Desc）</li>
-<li>可用描述符数组（Used）</li>
-<li>已用描述符数组（Avail）</li>
+<li>可用描述符数组（Avail）</li>
+<li>已用描述符数组（Used）</li>
 </ul>
 <p><img src="https://s2.loli.net/2022/08/29/OrlAvYaFkZ3dIXt.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <p>一个描述符（Descriptor）为如下结构，表示了一块 buffer 的基本属性，需要注意的是一个 Avail&#x2F;Used 表项通常是多个 descriptor 串联的 buffer——这便是 next 域的作用：</p>
