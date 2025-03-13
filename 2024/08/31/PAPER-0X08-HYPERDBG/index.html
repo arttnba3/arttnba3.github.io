@@ -1,0 +1,912 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="猫猫帮你调试程序，猫好，人类奴役猫猫，人坏">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【PAPER.0x05】论文笔记：HyperDbg: Reinventing Hardware-Assisted Debugging">
+<meta property="og:url" content="https://arttnba3.github.io/2024/08/31/PAPER-0X08-HYPERDBG/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="猫猫帮你调试程序，猫好，人类奴役猫猫，人坏">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2023/11/08/X1Jr3FuUdfCDE9e.png">
+<meta property="article:published_time" content="2024-08-30T18:59:36.000Z">
+<meta property="article:modified_time" content="2025-03-12T13:40:30.450Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="信息安全">
+<meta property="article:tag" content="论文笔记">
+<meta property="article:tag" content="虚拟化">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2023/11/08/X1Jr3FuUdfCDE9e.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【PAPER.0x05】论文笔记：HyperDbg: Reinventing Hardware-Assisted Debugging - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"arttnba3.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" target="_blank" rel="noopener" href="https://github.com/arttnba3">
+                <i class="iconfont icon-github-fill"></i>
+                GitHub
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://s2.loli.net/2024/09/23/8wMJgiURmfse2l3.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【PAPER.0x05】论文笔记：HyperDbg: Reinventing Hardware-Assisted Debugging"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-08-31 04:59" pubdate>
+          2024年8月31日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          73 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【PAPER.0x05】论文笔记：HyperDbg: Reinventing Hardware-Assisted Debugging</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2025年3月13日 凌晨
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>猫猫帮你调试程序，猫好，人类奴役猫猫，人坏</p>
+<span id="more"></span>
+
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><p>笔者最近依然在做虚拟化相关的工作（因为这个工作一直做一直摸鱼所以一直没做完喵），所以还是再简单看点相关的论文继续划划水这样子</p>
+<p>这一次看的是一个架构比较复杂但是挺有名的开源项目——<a target="_blank" rel="noopener" href="https://github.com/HyperDbg/HyperDbg">HyperDbg</a> 的论文：）</p>
+<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>现在的调试平台都由于各种限制无法提供透明、高效、高性能的 low-level 调试器，这篇论文给出了一个使用虚拟化技术辅助的调试器，其基于一个自定义的虚拟机（<del>笔者：怎么都这么喜欢自己写虚拟机</del>），并通过 EPT 进行基于硬件的指令级模拟与系统级 API 劫持，同时通过部署一个与 VMX 兼容的脚本引擎消除了不必要的上下文切换，实验结果表明 hyperdbg 的隐秘性使其比 WinDbg 和 x64dbg 能调试更多的软件样本，且调试速度比 WinDbg 快得多</p>
+<h2 id="CCS-Concepts"><a href="#CCS-Concepts" class="headerlink" title="CCS Concepts"></a>CCS Concepts</h2><p>• Security and privacy → Software reverse engineering; Virtualization and security; Software security engineering; • Software and its engineering → Compilers.</p>
+<h2 id="Keywords"><a href="#Keywords" class="headerlink" title="Keywords"></a>Keywords</h2><p>Hypervisor, Debugging, Kernel-debugger, Fuzzing, Malware-analysis</p>
+<h1 id="0x01-INTRODUCTION"><a href="#0x01-INTRODUCTION" class="headerlink" title="0x01. INTRODUCTION"></a>0x01. INTRODUCTION</h1><p>调试器（debugger）是辅助软件开发、软件逆向工程与恶意软件分析中的一个重要工具，但现代软件都有着反虚拟化、反模拟、指纹检测等技术（如调用特定的 OS APIs）来对抗调试，而现有的调试工具都缺乏相应的对抗能力，与此同时一份对 4百万恶意软件的调查显示其中 88% 都装备了反逆向技术、81%装备了反调试或反虚拟化技术，OS APIs 或是 ring-0 的选项使得高权限的恶意软件可以检测到调试器的存在</p>
+<blockquote>
+<p>笔者注：例如最常见的一个检测方式就是指令执行时间，例如 <code>cpuid</code> 指令在模拟执行下的总时长在虚拟机中会比物理机上高不少</p>
+</blockquote>
+<p>因此研究人员将目光放到硬件上，裸金属、hypervisor-level、系统管理模式（System Management Mode）甚至是 Intel 内存管理引擎（Memory Management Engine）都被用来增加调试器的透明度，但也造成了较高的性能损耗，此前提出的子内核调试器虽强但也未能提供丰富的调试功能，且大都停止更新或仅为学术目的而开发，此外社区也要求这类工具提供源码</p>
+<p>本文给出 <a target="_blank" rel="noopener" href="https://github.com/HyperDbg/HyperDbg">HYPERDBG</a> ：基于 VMM &amp;  Intel VT-x  的 debugger，其避免使用任何 OS API 或软件调试机制，而是广泛使用处理器功能（如 EPT）来监视程序执行，从而提高了执行透明性，并使得 HyperDbg 可以使用 SOTA 技术（如 hidden hook，与 inline hook 一样快），以及支持硬件调试断点以在对特定位置的读写下断；作者在 13 个打包器与保护器上进行了测试，没有一个检测到了 HYPERDBG，超越现有的其他调试器；作者在 10853 个恶意软件上展示了透明调试的适用性，成功分析的恶意样本数量分别超过 WinDbg 22%、 x64dbg 26%；作者还描述了使用 HYPERDBG 对一个 Windows kernel 0 day 的重新发现</p>
+<p>对于高性能调试，HYPERDBG 使用与 VMX-root 兼容的脚本引擎来在内核模式执行整个复杂的调试功能，其脚本消除了用户到内核的交互且提供了巨大的调试性能，作者在单步执行、条件中断、系统调用记录中评估了 HYPERDBG，与 WinDbg 相比分别快了 2.98、1319、2018 倍</p>
+<p>作者展示了 HYPERDBG 的设计很 🐮🍺，简而言之本文贡献如下：</p>
+<ul>
+<li>作者展示了 HYPERDBG，一个为深度软件分析、逆向工程、隐秘 fuzzing 而特化的 hypervisor 辅助的调试器</li>
+<li>作者引入了 VMX-root 兼容的脚本引擎，比 SOTA 调试器快几个数量级</li>
+<li>作者在 10853 恶意软件中证明了 HYPERDBG 的透明调试，比 SOTA 调试器能多分析 22%~26% 的样本</li>
+<li>作者描述了 HYPERDBG 的多种应用，如大规模与快速恶意软件分析（包括 Windows 0-day 分析）、fuzzing 中的代码覆盖率、IO 设备调试、软件性能测量</li>
+</ul>
+<p>作者的代码开源于 <a target="_blank" rel="noopener" href="https://github.com/HyperDbg/HyperDbg">https://github.com/HyperDbg/HyperDbg</a></p>
+<h1 id="0x02-TECHNICAL-BACKGROUND"><a href="#0x02-TECHNICAL-BACKGROUND" class="headerlink" title="0x02. TECHNICAL BACKGROUND"></a>0x02. TECHNICAL BACKGROUND</h1><p>本节介绍所需的技术背景知识</p>
+<h2 id="2-1-Modern-Debuggers"><a href="#2-1-Modern-Debuggers" class="headerlink" title="2.1 Modern Debuggers"></a>2.1 Modern Debuggers</h2><p>调试（debugging）用于检查与分析软件程序过程，逐步执行、内存观测与修改、断点等都是调试器的重要特性，调试器可被分为用户模式（如 x64dbg、Ollydbg）与内核模式（如 WinDbg、GDB）两类，随着恶意软件技术进步，研究人员开始对能提供更透明环境的虚拟化、硬件辅助方法感兴趣</p>
+<h2 id="2-2-Instruction-Set-Architecture-ISA-Extensions"><a href="#2-2-Instruction-Set-Architecture-ISA-Extensions" class="headerlink" title="2.2 Instruction Set Architecture (ISA) Extensions"></a>2.2 Instruction Set Architecture (ISA) Extensions</h2><p>本节主要介绍 Intel 相关扩展，HYPERDBG 暂时也只支持 Intel 处理器</p>
+<ul>
+<li>Intel Virtualization Technology（VT-x）：Intel 的硬件辅助虚拟化技术，旨在简化虚拟化过程并提高 VMM 性能，其允许一个核心被当作多个核心运行</li>
+<li>Intel Extended Page Table （EPT）：Intel VT-x 中的硬件辅助的 MMU，其通过 EPT 提供了 GPA 到 HPA 的转换以消除软件管理的影子页表的开销，每个 Intel 核心都有一个 EPT 表，以允许多个不同独立系统并行访问</li>
+<li>Intel Transactional Synchronization Extensions（TSX）：TSX 为 x86 的一组指令集扩展，包括 Restricted Transactional Memory，这允许对硬件事务性的支持（如事务操作失败则回滚），本文中的 Intel TSX 特指 RTM</li>
+</ul>
+<h2 id="2-3-Terminology"><a href="#2-3-Terminology" class="headerlink" title="2.3 Terminology"></a>2.3 Terminology</h2><p>作者的实现基于 Intel 处理器，目标 OS 为 Microsoft Windows</p>
+<ul>
+<li>Hypervisor：通过虚拟共享资源实现虚拟化的软件，通过抽象硬件资源以运行虚拟机</li>
+<li>Interrupt Request Level （IRQL）：Windows 独立于硬件的中断与代码优先级排序机制，高 IRQL 的进程会抢占低 IRQL 的线程或中断，不同的 IRQL 用于不同目的</li>
+</ul>
+<h1 id="0x03-HIGH-LEVEL-OVERVIEW"><a href="#0x03-HIGH-LEVEL-OVERVIEW" class="headerlink" title="0x03. HIGH-LEVEL OVERVIEW"></a>0x03. HIGH-LEVEL OVERVIEW</h1><p>本节简单介绍 HYPERDBG 的设计</p>
+<h2 id="3-1-High-level-Debugging-Flow"><a href="#3-1-High-level-Debugging-Flow" class="headerlink" title="3.1 High-level Debugging Flow"></a>3.1 High-level Debugging Flow</h2><p> HYPERDBG 的子系统与执行流如图 1 所示，Host 与 Guest 之间通过如串口等进行通信，Host 侧提供 CLI 与用户交互，部署了汇编器&#x2F;反汇编器，并部署了多个使用了硬件特性如 EPT 的调试子系统；如图 1 所示：</p>
+<ul>
+<li>调试命令在 1️⃣ 中被汇编&#x2F;反汇编并传递给 Guest</li>
+<li>脚本引擎后端在 Guest 的 hypervisor-level 解释执行，通过如 4️⃣ 所示定位用户或内核被调试者的执行流</li>
+<li>2️⃣ 中各子系统基于事件触发执行命令与功能序列（如 3.2 所示）</li>
+<li>子系统利用硬件特性（如 EPT）执行 3️⃣ 中操作</li>
+</ul>
+<p>Host 与 Guest 间需双向通信，但 HYPERDBG 可在必要时将通信限制在 guest 内核模式中的自动化例程</p>
+<p><img src="https://s2.loli.net/2024/09/23/8wMJgiURmfse2l3.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="3-2-Event-Triggered-Interface"><a href="#3-2-Event-Triggered-Interface" class="headerlink" title="3.2 Event-Triggered Interface"></a>3.2 Event-Triggered Interface</h2><p>方便起见，作者使用“事件”（Event）这一抽象概念控制底层函数与构建块的使用，随后定义用于调试的子系统中的“条件”（Conditions）与“操作”（Actions）</p>
+<h3 id="3-2-1-Event"><a href="#3-2-1-Event" class="headerlink" title="3.2.1 Event"></a>3.2.1 Event</h3><p>调试器所感兴趣的事件，包括设定要监视的系统调用、内存访问等，HYPERDBG 可在事件上执行任意已定义操作</p>
+<h3 id="3-2-2-Actions"><a href="#3-2-2-Actions" class="headerlink" title="3.2.2 Actions"></a>3.2.2 Actions</h3><p>事件被触发后 HYPERDBG 可以执行称为“操作”的三类功能：下断（暂停执行）、脚本（观测与修改寄存器&#x2F;内存、创建日志等）、自定义代码（任意客制化汇编代码）</p>
+<h3 id="3-2-3-Conditions"><a href="#3-2-3-Conditions" class="headerlink" title="3.2.3 Conditions"></a>3.2.3 Conditions</h3><p>用户定义的对事件的约束，从而只在条件满足时触发事件</p>
+<h2 id="3-3-Operating-Modes"><a href="#3-3-Operating-Modes" class="headerlink" title="3.3 Operating Modes"></a>3.3 Operating Modes</h2><p>HYPERDBG 有两种操作模式</p>
+<h3 id="3-3-1-VMI-Mode"><a href="#3-3-1-VMI-Mode" class="headerlink" title="3.3.1 VMI Mode"></a>3.3.1 VMI Mode</h3><p>虚拟机自省（Virtual Machine Introspection）模式用于常规的用户程序调试与内核模式本地调试，虽然其提供了传统的调试体验与所有的 HYPERDBG 功能，但内核模式的断点与步入受限；VMI 也允许在本地&#x2F;远程调试中在用户态&#x2F;内核态运行脚本与代码</p>
+<h3 id="3-3-2-Debugger-Mode"><a href="#3-3-2-Debugger-Mode" class="headerlink" title="3.3.2 Debugger Mode"></a>3.3.2 Debugger Mode</h3><p>调试器模式（Debugger Mode）允许通过串口或虚拟串行设备连接到内核并暂停系统以单步调试用户与内核指令</p>
+<h3 id="3-3-3-Transparent-Mode"><a href="#3-3-3-Transparent-Mode" class="headerlink" title="3.3.3 Transparent Mode"></a>3.3.3 Transparent Mode</h3><blockquote>
+<p>笔者注：经典 X 大有 X + 1 个（</p>
+</blockquote>
+<p>透明模式（Transparent Mode）可以同时使用这两种模式，其通过隐藏 HYPERDBG 在时间与微架构级别的存在来提供隐身调试，第 6 节描述了使用的透明技术，第 7.1 皆进行了评估</p>
+<h1 id="0x04-BACK-END-ARCHITECTURE"><a href="#0x04-BACK-END-ARCHITECTURE" class="headerlink" title="0x04. BACK-END ARCHITECTURE"></a>0x04. BACK-END ARCHITECTURE</h1><p>本节在子系统级探索 HYPERDBG 的架构设计</p>
+<h2 id="4-1-Stepping-Subsystem"><a href="#4-1-Stepping-Subsystem" class="headerlink" title="4.1 Stepping Subsystem"></a>4.1 Stepping Subsystem</h2><p>本节研究传统调试器的步入机制的缺点，并讨论 HYPERDBG 作为 VMX-root 模式调试器的解决方案</p>
+<h3 id="4-1-1-Step-in"><a href="#4-1-1-Step-in" class="headerlink" title="4.1.1 Step-in"></a>4.1.1 Step-in</h3><p>步入（Step-in）通过设置 RFLAGS trap 标志位让系统在执行单条指令后停止，以让调试器读取&#x2F;修改寄存器与内存</p>
+<p><strong>Challenge.</strong> 传统步入机制无法确保逐行步入过程，因为可能转移到其他 CPU 核心执行，中断可能彻底改变执行流</p>
+<p>图 2a 是一个步入执行流被 #DB 异常中断打乱的例子，一个简单的解决方案是清除 RFLAGS 的中断标志位来屏蔽外部中断，但很容易破坏操作系统语义；HYPERDBG 引入了 <em>插桩步入</em> （Instrumental Step-in）来确保调试中的步入机制</p>
+<p><strong>Approach.</strong> HYPERDBG 通过使用 Monitor Trap Flag （对 Guest 透明，类似 <code>RFLAGS::TF</code> ）引入插桩步入机制，非可屏蔽中断（Non-Maskable Interrupts，NMIs）用来确保操作在一个核心上执行、其他核心挂起</p>
+<p><img src="https://s2.loli.net/2024/09/23/xbRJdLfjqUwz75h.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="4-1-2-Instrumentation-Step-in"><a href="#4-1-2-Instrumentation-Step-in" class="headerlink" title="4.1.2 Instrumentation Step-in"></a>4.1.2 Instrumentation Step-in</h3><p>HYPERDBG 是据作者所知第一个提供了确保步入方法的调试器，如图 2c 所示，在 Guest 执行目标指令后会触发 VM-exit（设置了 MTF），HYPERDBG 仅在该核心上继续执行且禁止中断（设置 VMCS）以提供细粒度的步入，这提供了其他调试器（如 WinDbg）所没有的特性，例如在用户模式执行 <code>SYSCALL</code> 指令时 HYPERDBG 允许直接执行接下来进入内核的指令（SYSCALL handler），或类似的缺页异常 handler，或 <code>SYSRET</code> 、<code>IRET</code> 指令</p>
+<h3 id="4-1-3-Step-over"><a href="#4-1-3-Step-over" class="headerlink" title="4.1.3 Step-over"></a>4.1.3 Step-over</h3><p>步过（step-over）机制中调试器会把 call 指令的长度发给被调试者（而非设置 Trap 标志位），设置硬件调试寄存器以在 call 完成后触发并通知调试器下一条指令；由于其他线程&#x2F;核心也可能触发硬件调试寄存器，HYPERDBG 忽视来自其他线程&#x2F;进程 ID 的 #DBs，并重置调试寄存器直到到正确的执行上下文与目标线程，图 2b 展示了 HYPERDBG 的单步跳过机制，在检查调用指令后，下一条指令将会抛出断点异常（Breakpoint Exception，#DB）</p>
+<h2 id="4-2-Hooking-Subsystem"><a href="#4-2-Hooking-Subsystem" class="headerlink" title="4.2 Hooking Subsystem"></a>4.2 Hooking Subsystem</h2><p>Hooking 即拦截任意事件、运行任意指令、将执行流返回到事件入口点的行为</p>
+<p><strong>Challenge.</strong> 现有调试器的 hooking 系统使用可以被检测的直接内存访问，且 <em>硬件调试寄存器</em> （Hardware Debug Registers）的数量与大小是固定的，这限制了 Hooking 的性能</p>
+<h3 id="4-2-1-SYSCALL-and-SYSRET-Hooks"><a href="#4-2-1-SYSCALL-and-SYSRET-Hooks" class="headerlink" title="4.2.1 SYSCALL and SYSRET Hooks"></a>4.2.1 SYSCALL and SYSRET Hooks</h3><p>HYPERDBG 通过清除扩展特性启用寄存器（Extended Feature Enable Register,即 <code>IA32_EFER</code> ）的 SCE 位触发未定义操作异常（undefined opcode exception，#UD）并检查异常源头以实现 hooking 功能，用户可以执行任意脚本并为任意系统调用进入（SYSCALL）或返回（SYSRET）设置 hooks ，调试器可以在实际执行指令前监视&#x2F;执行&#x2F;修改系统上下文</p>
+<p><strong>Approach.</strong> HYPERDBG 通过两种 EPT hooking 机制透明地监视与操纵内存访问，并模拟调试寄存器以超越此前的限制</p>
+<h3 id="4-2-2-EPT-Hidden-Hook"><a href="#4-2-2-EPT-Hidden-Hook" class="headerlink" title="4.2.2 EPT Hidden Hook"></a>4.2.2 EPT Hidden Hook</h3><p>作者提出了对用户&#x2F;内核不可见的 EPT-level hooking ，在 HYPERDBG 中第一种是在目标机器内存中注入 #BP（0xcc）的传统 EPT hook，第二种利用了 <a target="_blank" rel="noopener" href="https://www.cs.columbia.edu/~junfeng/10fa-e6998/papers/detours.pdf">Detours</a> 风格的 Hook，通过跳转到修补后的指令并在回调后返回到常规执行流以改变执行路径，后者虽然存在灵活性限制但避免了昂贵的 VM-exit</p>
+<h3 id="4-2-3-Limitless-Simulating-of-Debug-Register-（monitor）"><a href="#4-2-3-Limitless-Simulating-of-Debug-Register-（monitor）" class="headerlink" title="4.2.3 Limitless Simulating of Debug Register （monitor）"></a>4.2.3 Limitless Simulating of Debug Register （monitor）</h3><p>EPT hooking 也允许通过触发事件触发器（event trigger）来模拟硬件调试寄存器以监视对任意地址范围的任意读写，并消除 HDR 的数量与长度限制</p>
+<h2 id="4-3-Memory-Access-in-VMX-root-Mode"><a href="#4-3-Memory-Access-in-VMX-root-Mode" class="headerlink" title="4.3 Memory Access in VMX-root Mode"></a>4.3 Memory Access in VMX-root Mode</h2><p>安全内存访问是设计 hypervisor-level debugger 的一个挑战，因为许多场景都能导致系统挂起或异常（如在 VMX-root 访问用户地址空间），且无法通过现成的指令（如 <code>mov</code> ）解决</p>
+<p><strong>Challenge.</strong> VMX-level 的安全内存访问极其复杂，通常的由 OS 处理会导致性能开销，但对很多场景而言安全且高效的内存访问是必要的 </p>
+<p><strong>Approach.</strong> 作者提出了一系列策略来解决 VMX 内存管理的复杂性</p>
+<h3 id="4-3-1-Discover-Page-table-Entries"><a href="#4-3-1-Discover-Page-table-Entries" class="headerlink" title="4.3.1 Discover Page-table Entries"></a>4.3.1 Discover Page-table Entries</h3><p>检查目标地址页面合法性的传统方法是检查页表中是否有合法的 PTE（并设置了 present 位），作者使用无需在用户态与内核态间切换便能抑制异常的 Intel TSX 进行替代，通过检查包含目标地址的事务的成功执行来检查页面合法性，这仅需要如 Listing 1 所示的简短代码；HYPERDBG 对不支持 TSX 的处理器会在需要时回退到前一种方法；作者的实验证明在用户态能快三个数量级，但在内核态会由于 RTM routine 而减慢 40%</p>
+<p><img src="https://s2.loli.net/2024/09/23/PN4KGjfC286poJY.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="4-3-2-Retrieving-a-Page-by-Injecting-Page-Fault-PF"><a href="#4-3-2-Retrieving-a-Page-by-Injecting-Page-Fault-PF" class="headerlink" title="4.3.2 Retrieving a Page by Injecting Page Fault (#PF)"></a>4.3.2 Retrieving a Page by Injecting Page Fault (#PF)</h3><p>HYPERDBG 在缺页时向被调试者注入缺页异常（通过修改 CR2 为目标虚拟地址）以请求 VMX non-root 从硬盘上带回该页</p>
+<h3 id="4-3-3-VMX-root-Mode-Compatible-Message-Tracing"><a href="#4-3-3-VMX-root-Mode-Compatible-Message-Tracing" class="headerlink" title="4.3.3 VMX-root Mode Compatible Message Tracing"></a>4.3.3 VMX-root Mode Compatible Message Tracing</h3><p>VMX-root 与 VMX-non-root 间的消息传递面临巨大挑战，VMX-root 模式下访问分页池有诸多限制，绝大部分 NT 函数也不兼容任何 IRQL；HYPERDBG 使用对 VMX-root 可见的非分页池部署特制的消息追踪机制，细节在 <a target="_blank" rel="noopener" href="https://rayanfam.com/topics/hypervisor-from-scratch-part-8/">https://rayanfam.com/topics/hypervisor-from-scratch-part-8/</a> 中进行了彻底讨论</p>
+<h3 id="4-3-4-Reading-and-Writing-Memory"><a href="#4-3-4-Reading-and-Writing-Memory" class="headerlink" title="4.3.4 Reading and Writing Memory"></a>4.3.4 Reading and Writing Memory</h3><p>出于多方面考虑，HYPERDBG 并不直接访问内存，但使用虚拟寻址方法保留 PTE 并映射对应物理内存到内核虚拟地址以安全地读写</p>
+<h3 id="4-3-5-Pre-allocated-Pools"><a href="#4-3-5-Pre-allocated-Pools" class="headerlink" title="4.3.5 Pre-allocated Pools"></a>4.3.5 Pre-allocated Pools</h3><p>HYPERDBG 使用预分配池以解决传统上 VMX root 下无法分配内存的问题，其（4KB 粒度时）提供了 EPT hooks 所需的资源，HYPERDBG 的内存管理器会记录 VMX root 中所需的内存池中释放&#x2F;替换，并在 VMX non-root 中执行</p>
+<h1 id="0x05-FRONT-END-ARCHITECTURE"><a href="#0x05-FRONT-END-ARCHITECTURE" class="headerlink" title="0x05. FRONT-END ARCHITECTURE"></a>0x05. FRONT-END ARCHITECTURE</h1><p>本节讨论连接后端的中间件与 UI</p>
+<h2 id="5-1-Communicating-and-Task-Appliance"><a href="#5-1-Communicating-and-Task-Appliance" class="headerlink" title="5.1 Communicating and Task Appliance"></a>5.1 Communicating and Task Appliance</h2><p>用网络传输数据的 Windows API 由于中断在 VMX-root 下不可用而不切实际，且由于 IRQL 而需要额外的实现，因此 HYPERDBG 利用串口进行数据传输（如图 3 所示），其简化了设计并允许使用轮询，此外 HYPERDBG 可以使用 KDNet 进行通信</p>
+<p><img src="https://s2.loli.net/2024/09/23/5U1QCYlmPdIHFkM.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<h3 id="5-1-1-Sending-Data-over-Serial"><a href="#5-1-1-Sending-Data-over-Serial" class="headerlink" title="5.1.1 Sending Data over Serial"></a>5.1.1 Sending Data over Serial</h3><p>HYPERDBG 支持最多四个串口，可以通过串行设备中断挂起被调试方而无需严格轮询，此后使用 <code>VMCALL</code> 返回 <code>VMX-root</code> 等待调试器后续命令</p>
+<h3 id="5-1-2-Communication-between-Cores"><a href="#5-1-2-Communication-between-Cores" class="headerlink" title="5.1.2 Communication between Cores"></a>5.1.2 Communication between Cores</h3><p>HYPERDBG 在 VMX-root 模式通过 NMIs 挂起其他核心，或是不通知其他核而直接执行代码&#x2F;脚本</p>
+<h2 id="5-2-Kernel-level-Script-Engine"><a href="#5-2-Kernel-level-Script-Engine" class="headerlink" title="5.2 Kernel-level Script Engine"></a>5.2 Kernel-level Script Engine</h2><p>现代调试器缺乏高性能与高可定制的脚本框架，因此作者从零开始设计了一个 VMX-enabled 的脚本引擎，据悉是仅有的可在 VMX-root 模式下提供高级特性如 OS 自旋锁、内存检查、辅助函数（如 printf）等的脚本引擎解决方案；脚本引擎的架构如图 4a 所示，其由一个后端（使用 <code>LL(1)</code> 与 <code>LALR(1)</code> 解析器以追求最大效率）与一个使用 MASM 风格与 C 关键字（如 <code>if/else/for</code> ）以及易定制的语法的前端组成 </p>
+<p><img src="https://s2.loli.net/2024/09/24/841gSeGhCtM7LNJ.png" srcset="/img/loading.gif" lazyload></p>
+<p>用户输入的脚本被传递给 host 前端，由 lexer 扫描入，并被翻译为中间表示（Intermediate Representation），之后通过串口传输到 guest 的 kernel VMX-root 的一个缓冲区以供执行，之后一个缓冲区逐渐被用执行结果填充并传输回 host；这种方法与用在商业调试器（命令与脚本被逐行发送与解析）中的通过发送整个脚本到 VMX-root mode 并通过单向流响应回用户模式的传统的双向方法相比提供了较大的性能提升</p>
+<h1 id="0x06-TRANSPARENCY-ANALYSIS"><a href="#0x06-TRANSPARENCY-ANALYSIS" class="headerlink" title="0x06. TRANSPARENCY ANALYSIS"></a>0x06. TRANSPARENCY ANALYSIS</h1><p>本节用恶意软件分析 HYPERDBG 的透明性</p>
+<h2 id="6-1-Hypervisor-Detection-Methods-and-Mitigations"><a href="#6-1-Hypervisor-Detection-Methods-and-Mitigations" class="headerlink" title="6.1 Hypervisor Detection Methods and Mitigations"></a>6.1 Hypervisor Detection Methods and Mitigations</h2><p>检测子操作系统第三方程序（如 hypervisor）通过查询一组指示性的指纹，如注册表项、系统调用（例如查找运行的进程与加载的驱动）、指令（如 <code>CPUID/IDT/LDT</code> ），HYPERDBG 拦截并强制 VM-exit，模拟对应的非虚拟化环境的正常值来对抗，表 1 提供了此类方法的综合预览；更复杂的 VM 检测方法利用时间侧信道，核心思想是特定指令（如 <code>CPUID/GETSEC/INVD/XSETB</code> ）会造成 VM-exit 而执行时间更长，列表 2 展示了此类攻击的示例，接下来我们将描述 HYPERDBG 如何对抗此类检测方法</p>
+<p><img src="https://s2.loli.net/2024/10/07/LbpTxDqA8gYW5ul.png" srcset="/img/loading.gif" lazyload alt="Table 1: Anti-Debugging and Anti-VM exercises and mitigation in HyperDbg"></p>
+<h2 id="6-2-Timing-Transparency-in-HYPERDBG"><a href="#6-2-Timing-Transparency-in-HYPERDBG" class="headerlink" title="6.2 Timing Transparency in HYPERDBG"></a>6.2 Timing Transparency in HYPERDBG</h2><p>HYPERDBG 的透明模式为隐藏虚拟化时间泄漏提供了一种通过识别检测 VM 的序列并将时间值替换为非虚拟化系统的解决方案，据作者所知 HYPERDBG 是第一个提供了修改分析软件用以检测虚拟化环境的时间指纹的实用手段的调试器，通过使用执行时间的统计模型，广泛时间分析被在 VMM 模块启动前执行，以尽可能接近 Guest OS 的正常运行条件的时间戳</p>
+<p>作者使用二项高斯分布（two-term Gaussian Distribution）作为回归函数（regressor function），因为实验表明其非常适合对此类执行时间进行建模，图 5 显示了在启用与不启用 HyperDbg 的情况下运行列表 2 中序列的 10k 次执行的测量结果的概率分布函数（Probability Distribution Function），这些值可以被导出且统计参数可以被记录用于模拟目的</p>
+<p><img src="https://s2.loli.net/2024/10/07/3fPpcDxsWkM68ma.png" srcset="/img/loading.gif" lazyload alt="Listing 2: The timing measurement code by forcing VM-exit"></p>
+<p><img src="https://s2.loli.net/2024/12/03/ZEgfdNcimw5xtr9.png" srcset="/img/loading.gif" lazyload alt="Figure 5: PDF distribution of timing measurement for deactivated HyperDbg (a), with activated HyperDbg (b)"></p>
+<p>HyperDbg 目前允许通过两种方法 cover 掉 VM 的时间泄漏：</p>
+<ul>
+<li>1）调整跟踪 CPU 时间的 MSR 寄存器（称为 <code>IA32_TIME_STAMP_COUNTER</code>），无需 VM-Exit 但会增加系统不稳定性</li>
+<li>2）模拟 <code>RDTSC</code> 与 <code>RDTSCP</code> 指令的结果，需要 VM-Exit 因此引入额外复杂度</li>
+</ul>
+<p>时序指令的全局模拟会干扰系统的主要功能（作者在屏幕驱动与音频输出上进行了实验证明）</p>
+<h2 id="6-3-Alternative-Timing-Attack-Methods"><a href="#6-3-Alternative-Timing-Attack-Methods" class="headerlink" title="6.3 Alternative Timing Attack Methods"></a>6.3 Alternative Timing Attack Methods</h2><p>HyperDbg 还有一些方法能阻碍恶意软件用各种类型的计时攻击探测时间，如在 HyperDbg 中有对 shared ticks 与硬件性能监视计数器（RDPMC）的内置支持</p>
+<h1 id="0x07-EVALUATION"><a href="#0x07-EVALUATION" class="headerlink" title="0x07. EVALUATION"></a>0x07. EVALUATION</h1><h2 id="7-1-Transparency-Evaluation"><a href="#7-1-Transparency-Evaluation" class="headerlink" title="7.1 Transparency Evaluation"></a>7.1 Transparency Evaluation</h2><p>作者在提供了反调试压力测试的工具 <a target="_blank" rel="noopener" href="https://github.com/a0rtega/pafish">pafish</a> 与 <a target="_blank" rel="noopener" href="https://github.com/ayoubfaouzi/al-khaser">al-khaser</a> 上评估了 HyperDbg 的透明模式，如作者所料，第一种方法（更新 <code>IA32_TIME_STAMP_COUNTER</code>） 会干扰系统主要功能，而第二种方法（模拟）则成功通过这些工具，作者还在常见反调方法与商用软件上评估了 HyperDbg</p>
+<h3 id="7-1-1-Evaluation-Configuration"><a href="#7-1-1-Evaluation-Configuration" class="headerlink" title="7.1.1 Evaluation Configuration"></a>7.1.1 Evaluation Configuration</h3><p>作者在不同类别的 10853 个恶意软件样本上分析，分别在 HyperDbg 的普通模式与透明模式进行测试，并与 x64dbg 与 WinDbg 对比，系统为 Windows 20H1；作者使用 C&#x2F;S 模式分发样本，并使用两种方法恢复系统：基于 <a target="_blank" rel="noopener" href="https://dl.acm.org/doi/10.1145/2076732.2076790">Barebox</a> 的无需重启的方法与基于 Windows 系统还原的方法</p>
+<p>**Barebox-based Approach **：作者首先使用基于 Barebox 的方法</p>
+<h3 id="7-1-2-Evaluation-by-Anti-Debugging-VM-and-Hypervisor"><a href="#7-1-2-Evaluation-by-Anti-Debugging-VM-and-Hypervisor" class="headerlink" title="7.1.2 Evaluation by Anti-Debugging, -VM, and -Hypervisor"></a>7.1.2 Evaluation by Anti-Debugging, -VM, and -Hypervisor</h3>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/PAPER/" class="category-chain-item">PAPER</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8/">#信息安全</a>
+      
+        <a href="/tags/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">#论文笔记</a>
+      
+        <a href="/tags/%E8%99%9A%E6%8B%9F%E5%8C%96/">#虚拟化</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【PAPER.0x05】论文笔记：HyperDbg: Reinventing Hardware-Assisted Debugging</div>
+      <div>https://arttnba3.github.io/2024/08/31/PAPER-0X08-HYPERDBG/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年8月31日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/09/23/OPS-0X03-OLD_UBUNTU_EOL_RELEASE_UPGRADE/" title="【OPS.0x03】将 EOL 的 Ubuntu 升级为 LTS 版本">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【OPS.0x03】将 EOL 的 Ubuntu 升级为 LTS 版本</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/08/31/OPS-0X02-AUSTRALIA_FIREWALL_ESCAPE/" title="【OPS.0x02】如何在澳洲校园网内玩原神">
+                        <span class="hidden-mobile">【OPS.0x02】如何在澳洲校园网内玩原神</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      桂ICP备2022005068号-1
+    </a>
+  </span>
+  
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
