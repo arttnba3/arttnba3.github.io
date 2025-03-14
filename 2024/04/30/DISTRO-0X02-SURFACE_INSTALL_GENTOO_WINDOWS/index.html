@@ -18,16 +18,16 @@
   <meta name="author" content="arttnba3">
   <meta name="keywords" content="">
   
-    <meta name="description" content="省流：最后装回了 openSUSE Tumbleweed">
+    <meta name="description" content="Gentoo 和 openSUSE Tumbleweed 相比，那我还是觉得我们 Gentoo 牛批">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【DISTRO.0x02】在 Surface Pro 8 上安装 Gentoo">
 <meta property="og:url" content="https://arttnba3.github.io/2024/04/30/DISTRO-0X02-SURFACE_INSTALL_GENTOO_WINDOWS/index.html">
 <meta property="og:site_name" content="arttnba3&#39;s blog">
-<meta property="og:description" content="省流：最后装回了 openSUSE Tumbleweed">
+<meta property="og:description" content="Gentoo 和 openSUSE Tumbleweed 相比，那我还是觉得我们 Gentoo 牛批">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://steamuserimages-a.akamaihd.net/ugc/43107956178667128/BC3271F0AA6DFA2EF54A2D119994087298A53BC6/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false">
 <meta property="article:published_time" content="2024-04-29T19:23:41.000Z">
-<meta property="article:modified_time" content="2024-12-17T12:40:55.533Z">
+<meta property="article:modified_time" content="2025-03-14T18:49:50.961Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Gentoo Linux">
@@ -274,7 +274,7 @@
         
         
         
-          167 分钟
+          171 分钟
         
       </span>
     
@@ -329,7 +329,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2024年12月17日 晚上
+                    本文最后更新于：2025年3月15日 凌晨
                   
                 
               </p>
@@ -337,14 +337,14 @@
             
               <div class="markdown-body">
                 
-                <p>省流：最后装回了 openSUSE Tumbleweed</p>
+                <p>Gentoo 和 openSUSE Tumbleweed 相比，那我还是觉得我们 Gentoo 牛批</p>
 <span id="more"></span>
 
 <h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><blockquote>
 <p>熟悉的废话环节，可以直接跳过不看：）</p>
 </blockquote>
 <p>熟悉笔者的朋友都知道笔者是一个微软死忠粉（ <del>虽然这位微软死忠粉现在并没有在将由微软开发的操作系统作为主力</del> ），因此手上自然而然会有一些 Surface 设备（当然绝大部分都出二手回血了，👴只能说学生时代缺钱的穷 b 是这样的），恰好笔者手边有一台闲置的 Surface Pro 8 设备，而 Surface 从这一代设备开始有一个支持方便快捷地自行更换硬盘的设计，同时笔者原有的设备是最低配的版本 （8G 运存 + 128G 存储），因此笔者就想把这台陪伴了笔者大四期间多个夜晚的设备（因为晚上宿舍断电，所以有这样一台续航长的办公本还是很重要的， <del>当然这里肯定有人要问为什么不用 macbook 了，虽然说 mac 的续航时间确实比 Windows 阵营任何的笔记本要长得多，但是笔者当时并没有钱能够买得起哪怕是一台二手的 macbook，而且既然都买 macbook 了再买二手未免有些寒碜，可能有人又会抬杠说 Surface 都买了怎么买不起 macbook，毕竟最低配的 Surface 价格终究是比最低配的 macbook 要便宜不少，同时还有一个比较重要的原因便是笔者此前很多工作还是需要在 X86 平台上完成，mac 下虽然有 Rosetta 或是 Parallel，但是转译终究还是会带来一定的性能损耗，而且使用起来并不优雅，那这里可能又会有人问为什么不买联想或是其他牌子的同价位办公本，那👴只能说田牌就是信仰</del> ）给简单升级一下，在替换大容量硬盘的同时顺便装一个 Windows + Linux 双系统，<strong>前者是为了保留原汁原味的 Surface 体验，后者则是纯粹为了瞎折腾</strong>：）</p>
-<p>出于各种因素的考虑（ <del>可能是偷工减料</del> ）微软为 Surface Pro 选用了 2230 规格的 SSD，这个规格的 SSD 并不好找，尤其是笔者目前肉身位于地大物穷的位于大洋彼岸离所有国家都很远的澳洲，找了半天<a target="_blank" rel="noopener" href="https://cplonline.com.au/micron-mtfdkbk2t0qfm-1bd1aabyyr-2400-2tb-m-2-2230-nvme-ssd.html">才在 CPL 上找到一款镁光的 2230 规格的 2TB SSD</a>，虽然商品页面写着 <code>NOT Compatible with Surface Pro 8/9</code> ，但是<strong>在笔者看来理论上来说不兼容的情况不太可能发生</strong>，同时笔者在微软社区上找到了 <a target="_blank" rel="noopener" href="https://answers.microsoft.com/en-us/surface/forum/all/what-is-the-max-ssd-my-surface-pro8-will-accept/4cf1ff6d-0bb8-415a-a4b9-690e31808f34">一篇成功在 Surface Pro 8 上安装这一款 SSD 的帖子</a>，那“不兼容”一说想来应当是无稽之谈（又或者是微软的商业手段，<strong>事实证明确实是可以兼容的</strong>），因此笔者选了一个风和日丽 <del>但其实下着细雨</del> 的日子前往墨尔本的某家 CPL 线下门店取到了这款 SSD （ <del>是的这就是发达国家比较常见的购物方式，没有国内那样发达的物流网络说实话👴感觉买啥都不方便，当然出来活动活动筋骨也是好的</del> ）</p>
+<p>出于各种因素的考虑（ <del>可能是偷工减料</del> ）微软为 Surface Pro 选用了 2230 规格的 SSD，这个规格的 SSD 并不好找，尤其是笔者目前肉身位于地大物穷的位于大洋彼岸离所有国家都很远的澳洲，找了半天<a target="_blank" rel="noopener" href="https://cplonline.com.au/micron-mtfdkbk2t0qfm-1bd1aabyyr-2400-2tb-m-2-2230-nvme-ssd.html">才在 CPL 上找到一款镁光的 2230 规格的 2TB SSD</a>，虽然商品页面写着 <code>NOT Compatible with Surface Pro 8/9</code> ，但是<strong>在笔者看来理论上来说不兼容的情况不太可能发生</strong>，同时笔者在微软社区上找到了 <a target="_blank" rel="noopener" href="https://answers.microsoft.com/en-us/surface/forum/all/what-is-the-max-ssd-my-surface-pro8-will-accept/4cf1ff6d-0bb8-415a-a4b9-690e31808f34">一篇成功在 Surface Pro 8 上安装这一款 SSD 的帖子</a>，那“不兼容”一说想来应当是无稽之谈（又或者是微软的商业手段，因为这样你就不会去买便宜硬盘了，而会屈服于微软官方商城贵得要死性价比极低的官方贴牌硬盘，<strong>而事实证明 Micron 的这块 SSD 确实是可以兼容的</strong>），因此笔者选了一个风和日丽 <del>但其实下着细雨</del> 的日子前往墨尔本的某家 CPL 线下门店取到了这款 SSD （ <del>是的这就是发达国家比较常见的购物方式，没有国内那样发达的物流网络说实话👴感觉买啥都不方便，当然出来活动活动筋骨也是好的，不过更主要的还有一点就是配送费太贵了</del> ）</p>
 <p><img src="https://s2.loli.net/2024/04/27/q3giJxNV9ZpvrIS.png" srcset="/img/loading.gif" lazyload alt="价格比国内贵上好几百 RMB，澳洲的大部分电子产品都是如此"></p>
 <p>接下来是对系统发行版的选择，Windows 自然不用说直接装最新的 Win 11，那么 Linux 该选择哪一种发行版呢？首先考虑比较贴近上游的 Linux 发行版——</p>
 <ul>
@@ -355,19 +355,19 @@
 <p><img src="https://s2.loli.net/2024/04/30/62x7yCpgKwqOYHj.png" srcset="/img/loading.gif" lazyload alt="熟悉笔者的都知道笔者一直都是 SUSE 批.jpg"></p>
 <p>虽然这些都是笔者比较喜欢的发行版，但思来想去笔者还是决定安装一个不太常规的 Linux 发行版—— <a target="_blank" rel="noopener" href="https://gentoo.org/">Gentoo Linux</a> ，最直接的原因就是<strong>这是一个少有的原生从源码安装软件包的滚动 Linux 发行版</strong> ，任何软件都需要自行在自己的机器上进行编译，<strong>这意味着所有人的软件的二进制包都是不一样的</strong>，虽然说这与目前软工业界所追求的<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Reproducible_builds">“逐位可重复构建”</a> 似乎完全背道而驰，但从软件安全的角度考虑这意味着 <em>哪怕你知道我的电脑上的某个软件中存在二进制漏洞，你也无法直接通过传统的常规 pwn 手法进行攻击</em>  ，这主要是出于一个原因： <strong>现有的漏洞利用方法通常是控制流劫持导向的，针对软件二进制漏洞利用的方式通常是劫持控制流后再利用软件中原有的代码片段构建执行链完成任意代码执行</strong> ，例如现在针对不同程序的不同版本中存在的某一漏洞进行攻击的办法通常是辨别目标软件版本后利用 ROPgadget 或是其他的一些工具来拼凑 ROP chain ，而这样的攻击方法的可行性得以成立的原因则是包括内核在内的软件二进制通常是由软件源侧完成编译后再分发给用户，这意味着在同一发行版上使用同一版本软件的用户所持有的二进制文件都是相同的，因此对于攻击者而言获取相应软件的二进制文件基本上是没什么难度的， <strong>而所有软件都自行编译则可以很大程度上加大攻击者在传统攻击面的攻击难度</strong> ——这在很大程度上满足了笔者的精神洁癖：）</p>
 <blockquote>
-<p>当然可能有人会抬杠说这没什么意义，毕竟现在 <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2401.17618">exploit technique 前沿都在各种 data-only attack</a> ，仅是阻挡攻击者获取 code gadget 的方式是无法完成 100% 的防护的， 可能也有人会抬杠说 <a target="_blank" rel="noopener" href="https://www.intel.com/content/dam/develop/external/us/en/documents/catc17-introduction-intel-cet-844137.pdf">把 CET 开上不就完事了</a> ， <strong>但对笔者而言能有一定程度的提升那就是有意义的，在笔者看来这并非仅有 0 和 100 的区别</strong> ，同时对于攻击者而言针对所有软件都单独开发 data-only 的攻击手法未免成本就太高了，目前的这类研究还仅集中在操作系统内核或是其他大型软件上</p>
+<p>当然可能有人会抬杠说这没什么意义，毕竟现在 <a target="_blank" rel="noopener" href="https://arttnba3.cn/2023/05/02/CTF-0X08_D3CTF2023_D3KCACHE/">exploit technique 前沿都在各种 data-only attack</a> ，仅是阻挡攻击者获取 code gadget 的方式是无法完成 100% 的防护的， 可能也有人会抬杠说 <a target="_blank" rel="noopener" href="https://www.intel.com/content/dam/develop/external/us/en/documents/catc17-introduction-intel-cet-844137.pdf">把 CET 开上不就完事了</a> ， <strong>但对笔者而言能有一定程度的提升那就是有意义的，在笔者看来这并非仅有 0 和 100 的区别</strong> ，同时对于攻击者而言针对所有软件都单独开发 data-only 的攻击手法未免成本就太高了，目前的这类研究还仅集中在操作系统内核或是其他大型软件上</p>
 <p>此外，形如 <a target="_blank" rel="noopener" href="https://clang.llvm.org/docs/ControlFlowIntegrity.html">CFI</a> 这样的防御手法在发行版分发的二进制软件包中很多都是未必开启的，而 Gentoo 这样自定义软件编译选项的发行版可以让你快速在系统各个软件中应用这些防护手段，同时定制自己所想要的优化选项，可能不是最好的，但是<strong>从精神层面而言一定是最适合自己的</strong></p>
 <p> 那又有人可能会说每个开源软件都自己手工拉源码编译不就好了干嘛一定要用 Gentoo，笔者的评价是：</p>
 <p><img src="https://s2.loli.net/2024/05/09/EfglUGYtAqpTSmz.png" srcset="/img/loading.gif" lazyload alt="男人，什么罐头我说，曼巴出去"> </p>
 </blockquote>
 <p>当然，除了<strong>可以基于自身需求高度定制</strong>这个核心动机以外，Gentoo 有着一个强大的包管理器：<a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Portage">Portage</a> ，通过配置 <code>USE flag</code> 可以按照需求去编译软件包，实现 <strong>如无必要，勿增实体</strong> 的哲学（例如你需要使用的部分软件带有 kde 支持，但你其实并不使用 kde，那么只需要在 <code>/etc/portage/make.conf</code> 中添加 <code>USE=&quot;-kde&quot;</code>  这一 flag，这是一个全局性的例子；又或者对于某些软件包你想要启用&#x2F;禁止某些支持而并不想要把这样的配置全局化，你只需要在 <code>/etc/portage/package.use</code> 目录下创建新配置文件来为指定程序声明 USE 标记，例如 <code>kde-plasma/plasma-meta qt5 -sddm</code> 将为 KDE Plasma 桌面编译上 QT 支持的同时不使用 SDDM；当然，<a target="_blank" rel="noopener" href="https://blog.xupeng.me/2006/10/10/met-problem-of-circular-dependencies-with-gentoo/">滥用 USE flags 有可能会来带循环依赖的问题</a>，那这又是另外一件事情了…）， <a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Selected-packages_set_(Portage)">world file</a> 的存在也大幅增添了系统的可重复构建性（硬要说的话在可复现性上肯定比不过 NixOS，但笔者对于 NixOS 这类“不可变系统”的概念说实话不太感冒，反倒觉得对于桌面用户而言这增添了不少没必要的麻烦，不过多学习一门 DSL 倒其实是无所谓的事情，毕竟 reproducible 的体验某种程度上真的很香，但 NixOS 对于笔者而言还有一点劝退的便是 non-FHS compliance ，虽然说 NixOS 可用的软件包确实是数一数二的多，但这样的系统构造在笔者看来并不够优雅）</p>
-<p>最重要的是，<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Richard_Stallman">Richard Stallman</a> 曾经说过：Install Gentoo——</p>
+<p>最重要的是，<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Richard_Stallman">Richard Stallman</a> 曾经说过（ <del>实际上没说过</del> ）：Install Gentoo——</p>
 <p><img src="https://s2.loli.net/2024/04/30/jEKw7bCOu9rMhlD.png" srcset="/img/loading.gif" lazyload alt="虽然他用的不是 Gentoo 而是 Trisquel.jpg"></p>
 <p>于是在经历了各种思考之后，笔者最终选择在 Surface Pro 上尝试折腾一下 Gentoo Linux 这一个相对而言比较小众的发行版</p>
 <h1 id="0x01-安装-Windows"><a href="#0x01-安装-Windows" class="headerlink" title="0x01. 安装 Windows"></a>0x01. 安装 Windows</h1><p>因为笔者是要用一块全新的硬盘替换掉原有的硬盘，因此系统安装需要重头开始（ <del>虽然实际上有一些已知的系统迁移方案，但是👴太懒了</del> ），因为 Windows 很容易对硬盘分区进行预期外的修改，所以在安装双系统的情况下笔者选择先安装 Windows 再安装 Linux</p>
 <h2 id="替换硬盘"><a href="#替换硬盘" class="headerlink" title="替换硬盘"></a>替换硬盘</h2><p>因为我们后面安装 Linux 要关闭 Secure Boot，因此我们首先需要在设置中关闭 BitLocker，从而确保原硬盘的可用性</p>
 <blockquote>
-<p> 否则后面就只能上 <a target="_blank" rel="noopener" href="https://aka.ms/myrecoverykey">https://aka.ms/myrecoverykey</a> 找原有密钥进行恢复了，如果没有登录过微软账户的话那就只能和原硬盘数据彻底说再见了……</p>
+<p> 否则后面就只能上 <a target="_blank" rel="noopener" href="https://aka.ms/myrecoverykey">https://aka.ms/myrecoverykey</a> 找原有密钥进行恢复了，如果没有登录过微软账户的话那就只能和原硬盘数据<strong>彻底说再见了</strong>……</p>
 </blockquote>
 <p><img src="https://s2.loli.net/2024/04/24/tIUp49yHldzxkm2.png" srcset="/img/loading.gif" lazyload alt="这个过程会非常慢，因为 Surface 设备的性能极其拉胯"></p>
 <p>接下来进 UEFI 中关闭 Secure Boot，在关机状态下按住音量增加键不动，之后再按一次电源键即可进入 Surface 的 UEFI 界面，找到 <code>Secure Boot Configuration</code> 选择 <code>None</code> 即可：</p>
@@ -459,6 +459,10 @@
 <li><code>Stage 4</code> ：在 Stage 3 基础上安装好的完整的 Gentoo 系统</li>
 </ul>
 <p>首先我们将 <a target="_blank" rel="noopener" href="https://www.gentoo.org/downloads/">Stage 3</a> 下载到文件系统根目录下解压，笔者比较习惯 systemd 所以还是选择 systemd + desktop 版的：</p>
+<blockquote>
+<p>systemd 某种程度上也成为了 Linux 的事实标准了，不得不感叹红帽的大手…但笔者相比起 OpenRC 而言确实比较习惯 systemd，所以也没什么好纠结的…</p>
+<p><img src="https://syste.md/" srcset="/img/loading.gif" lazyload></p>
+</blockquote>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cd</span> /mnt/gentoo</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">wget https://distfiles.gentoo.org/releases/amd64/autobuilds/20240428T163427Z/stage3-amd64-desktop-systemd-20240428T163427Z.tar.xz</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">tar xpvf stage3-*.tar.xz --xattrs-include=<span class="hljs-string">&#x27;*.*&#x27;</span> --numeric-owner</span><br></code></pre></td></tr></table></figure>
 
 <p>然后是配置机器时间：</p>
@@ -570,14 +574,14 @@
 <p>通常我们会在 Linux 系统中维护一个指向当前内核源码的符号链接 <code>/usr/src/linux</code>，在 Gentoo 下我们通过如下命令手动创建（序号由 <code>eselect</code> 命令获得）：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">eselect kernel <span class="hljs-built_in">set</span> 1</span><br></code></pre></td></tr></table></figure>
 
-<p>接下来创建配置文件 <code>.config</code> ，这里笔者使用 <code>make localmodconfig</code> 来检测硬件并决定开启的内核模块，你也可以用默认的 <code>make defconfig</code> ，根据自己的需求进行选择即可：</p>
+<p>接下来创建配置文件 <code>.config</code> ，这里笔者使用默认的 <code>make defconfig</code> ，你也可以使用 <code>make localmodconfig</code> 来检测硬件并决定开启的内核模块，根据自己的需求进行选择即可：</p>
 <blockquote>
-<p>内核模块会独立存在，如果你想让内核模块被编译到 vmlinuz 中，使用 <code>localyesconfig</code> </p>
+<p>内核模块会独立存在，如果你想让内核模块被编译到 vmlinuz 中，使用 <code>localyesconfig</code> ，如果你想要开启尽可能多的编译选项，可以选择 <code>allyesconfig</code> 或 <code>allmodconfig</code> ， <em>但是经笔者实测似乎开启的编译选项数量没有默认的多…</em></p>
 <blockquote>
-<p> 但是集成到内核中的内核模块可能会有点小问题（例如笔者曾经碰到过网卡驱动独立存在可以正常存活但集成到内核中便无法正常工作的情况）</p>
+<p> 此外，集成到内核中的内核模块可能会有点小问题（例如笔者曾经碰到过 Intel 网卡驱动独立存在可以正常存活但集成到内核中便无法正常工作的情况）</p>
 </blockquote>
 </blockquote>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cd</span> /usr/src/linux</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">make localmodconfig</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cd</span> /usr/src/linux</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">make defconfig</span><br></code></pre></td></tr></table></figure>
 
 <p>接下来用 menuconfig 手动改一些选项，其会在已有的 <code>.config</code> 基础上进行修改，这里我们要决定的包括 OpenRC&#x2F;systemd 的选择、常用文件系统支持、额外选一些 Surface 相关的驱动等，具体参见 <a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Kernel#Alternative:_Manual_configuration">Gentoo handbook</a>：</p>
 <blockquote>
@@ -718,7 +722,7 @@
 <p>最后按惯例在设置的 <code>virtual keyboard</code> 里选中 <code>fcitx5</code> ，然后右键 panel 的小企鹅图标找 <code>Pinyin</code> 即可：</p>
 <p><img src="https://s2.loli.net/2024/05/08/Fau4LnKdUomslJY.jpg" srcset="/img/loading.gif" lazyload alt="image.png"></p>
 <blockquote>
-<p>笔者不得不吐槽的一句是软件包非常老，在各大主流发行版 <code>fcitx5</code> 早已全面铺开的时代，Gentoo 这边刚刚上到 rc 版本，同时 <code>cloudpinyin</code> 和 <code>libpinyin</code> 都还停留在 fcitx4 …不过这可能也是相当多开源社区存在的问题了，维护人员越来越少+用户出走逐渐形成恶性循环，马太效应诚不我欺.jpg</p>
+<p>笔者不得不吐槽的一句是软件包非常老，不过这可能也是相当多开源社区存在的问题了，<code>维护人员越来越少+用户出走</code> 逐渐形成恶性循环，马太效应诚不我欺.jpg</p>
 </blockquote>
 <h2 id="安装常用软件"><a href="#安装常用软件" class="headerlink" title="安装常用软件"></a>安装常用软件</h2><blockquote>
 <p>因为笔者没有协议洁癖所以前面设置了接受所有协议，如果你有但是又需要安装部分软件则需要参照 wiki 手动修改 <code>/etc/portage/package.license</code> ：）</p>
@@ -730,12 +734,12 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo emerge --ask app-editors/vscode</span><br></code></pre></td></tr></table></figure>
 
 <p>flatpak 用以补充一些 Gentoo 上没有的软件包：</p>
+<blockquote>
+<p>如果你的肉身在中国大陆，flatpak 的使用可能会存在一些困难（笔者不确定是否完全阻断），可以提前在 shell 中导入代理配置，例如 <code>export https_proxy=&quot;http://127.0.0.1:11451&quot;</code></p>
+</blockquote>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo emerge --ask sys-apps/flatpak</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo</span><br></code></pre></td></tr></table></figure>
 
-<p>然后是中国大陆这边常用的微信，虽然官方 Linux 版特供 UOS、OpenKylin 等国产发行版，但<a target="_blank" rel="noopener" href="https://github.com/web1n/wechat-universal-flatpak">有人打了一个绕过发行版检测的 flatpak 的包</a> ，所以直接而下载后安装即可：</p>
-<blockquote>
-<p>flathub 上也有，不过版本稍老</p>
-</blockquote>
+<p>然后是中国大陆这边常用的微信，我们可以直接从 flathub 安装：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">flatpak install com.tencent.WeChat.flatpak</span><br></code></pre></td></tr></table></figure>
 
 <p>QQ Linux 版提供了 AppImage 可用，不过还需要提前安个依赖：</p>
@@ -746,7 +750,7 @@
 
 
 
-<h1 id="0x03-遇到的一些问题"><a href="#0x03-遇到的一些问题" class="headerlink" title="0x03. 遇到的一些问题"></a>0x03. 遇到的一些问题</h1><h2 id="触摸板驱动问题（not-solved）"><a href="#触摸板驱动问题（not-solved）" class="headerlink" title="触摸板驱动问题（not solved）"></a>触摸板驱动问题（not solved）</h2><p>主要表现：</p>
+<h1 id="0x03-遇到的一些问题"><a href="#0x03-遇到的一些问题" class="headerlink" title="0x03. 遇到的一些问题"></a>0x03. 遇到的一些问题</h1><h2 id="触摸板驱动问题"><a href="#触摸板驱动问题" class="headerlink" title="触摸板驱动问题"></a>触摸板驱动问题</h2><p>主要表现：</p>
 <ul>
 <li>启动后点按有效，但是多指手势（如双指&#x3D;&#x3D;右键）无效</li>
 <li>按下触摸板左右键后<strong>点按失效</strong></li>
@@ -754,16 +758,20 @@
 </ul>
 <p>基本上只能当作一个最简陋的触摸板来用，笔者最初感觉主要可能是微软触摸板缺少驱动的问题，毕竟在安装 Windows 时在没更新驱动前也没法用键盘和触摸板（ <del>微软怎么天天搞特殊，忍不了一点，真的有必要🐴</del> ）</p>
 <p><strong>但是，笔者在 openSUSE Tumbleweed on Surface 中可以正常使用触摸板及多指手势</strong> ，那这就有意思了，这么看起来似乎是笔者在编译内核时并未将部分必须的驱动给编译进去，又或是没有安装部分必须的软件，笔者更倾向于前者的缘故🤔</p>
+<p>最后的解决方案是编译内核时选择默认的配置（<code>defconfig</code> ）而非 <code>allmodconfig</code> ，暂且不知道为什么后者虽然名义上是尽可能开启多的编译选项但实际上却比默认配置少很多：（</p>
 <h2 id="摄像头无法使用（not-solved）"><a href="#摄像头无法使用（not-solved）" class="headerlink" title="摄像头无法使用（not solved）"></a>摄像头无法使用（not solved）</h2><p>应该也是经典的缺驱动问题， <del>这就是你 Surface Pro 的屏摄像头啊，你们有没有这样的摄像头啊，真是摄摄像像又头头啊</del></p>
-<h2 id="休眠无法正常唤醒"><a href="#休眠无法正常唤醒" class="headerlink" title="休眠无法正常唤醒"></a>休眠无法正常唤醒</h2><p>放个一会整个💻就睡死了，按键盘没法唤醒，最快的解决方案是把键盘拔了再重新插上， <del>这就是你 Surface Pro 的键盘啊，你们有没有这样的键盘啊，真是键键又盘盘啊</del></p>
-<h2 id="Surface-Pen-无法使用（not-solved）"><a href="#Surface-Pen-无法使用（not-solved）" class="headerlink" title="Surface Pen 无法使用（not solved）"></a>Surface Pen 无法使用（not solved）</h2><p>应该也是经典的缺驱动问题， <del>不过真的有人会有在 Linux on Surface 上使用 Surface Pen 的需求🐴</del></p>
+<h2 id="休眠无法正常唤醒（partially-solved）"><a href="#休眠无法正常唤醒（partially-solved）" class="headerlink" title="休眠无法正常唤醒（partially solved）"></a>休眠无法正常唤醒（partially solved）</h2><p>放个一会整个💻就睡死了，按键盘没法唤醒，最快的解决方案是把键盘拔了再重新插上， <del>这就是你 Surface Pro 的键盘啊，你们有没有这样的键盘啊，真是键键又盘盘啊</del></p>
+<h2 id="Surface-Pen-无法使用（not-solved）"><a href="#Surface-Pen-无法使用（not-solved）" class="headerlink" title="Surface Pen 无法使用（not solved）"></a>Surface Pen 无法使用（not solved）</h2><p>应该也是经典的缺驱动问题， <del>不过真的有人会有在 Linux on Surface 上使用 Surface Pen 的需求🐴</del> </p>
 <h2 id="触屏无法正常使用（not-solved）"><a href="#触屏无法正常使用（not-solved）" class="headerlink" title="触屏无法正常使用（not solved）"></a>触屏无法正常使用（not solved）</h2><p>应该也是经典的缺驱动问题，Surface Pro 支持十点触控的高素质屏幕几乎成了摆设， <del>这就是你 Surface Pro 的屏幕啊，你们有没有这样的屏幕啊，真是屏屏又幕幕啊</del></p>
-<h1 id="0xFF-写在结束之后…"><a href="#0xFF-写在结束之后…" class="headerlink" title="0xFF. 写在结束之后…"></a>0xFF. 写在结束之后…</h1><p>Distro hopping 的狂欢之火燃尽之后，剩下的似乎总是只有一地的灰烬，在笔者看来 <strong>Gentoo Linux 在安装流程上其实和 Arch Linux 基本差不多</strong>，所以对于笔者而言还是比较轻车熟路的，但在尝试了几小时 Gentoo Linux 后，笔者最终还是选择重新装回 openSUSE Tumbleweed，触摸板一开始就是正常可用的，也没有休眠醒不来的问题，甚至触屏功能在安装了社区提供的 <a target="_blank" rel="noopener" href="https://github.com/linux-surface/linux-surface">linux-surface</a> 包之后也正常可用了，唯一的遗憾就是 Surface Pen 与摄像头依旧没法工作，但其他的一切就像你在 Surface 上使用 Windows 那样自然与舒适</p>
+<h1 id="0xFF-写在结束之后…"><a href="#0xFF-写在结束之后…" class="headerlink" title="0xFF. 写在结束之后…"></a>0xFF. 写在结束之后…</h1><p>Distro hopping 的狂欢之火燃尽之后，剩下的似乎总是只有一地的灰烬，在笔者看来 <strong>Gentoo Linux 在安装流程上其实和 Arch Linux 基本差不多</strong>，所以对于笔者而言还是 <em>比较轻车熟路的</em> ，但在尝试了几小时 Gentoo Linux 后，笔者最终还是选择暂且重新装回 openSUSE Tumbleweed，触摸板一开始就是正常可用的，也没有休眠醒不来的问题，甚至触屏功能在安装了社区提供的 <a target="_blank" rel="noopener" href="https://github.com/linux-surface/linux-surface">linux-surface</a> 包之后也正常可用了，唯一的遗憾就是 Surface Pen 与摄像头依旧没法工作，但其他的一切就像你在 Surface 上使用 Windows 那样自然与舒适</p>
 <p><img src="https://s2.loli.net/2024/05/09/dnEDHtBzY7oOxCf.jpg" srcset="/img/loading.gif" lazyload alt="舒舒又适适，但可惜的是电池健康在经历笔者大四一年的蹂躏之后已经只剩不到 90 了"></p>
-<p>在回到了大蜥蜴温暖的怀抱当中后，笔者不禁思考：究竟是 Surface 这一特殊设备与 Gentoo 八字不合，还是笔者与 Gentoo Linux 在相性上不符呢？笔者自然不希望答案会是后者，但当笔者尝试在另一台旧笔记本上安装 Gentoo Linux 并再次碰到各种问题（例如 Dolphin 和触摸板无法正常工作）时，<strong>笔者不得不承认或许 Gentoo 这个特殊的发行版与笔者在某种程度上有点犯冲</strong>，而这样的两段安装经历也让笔者彻底打消了将主力操作系统从 openSUSE Tumbleweed 换成 Gentoo 的念头</p>
-<p>除此之外，Gentoo 的各种优点似乎也没有理想中的那么好，作为一个滚动发行版，Gentoo 明显是没有 Arch、openSUSE Tumbleweed、Fedora 这样紧贴上游的（当然，如果能实现所谓“调试好了再发布”，那在能确保稳定性的情况下软件包旧一点其实无所谓，但事实上他们似乎并没有能做到这一点）； <code>USE flag</code> 等配置听起来舒服，但是大部分情况下其实并不需要这样的特性，和其他发行版的包管理器的使用体验拉不开差距（当然，大部分情况下一个包管理器又能想要多不一样的体验呢？）；Gentoo wiki 以前一直都被吹嘘能和 Arch wiki 有得一拼，但真正用起来能清晰感受到在内容上前者很明显差了后者好几个档次……</p>
-<p>但这些其实都是小问题，毕竟 Linux 用户和苹果用户一样有着非常强的自适应性，尤其是在使用 Arch&#x2F;Gentoo 这样的高度自定义的发行版的时候，出现问题了大家总会第一时间自适应地认为“是不是自己什么地方没有配置好”，可惜 Gentoo 社区一直在走下坡路却是一个不争的事实，虽然 Gentoo 听起来似乎有着各式各样不同的优点，但使用的人数确乎一直在慢慢减少，也很少有新鲜血液加入，因此很多软件包也没人打，在论坛问问题也没人回复，这又导致没人愿意继续用 Gentoo ——对于 Gentoo 社区所遇到的“马太效应“的问题，笔者思考了许久，感觉似乎没有一个比较好的解决方案，而这似乎是所有规模比较小的发行版都会遇到的问题，发行版用的人少导致社区缺少人维护从而导致系统没有那么好用，系统可用性的降低又使得人员出走，最后“强者愈强，弱者愈弱”</p>
-<p>——而对于这个不得不被正视的问题，<strong>社区除了等死以外似乎并没有什么能做的事情</strong>，但同样是支持高度定制的系统，Gentoo 和 Arch 的命运为什么差得越来越多了呢？</p>
+<p>在回到了大蜥蜴温暖的怀抱当中后，笔者不禁思考：究竟是 Surface 这一特殊设备与 Gentoo 八字不合，还是笔者与 Gentoo Linux 在相性上不符呢？笔者自然不希望答案会是后者，但当笔者尝试在另一台旧笔记本上安装 Gentoo Linux 并再次碰到各种问题（例如 Dolphin 和触摸板无法正常工作）时，<strong>笔者不得不承认或许笔者对 Linux 的了解确实还不够深入</strong>，而这样的两段安装经历也让笔者暂且打消了将主力操作系统从 openSUSE Tumbleweed 换成 Gentoo 的念头</p>
+<blockquote>
+<p>当然，笔者的主力系统最后确乎迁移去了 Gentoo，以及笔者的 openSUSE Tumbleweed 的引导被 Windows 更新干废了的事情，又是另一个故事了…</p>
+</blockquote>
+<p>除此之外，Gentoo 的各种优点 <em>似乎也没有理想中的那么好</em> ，作为一个滚动发行版，Gentoo 明显是没有 Arch、openSUSE Tumbleweed、Fedora 这样紧贴上游的（当然，如果能实现所谓“调试好了再发布”，那在能确保稳定性的情况下软件包旧一点其实无所谓，但事实上他们似乎并没有能做到这一点）； <code>USE flag</code> 等配置听起来舒服，但是大部分情况下其实并不需要这样的特性（<strong>但少部分情况下你真的需要的时候真的非常爽，是其他发行版没法带给你的体验</strong>），和其他发行版的包管理器的使用体验拉不开太大的差距（当然，大部分情况下一个包管理器又能想要多不一样的体验呢？）；Gentoo wiki 以前一直都被吹嘘能和 Arch wiki 有得一拼，但真正用起来能清晰感受到在内容上前者很明显差了后者好几个档次……</p>
+<p>但这些其实都是小问题，毕竟 Linux 用户和苹果用户一样有着非常强的自适应性，尤其是在使用 Arch&#x2F;Gentoo 这样的高度自定义的发行版的时候，出现问题了大家总会第一时间自适应地认为“是不是自己什么地方没有配置好”，可惜 Gentoo 社区一直在走下坡路却是一个不争的事实，虽然 Gentoo 听起来似乎有着各式各样不同的优点， <strong>但使用的人数确乎一直在慢慢减少，也很少有新鲜血液加入，因此很多软件包也没人打，在论坛问问题也没人回复，这又导致没人愿意继续用 Gentoo</strong> ——对于 Gentoo 社区所遇到的“马太效应“的问题，笔者思考了许久，感觉似乎没有一个比较好的解决方案，而这似乎是所有规模比较小的发行版都会遇到的问题，发行版用的人少导致社区缺少人维护从而导致系统没有那么好用，系统可用性的降低又使得人员出走，最后“强者愈强，弱者愈弱”</p>
+<p>——而对于这个不得不被正视的问题，<strong>社区除了等死以外似乎并没有什么能做的事情</strong>，但同样是支持高度定制的系统， <strong>Gentoo 和 Arch 的命运为什么差得越来越多了呢？</strong></p>
 
                 
               </div>
