@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2022/04/25/5NqJf2k9SOtiwGm.png">
 <meta property="article:published_time" content="2000-10-12T12:51:25.000Z">
-<meta property="article:modified_time" content="2025-03-09T14:41:40.296Z">
+<meta property="article:modified_time" content="2025-03-20T15:27:44.207Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="学习札记">
@@ -263,7 +263,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          6.2k 字
+          7k 字
         
       </span>
     
@@ -274,7 +274,7 @@
         
         
         
-          52 分钟
+          59 分钟
         
       </span>
     
@@ -329,7 +329,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2025年3月10日 凌晨
+                    本文最后更新于：2025年3月21日 凌晨
                   
                 
               </p>
@@ -461,6 +461,22 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">gdb&gt; </span><span class="language-bash"><span class="hljs-built_in">set</span> exec-wrapper <span class="hljs-built_in">env</span> <span class="hljs-string">&#x27;LD_PRELOAD=your_lib_path&#x27;</span></span><br></code></pre></td></tr></table></figure>
 
 <p>之后再正常指定目标文件运行即可</p>
+<h1 id="0x06-在-Linux-上热插拔-NVMe-SSD"><a href="#0x06-在-Linux-上热插拔-NVMe-SSD" class="headerlink" title="0x06. 在 Linux 上热插拔 NVMe SSD"></a>0x06. 在 Linux 上热插拔 NVMe SSD</h1><p>为什么会有这个神奇的需求主要来自于笔者某天买了绿联的 40Gbps 的固态硬盘盒（虽然用雷电5的线接雷电4的口测速出来只有 20Gbps）：</p>
+<p><img src="https://s2.loli.net/2025/03/20/I1jqhgtsQNYKuBS.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>把玩了一番准备弹出的时候发现 <strong>天塌了</strong> ，这玩意直接识别成了和内置硬盘一样插在 PCIe 通道上的 nvme 设备，高级是高级了，但 <code>udiskctl power-off -b</code> <strong>完全不起作用</strong>：</p>
+<p><img src="https://s2.loli.net/2025/03/20/NnXGJ9FEWl4esZt.png" srcset="/img/loading.gif" lazyload></p>
+<p>解决方案是不将它看作一个外置硬盘盒， <strong>而是看作一个普通的 PCIe 设备，用对待 PCIe 设备的方式解决就好了</strong> ，我们首先使用如下命令查看其所在的 PCIe 通道：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">lspci | grep -i nvme</span><br>02:00.0 Non-Volatile memory controller: Samsung Electronics Co Ltd NVMe SSD Controller PM9C1a (DRAM-less)<br>08:00.0 Non-Volatile memory controller: Solidigm P44 Pro NVMe SSD [Hollywood Beach]<br></code></pre></td></tr></table></figure>
+
+<p>或者你也可以使用 <code>lshw -businfo</code> ：</p>
+<p><img src="https://s2.loli.net/2025/03/20/lFkOpJLrjued9w5.png" srcset="/img/loading.gif" lazyload></p>
+<p>在 <code>08:00.0</code> 上的这个 <code>Solidigm P44 Pro</code> 就是我们要移除的 PCIe 设备，我们直接 <code>echo 1</code> 进 <code>/sys/bus/pci/devices/PCI地址/remove</code> 就能正常移除：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">echo</span> 1 | sudo <span class="hljs-built_in">tee</span> /sys/bus/pci/devices/0000\:08\:00.0/remove</span><br></code></pre></td></tr></table></figure>
+
+<p>因为这就是正常的插在 PCIe 通道上的 NVMe 设备的移除方法， <strong>所以这个方法可以安全移除设备，且不会增加 Unsafe shutdowns 计数</strong>  ，之后就可以直接拔出硬盘盒了</p>
+<p>如果突然又不想拔了想继续用，可以通过如下命令重新枚举 PCI 设备，这个时候可以看到这个 NVMe 设备又悄然出现在系统里了， <del>但比起敲命令行不如直接顺手重新拔插</del> ：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">echo</span> 1 | sudo <span class="hljs-built_in">tee</span> /sys/bus/pci/rescan</span><br></code></pre></td></tr></table></figure>
+
 <h1 id="0x0-C-的虚表"><a href="#0x0-C-的虚表" class="headerlink" title="0x0?. C++ 的虚表"></a>0x0?. C++ 的虚表</h1><p>虚函数表是 C++ 为了实现多态而使用的一种技术，</p>
 <blockquote>
 <p>To be 🕊🕊🕊…</p>
