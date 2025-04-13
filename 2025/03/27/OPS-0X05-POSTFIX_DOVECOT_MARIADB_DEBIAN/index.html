@@ -1,0 +1,983 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="在 Debian 上用 MySQL 跟™杀人了一样">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【OPS.0x05】用Postfix+Dovecat+MariaDB搭建邮件系统">
+<meta property="og:url" content="https://arttnba3.github.io/2025/03/27/OPS-0X05-POSTFIX_DOVECOT_MARIADB_DEBIAN/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="在 Debian 上用 MySQL 跟™杀人了一样">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2025/04/13/wZJxEohP1rvODGm.png">
+<meta property="article:published_time" content="2025-03-27T08:23:45.000Z">
+<meta property="article:modified_time" content="2025-04-13T15:38:26.178Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2025/04/13/wZJxEohP1rvODGm.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【OPS.0x05】用Postfix+Dovecat+MariaDB搭建邮件系统 - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"arttnba3.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" target="_blank" rel="noopener" href="https://github.com/arttnba3">
+                <i class="iconfont icon-github-fill"></i>
+                GitHub
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://s2.loli.net/2025/04/13/7gcFrhH1M6IQ8UP.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【OPS.0x05】用Postfix+Dovecat+MariaDB搭建邮件系统"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-03-27 19:23" pubdate>
+          2025年3月27日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          12k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          103 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【OPS.0x05】用Postfix+Dovecat+MariaDB搭建邮件系统</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2025年4月14日 凌晨
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>在 Debian 上用 MySQL 跟™杀人了一样</p>
+<span id="more"></span>
+
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><p>一切说来话长但长话短说，总而言之笔者正在搭建一个独立可用的邮件系统，因为有一个自己的域名作为后缀来发送邮件的邮箱是非常炫酷的一件事情（？）</p>
+<p>在技术选型上笔者经过考虑之后还是选择传统的 Postfix + Dovecot + MariaDB 方案，因为这是被广泛应用在各个企业当中的成熟解决方案，至于为什么选择 MariaDB 而不是 MySQL 则是因为笔者服务器使用的 Debian 发行版对 MySQL 的支持不太好，导致配置过程中出现了一系列事故，使得笔者最终转向 Debian 推荐的 MariaDB :（</p>
+<p>话不多说，下面我们来看配置过程：）</p>
+<blockquote>
+<p>至于邮件系统相关原理还有 SMTP、IMAP 协议一类的就不是这篇博客所包含的内容了，请同学们课后自行了解</p>
+</blockquote>
+<h1 id="0x01-邮件系统搭建"><a href="#0x01-邮件系统搭建" class="headerlink" title="0x01. 邮件系统搭建"></a>0x01. 邮件系统搭建</h1><p>这里我们选择使用传统的 Postfix + Dovecot 方案，服务器用的是笔者之前屯的一台便宜 Debian VPS</p>
+<h2 id="DNS-配置"><a href="#DNS-配置" class="headerlink" title="DNS 配置"></a>DNS 配置</h2><p>我们主要需要添加三条记录：</p>
+<ul>
+<li>A 记录：邮件服务器的域名，指向邮件服务器的 IP，一般可以是 <code>mail.主域名</code> </li>
+<li>MX 记录：指向邮件服务器的域名（上面的 A 记录），用于设定邮件交给哪个服务器处理，例如名称设为 <code>mail</code> 、内容设为 <code>mail-server.域名</code> 则意味着 <code>mail.域名</code> 的邮件交给 <code>mail-server.域名</code> 处理；这里笔者的选择是将 <code>主域名</code> 的邮件交给  <code>mail.主域名</code> 处理</li>
+<li>TXT(SPF) 记录：发信使用，用于证明该 IP 送出的该 domain 的信不是伪造的，内容应当为 <code>v=spf1 ip4:服务器IP -all</code></li>
+</ul>
+<p><img src="https://s2.loli.net/2025/03/25/63LiwxjCz1QgldU.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="安装-MariaDB"><a href="#安装-MariaDB" class="headerlink" title="安装 MariaDB"></a>安装 MariaDB</h2><p>首先安装 MariaDB，用来存放邮件和用户数据</p>
+<blockquote>
+<p>注意这里 <strong>极度不推荐使用 MySQL，因为会遇到非常难以解决的问题</strong> ，<del>在 Debian 上用 MySQL 跟™杀人了一样</del></p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get update</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt install mariadb-server mariadb-client</span><br></code></pre></td></tr></table></figure>
+
+<p>然后就可以使用了</p>
+<h2 id="在-MariaDB-中创建对应的数据库"><a href="#在-MariaDB-中创建对应的数据库" class="headerlink" title="在 MariaDB 中创建对应的数据库"></a>在 MariaDB 中创建对应的数据库</h2><p>首先登录 root 账户：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo mariadb -u root</span><br></code></pre></td></tr></table></figure>
+
+<p>创建一个新的数据库并使用：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> DATABASE IF <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">EXISTS</span> mail_db;<br>USE mail_db;<br></code></pre></td></tr></table></figure>
+
+<p>创建一个表存放认证的域名，并插入一条新记录：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs sql"># 创建一个表<br><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> `virtual_domains` (<br>    `id`  <span class="hljs-type">INT</span> <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span> AUTO_INCREMENT,<br>    `name` <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">256</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span>,<br>    <span class="hljs-keyword">PRIMARY</span> KEY (`id`)<br>) ENGINE<span class="hljs-operator">=</span>InnoDB <span class="hljs-keyword">DEFAULT</span> CHARSET<span class="hljs-operator">=</span>utf8;<br><br># 添加域名<br><span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">INTO</span> virtual_domains <span class="hljs-keyword">VALUE</span>(<span class="hljs-number">1</span>,<span class="hljs-string">&#x27;test.com&#x27;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>创建一个表存放邮箱与密码（推荐存放哈希值，例如使用 sha256），并添加上一个用户，注意这里的 <code>domain_id</code> 为前面的表中域名的序号（下同）：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs sql"># 创建一个表<br><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> `virtual_users` (<br>`id` <span class="hljs-type">INT</span> <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span> AUTO_INCREMENT,<br>`domain_id` <span class="hljs-type">INT</span> <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span>,<br>`password` <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">128</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span>,<br>`email` <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">256</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span>,<br><span class="hljs-keyword">PRIMARY</span> KEY (`id`),<br><span class="hljs-keyword">UNIQUE</span> KEY `email` (`email`),<br><span class="hljs-keyword">FOREIGN</span> KEY (domain_id) <span class="hljs-keyword">REFERENCES</span> virtual_domains(id) <span class="hljs-keyword">ON</span> <span class="hljs-keyword">DELETE</span> CASCADE<br>) ENGINE<span class="hljs-operator">=</span>InnoDB <span class="hljs-keyword">DEFAULT</span> CHARSET<span class="hljs-operator">=</span>utf8;<br><br># 创建一个新用户<br><span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">INTO</span> virtual_users <span class="hljs-keyword">VALUE</span>(<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, &quot;后续使用doveadm pw -s SHA256-CRYPT -p &#x27;密码&#x27; 创建的密码&quot;, &quot;arttnba3@test.com&quot;);<br></code></pre></td></tr></table></figure>
+
+<p>创建一个表存放邮箱别名，主要用于邮件转发：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs sql"># 创建一个表<br><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> `virtual_aliases` (<br>    `id` <span class="hljs-type">INT</span> <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span> auto_increment,<br>    `domain_id` <span class="hljs-type">INT</span> <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span>,<br>    `source` <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">256</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span>,<br>    `destination` <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">256</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span>,<br>    <span class="hljs-keyword">PRIMARY</span> KEY (`id`),<br>    <span class="hljs-keyword">FOREIGN</span> KEY (domain_id) <span class="hljs-keyword">REFERENCES</span> virtual_domains(id) <span class="hljs-keyword">ON</span> <span class="hljs-keyword">DELETE</span> CASCADE<br>) ENGINE<span class="hljs-operator">=</span>InnoDB <span class="hljs-keyword">DEFAULT</span> CHARSET<span class="hljs-operator">=</span>utf8;<br><br># 如果要创建转发，参照下面的写法<br># <span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">INTO</span> virtual_aliases <span class="hljs-keyword">VALUE</span>(<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, &quot;rat3bant@test.com&quot;, &quot;arttnba3@test.com&quot;);<br></code></pre></td></tr></table></figure>
+
+<p>最后创建一个新的用户并给予这些表的权限，后续我们使用该用户访问数据库而非直接使用 root：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">USER</span> <span class="hljs-string">&#x27;mailuser&#x27;</span>@<span class="hljs-string">&#x27;localhost&#x27;</span> IDENTIFIED <span class="hljs-keyword">BY</span> <span class="hljs-string">&#x27;你的密码&#x27;</span>;<br><span class="hljs-keyword">GRANT</span> <span class="hljs-keyword">ALL</span> PRIVILEGES <span class="hljs-keyword">ON</span> mail_db.<span class="hljs-operator">*</span> <span class="hljs-keyword">TO</span> <span class="hljs-string">&#x27;mailuser&#x27;</span>@<span class="hljs-string">&#x27;localhost&#x27;</span>;<br>FLUSH PRIVILEGES;<br>EXIT;<br></code></pre></td></tr></table></figure>
+
+<h2 id="Postfix-Dovecot-安装"><a href="#Postfix-Dovecot-安装" class="headerlink" title="Postfix + Dovecot 安装"></a>Postfix + Dovecot 安装</h2><p>首先安装 Postfix：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get install -y postfix postfix-mysql libmariadb-dev libmariadb3</span><br></code></pre></td></tr></table></figure>
+
+<p>这里会出现一个选择配置的选项，我们先选 <code>Internet Site</code> ，也就是由该服务器通过 SMTP 协议直接收发邮件：</p>
+<p><img src="https://s2.loli.net/2025/03/25/irWVePTY45Dz8ap.png" srcset="/img/loading.gif" lazyload></p>
+<p>然后配置 system mail name，简而言之就是邮件所使用的域名，以 <code>arttnba3@example.com</code> 为例这里应当填 <code>example.com</code>：</p>
+<p><img src="https://s2.loli.net/2025/03/25/6XbNazToMyS4kpc.png" srcset="/img/loading.gif" lazyload></p>
+<p>接下来安装 Dovecot：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get install -y dovecot-core dovecot-pop3d dovecot-imapd dovecot-lmtpd dovecot-mysql</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="配置-Postfix"><a href="#配置-Postfix" class="headerlink" title="配置 Postfix"></a>配置 Postfix</h2><h3 id="配置-SSL-证书"><a href="#配置-SSL-证书" class="headerlink" title="配置 SSL 证书"></a>配置 SSL 证书</h3><p>笔者直接用的 Cloudflare 提供的证书，将其保存到服务器本地中，例如：</p>
+<ul>
+<li><code>/etc/ssl/certs/证书.pem</code></li>
+<li><code>/etc/ssl/private/证书.key</code></li>
+</ul>
+<p>然后修改 Postfix 的主配置文件 <code>/etc/postfix/main.cf</code> ，确保如下配置：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cf">smtpd_tls_cert_file=/etc/ssl/certs/你的证书.pem<br>smtpd_tls_key_file=/etc/ssl/private/你的密钥.key<br>smtpd_use_tls=yes<br>smtpd_tls_security_level=encrypt<br>smtpd_tls_mandatory_protocols = TLSv1, TLSv1.1, TLSv1.2, TLSv1.3<br>smtpd_tls_mandatory_ciphers = high<br><br>smtp_tls_security_level=encrypt<br></code></pre></td></tr></table></figure>
+
+<h3 id="配置使用-Dovecot-进行身份认证"><a href="#配置使用-Dovecot-进行身份认证" class="headerlink" title="配置使用 Dovecot 进行身份认证"></a>配置使用 Dovecot 进行身份认证</h3><p>修改 Postfix 的主配置文件 <code>/etc/postfix/main.cf</code> ，确保如下配置：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cf">smtpd_sasl_type = dovecot<br>smtpd_sasl_path = private/auth<br>smtpd_sasl_auth_enable = yes<br>smtpd_tls_auth_only = yes<br>smtpd_recipient_restrictions = permit_sasl_authenticated permit_mynetworks reject_unauth_destination<br>smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination<br></code></pre></td></tr></table></figure>
+
+<h3 id="域名等常规配置"><a href="#域名等常规配置" class="headerlink" title="域名等常规配置"></a>域名等常规配置</h3><p>修改 Postfix 的主配置文件 <code>/etc/postfix/main.cf</code> ，确保如下配置：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cf">myhostname = 你的mail域名<br>myorigin = $myhostname<br>mydomain = $myhostname<br>mydestination = localhost<br>smtp_helo_name = $myhostname<br></code></pre></td></tr></table></figure>
+
+<h3 id="配置-MariaDB-与-Dovecot-相关"><a href="#配置-MariaDB-与-Dovecot-相关" class="headerlink" title="配置 MariaDB 与 Dovecot 相关"></a>配置 MariaDB 与 Dovecot 相关</h3><blockquote>
+<p>暂时先不考虑 SQL 注入…因为👴太懒了，反正问了问 ChatGPT 大概是没问题的：（</p>
+</blockquote>
+<p>修改 Postfix 的主配置文件 <code>/etc/postfix/main.cf</code> ，添加这些项：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cf">virtual_mailbox_domains = mysql:/etc/postfix/mysql-virtual-mailbox-domains.cf<br>virtual_mailbox_maps = mysql:/etc/postfix/mysql-virtual-mailbox-maps.cf<br>virtual_alias_maps = mysql:/etc/postfix/mysql-virtual-alias-maps.cf<br>virtual_transport = lmtp:unix:private/dovecot-lmtp<br></code></pre></td></tr></table></figure>
+
+<p>在 <code>/etc/postfix/mysql-virtual-mailbox-domains.cf</code> 中按照前面的配置写入如下内容：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">user</span> = mailuser <br><span class="hljs-attr">password</span> = 前面设置的密码<br><span class="hljs-attr">hosts</span> = <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">3306</span> <br><span class="hljs-attr">dbname</span> = mail_db   <br><span class="hljs-attr">query</span> = SELECT <span class="hljs-number">1</span> FROM virtual_domains WHERE name=<span class="hljs-string">&#x27;%s&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>在 <code>/etc/postfix/mysql-virtual-mailbox-maps.cf</code> 中写入如下内容：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">user</span> = mailuser <br><span class="hljs-attr">password</span> = 前面设置的密码<br><span class="hljs-attr">hosts</span> = <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">3306</span> <br><span class="hljs-attr">dbname</span> = mail_db   <br><span class="hljs-attr">query</span> = SELECT <span class="hljs-number">1</span> FROM virtual_users WHERE email=<span class="hljs-string">&#x27;%s&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>在 <code>/etc/postfix/mysql-virtual-alias-maps.cf</code> 中写入如下内容：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">user</span> = mailuser <br><span class="hljs-attr">password</span> = 前面设置的密码<br><span class="hljs-attr">hosts</span> = <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">3306</span> <br><span class="hljs-attr">dbname</span> = mail_db   <br><span class="hljs-attr">query</span> = SELECT destination FROM virtual_aliases WHERE source=<span class="hljs-string">&#x27;%s&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>最后重启 Postfix：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl restart postfix</span><br></code></pre></td></tr></table></figure>
+
+<p>此时我们执行如下指令进行测试时，结果都应当返回 <code>1</code>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo postmap -q 前面添加的域名 mysql:/etc/postfix/mysql-virtual-mailbox-domains.cf</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo postmap -q 前面添加的邮箱 mysql:/etc/postfix/mysql-virtual-mailbox-maps.cf</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">如果你添加了邮箱别名，运行下面的测试命令：</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo postmap -q 前面添加的邮箱 mysql:/etc/postfix/mysql-virtual-alias-maps.cf</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="开启邮件提交"><a href="#开启邮件提交" class="headerlink" title="开启邮件提交"></a>开启邮件提交</h3><blockquote>
+<p>简而言之用来给客户端向服务器提交请求，一个是常规的 587 端口的提交，另一个是如 outlook 等邮件客户端通过 465 端口的 SMTPS 提交邮件</p>
+</blockquote>
+<p>编辑 <code>/etc/postfix/master.cf</code> 文件，添加如下配置：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs routeros">submission inet n       -       y       -       -       smtpd<br>  -o <span class="hljs-attribute">syslog_name</span>=postfix/submission<br>  -o <span class="hljs-attribute">smtpd_tls_security_level</span>=encrypt<br>  -o <span class="hljs-attribute">smtpd_sasl_auth_enable</span>=<span class="hljs-literal">yes</span><br>  -o <span class="hljs-attribute">smtpd_tls_auth_only</span>=<span class="hljs-literal">yes</span><br>smtps      inet n       -       y       -       -       smtpd<br>  -o <span class="hljs-attribute">syslog_name</span>=postfix/smtps<br>  -o <span class="hljs-attribute">smtpd_tls_wrappermode</span>=<span class="hljs-literal">yes</span><br>  -o <span class="hljs-attribute">smtpd_sasl_auth_enable</span>=<span class="hljs-literal">yes</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="配置-Dovecot"><a href="#配置-Dovecot" class="headerlink" title="配置 Dovecot"></a>配置 Dovecot</h2><h3 id="配置协议"><a href="#配置协议" class="headerlink" title="配置协议"></a>配置协议</h3><p>在 <code>/etc/dovecot/dovecot.conf</code> 中添加如下内容：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">protocols</span> <span class="hljs-operator">=</span> imap lmtp pop3<br></code></pre></td></tr></table></figure>
+
+<h3 id="创建虚拟用户"><a href="#创建虚拟用户" class="headerlink" title="创建虚拟用户"></a>创建虚拟用户</h3><p>接下来我们创建一个新的虚拟用户作为 Dovecot 的后端，这里我们创建一个 <code>vmail</code> 用户：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo groupadd -g 5000 vmail</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo useradd --home-dir /var/mail/ --shell /usr/sbin/nologin -g vmail -u 5000 vmail</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">chown</span> -R vmail:vmail /var/mail</span><br></code></pre></td></tr></table></figure>
+
+<p>修改 <code>/etc/dovecot/conf.d/10-mail.conf</code> ，确保如下两条配置：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">mail_location</span> = maildir:/var/mail/vhosts/%d/%n<br><span class="hljs-attr">mail_privileged_group</span> = mail<br></code></pre></td></tr></table></figure>
+
+<h3 id="配置认证方式"><a href="#配置认证方式" class="headerlink" title="配置认证方式"></a>配置认证方式</h3><p>修改 <code>/etc/dovecot/conf.d/10-auth.conf</code> ，配置如下：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">auth_mechanisms</span> = plain login<br></code></pre></td></tr></table></figure>
+
+<p>来到文件末尾，注释掉其他 auth 方式，开启 SQL：</p>
+<figure class="highlight d"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs d"><span class="hljs-meta">#!include auth-system.conf.ext</span><br>!include auth-sql.conf.ext<br><span class="hljs-meta">#!include auth-ldap.conf.ext</span><br><span class="hljs-meta">#!include auth-passwdfile.conf.ext</span><br><span class="hljs-meta">#!include auth-checkpassword.conf.ext</span><br><span class="hljs-meta">#!include auth-static.conf.ext</span><br></code></pre></td></tr></table></figure>
+
+<p>不开启明文密码登录：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">disable_plaintext_auth</span> = <span class="hljs-literal">yes</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来修改 <code>/etc/dovecot/conf.d/auth-sql.conf.ext</code> 文件，确保如下配置：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs ext">passdb &#123;<br>  driver = sql<br>  args = /etc/dovecot/dovecot-sql.conf.ext<br>&#125;<br><br>userdb &#123;<br>  driver = sql<br>  args = /etc/dovecot/dovecot-sql.conf.ext<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="配置-SQL-认证过程"><a href="#配置-SQL-认证过程" class="headerlink" title="配置 SQL 认证过程"></a>配置 SQL 认证过程</h3><p>接下来修改 <code>/etc/dovecot/dovecot-sql.conf.ext</code> ，确保如下配置：</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">driver = mysql<br><span class="hljs-keyword">connect</span> = host=<span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span> port=<span class="hljs-number">3306</span> dbname=mail_db <span class="hljs-keyword">user</span>=mailuser <span class="hljs-keyword">password</span>=前面设置的密码<br>default_pass_scheme = SHA256-CRYPT<br>user_query = <span class="hljs-keyword">SELECT</span> email <span class="hljs-keyword">AS</span> username, <span class="hljs-string">&#x27;/var/mail/vhosts/%d/%n&#x27;</span> <span class="hljs-keyword">AS</span> home, <span class="hljs-number">5000</span> <span class="hljs-keyword">AS</span> uid, <span class="hljs-number">5000</span> <span class="hljs-keyword">AS</span> gid <span class="hljs-keyword">FROM</span> virtual_users <span class="hljs-keyword">WHERE</span> email = <span class="hljs-string">&#x27;%n@%d&#x27;</span>;<br>password_query = <span class="hljs-keyword">SELECT</span> email <span class="hljs-keyword">as</span> <span class="hljs-keyword">user</span>, <span class="hljs-keyword">password</span> <span class="hljs-keyword">FROM</span> virtual_users <span class="hljs-keyword">WHERE</span> email=<span class="hljs-string">&#x27;%u&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<h3 id="配置-lmtp、auth、postfix-相关"><a href="#配置-lmtp、auth、postfix-相关" class="headerlink" title="配置 lmtp、auth、postfix 相关"></a>配置 lmtp、auth、postfix 相关</h3><p>修改 <code>/etc/dovecot/conf.d/10-master.conf</code> ，确保如如下配置：</p>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">service lmtp &#123;<br>  unix_listener /var/spool/postfix/private/dovecot-lmtp &#123;<br>    mode = <span class="hljs-number">0600</span><br>    <span class="hljs-keyword">user</span> <span class="hljs-title">= postfix</span><br>    <span class="hljs-keyword">group</span> <span class="hljs-title">= postfix</span><br>  &#125;<br>&#125;<br><br>service auth &#123;<br>  unix_listener auth-userdb &#123;<br>    mode = <span class="hljs-number">0600</span><br>    <span class="hljs-keyword">user</span> <span class="hljs-title">= vmail</span><br>  &#125;<br><br>  unix_listener /var/spool/postfix/private/auth &#123;<br>    mode = <span class="hljs-number">0666</span><br>    <span class="hljs-keyword">user</span> <span class="hljs-title">= postfix</span><br>    <span class="hljs-keyword">group</span> <span class="hljs-title">= postfix</span><br>  &#125;<br><br>  <span class="hljs-keyword">user</span> <span class="hljs-title">= dovecot</span><br><br>&#125;<br><br>service auth-worker &#123;<br>  <span class="hljs-keyword">user</span> <span class="hljs-title">= vmail</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="配置-SSL-认证"><a href="#配置-SSL-认证" class="headerlink" title="配置 SSL 认证"></a>配置 SSL 认证</h3><p>接下来修改 <code>/etc/dovecot/conf.d/10-ssl.conf</code> 文件，确保如下配置：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">ssl</span> = required<br><span class="hljs-attr">ssl_cert</span> = &lt;证书位置<br><span class="hljs-attr">ssl_key</span> = &lt;密钥位置<br></code></pre></td></tr></table></figure>
+
+<h3 id="配置文件夹权限"><a href="#配置文件夹权限" class="headerlink" title="配置文件夹权限"></a>配置文件夹权限</h3><p>修改 <code>/etc/dovecot</code> 的权限：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">chown</span> -R vmail:dovecot /etc/dovecot</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">chmod</span> -R o-rwx /etc/dovecot</span><br></code></pre></td></tr></table></figure>
+
+<p>最后重启 postfix 与 dovecot：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl restart postfix</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl restart dovecot</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="配置-OpenDKIM"><a href="#配置-OpenDKIM" class="headerlink" title="配置 OpenDKIM"></a>配置 OpenDKIM</h2><p>首先安装 OpenDKIM：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt install opendkim opendkim-tools</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来修改 <code>/etc/opendkim.conf</code> ，确保如下配置：</p>
+<blockquote>
+<p>原文件中可能会有一条 <code>Socket</code> 开头的默认配置，需要注释掉</p>
+</blockquote>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs angelscript">Domain                  你的域名<br>Selector                dkim<br>KeyFile         /etc/dkimkeys/dkim.<span class="hljs-keyword">private</span><br>SOCKET                  inet:<span class="hljs-symbol">8891@</span>localhost<br></code></pre></td></tr></table></figure>
+
+<p>接下来修改 <code>/etc/default/opendkim</code> ，确保如下配置：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">SOCKET</span><span class="hljs-operator">=</span><span class="hljs-string">&quot;inet:8891@localhost&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来生成 dkim 密钥对：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo opendkim-genkey -t -s dkim -d 你的域名</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">mv</span> dkim.private /etc/dkimkeys/</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">chown</span> opendkim:opendkim /etc/dkimkeys/dkim.private</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来修改 <code>/etc/postfix/main.cf</code> ，确保如下配置：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">smtpd_milters</span> = inet:localhost:<span class="hljs-number">8891</span><br><span class="hljs-attr">non_smtpd_milters</span> = inet:localhost:<span class="hljs-number">8891</span><br><span class="hljs-attr">milter_protocol</span> = <span class="hljs-number">2</span><br><span class="hljs-attr">milter_default_action</span> = accept<br></code></pre></td></tr></table></figure>
+
+<p>接下来重启 opendkim 与 postfix：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl restart opendkim</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl restart postfix</span><br></code></pre></td></tr></table></figure>
+
+<p>最后添加一条格式为 <code>&quot;v=DKIM1;k=rsa;t=y;p=一个字符串&quot;</code> 的 DNS 记录，类型为 <code>TXT</code>， 记录名为 <code>dkim._domainkey</code> ，p 的内容参照前面 <code>opendkim-genkey</code> 命令在当前目录下生成的 <code>dkim.txt</code> ：</p>
+<p><img src="https://s2.loli.net/2025/03/27/ovekRLA5QtxzTuB.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="0x02-测试与登录邮件系统"><a href="#0x02-测试与登录邮件系统" class="headerlink" title="0x02. 测试与登录邮件系统"></a>0x02. 测试与登录邮件系统</h1><h2 id="使用-Outlook-Thunderbird-等软件进行登录"><a href="#使用-Outlook-Thunderbird-等软件进行登录" class="headerlink" title="使用 Outlook&#x2F;Thunderbird 等软件进行登录"></a>使用 Outlook&#x2F;Thunderbird 等软件进行登录</h2><p><a target="_blank" rel="noopener" href="https://www.thunderbird.net/en-US/">Thunderbird</a> 是一个开源的邮件客户端，可以直接识别并登录，比较方便：</p>
+<p><img src="https://s2.loli.net/2025/04/13/7gcFrhH1M6IQ8UP.png" srcset="/img/loading.gif" lazyload></p>
+<p><a target="_blank" rel="noopener" href="https://www.microsoft.com/en-us/microsoft-365/outlook/outlook-for-windows">Outlook</a> 电脑端也是可以直接识别出 IMAP 服务器并登录，不过你可能还会需要根据自己的服务器配置手动修改一些东西：</p>
+<p><img src="https://s2.loli.net/2025/04/13/Pru9fFl52pMKd8T.png" srcset="/img/loading.gif" lazyload></p>
+<p>不过 Outlook 会把你的邮件给偷一份到微软自己的 Outlook 服务器上，这个就酌情考虑了：</p>
+<p><img src="https://s2.loli.net/2025/04/13/9uQUWE3gPdFo7y6.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>移动端同电脑端</p>
+</blockquote>
+<h2 id="使用-OpenSSL-单独测试本地端口"><a href="#使用-OpenSSL-单独测试本地端口" class="headerlink" title="使用 OpenSSL 单独测试本地端口"></a>使用 OpenSSL 单独测试本地端口</h2><blockquote>
+<p>🕊</p>
+</blockquote>
+<h1 id="0x03-可能遇到的问题"><a href="#0x03-可能遇到的问题" class="headerlink" title="0x03. 可能遇到的问题"></a>0x03. 可能遇到的问题</h1><h2 id="没有办法接收-发送邮件"><a href="#没有办法接收-发送邮件" class="headerlink" title="没有办法接收&#x2F;发送邮件"></a>没有办法接收&#x2F;发送邮件</h2><p>一般是云服务器厂商做了限制，例如 <a target="_blank" rel="noopener" href="https://app.vmiss.com/announcements/23?language=chinese&utm_source=chatgpt.com">VMISS</a> 就限制了不少端口：</p>
+<p><img src="https://s2.loli.net/2025/04/13/Agbk3IRBn62Lhe7.png" srcset="/img/loading.gif" lazyload></p>
+<p>可以 <strong>在另一台设备上</strong> 用 nmap 检查端口可访问状态，例如笔者在 VMISS 上买的服务器的 25 端口就有点问题：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">nmap -Pn 你的邮件域名</span><br>Starting Nmap 7.93 ( https://nmap.org ) at 2025-04-12 18:40 EDT<br>Nmap scan report for 你的邮件域名 (你的IP)<br>Host is up (0.16s latency).<br>Not shown: 992 closed tcp ports (conn-refused)<br>PORT    STATE    SERVICE<br>22/tcp  open     ssh<br>25/tcp  filtered smtp<br>110/tcp open     pop3<br>143/tcp open     imap<br>465/tcp open     smtps<br>587/tcp open     submission<br>993/tcp open     imaps<br>995/tcp open     pop3s<br><br>Nmap done: 1 IP address (1 host up) scanned in 10.55 seconds<br></code></pre></td></tr></table></figure>
+
+<p>这个时候就只能要么换服务器要么想办法让厂商开放端口了，没啥好的解决方案：（</p>
+<h2 id="发信时遇到-451-4-3-0-Temporary-lookup-failure"><a href="#发信时遇到-451-4-3-0-Temporary-lookup-failure" class="headerlink" title="发信时遇到 451 4.3.0 Temporary lookup failure"></a>发信时遇到 451 4.3.0 Temporary lookup failure</h2><p><strong>这个问题往往出现在你尝试在 Debian 上使用 MySQL 而非 MariaDB 作为你的数据库的场景下</strong></p>
+<p>，这个时候你查看邮件日志可能如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cat</span> /var/log/mail.log</span> <br><span class="hljs-meta prompt_"># </span><span class="language-bash">...</span><br>Apr 12 16:49:42 mail postfix/trivial-rewrite[41805]: warning: connect to mysql server 127.0.0.1:3306: Plugin caching_sha2_password could not be loaded: /usr/lib/x86_64-linux-gnu/libmariadb3/plugin/caching_sha2_password.so: cannot open shared object file: No such file or directory<br>Apr 12 16:49:42 mail postfix/trivial-rewrite[41805]: warning: virtual_mailbox_domains: mysql:/etc/postfix/mysql-virtual-mailbox-domains.cf: table lookup problem<br>Apr 12 16:49:42 mail postfix/trivial-rewrite[41805]: warning: virtual_mailbox_domains lookup failure<br>Apr 12 16:49:42 mail postfix/trivial-rewrite[41805]: warning: virtual_mailbox_domains: mysql:/etc/postfix/mysql-virtual-mailbox-domains.cf: table lookup problem<br>Apr 12 16:49:42 mail postfix/trivial-rewrite[41805]: warning: virtual_mailbox_domains lookup failure<br>Apr 12 16:49:42 mail postfix/submission/smtpd[41799]: NOQUEUE: reject: RCPT from localhost[::1]: 451 4.3.0 &lt;arttnba3@👴的域名&gt;: Temporary lookup failure; from=&lt;邮箱地址&gt; to=&lt;邮箱地址&gt; proto=ESMTP helo=&lt;主机名&gt;<br></code></pre></td></tr></table></figure>
+
+<p>简而言之就是 Debian 的 Postfix  <strong>默认链接到 MariaDB 相关的库而非 MySQL</strong> ，因此默认使用 MariaDB Client（哪怕你安装了 libmysqlclient 包，Postfix 也不会去用），MySQL 默认用的 <code>chaching_sha2_password</code> 在 MariaDB 里 <strong>没有</strong> ，自然连接不上：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">ldd /usr/lib/postfix/postfix-mysql.so</span><br>        linux-vdso.so.1 (0x00007fff9f9b5000)<br>        libmariadb.so.3 =&gt; /lib/x86_64-linux-gnu/libmariadb.so.3 (0x00007fcb2df44000)<br>        libc.so.6 =&gt; /lib/x86_64-linux-gnu/libc.so.6 (0x00007fcb2dd63000)<br>        libz.so.1 =&gt; /lib/x86_64-linux-gnu/libz.so.1 (0x00007fcb2dd44000)<br>        libssl.so.3 =&gt; /lib/x86_64-linux-gnu/libssl.so.3 (0x00007fcb2dc9b000)<br>        libcrypto.so.3 =&gt; /lib/x86_64-linux-gnu/libcrypto.so.3 (0x00007fcb2d800000)<br>        /lib64/ld-linux-x86-64.so.2 (0x00007fcb2dfab000)<br><span class="hljs-meta prompt_">$ </span><span class="language-bash">ldd /usr/lib/postfix/sbin/trivial-rewrite</span><br>        linux-vdso.so.1 (0x00007ffd4faf3000)<br>        libpostfix-master.so =&gt; /usr/lib/postfix/libpostfix-master.so (0x00007f709beff000)<br>        libpostfix-global.so =&gt; /usr/lib/postfix/libpostfix-global.so (0x00007f709beb2000)<br>        libpostfix-util.so =&gt; /usr/lib/postfix/libpostfix-util.so (0x00007f709be68000)<br>        libc.so.6 =&gt; /lib/x86_64-linux-gnu/libc.so.6 (0x00007f709bc83000)<br>        libdb-5.3.so =&gt; /lib/x86_64-linux-gnu/libdb-5.3.so (0x00007f709bac1000)<br>        libnsl.so.2 =&gt; /lib/x86_64-linux-gnu/libnsl.so.2 (0x00007f709baa4000)<br>        libicuuc.so.72 =&gt; /lib/x86_64-linux-gnu/libicuuc.so.72 (0x00007f709b8a6000)<br>        /lib64/ld-linux-x86-64.so.2 (0x00007f709bf17000)<br>        libtirpc.so.3 =&gt; /lib/x86_64-linux-gnu/libtirpc.so.3 (0x00007f709b878000)<br>        libicudata.so.72 =&gt; /lib/x86_64-linux-gnu/libicudata.so.72 (0x00007f7099a00000)<br>        libstdc++.so.6 =&gt; /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f7099600000)<br>        libm.so.6 =&gt; /lib/x86_64-linux-gnu/libm.so.6 (0x00007f7099920000)<br>        libgcc_s.so.1 =&gt; /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f709b856000)<br>        libgssapi_krb5.so.2 =&gt; /lib/x86_64-linux-gnu/libgssapi_krb5.so.2 (0x00007f709b803000)<br>        libkrb5.so.3 =&gt; /lib/x86_64-linux-gnu/libkrb5.so.3 (0x00007f7099846000)<br>        libk5crypto.so.3 =&gt; /lib/x86_64-linux-gnu/libk5crypto.so.3 (0x00007f709b7d6000)<br>        libcom_err.so.2 =&gt; /lib/x86_64-linux-gnu/libcom_err.so.2 (0x00007f7099840000)<br>        libkrb5support.so.0 =&gt; /lib/x86_64-linux-gnu/libkrb5support.so.0 (0x00007f7099832000)<br>        libkeyutils.so.1 =&gt; /lib/x86_64-linux-gnu/libkeyutils.so.1 (0x00007f709982b000)<br>        libresolv.so.2 =&gt; /lib/x86_64-linux-gnu/libresolv.so.2 (0x00007f709981a000)<br></code></pre></td></tr></table></figure>
+
+<p>最简单的解决方案就是 <strong>不使用 MySQL 而是使用 MariaDB，这样一切问题便能迎刃而解，笔者不建议大家去折腾其他解决方案，因为会非常麻烦</strong> </p>
+<blockquote>
+<p>可能会有人想到获取可以更改 MySQL 的认证插件为 <code>mysql_native_password</code> 使得 MariaDB 能兼容，但是 Debian 上会遇到一系列的各种问题，简而言之笔者想了很多方法都未能成功：（</p>
+<p>以及似乎在 Debian 上也没有简单的办法能让 Postfix 默认使用 MySQL 而非 MariaDB， <del>这时就体现出 Gentoo 的 USE flag 的优越性所在了</del></p>
+</blockquote>
+<h2 id="Undelivered-Mail-Returned-to-Sender"><a href="#Undelivered-Mail-Returned-to-Sender" class="headerlink" title="Undelivered Mail Returned to Sender"></a>Undelivered Mail Returned to Sender</h2><blockquote>
+<p>出错了，但我们做对了.jpg</p>
+</blockquote>
+<p>有的时候在你发完邮件之后可能会收到这样一封邮件：</p>
+<p><img src="https://s2.loli.net/2025/04/13/LQmcXwG1bOqJayh.png" srcset="/img/loading.gif" lazyload></p>
+<p>这种情况下一般而言 <strong>你的配置是没有问题的，只是你的服务器供应商的网段被对方给拉黑了</strong> ，因此你发出去的邮件会被拒收</p>
+<p>解决方案除了通过换 VPS 供应商的方式更换到不同 IP 段以外应该没有别的办法：（</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/OPS/" class="category-chain-item">OPS</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【OPS.0x05】用Postfix+Dovecat+MariaDB搭建邮件系统</div>
+      <div>https://arttnba3.github.io/2025/03/27/OPS-0X05-POSTFIX_DOVECOT_MARIADB_DEBIAN/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年3月27日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/02/22/CVE-0X0C-CVE-2024-0582/" title="【CVE.0x0C】CVE-2024-0582 漏洞复现及简要分析">
+                        <span class="hidden-mobile">【CVE.0x0C】CVE-2024-0582 漏洞复现及简要分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      桂ICP备2022005068号-1
+    </a>
+  </span>
+  
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
