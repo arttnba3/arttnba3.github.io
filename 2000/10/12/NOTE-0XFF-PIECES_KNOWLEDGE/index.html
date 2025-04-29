@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2022/04/25/5NqJf2k9SOtiwGm.png">
 <meta property="article:published_time" content="2000-10-12T12:51:25.000Z">
-<meta property="article:modified_time" content="2025-03-20T15:27:44.207Z">
+<meta property="article:modified_time" content="2025-04-23T01:55:35.933Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="学习札记">
@@ -263,7 +263,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          7k 字
+          7.2k 字
         
       </span>
     
@@ -274,7 +274,7 @@
         
         
         
-          59 分钟
+          61 分钟
         
       </span>
     
@@ -329,7 +329,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2025年3月21日 凌晨
+                    本文最后更新于：2025年4月23日 中午
                   
                 
               </p>
@@ -477,6 +477,17 @@
 <p>如果突然又不想拔了想继续用，可以通过如下命令重新枚举 PCI 设备，这个时候可以看到这个 NVMe 设备又悄然出现在系统里了， <del>但比起敲命令行不如直接顺手重新拔插</del> ：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">echo</span> 1 | sudo <span class="hljs-built_in">tee</span> /sys/bus/pci/rescan</span><br></code></pre></td></tr></table></figure>
 
+<h1 id="0x07-为-Gentoo-的-QEMU-启用-3d-acceleration-支持"><a href="#0x07-为-Gentoo-的-QEMU-启用-3d-acceleration-支持" class="headerlink" title="0x07. 为 Gentoo 的 QEMU 启用 3d acceleration 支持"></a>0x07. 为 Gentoo 的 QEMU 启用 3d acceleration 支持</h1><p>Gentoo 默认安装的 QEMU 似乎是不支持 3d acceleration 的：</p>
+<p><img src="https://s2.loli.net/2025/04/23/EctN3XLpviRAf95.png" srcset="/img/loading.gif" lazyload></p>
+<p>看了一圈 USE flag 发现有个叫 <a target="_blank" rel="noopener" href="https://docs.mesa3d.org/drivers/virgl/">virgl</a>：</p>
+<p><img src="https://s2.loli.net/2025/04/23/rhW23yVkZqH7lLn.png" srcset="/img/loading.gif" lazyload></p>
+<p>在 <code>/etc/portage/package.use</code> 里创建一个文件用来写 QEMU 的 USE flag：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">app-emulation/qemu virgl <br></code></pre></td></tr></table></figure>
+
+<p>接下来在 <code>/etc/portage/make.conf</code> 的 <code>VIDEIO_CARDS</code> 选项中添加 <code>virgl</code> ，然后重新构建 mesa：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo emerge -av media-libs/mesa<br></code></pre></td></tr></table></figure>
+
+<p>然后重新 <code>emerge qemu</code> 就行</p>
 <h1 id="0x0-C-的虚表"><a href="#0x0-C-的虚表" class="headerlink" title="0x0?. C++ 的虚表"></a>0x0?. C++ 的虚表</h1><p>虚函数表是 C++ 为了实现多态而使用的一种技术，</p>
 <blockquote>
 <p>To be 🕊🕊🕊…</p>
