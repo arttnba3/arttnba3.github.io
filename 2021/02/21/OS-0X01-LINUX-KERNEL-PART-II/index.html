@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://i.loli.net/2021/05/08/fqdbRMhuKCrIozk.png">
 <meta property="article:published_time" content="2021-02-21T11:02:14.000Z">
-<meta property="article:modified_time" content="2025-02-28T02:27:07.758Z">
+<meta property="article:modified_time" content="2025-04-29T08:21:42.653Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
@@ -265,7 +265,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          45k 字
+          46k 字
         
       </span>
     
@@ -276,7 +276,7 @@
         
         
         
-          377 分钟
+          383 分钟
         
       </span>
     
@@ -331,7 +331,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2025年2月28日 下午
+                    本文最后更新于：2025年4月29日 晚上
                   
                 
               </p>
@@ -430,6 +430,16 @@
 
 <p>这时需要在 <code>.config</code> 文件中将 <code>CONFIG_SYSTEM_REVOCATION_KEYS</code> 项等号后面的值改为 <code>&quot;&quot;</code></p>
 <p><img src="https://s2.loli.net/2022/02/15/CNogw1mDtyFlUJY.png" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>笔者还遇到过这个错误：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">arch</span>/x86/entry/thunk_64.o: warning: objtool: missing symbol table<br>make[2]: *** [scripts/Makefile.build:364: <span class="hljs-built_in">arch</span>/x86/entry/thunk_64.o] Error 1<br>make[2]: *** Deleting file <span class="hljs-string">&#x27;arch/x86/entry/thunk_64.o&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>主要出现于编译老版本内核的情况，解决方案是在内核源码目录下创建一个 <code>objtool.patch</code> 文件写入如下内容：</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs diff"><span class="hljs-comment">index f9682db33ccabb..d8421e1d06bed3 100644</span><br><span class="hljs-comment">--- a/tools/objtool/elf.c</span><br><span class="hljs-comment">+++ b/tools/objtool/elf.c</span><br><span class="hljs-meta">@@ -380,8 +380,11 @@</span> static int read_symbols(struct elf *elf)<br> <br> 	symtab = find_section_by_name(elf, &quot;.symtab&quot;);<br> 	if (!symtab) &#123;<br><span class="hljs-deletion">-		WARN(&quot;missing symbol table&quot;);</span><br><span class="hljs-deletion">-		return -1;</span><br><span class="hljs-addition">+		/*</span><br><span class="hljs-addition">+		 * A missing symbol table is actually possible if it&#x27;s an empty</span><br><span class="hljs-addition">+		 * .o file.  This can happen for thunk_64.o.</span><br><span class="hljs-addition">+		 */</span><br><span class="hljs-addition">+		return 0;</span><br> 	&#125;<br> <br> 	symtab_shndx = find_section_by_name(elf, &quot;.symtab_shndx&quot;);<br></code></pre></td></tr></table></figure>
+
+<p>之后运行如下命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">patch -p1 &lt; ./objtool.patch</span><br></code></pre></td></tr></table></figure>
+
+<p>重新开始编译即可</p>
 <h3 id="V-编译结果"><a href="#V-编译结果" class="headerlink" title="V.编译结果"></a>V.编译结果</h3><p>完成之后会出现如下信息：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">Kernel: arch/x86/boot/bzImage is ready  (#1)<br></code></pre></td></tr></table></figure>
 
