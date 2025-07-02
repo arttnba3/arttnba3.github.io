@@ -25,9 +25,9 @@
 <meta property="og:site_name" content="arttnba3&#39;s blog">
 <meta property="og:description" content="《火星救援之企鹅男孩与美人a3战士与非预期解》">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://s2.loli.net/2025/06/03/YIoRTKiwm8bCe19.png">
+<meta property="og:image" content="https://s2.loli.net/2025/07/03/zlVyKdbOGMgkP9A.png">
 <meta property="article:published_time" content="2025-06-03T16:21:19.000Z">
-<meta property="article:modified_time" content="2025-07-02T20:31:37.997Z">
+<meta property="article:modified_time" content="2025-07-02T20:49:47.864Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
@@ -40,7 +40,7 @@
 <meta property="article:tag" content="堆风水">
 <meta property="article:tag" content="Page-level Heap Fengshui">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://s2.loli.net/2025/06/03/YIoRTKiwm8bCe19.png">
+<meta name="twitter:image" content="https://s2.loli.net/2025/07/03/zlVyKdbOGMgkP9A.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
@@ -242,7 +242,7 @@
   
 
 <div id="banner" class="banner" parallax=true
-     style="background: url('https://s2.loli.net/2025/07/03/3spXmvgAw1k9yho.png') no-repeat center center; background-size: cover;">
+     style="background: url('https://s2.loli.net/2025/07/03/ynoxzD2TiqZsXrk.png') no-repeat center center; background-size: cover;">
   <div class="full-bg-img">
     <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
       <div class="banner-text text-center fade-in-up">
@@ -271,7 +271,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          53k 字
+          54k 字
         
       </span>
     
@@ -282,7 +282,7 @@
         
         
         
-          442 分钟
+          451 分钟
         
       </span>
     
@@ -445,6 +445,13 @@
 <p>那么现在又来了另一个问题： <strong>我们是否能够直接在用户空间进行内存分配，而非利用内核的内存分配 API？</strong> 答案是 <strong>否定的</strong> ，一个非常重要的原因是如果我们的进程直接分配了大量的内存（例如进行大量的 <code>malloc()</code> 来扩展堆段）， <strong>我们的 OOM score 将会同步快速增长，且我们的 exploit 进程往往会是第一个被杀掉的</strong> ，由于我们被杀掉了，内存分配停止了，因此内核不再需要唤醒 OOM Killer 来杀掉其他内存</p>
 <p>在我在比赛过程中得到选手的反馈图片时，我非常迅速地就意识到这必定是 OOM Killer 引起的，但我没有预计到的是包括 <code>rcS</code> 在内的所有进程都被杀掉了，因为这在我以往出过的 CTF 题目中都没有出现过，我原本的预期是 kernel 将会由于 OOM 而 panic，但结果告诉我 kernel 并不总是 panic （哈哈，kernel 也怕死吗？），据选手所言其给出的非预期解的成功率是至少 <code>30%</code> ，但我写的 POC 的成功率超过 <code>99%</code> ，我认为主要原因是使用的 API 不同，由于 <code>packet_set_ring()</code> 使用 <code>vzalloc_nprof()</code> ，其并不向内核请求物理连续的内存区段（而仅是虚拟地址连续），这意味着内存分配可以被从一个高阶分割为数个低阶，但 <code>d3kshrm.ko</code> 中的函数直接调用了 <code>alloc_pages()</code> 来分配高阶内存，因此内核会更容易 panic 因为我们或许无法回收所需的连续的高阶物理内存</p>
 <p>我最终如何修复这个漏洞？我创建了该题目的一个复仇版本，仅修改了 <code>/etc/inittab</code> 的 <code>::askfirst:</code> 从 <code>/bin/ash</code> 变为 <code>/sbin/poweroff</code> 来临时修复这个非预期漏洞，但我认为将其变为 <code>login</code> 或许是更好的选择？无论如何这教导了我一堂课： <strong>一个完美的环境并不总是最适合的</strong> ，且我应当 <strong>检查环境当中的每样事物</strong> </p>
+<h2 id="What’s-more…-1"><a href="#What’s-more…-1" class="headerlink" title="What’s more…"></a>What’s more…</h2><p>本题的介绍来自于我非常喜欢的一个由 <a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=0Kio3t3nXJo">Halo Top 设计的广告</a> ，尽管这个视频或许只是为了乐趣而创造的，但这也给了我一些言语无法表达的特别感受，因此我选择其作为题目描述的基础并修改了一部分以给你们一些无意义的句子，就像 flag 所言：）</p>
+<p>我创造这个题目的最初的灵感来自于 <a target="_blank" rel="noopener" href="https://github.com/arttnba3/Linux-kernel-exploitation/tree/main/CVE/CVE-2023-2008">CVE-2023-2008</a> ，其同样是一个 OOB 内存映射的漏洞，因此实话实说这个题目并不如我所预期的那样有难度且有创造性，非常抱歉我虽然一直想给你们展示一些炫酷的东西但这一次并没有展示足够库的玩意</p>
+<p>另一个我选择修改现有漏洞的原因是 <em>我确实没有太多时间来完成这些题目</em> ，由于我已经从本科毕业了，我并没有太关注于我的后辈们今年准备 D^3CTF 的情况，直到 <strong>比赛开始的大概 10 天前</strong> 才知道今年几乎还没有 pwn 题，因此我不得不在脑子里几乎没有什么新的研究成果的情况下冲刺准备今年的 Pwn 题以确保比赛能像往年一样正常举办， <strong>非常抱歉今年笔者未能带来和 2023 年的 d3kcache 一样炫酷的玩意</strong> </p>
+<p>而如果你足够注意中国内核模块，你会注意到我在计算 <code>vm_area</code> 的引用计数上写了另一个非预期漏洞： <strong>我忘了写 vm_open() 以添加引用计数，但仍记得写 vm_close() 以减少引用计数！</strong> 这迷惑了不少选手并让他们浪费了很多时间尝试利用这个漏洞，因为实际上其并不好利用，因为页面很难被同时用作用户映射页面与 SLUB 页面（但如果你足够感兴趣，或许你可以看看 <a target="_blank" rel="noopener" href="https://github.com/arttnba3/Linux-kernel-exploitation/tree/main/CVE/CVE-2024-0582">CVE-2024-0582</a> ，其情况与之相似，但我不确定这对 <code>d3kshrm</code> 是否同样有用，所以祝你好运），我非常抱歉因为这道题出得太赶了我没有仔细检查</p>
+<p>从整场比赛而言，仅有来自 <a target="_blank" rel="noopener" href="https://ctftime.org/team/19208/">MNGA</a> 战队的 <code>Tplus</code> 选手成功以预期解法解出了这道题，<strong>让我们祝贺这位唯一在比赛期间以预期解解出这道题的选手！</strong> 而来自 <a target="_blank" rel="noopener" href="https://wm-team.cn/">W&amp;M</a> 的 <a target="_blank" rel="noopener" href="https://9anux.org/2025/06/02/d3kshrm/">Qanux</a> 选手在比赛结束后也同样以预期解法解出了这道题目（因为他没想到还有个 <code>-revenge</code> 版本从而在用非预期解得分后便出去吃大餐了），无论如何我认为我们都应当为他们鼓掌与庆贺</p>
+<p>另一个有趣的点是你们或许会忽视 <strong>在 kmem_cache 被创建时便会分配一份新的 SLUB 页面</strong> ，这意味着我们的堆风水应当关注于 <strong>下一个新分配的 SLUB 页面</strong> ，我认为这是 <code>Tplus</code> 选手与 <code>Qanux</code> 选手所自行编写的预期解法的成功率较低的缘故：他们关注于第一份 SLUB，而我的官方解法关注于第二份 SLUB，因此我的成功利用页级堆风水的概率超过 <code>80%</code> 且在打远程时无需爆破</p>
+<p>尽管关于 Linux kernel exploitation 笔者还有很多想说的话，但似乎写到这里的时候文章已经太长了，那么就让我们就此打住吧，无论如何我要感谢每一位参加了这个 CTF 并尝试进行解题的选手，无论你们是否获得了 flag</p>
 
                 
               </div>
