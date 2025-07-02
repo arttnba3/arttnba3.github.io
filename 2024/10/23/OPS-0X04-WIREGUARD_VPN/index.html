@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2024/10/10/B81mwTe6Fthq3nC.png">
 <meta property="article:published_time" content="2024-10-22T13:26:19.000Z">
-<meta property="article:modified_time" content="2024-11-11T10:41:29.792Z">
+<meta property="article:modified_time" content="2025-06-30T16:00:19.619Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="运维">
@@ -265,7 +265,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          12k 字
+          13k 字
         
       </span>
     
@@ -276,7 +276,7 @@
         
         
         
-          98 分钟
+          113 分钟
         
       </span>
     
@@ -331,7 +331,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2024年11月11日 晚上
+                    本文最后更新于：2025年7月1日 凌晨
                   
                 
               </p>
@@ -357,7 +357,7 @@
 <blockquote>
 <p>参考： <a target="_blank" rel="noopener" href="https://www.wireguard.com/install/">WireGuard - Installation</a></p>
 </blockquote>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get update</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get upgrade</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get install wireguard</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get update &amp;&amp; sudo apt-get upgrade -y</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo apt-get install -y wireguard</span><br></code></pre></td></tr></table></figure>
 
 <p>完成安装之后我们会获得一个内核模块，以及相应的用户态 CLI 程序 <code>wg</code> ：</p>
 <p><img src="https://s2.loli.net/2024/10/21/Aiw9cQTp4k537B6.png" srcset="/img/loading.gif" lazyload></p>
@@ -365,9 +365,26 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">wg genkey | sudo <span class="hljs-built_in">tee</span> /etc/wireguard/privatekey | wg pubkey | sudo <span class="hljs-built_in">tee</span> /etc/wireguard/publickey</span><br></code></pre></td></tr></table></figure>
 
 <p>接下来创建 WireGuard 配置文件，这里我们放在 <code>/etc/wireguard/wg0.conf</code> ，写入如下内容：</p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Interface]</span><br><span class="hljs-attr">PrivateKey</span> = 私钥文件内容<br><span class="hljs-attr">ListenPort</span> = 自定义的监听端口<br><span class="hljs-attr">Address</span> = 自定义的内网地址，例如 <span class="hljs-number">10.0</span>.<span class="hljs-number">0.1</span>/<span class="hljs-number">24</span><br><span class="hljs-attr">PostUp</span>   = iptables -A FORWARD -i wg0 -j ACCEPT<span class="hljs-comment">; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o 你的能访问公网的网卡名 -j MASQUERADE</span><br><span class="hljs-attr">PostDown</span> = iptables -D FORWARD -i wg0 -j ACCEPT<span class="hljs-comment">; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o 你的能访问公网的网卡名 -j MASQUERADE</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Interface]</span><br><span class="hljs-attr">PrivateKey</span> = 私钥文件内容<br><span class="hljs-attr">ListenPort</span> = 自定义的监听端口<br><span class="hljs-attr">Address</span> = 自定义的内网地址，例如 <span class="hljs-number">10.0</span>.<span class="hljs-number">0.1</span>/<span class="hljs-number">24</span><br><span class="hljs-attr">PostUp</span>   = iptables -A FORWARD -i wg0 -j ACCEPT<span class="hljs-comment">; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o 你的能访问公网的网卡名 -j MASQUERADE</span><br><span class="hljs-attr">PreDown</span> = iptables -D FORWARD -i wg0 -j ACCEPT<span class="hljs-comment">; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o 你的能访问公网的网卡名 -j MASQUERADE</span><br></code></pre></td></tr></table></figure>
 
-<p>这里的 <code>PostUp</code> 与 <code>PostDown</code> 参数分别为接口启动时与关闭时执行的命令，其中 <code>wg0</code> 为我们后面要创建的虚拟网卡名，该命令主要用于流量转发，这里不再赘叙</p>
+<p>这里的 <code>PostUp</code> 与 <code>PreDown</code> 参数分别为接口启动时与关闭时执行的命令，存在如下四个执行节点：</p>
+<ul>
+<li><code>PreUp</code> ：在网络接口创建前执行</li>
+<li><code>PostUp</code> ：在网络接口创建后执行</li>
+<li><code>PreDown</code> ：在网络接口删除前执行</li>
+<li><code>PostDown</code> ： 在网络接口删除后执行</li>
+</ul>
+<p>现在我们解析具体命令，其中 <code>wg0</code> 为我们后面要创建的虚拟网卡名，该命令主要是使用 iptables 进行流量转发，在启动 WireGuard 时添加转发规则，在停用时删除转发规则：</p>
+<ul>
+<li><code>iptables -A FORWARD -i wg0 -j ACCEPT</code> ：（默认 filter 表）在 FORWARD 链添加规则——允许从 <code>wg0</code> 接口转发入流量</li>
+<li><code>iptables -A FORWARD -o wg0 -j ACCEPT</code> ：（默认 filter 表）在 FORWARD 链添加规则——允许转发流量出到 <code>wg0</code> 接口</li>
+<li><code>iptables -t nat -A POSTROUTING -o 你的能访问公网的网卡名 -j MASQUERADE</code> ：使用 NAT 表，在 POSTROUTING 链添加规则——对发出的数据做地址伪装使其看起来像从本地网卡发出的数据包， <code>MASQUERADE</code> 即意味着修改出站的包的源地址为该网卡的 ip</li>
+</ul>
+<blockquote>
+<p>如果你不记得 iptables 四表五链，可以简单回忆一下：</p>
+<p><img src="https://s2.loli.net/2025/06/30/ZDag5SrP2HMQ9kI.png" srcset="/img/loading.gif" lazyload></p>
+<p><del>为什么不用 nftables？因为👴懒得两个都写了，反正背后都是 netfilter</del></p>
+</blockquote>
 <p>对于可以访问公网的网卡的名称，可以简单通过如下命令进行获取：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">ip -o -4 route show to default | awk <span class="hljs-string">&#x27;&#123;print $5&#125;&#x27;</span></span><br></code></pre></td></tr></table></figure>
 
@@ -382,7 +399,7 @@
 <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">net.ipv4.ip_forward</span> = <span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
 
 <blockquote>
-<p>也可以在 WireGuard 配置文件中的 <code>[Interface]</code> 添加如下配置：</p>
+<p>也可以在 WireGuard 配置文件中的 <code>[Interface]</code> 添加如下配置来动态开关：</p>
 <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">PostUp</span> = sysctl -w net.ipv4.ip_forward=<span class="hljs-number">1</span><br><span class="hljs-attr">PostDown</span> = sysctl -w net.ipv4.ip_forward=<span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
 
 
@@ -403,22 +420,22 @@
 <p>然后按惯例生成公钥与私钥：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">wg genkey | sudo <span class="hljs-built_in">tee</span> /etc/wireguard/privatekey | wg pubkey | sudo <span class="hljs-built_in">tee</span> /etc/wireguard/publickey</span><br></code></pre></td></tr></table></figure>
 
-<p>接下来修改服务端配置文件， <strong>添加</strong> 客户端配置如下：</p>
+<p>接下来修改 <strong>服务端</strong> 配置文件， <strong>添加</strong> 客户端配置如下：</p>
 <blockquote>
 <p>每新增一个客户端就添加一份 <code>[Peer]</code> 配置</p>
 </blockquote>
 <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Peer]</span><br><span class="hljs-attr">PublicKey</span> = 客户端生成的公钥<br><span class="hljs-attr">AllowedIPs</span> = 自定义的内网地址，例如 <span class="hljs-number">10.0</span>.<span class="hljs-number">0.2</span>/<span class="hljs-number">32</span><br></code></pre></td></tr></table></figure>
 
-<p>重启服务端 WireGuard：</p>
+<p>然后重启 <strong>服务端 WireGuard</strong> ：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo wg-quick down wg0 &amp;&amp; sudo wg-quick up wg0</span><br></code></pre></td></tr></table></figure>
 
-<p>然后创建配置文件 <code>/etc/wireguard/wg0.conf</code> ，写入如下内容：</p>
+<p>然后在 <strong>客户端</strong> 创建配置文件 <code>/etc/wireguard/wg0.conf</code> ，写入如下内容：</p>
 <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Interface]</span><br><span class="hljs-attr">PrivateKey</span> = 客户端生成的私钥<br><span class="hljs-attr">Address</span> = 上面配置的客户端地址<br><span class="hljs-attr">MTU</span> = <span class="hljs-number">1280</span><br><br><span class="hljs-section">[Peer]</span><br><span class="hljs-attr">PublicKey</span> = 服务端的公钥<br><span class="hljs-attr">Endpoint</span> = 服务端的公网地址或是域名:服务端的端口<br><span class="hljs-attr">AllowedIPs</span> = 服务端网段，例如 <span class="hljs-number">10.0</span>.<span class="hljs-number">0.0</span>/<span class="hljs-number">24</span><br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>如果你不止想要组网，还想要让 WireGuard 服务端代理客户端的全部流量，只需要配置客户端的 <code>AllowedIPs = 0.0.0.0/0</code> 即可</p>
 </blockquote>
-<p>最后按惯例启动 WireGuard 即可：</p>
+<p>最后按惯例启动客户端的 WireGuard 即可：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo wg-quick up wg0</span><br></code></pre></td></tr></table></figure>
 
 <p>如果有需要，可以配置自启动：</p>
@@ -439,10 +456,33 @@
 <p>其会自动生成一份私钥和公钥，我们只需要再按照前面的方式填写配置文件即可：</p>
 <p><img src="https://s2.loli.net/2024/10/22/osNnbW2zGuFT9I7.png" srcset="/img/loading.gif" lazyload></p>
 <p>之后在服务端也添加相应配置并重启 WireGuard 即可</p>
-<h1 id="0x03-利用-NGINX-反代-WireGuard-Over-Trojan"><a href="#0x03-利用-NGINX-反代-WireGuard-Over-Trojan" class="headerlink" title="0x03. 利用 NGINX 反代 WireGuard Over Trojan"></a>0x03. 利用 NGINX 反代 WireGuard Over Trojan</h1><blockquote>
+<h1 id="0x03-动态调整服务器的客户端记录"><a href="#0x03-动态调整服务器的客户端记录" class="headerlink" title="0x03. 动态调整服务器的客户端记录"></a>0x03. 动态调整服务器的客户端记录</h1><p>我们不难发现如果每次添加一个新的客户端或删除一个旧的客户端都要在修改完 <code>wg.conf</code> 文件之后重启 WireGuard 似乎有点太愚蠢了（虽然设计上是偏向于预先配置好网络拓扑 <del>所以说优雅在哪</del> ），因此本节讲述如何在保持服务端的 WireGuard 持续运行的情况下调整服务器上的客户端记录</p>
+<h2 id="动态增加新的客户端"><a href="#动态增加新的客户端" class="headerlink" title="动态增加新的客户端"></a>动态增加新的客户端</h2><p>我们可以使用如下命令动态添加新的客户端配置：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo wg <span class="hljs-built_in">set</span> wg0 peer 客户端生产的公钥 allowed-ips 自定义的内网地址</span><br></code></pre></td></tr></table></figure>
+
+<p>不过该配置不会被持久化到文件中，而仅保存在内存中，这意味着下次重新启动就消失了，因此我们需要额外的配置来将其持久化</p>
+<h2 id="持久化当前配置"><a href="#持久化当前配置" class="headerlink" title="持久化当前配置"></a>持久化当前配置</h2><p>我们已知如下命令可以显示当前配置：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo wg showconf wg0</span><br></code></pre></td></tr></table></figure>
+
+<p>因此我们可以在关闭 WireGuard 时将当前配置持久化到文件当中，编写脚本 <code>/etc/wireguard/wg0.down.sh</code> 如下（别忘了 <code>chmod +x</code> 添加权限）：</p>
+<blockquote>
+<p>以及把之前的 iptables 也搬到这个脚本里，方便管理</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-meta">#!/bin/bash</span><br><br><span class="hljs-comment"># Save current config, note that we should remove `Endpoint` as it&#x27;s usually dynamic</span><br>wg showconf wg0 | grep -v <span class="hljs-string">&#x27;^\s*Endpoint\s*=&#x27;</span> | <span class="hljs-built_in">tee</span> /etc/wireguard/wg0.autoconf<br><br><span class="hljs-comment"># Delete iptables rules</span><br>iptables -D FORWARD -i wg0 -j ACCEPT; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o 你的公网网卡名 -j MASQUERADE<br></code></pre></td></tr></table></figure>
+
+<p>之后我们在启动 WireGuard 时将该配置加载进来，编写脚本 <code>/etc/wireguard/wg0.up.sh</code> 如下：</p>
+<blockquote>
+<p>以及把之前的 iptables 也搬到这个脚本里，方便管理</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-meta">#!/bin/bash</span><br><br><span class="hljs-comment"># Load previous config</span><br>wg setconf wg0 /etc/wireguard/wg0.autoconf<br><br><span class="hljs-comment"># Add iptables rules</span><br>iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o 你的公网网卡名 -j MASQUERADE<br></code></pre></td></tr></table></figure>
+
+<p>然后修改 <code>/etc/wireguard/wg0.conf</code> 如下：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Interface]</span><br><span class="hljs-attr">PrivateKey</span> = 私钥文件内容<br><span class="hljs-attr">ListenPort</span> = 自定义的监听端口<br><span class="hljs-attr">Address</span> = 自定义的内网地址，例如 <span class="hljs-number">10.0</span>.<span class="hljs-number">0.1</span>/<span class="hljs-number">24</span><br><span class="hljs-attr">PostUp</span>   = /etc/wireguard/wg0.up.sh<br><span class="hljs-attr">PreDown</span> = /etc/wireguard/wg0.down.sh<br></code></pre></td></tr></table></figure>
+
+<h1 id="0x04-利用-NGINX-反代-WireGuard-Over-Trojan"><a href="#0x04-利用-NGINX-反代-WireGuard-Over-Trojan" class="headerlink" title="0x04. 利用 NGINX 反代 WireGuard Over Trojan"></a>0x04. 利用 NGINX 反代 WireGuard Over Trojan</h1><blockquote>
 <p>注：这会让速度大幅下降➕延迟大幅提高（毕竟多了好几层传输和加解密的工作），因此除非 Wireguard 直连无法完成配置，否则笔者 <em>其实不太推荐搭建这样的架构</em> </p>
 </blockquote>
-<p>众所周知随着国际网络局势不断变化，前面忘了中间忘了后面也忘了，总而言之就是跨国或是跨地区的 WireGuard 直接组网因为各种直接或间接的因素而存在一定的小问题导致无法连接成功，因此需要为我们的 WireGuard 隧道套一些防护</p>
+<p>众所周知随着国际网络局势不断变化，前面忘了中间忘了后面也忘了，总而言之就是 WireGuard 直接组网因为各种直接或间接的因素而存在一定的小问题导致无法连接成功，例如笔者学校的防火墙就过滤掉了 WireGuard 流量（也有可能是 UDP 都过滤了，总而言之这导致笔者不能用 tailscale 连接学校服务器很难受），因此需要为我们的 WireGuard 隧道套一些防护</p>
 <p>基于 UDP 的 WireGuard 协议容易被各种预期外的物理因素识别与阻断，因此我们不难想到的是我们可以再套几层协议以提高其连接稳定性，在 <a target="_blank" rel="noopener" href="https://arttnba3.cn/2024/08/31/OPS-0X02-AUSTRALIA_FIREWALL_ESCAPE/">如何在澳洲校园网玩原神</a> 这一篇博客中笔者简要叙述了使用 NGINX + Websocket + TLS + Trojan 的代理方案，在这里我们同样可以利用类似的架构转发 Wireguard 流量完成组网</p>
 <p><img src="https://s2.loli.net/2024/11/08/Ym5e8gaBD6RduEy.png" srcset="/img/loading.gif" lazyload alt="随手画了个图，可能有点难看，不过大概是这个意思"></p>
 <blockquote>
@@ -484,16 +524,16 @@
 
 <p>成功连接，唯一的问题是延迟可能会相对比较高：</p>
 <p><img src="https://s2.loli.net/2024/11/08/Ne5SUfJXy1DGTMi.png" srcset="/img/loading.gif" lazyload></p>
-<h1 id="0x04-可能遇到的问题"><a href="#0x04-可能遇到的问题" class="headerlink" title="0x04. 可能遇到的问题"></a>0x04. 可能遇到的问题</h1><h2 id="客户端能握手但无法连接其他终端，wg-show-显示-allowed-ips-none"><a href="#客户端能握手但无法连接其他终端，wg-show-显示-allowed-ips-none" class="headerlink" title="客户端能握手但无法连接其他终端，wg show 显示 allowed ips: (none)"></a>客户端能握手但无法连接其他终端，wg show 显示 <code>allowed ips: (none)</code></h2><p>在多设备连接到同一网络时可能出现，客户端无法连接到包括服务端在内的其他终端， <em>但是可能会有一个奇异现象是仅有一个客户端能正常连接</em> ：</p>
+<h1 id="0x05-可能遇到的问题"><a href="#0x05-可能遇到的问题" class="headerlink" title="0x05. 可能遇到的问题"></a>0x05. 可能遇到的问题</h1><h2 id="客户端能握手但无法连接其他终端，wg-show-显示-allowed-ips-none"><a href="#客户端能握手但无法连接其他终端，wg-show-显示-allowed-ips-none" class="headerlink" title="客户端能握手但无法连接其他终端，wg show 显示 allowed ips: (none)"></a>客户端能握手但无法连接其他终端，wg show 显示 <code>allowed ips: (none)</code></h2><p>在多设备连接到同一网络时可能出现，客户端无法连接到包括服务端在内的其他终端， <em>但是可能会有一个奇异现象是仅有一个客户端能正常连接</em> ：</p>
 <p><img src="https://s2.loli.net/2024/10/21/4povIUfe3JaiyMb.png" srcset="/img/loading.gif" lazyload></p>
 <p>出现这种情况的原因可能是因为 <strong>IP 冲突</strong> ，大概原因是客户端之间的 IP 相互 overlap 了，从而只有其中一个能够正常工作</p>
 <p>最简单的解决方案是 <strong>把客户端的子网掩码 设为 &#x2F;32</strong> ，下面是一个示例配置文件：</p>
 <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Interface]</span><br><span class="hljs-attr">PrivateKey</span> = 客户端私钥<br><span class="hljs-attr">Address</span> = <span class="hljs-number">10.191</span>.<span class="hljs-number">98.10</span>/<span class="hljs-number">32</span><br><span class="hljs-attr">MTU</span> = <span class="hljs-number">1280</span><br><br><span class="hljs-section">[Peer]</span><br><span class="hljs-attr">PublicKey</span> = 服务端公钥<br><span class="hljs-attr">Endpoint</span> = 服务端公网IP或域名:服务端配置的端口<br><span class="hljs-attr">AllowedIPs</span> = <span class="hljs-number">10.191</span>.<span class="hljs-number">98.0</span>/<span class="hljs-number">24</span><br><span class="hljs-attr">PersistentKeepalive</span> = <span class="hljs-number">25</span><br></code></pre></td></tr></table></figure>
 
 <p>对应的服务端配置：</p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Interface]</span><br><span class="hljs-attr">Address</span> = <span class="hljs-number">10.191</span>.<span class="hljs-number">98.1</span>/<span class="hljs-number">24</span><br><span class="hljs-attr">PostUp</span>   = iptables -A FORWARD -i wg0 -j ACCEPT<span class="hljs-comment">; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE</span><br><span class="hljs-attr">PostDown</span> = iptables -D FORWARD -i wg0 -j ACCEPT<span class="hljs-comment">; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE</span><br><span class="hljs-attr">ListenPort</span> = 服务端配置的端口<br><span class="hljs-attr">PrivateKey</span> = 服务端私钥<br><br><span class="hljs-section">[Peer]</span><br><span class="hljs-attr">PublicKey</span> = 客户端公钥<br><span class="hljs-attr">AllowedIPs</span> = <span class="hljs-number">10.191</span>.<span class="hljs-number">98.10</span>/<span class="hljs-number">32</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Interface]</span><br><span class="hljs-attr">Address</span> = <span class="hljs-number">10.191</span>.<span class="hljs-number">98.1</span>/<span class="hljs-number">24</span><br><span class="hljs-attr">PostUp</span>   = iptables -A FORWARD -i wg0 -j ACCEPT<span class="hljs-comment">; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE</span><br><span class="hljs-attr">PreDown</span> = iptables -D FORWARD -i wg0 -j ACCEPT<span class="hljs-comment">; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE</span><br><span class="hljs-attr">ListenPort</span> = 服务端配置的端口<br><span class="hljs-attr">PrivateKey</span> = 服务端私钥<br><br><span class="hljs-section">[Peer]</span><br><span class="hljs-attr">PublicKey</span> = 客户端公钥<br><span class="hljs-attr">AllowedIPs</span> = <span class="hljs-number">10.191</span>.<span class="hljs-number">98.10</span>/<span class="hljs-number">32</span><br></code></pre></td></tr></table></figure>
 
-<h2 id="配置-WireGuard-后无法解析域名，但可以通过-IP-进行访问"><a href="#配置-WireGuard-后无法解析域名，但可以通过-IP-进行访问" class="headerlink" title="配置 WireGuard 后无法解析域名，但可以通过 IP 进行访问"></a>配置 WireGuard 后无法解析域名，但可以通过 IP 进行访问</h2><p>可能是 DNS 解析出现问题，在客户端配置文件当中你可能会习惯性额外配置如下：</p>
+<h2 id="配置-WireGuard-后无法解析域名，但可以通过-IP-进行访问"><a href="#配置-WireGuard-后无法解析域名，但可以通过-IP-进行访问" class="headerlink" title="配置 WireGuard 后无法解析域名，但可以通过 IP 进行访问"></a>配置 WireGuard 后无法解析域名，但可以通过 IP 进行访问</h2><p>可能是 DNS 解析出现问题，在客户端配置文件当中你可能会 <em>习惯性</em> 额外配置如下：</p>
 <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Interface]</span><br><span class="hljs-attr">DNS</span> = <span class="hljs-number">8.8</span>.<span class="hljs-number">8.8</span><br></code></pre></td></tr></table></figure>
 
 <p>这会覆盖原有 DNS 配置，但 DNS 服务器未必是可达的（ <del>原因懂的都懂</del> ），最简单的解决方案是删除 DNS 配置或是更改成其他的可用的 DNS 服务器（例如 <code>114.114.114.114</code> ）</p>
