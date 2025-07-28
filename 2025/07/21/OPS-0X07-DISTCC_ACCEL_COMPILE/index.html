@@ -1,0 +1,956 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="别急，还在编译（1919&#x2F;114514）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【OPS.0x07】使用 distcc 配置分布式编译系统">
+<meta property="og:url" content="https://arttnba3.github.io/2025/07/21/OPS-0X07-DISTCC_ACCEL_COMPILE/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="别急，还在编译（1919&#x2F;114514）">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2025/07/28/HJd7qfwu16SLcrI.png">
+<meta property="article:published_time" content="2025-07-20T18:17:33.000Z">
+<meta property="article:modified_time" content="2025-07-28T15:27:41.212Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="运维">
+<meta property="article:tag" content="distcc">
+<meta property="article:tag" content="ccache">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2025/07/28/HJd7qfwu16SLcrI.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【OPS.0x07】使用 distcc 配置分布式编译系统 - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"arttnba3.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" target="_blank" rel="noopener" href="https://github.com/arttnba3">
+                <i class="iconfont icon-github-fill"></i>
+                GitHub
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://s2.loli.net/2025/07/28/ClBUesz3WGO8XRq.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【OPS.0x07】使用 distcc 配置分布式编译系统"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-07-21 04:17" pubdate>
+          2025年7月21日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          67 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【OPS.0x07】使用 distcc 配置分布式编译系统</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2025年7月29日 凌晨
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>别急，还在编译（1919&#x2F;114514）</p>
+<span id="more"></span>
+
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><p>前面忘了中间忘了后面也忘了，总而言之作为 Gentoo Linux 用户的一大痛点就是更新每个软件包都需要从源码编译会耗费大量时间，哪怕不使用 Gentoo，各种日常的编译任务（比如说做 kernel 漏洞利用的肯定得天天编译各种不同的 kernel）也会占用大量的计算资源，对于笔者这种日用系统便是 Linux 的人而言当编译流水线开动起来时本地的资源被大量挤占必然会导致其他日用服务的资源无法得到充足分配，从而影响日用系统的稳定性与使用舒适度（例如音乐播放器会一卡一卡的， <del>对于习惯一边听音乐一边工作的人这真能忍🐎❓</del> ）</p>
+<p>恰好笔者手头还有一些闲置的计算资源，因此将本地的一些计算任务给 offload 到计算集群当中会是一个不错的选择，经过一番调研之后笔者选择尝试 <a target="_blank" rel="noopener" href="https://www.distcc.org/">distcc</a> ：一个经过多年维护的分布式 C&#x2F;C++ 编译工具</p>
+<p>因此这篇博客主要简单讲讲如何部署 distcc</p>
+<h1 id="0x01-在服务端部署-distcc"><a href="#0x01-在服务端部署-distcc" class="headerlink" title="0x01. 在服务端部署 distcc"></a>0x01. 在服务端部署 distcc</h1><h2 id="方法一：使用-Docker-进行部署（推荐）"><a href="#方法一：使用-Docker-进行部署（推荐）" class="headerlink" title="方法一：使用 Docker 进行部署（推荐）"></a>方法一：使用 Docker 进行部署（推荐）</h2><h3 id="用-docker-部署-distcc"><a href="#用-docker-部署-distcc" class="headerlink" title="用 docker 部署 distcc"></a>用 docker 部署 distcc</h3><p>首先编写 dockerfile，直接安装 distcc 并运行 <code>distccd</code> 就行，不用考虑服务啥的，这里以 Gentoo 为例，你可以根据你自己所使用的发行版进行微调：</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs dockerfile"><span class="hljs-comment"># Gentoo base</span><br><span class="hljs-keyword">FROM</span> gentoo/stage3:latest<br><br><span class="hljs-comment"># Basic packages</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> emerge-webrsync &amp;&amp; \</span><br><span class="language-bash">    emerge sys-devel/distcc sys-devel/gcc llvm-core/clang</span><br><br><span class="hljs-comment"># Log file</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> <span class="hljs-built_in">touch</span> /var/log/distcc.log &amp;&amp; <span class="hljs-built_in">chmod</span> 666 /var/log/distcc.log</span><br><br><span class="hljs-comment"># keep container running</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> <span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;#!/bin/sh&#x27;</span> &gt; /root/start.sh</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> <span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;distccd --port 3632 --daemon --log-file /var/log/distcc.log -N 19 --allow 0.0.0.0/0 --jobs 192&#x27;</span> &gt;&gt; /root/start.sh</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> <span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;sleep infinity&#x27;</span> &gt;&gt; /root/start.sh</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> <span class="hljs-built_in">chmod</span> +x /root/start.sh</span><br><span class="hljs-keyword">CMD</span><span class="language-bash"> [<span class="hljs-string">&quot;/root/start.sh&quot;</span>]</span><br><br><span class="hljs-comment"># expose ports</span><br><span class="hljs-keyword">EXPOSE</span> <span class="hljs-number">3632</span><br><br></code></pre></td></tr></table></figure>
+
+<p>其中 <code>distccd</code> 是 distcc 的服务端守护进程，参数说明如下：</p>
+<ul>
+<li><code>--port</code> ：distccd 的服务开放开放端口，这里在本地的 <code>3632</code> 端口</li>
+<li><code>--daemon</code> ：运行为守护进程</li>
+<li><code>--log-file</code> ：日志记录文件，这里为 <code>/var/log/distccd.log</code></li>
+<li><code>--nice</code> （<code>-N</code>） ：进程 nice 等级，越大越不抢别的进程的优先级，最大 <code>19</code></li>
+<li><code>--allow</code> ：允许的客户端 IP，格式为 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing">CIDR</a></li>
+<li><code>--jobs</code> ：允许的最大并发线程数，这里是 <code>192</code> ，建议按需进行调整</li>
+</ul>
+<p>然后 build 再 run 就行，方便起见可以直接使用本地网络：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">docker build -t a3distcc:latest .</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">docker run -d --network=host --name=a3distcc a3distcc:latest</span><br></code></pre></td></tr></table></figure>
+
+<p>方便起见也可以用 docker-compose，在 Dockerfile 目录编写配置文件 <code>docker-compose.yml</code> 如下：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">version:</span> <span class="hljs-string">&#x27;3&#x27;</span><br><span class="hljs-attr">services:</span><br>  <span class="hljs-attr">distcc:</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">a3distcc:v1.0</span><br>    <span class="hljs-attr">build:</span> <span class="hljs-string">.</span><br>    <span class="hljs-attr">ports:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">&quot;3632:3632&quot;</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="方法二：在本地直接搭建服务"><a href="#方法二：在本地直接搭建服务" class="headerlink" title="方法二：在本地直接搭建服务"></a>方法二：在本地直接搭建服务</h2><h3 id="本地安装-distcc"><a href="#本地安装-distcc" class="headerlink" title="本地安装 distcc"></a>本地安装 distcc</h3><p>用你所使用的发行版的包管理器将 distcc 安装到本地，例如笔者服务器是 openSUSE Tumblewwed：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo zypper <span class="hljs-keyword">in</span> distcc distcc-server</span><br></code></pre></td></tr></table></figure>
+
+<p>之后根据你所使用的 init 系统进行相应操作：</p>
+<blockquote>
+<p>注：对于 ssh 连接而言 distcc 似乎会通过 ssh 的方式直接启动远程服务器上的 distccd，因此这种情况下似乎不需要我们手动开启服务？</p>
+</blockquote>
+<h4 id="systemd"><a href="#systemd" class="headerlink" title="systemd"></a>systemd</h4><p>绝大部分发行版默认使用的应该都是 systemd（红帽的大手太猛了），包括笔者手上的绝大部分机器用的也都是 systemd，所以先来看看如何在 systemd 下进行 distccd 的相应配置</p>
+<blockquote>
+<p><img src="https://syste.md/" srcset="/img/loading.gif" lazyload></p>
+</blockquote>
+<p>首先创建配置文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">mkdir</span> /etc/systemd/system/distccd.service.d</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">touch</span> /etc/systemd/system/distccd.service.d/distcc.conf</span><br></code></pre></td></tr></table></figure>
+
+<p>然后在 <code>/etc/systemd/system/distccd.service.d/distcc.conf</code> 中写入如下内容：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Service]</span><br><span class="hljs-attr">Environment</span>=<span class="hljs-string">&quot;ALLOWED_SERVERS=127.0.0.1&quot;</span><br><span class="hljs-attr">Environment</span>=<span class="hljs-string">&quot;DISTCC_VERBOSE=1&quot;</span><br><span class="hljs-attr">Environment</span>=<span class="hljs-string">&quot;DISTCC_SAVE_TEMPS=1&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>参数说明如下：</p>
+<ul>
+<li><code>ALLOWED_SERVERS</code> ：允许的客户端 IP，格式为 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing">CIDR</a></li>
+<li><code>DISTCC_VERBOSE</code> ：开启详细日志</li>
+<li><code>DISTCC_SAVE_TEMPS</code> ：不删除临时文件</li>
+</ul>
+<p>如果有需要，可以运行如下命令修改 distccd 启动参数：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl edit --full distccd.service</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl daemon-reload</span><br></code></pre></td></tr></table></figure>
+
+<p>最后启用服务：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl <span class="hljs-built_in">enable</span> --now distccd</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="OpenRC"><a href="#OpenRC" class="headerlink" title="OpenRC"></a>OpenRC</h4><p>首先创建配置文件 <code>/etc/conf.d/distccd</code> 并写入如下内容：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">DISTCCD_OPTS=<span class="hljs-string">&quot;--port 3632 --log-level notice --log-file /var/log/distccd.log --nice 16 --allow 192.168.0.4 --allow 192.168.1.0/24&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>参数说明：</p>
+<ul>
+<li><code>--port</code> ：distccd 的服务开放开放端口，这里在本地的 <code>3632</code> 端口</li>
+<li><code>--log-level</code> ：日志级别</li>
+<li><code>--log-file</code> ：日志记录文件，这里为 <code>/var/log/distccd.log</code></li>
+<li><code>--nice</code> （<code>-N</code>） ：进程 nice 等级，越大越不抢别的进程的优先级，最大 <code>19</code></li>
+<li><code>--allow</code> ：允许的客户端 IP，格式为 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing">CIDR</a></li>
+</ul>
+<p>然后创建日志文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">touch</span> /var/log/distccd.log</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">chown</span> distcc:root /var/log/distccd.log</span><br></code></pre></td></tr></table></figure>
+
+<p>最后启动服务：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo rc-update add distccd default</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo rc-service distccd start</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="0x02-配置客户端编译选项"><a href="#0x02-配置客户端编译选项" class="headerlink" title="0x02. 配置客户端编译选项"></a>0x02. 配置客户端编译选项</h1><p>客户端这边的配置就简单得多，只需要安装 distcc 后再配置服务端地址即可</p>
+<h2 id="基本配置"><a href="#基本配置" class="headerlink" title="基本配置"></a>基本配置</h2><p>首先是安装 distcc，这里以 Gentoo Linux 为例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo emerge -av sys-devel/distcc</span><br></code></pre></td></tr></table></figure>
+
+<p>之后配置服务端地址，我们可以直接通过环境变量 <code>DISTCC_HOSTS</code> 指定编译服务器的地址，支持多个服务器，以下是一个例子：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">export DISTCC_HOSTS=&quot;localhost/8 10.0.0.1/4,lzo arttnba3@10.0.0.2/2,cpp,lzo&quot;<br></code></pre></td></tr></table></figure>
+
+<p>在这个示例当中：</p>
+<ul>
+<li><code>localhost</code> 是第一个 distcc 服务器（即本地），<code>/8</code> 表示在本地使用 8 个进程进行编译</li>
+<li><code>10.0.0.1</code> 是第二个 distcc 服务器，通过默认的 <code>3632</code> 端口 TCP 直连，<code>/4</code> 表示在该服务器上使用 4 个进程编译，<code>,lzo</code> 表示传输时使用 LZO 压缩</li>
+<li><code>10.0.0.2</code> 是第三个服务器，通过 ssh 进行连接，<code>/2</code> 表示在该服务器上使用 2 个进程编译，<code>,cpp</code> 表示 distcc-pump mode， <code>,lzo</code> 表示传输时使用 LZO 压缩</li>
+</ul>
+<blockquote>
+<p>更多配置可以参见 <a target="_blank" rel="noopener" href="https://linux.die.net/man/1/distcc">distcc(1) - Linux man page</a></p>
+</blockquote>
+<p>对于持久化配置，distcc 支持往家目录的 <code>~/.distcc/hosts</code> 或系统配置的 <code>/etc/distcc/hosts</code> 里写入服务端地址，以下是一个例子:</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">10</span>.<span class="hljs-number">0</span>.<span class="hljs-number">0</span>.<span class="hljs-number">1</span>:<span class="hljs-number">1145</span>/<span class="hljs-number">4</span> arttnba3@<span class="hljs-number">10.0.0.2</span>/<span class="hljs-number">2</span><br></code></pre></td></tr></table></figure>
+
+<p>在这个示例当中：</p>
+<ul>
+<li><code>10.0.0.1</code> 是第一个 distcc 服务器，通过 <code>1145</code> 端口 TCP 连接，<code>/4</code> 表示在该服务器上使用 4 个进程编译</li>
+<li><code>10.0.0.2</code> 是第二个服务器，通过 ssh 进行连接，<code>/2</code> 表示在该服务器上使用 2 个进程编译</li>
+</ul>
+<blockquote>
+<p>localhost 似乎在不显示指定的情况下也会进行编译工作？</p>
+</blockquote>
+<h2 id="为-C-C-项目使用-distcc-进行分布式编译"><a href="#为-C-C-项目使用-distcc-进行分布式编译" class="headerlink" title="为 C&#x2F;C++ 项目使用 distcc 进行分布式编译"></a>为 C&#x2F;C++ 项目使用 distcc 进行分布式编译</h2><p>我们只需要把编译器指定为 <code>distcc 原编译器</code> 即可，以 cmake 项目为例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">export</span> CC=<span class="hljs-string">&quot;distcc gcc&quot;</span></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">export</span> CXX=<span class="hljs-string">&quot;distcc g++&quot;</span></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">cmake <span class="hljs-variable">$SOURCE_CODE_PATH</span></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">make -j线程数</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>需要注意的是这里不能用 <code>-DCMAKE_CXX_COMPILER=&quot;distcc g++&quot;</code> 这样的配置，否则会出错</p>
+</blockquote>
+<h2 id="Extra：为-Portage-配置-distcc-编译"><a href="#Extra：为-Portage-配置-distcc-编译" class="headerlink" title="Extra：为 Portage 配置 distcc 编译"></a>Extra：为 Portage 配置 distcc 编译</h2><blockquote>
+<p>感觉不如 binhost 👋</p>
+</blockquote>
+<p>众所周知 Gentoo 是一个什么软件包都需要从源码进行编译的 Linux 发行版，因此在本地机器配置性能不太行的情况下，考虑使用远程服务器进行辅助分布式编译会是一个不错的选择</p>
+<p>首先我们需要在 <code>/etc/portage/make.conf</code> 当中启用 distcc 特性：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">FEATURES=<span class="hljs-string">&quot;distcc&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>然后是编译与链接线程数配置，通常遵循：</p>
+<ul>
+<li>编译线程数 <code>N</code> 应当为总 CPU 核心数（本地 + 远程）的两倍，再 + 1</li>
+<li>链接线程数 <code>M</code> 应当为本地 CPU 核心数</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">MAKEOPTS=<span class="hljs-string">&quot;-jN -lM&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>由于我们是在远程机器上编译，不同的机器的 CPU 架构通常不一样，因此如果编译选项中使用 <code>-march=native</code> 那就很容易使得不同的编译机器是针对自身而非本地机器进行优化，最后跑不起来就尴尬了，我们应当根据本地机器的 CPU 架构 <strong>显式</strong> 指定，以笔者笔记本的 i9-13980hx 为例，其为 <code>raptorlake</code> 架构：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">COMMON_FLAGS=<span class="hljs-string">&quot;-O2 -march=raptorlake -mtune=raptorlake&quot;</span> <span class="hljs-comment"># don&#x27;t use -march=native!</span><br>CFLAGS=<span class="hljs-string">&quot;<span class="hljs-variable">$&#123;COMMON_FLAGS&#125;</span>&quot;</span><br>CXXFLAGS=<span class="hljs-string">&quot;<span class="hljs-variable">$&#123;COMMON_FLAGS&#125;</span>&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>最后配置 hosts，需要注意的是这里我们需要将远程服务器的配置写入到 <code>/etc/distcc/hosts</code> 当中</p>
+<h1 id="0x03-可能出现的错误"><a href="#0x03-可能出现的错误" class="headerlink" title="0x03. 可能出现的错误"></a>0x03. 可能出现的错误</h1><h2 id="无法启动-distccd"><a href="#无法启动-distccd" class="headerlink" title="无法启动 distccd"></a>无法启动 distccd</h2><p>有的时候你可能会遇到类似如下报错：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">(dcc_warn_masquerade_whitelist) CRITICAL! /usr/lib64/distcc <span class="hljs-keyword">not</span> found. You must see up masquerade (see distcc(1)) <span class="hljs-keyword">to</span> list whitelisted compilers <span class="hljs-keyword">or</span> pass --enable-tcp-insecure. <span class="hljs-keyword">To</span> <span class="hljs-built_in">set</span> up masquerade automatically <span class="hljs-built_in">run</span> update-distcc-symlinks.<br></code></pre></td></tr></table></figure>
+
+<p>主要是因为 distcc 需要一个伪装路径的存在（<del>闲的</del>），我们可以通过运行如下命令解决：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo update-distcc-symlinks</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="无法连接-failed-with-exit-code-110"><a href="#无法连接-failed-with-exit-code-110" class="headerlink" title="无法连接 failed with exit code 110"></a>无法连接 failed with exit code 110</h2><p>编译的时候可能会遇到如下报错：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs awk">distcc[<span class="hljs-number">3546823</span>] ERROR: compile 源文件路径 on arttnba3@服务器地址 failed with <span class="hljs-keyword">exit</span> code <span class="hljs-number">110</span><br>distcc[<span class="hljs-number">3546823</span>] (dcc_build_somewhere) Warning: remote compilation of <span class="hljs-string">&#x27;源文件路径&#x27;</span> failed, retrying locally<br>distcc[<span class="hljs-number">3546823</span>] (dcc_mark_timefile) mark <span class="hljs-regexp">/home/</span>arttnba3<span class="hljs-regexp">/.distcc/</span>lock/backoff_ssh_服务器地址_0<br>distcc[<span class="hljs-number">3546823</span>] Warning: failed to distribute <span class="hljs-regexp">/home/</span>arttnba3<span class="hljs-regexp">/Data/</span>DailyProgramming<span class="hljs-regexp">/A3DrawLang/</span>semantic/semantic.cpp to arttnba3@服务器地址, running locally instead<br></code></pre></td></tr></table></figure>
+
+<p>核心原因是连接不上端口，有可能是防火墙的问题，可以检查自己服务器的防火墙配置（ <code>ufw</code> 或者 <code>firewall-cmd</code> 一类的）并开启 <code>3632</code> 端口</p>
+<p>如果用 <code>telnet</code> 可以直接连接上服务器的 <code>3632</code> 端口就说明正常了</p>
+<h2 id="成功连接但无法分发到远程编译"><a href="#成功连接但无法分发到远程编译" class="headerlink" title="成功连接但无法分发到远程编译"></a>成功连接但无法分发到远程编译</h2><p>编译的时候可能会遇到如下报错：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">distcc</span>[<span class="hljs-number">3557593</span>] (dcc_readx) ERROR: unexpected eof <span class="hljs-literal">on</span> fd5<br><span class="hljs-attribute">distcc</span>[<span class="hljs-number">3557593</span>] (dcc_r_token_int) ERROR: read failed while waiting for token <span class="hljs-string">&quot;DONE&quot;</span><br><span class="hljs-attribute">distcc</span>[<span class="hljs-number">3557593</span>] (dcc_r_result_header) ERROR: server provided no answer. Is the server configured to <span class="hljs-literal">allow</span> access from your IP address? Is the server performing authentication and your client isn&#x27;t? Does the server have the compiler installed? Is the server configured to access the compiler?<br><span class="hljs-attribute">distcc</span>[<span class="hljs-number">3557593</span>] <span class="hljs-number">1307914</span> bytes from 源文件路径 compiled <span class="hljs-literal">on</span> 服务器地址 in <span class="hljs-number">4</span>.<span class="hljs-number">7008</span>s, rate <span class="hljs-number">272</span>kB/s<br><span class="hljs-attribute">distcc</span>[<span class="hljs-number">3557593</span>] (dcc_mark_timefile) mark /home/arttnba3/.distcc/lock/backoff_tcp_服务器地址_3632_0<br><span class="hljs-attribute">distcc</span>[<span class="hljs-number">3557593</span>] (dcc_unlock) release lock fd3<br><span class="hljs-attribute">distcc</span>[<span class="hljs-number">3557593</span>] (dcc_parse_hosts_file) load hosts from /home/arttnba3/.distcc/hosts<br><span class="hljs-attribute">distcc</span>[<span class="hljs-number">3557593</span>] (dcc_parse_hosts) found tcp token <span class="hljs-string">&quot;服务器地址&quot;</span><br><span class="hljs-attribute">distcc</span>[<span class="hljs-number">3557593</span>] (dcc_check_backoff) still in backoff period for 服务器地址<br><span class="hljs-attribute">distcc</span>[<span class="hljs-number">3557593</span>] (dcc_remove_disliked) remove 服务器地址 from list<br><span class="hljs-attribute">distcc</span>[<span class="hljs-number">3557593</span>] (dcc_mark_timefile) mark /home/arttnba3/.distcc/lock/backoff_tcp_服务器地址_3632_0<br><span class="hljs-attribute">distcc</span>[<span class="hljs-number">3557593</span>] Warning: failed to distribute /home/arttnba3/Data/DailyProgramming/A3DrawLang/semantic/semantic.cpp to 服务器地址, running locally instead<br></code></pre></td></tr></table></figure>
+
+<p>主要原因是 <strong>远程环境和本地环境不同</strong> ，解决方案就是两边使用相同的发行版环境相同的编译器， <strong>这也是为什么笔者推荐使用 docker 进行部署的缘故</strong> ：）</p>
+<h2 id="提示-DISTCC-HOSTS-为空"><a href="#提示-DISTCC-HOSTS-为空" class="headerlink" title="提示 DISTCC_HOSTS 为空"></a>提示 DISTCC_HOSTS 为空</h2><p>有的时候虽然配置了 <code>~/.distcc/hosts</code> ，但是还是会莫名其妙报 <code>DISTCC_HOSTS</code> 为空的错误，目前据笔者观测这个问题出现得比较随机，解决方案是持久化 <code>DISTCC_HOSTS</code> 环境变量（例如写到 <code>~/.bashrc</code> ）或是开一个新的 shell</p>
+<blockquote>
+<p>往 <code>/etc/distcc/hosts</code> 写应该也能解决，但是这个问题不太能稳定复现，所以笔者也不知道：（</p>
+</blockquote>
+<h2 id="portage-无法分发到远程编译"><a href="#portage-无法分发到远程编译" class="headerlink" title="portage 无法分发到远程编译"></a>portage 无法分发到远程编译</h2><p>这个问题主要针对 Gentoo Linux 用户，可能会有如下的错误信息形式：</p>
+<blockquote>
+<p>注：这种情况下仍然会在本地进行正常编译，而不会报错退出，因此你未必会注意到这个：）</p>
+</blockquote>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">distcc[<span class="hljs-number">371</span>] (dcc_talk_to_include_server) <span class="hljs-built_in">Warning</span>: INCLUDE_SERVER_PORT <span class="hljs-keyword">not</span> <span class="hljs-keyword">set</span> - did you forget <span class="hljs-keyword">to</span> run under <span class="hljs-string">&#x27;pump&#x27;</span>?<br>distcc[<span class="hljs-number">371</span>] (dcc_build_somewhere) <span class="hljs-built_in">Warning</span>: failed <span class="hljs-keyword">to</span> <span class="hljs-keyword">get</span> includes <span class="hljs-keyword">from</span> <span class="hljs-keyword">include</span> <span class="hljs-keyword">server</span>, preprocessing locally<br></code></pre></td></tr></table></figure>
+
+<p>原因是目前 Gentoo Linux 把 distcc 的 pump 组件给移除了（ <del>听说是因为写得太烂了</del> ），解决方案就是在 hosts 当中不使用 <code>cpp</code> 选项指定 pump</p>
+<h1 id="0xFF-What’s-more…"><a href="#0xFF-What’s-more…" class="headerlink" title="0xFF. What’s more…"></a>0xFF. What’s more…</h1><p>distcc 的方案虽然理论上听着很好，但看起来存在一些比较明显的问题，笔者第一次测试编译 <code>6.16-rc6</code> 版本的 Linux kernel 的 <code>bzImage</code> ，使用 distcc 本地 <code>13th Gen Intel i9-13980HX</code> 总计 32 线程配合一台 <code>2x INTEL XEON PLATINUM 8558</code> 总计 192 线程的服务器与一台 <code>AMD Ryzen Threadripper PRO 5975WX</code> 总计 64 线程的服务器进行分布式编译用时 <code>5m47.753s</code> ，似乎也没有特别快，但是在这三台机器上分别进行编译耗时分别为 <code>4m41.424s</code> 、 <code>1m6.686s</code> 、<code>1m45.978s</code> ， <em>三台机器联合编译的速度还没有单独一台机器编译来得快而且还慢了这么多那就未免有点太小丑了……</em> </p>
+<p>笔者分析大概有几个可能拖慢编译速度的原因，首先是比较依赖网络带宽，上传和下载其实都是影响编译速度的瓶颈，其次负载均衡在默认情况下似乎很难做好，例如笔者就碰到过 distcc 上报远程一堆 CPU 都是 busy 状态实际上完全空闲的情况，那结果就是经典的一核干活九核围观：</p>
+<p><img src="https://s2.loli.net/2025/07/28/AG9jKrDWMsXqpax.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://s2.loli.net/2025/07/28/I2hUfWPFmugsqje.png" srcset="/img/loading.gif" lazyload></p>
+<p>所以 distcc 这个东西，说是做到远程分布式编译了吧那确实做到了，但是在笔者的体验当中这个编译任务分发出去弄成分布式的居然还没有单独在一台机器上执行来得快那确实就有点过于小丑了，不过总的来说也确实实现了笔者最开始的减缓本地编译的压力的目的，所以除了资源利用率比较低这个问题以外其实倒也还好？</p>
+<p>另外一个降低笔者分布式编译速度的点是 distcc 的 <code>pump</code> 模式（简单来说能加速并行编译）被在 <a target="_blank" rel="noopener" href="https://bugs.gentoo.org/show_bug.cgi?id=702146"><strong>Bug 702146</strong></a> 当中移除了，原因是 distcc 的 pump-mode 假设源文件不会在生命周期内被修改，而在构建过程当中生成新的源文件这种事情并不少见，因此 Gentoo 团队认为不彳亍， <strong>而从 19 年这个 bug 被提出到现在 distcc 似乎都还没有修复这个问题</strong> ，侧面其实也反映出 distcc 的团队在某些方面也存在一些问题？</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/OPS/" class="category-chain-item">OPS</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+        <a href="/tags/%E8%BF%90%E7%BB%B4/">#运维</a>
+      
+        <a href="/tags/distcc/">#distcc</a>
+      
+        <a href="/tags/ccache/">#ccache</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【OPS.0x07】使用 distcc 配置分布式编译系统</div>
+      <div>https://arttnba3.github.io/2025/07/21/OPS-0X07-DISTCC_ACCEL_COMPILE/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年7月21日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/06/04/CTF-0X0A_D3CTF2025_D3KHEAP2_D3KSHRM/" title="【CTF.0x0A】D^ 3CTF2025 d3kheap2、d3kshrm 出题手记">
+                        <span class="hidden-mobile">【CTF.0x0A】D^ 3CTF2025 d3kheap2、d3kshrm 出题手记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      桂ICP备2022005068号-1
+    </a>
+  </span>
+  
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
