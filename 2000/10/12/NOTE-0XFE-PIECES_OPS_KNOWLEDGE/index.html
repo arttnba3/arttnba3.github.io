@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2025/07/28/jmnD2S5ztWYR1fO.gif">
 <meta property="article:published_time" content="2000-10-12T12:51:26.000Z">
-<meta property="article:modified_time" content="2025-07-28T07:16:32.525Z">
+<meta property="article:modified_time" content="2025-09-03T12:28:02.104Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="学习札记">
 <meta property="article:tag" content="运维">
@@ -263,7 +263,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.3k 字
+          3.9k 字
         
       </span>
     
@@ -274,7 +274,7 @@
         
         
         
-          11 分钟
+          33 分钟
         
       </span>
     
@@ -329,7 +329,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2025年7月28日 下午
+                    本文最后更新于：2025年9月3日 晚上
                   
                 
               </p>
@@ -359,7 +359,36 @@
 <blockquote>
 <p>所以说这个默认开启的选项还会影响连接可用性属实是有点抽象嗷</p>
 </blockquote>
-<h1 id="0x02"><a href="#0x02" class="headerlink" title="0x02."></a>0x02.</h1>
+<h1 id="0x02-解决-Linux-下雷电设备连接上雷电接口后无法正常使用的问题"><a href="#0x02-解决-Linux-下雷电设备连接上雷电接口后无法正常使用的问题" class="headerlink" title="0x02. 解决 Linux 下雷电设备连接上雷电接口后无法正常使用的问题"></a>0x02. 解决 Linux 下雷电设备连接上雷电接口后无法正常使用的问题</h1><p>当你将一个纯正的雷电设备插入到一个正规的雷电接口当中是，可能会出现一个问题就是完全不能正常工作，但是在内核日志 dmesg 里又能看到这个设备插进来了：</p>
+<p><img src="https://s2.loli.net/2025/09/03/tyNpwzIXA3Wvof5.png" srcset="/img/loading.gif" lazyload></p>
+<p>问题在于有的时候 Thunderbolt 默认设置一个较高的安全级别（user 或 secure），默认不会对未知设备进行授权：</p>
+<blockquote>
+<p>在 <code>/sys/bus/thunderbolt/devices</code> 下的 <code>domain数字</code> 表示雷电控制器，而 <code>数字-数字</code> 表示具体的接口</p>
+</blockquote>
+<p><img src="https://s2.loli.net/2025/09/03/g6ZwFdYEJMcoG14.png" srcset="/img/loading.gif" lazyload></p>
+<p>这个时候读取 sysfs 下对应路径应当能够看到 <code>authorized</code> 为 <code>0</code>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">cat</span> /sys/bus/thunderbolt/devices/0-3/authorized</span><br>0<br></code></pre></td></tr></table></figure>
+
+<p>解决方案之一是对这个设备进行授权，例如：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">echo</span> 1 &gt; /sys/bus/thunderbolt/devices/0-3/authorized</span><br></code></pre></td></tr></table></figure>
+
+<p>更推荐的做法是使用 FreeDesktop 提供的 <a target="_blank" rel="noopener" href="https://gitlab.freedesktop.org/bolt/bolt">bolt</a> 工具（主流发行版仓库中应该都有，例如 Gentoo 可以使用 <code>emerge -av sys-apps/bolt</code> 安装），首先可以使用 <code>boltctl list</code> 命令查看已连接设备：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">boltctl list</span><br>● Ugreen Storage Device<br>├─ type: peripheral<br>├─ name: Ugreen Storage Device<br>├─ vendor: Ugreen<br>├─ uuid: bb030000-0082-8c1e-837f-0cdee8f1f808<br>├─ generation: Thunderbolt 3<br>├─ status: connected<br>│ ├─ domain: 272e8780-8026-5a49-ffff-ffffffffffff<br>│ ├─ rx speed: 40 Gb/s = 2 lanes * 20 Gb/s<br>│ ├─ tx speed: 40 Gb/s = 2 lanes * 20 Gb/s<br>│ └─ authflags: none<br>├─ connected: Wed Sep  3 09:53:37 2025<br>└─ stored: no<br>● Dell Thunderbolt 5 Dock<br>├─ type: peripheral<br>├─ name: Dell Thunderbolt 5 Dock<br>├─ vendor: Dell<br>├─ uuid: ddec8780-004b-ade9-ffff-ffffffffffff<br>├─ generation: USB4<br>├─ status: connected<br>│ ├─ domain: a7a30000-00ca-9b32-ffff-ffffffffffff<br>│ ├─ rx speed: 120 Gb/s = 3 lanes * 40 Gb/s<br>│ ├─ tx speed: 40 Gb/s = 1 lanes * 40 Gb/s<br>│ └─ authflags: none<br>├─ connected: Wed Sep  3 09:52:22 2025<br>└─ stored: no<br></code></pre></td></tr></table></figure>
+
+<p>可以看到雷电设备的 <code>authflags</code> 和 <code>stored</code> 都是否定的选项，下面我们使用 <code>boltctl</code> 根据设备的 uuid 进行临时授权：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo boltctl authorize bb030000-0082-8c1e-837f-0cdee8f1f808</span><br></code></pre></td></tr></table></figure>
+
+<p>此时应当能够看到对应的存储节点，需要注意的是其直接连接到 PCIe 通道上，因此会直接变成内置存储设备而非普通的外置 USB 存储设备，因此我们也就不能够直接移除该设备：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">lspci -nn | grep -i ssd</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">...</span><br>06:00.0 Non-Volatile memory controller [0108]: Micron Technology Inc 2650 NVMe SSD (DRAM-less) [1344:5427] (rev 01)<br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo udisksctl power-off -b /dev/nvme2n1</span><br>Error powering off drive: No usb device (udisks-error-quark, 0)<br></code></pre></td></tr></table></figure>
+
+<p>如果要移除该设备，我们应当使用 PCIe 的那套接口，也就是  <code>echo 1</code> 进 <code>/sys/bus/pci/devices/PCI地址/remove</code> 就能正常移除：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash"><span class="hljs-built_in">echo</span> 1 | sudo <span class="hljs-built_in">tee</span> /sys/bus/pci/devices/0000\:06\:00.0/remove</span><br></code></pre></td></tr></table></figure>
+
+<p>如果要永久授权，则可以使用 <code>boltctl enroll</code> ，例如：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">boltctl enroll ddec8780-004b-ade9-ffff-ffffffffffff</span><br> ● Dell Thunderbolt 5 Dock<br>   ├─ type:          peripheral<br>   ├─ name:          Dell Thunderbolt 5 Dock<br>   ├─ vendor:        Dell<br>   ├─ uuid:          ddec8780-004b-ade9-ffff-ffffffffffff<br>   ├─ dbus path:     /org/freedesktop/bolt/devices/ddec8780_004b_ade9_ffff_ffffffffffff<br>   ├─ generation:    USB4<br>   ├─ status:        authorized<br>   │  ├─ domain:     a7a30000-00ca-9b32-ffff-ffffffffffff<br>   │  ├─ parent:     a7a30000-00ca-9b32-ffff-ffffffffffff<br>   │  ├─ syspath:    /sys/devices/pci0000:00/0000:00:1c.0/0000:3c:00.0/0000:3d:00.0/0000:3e:00.0/domain1/1-0/1-3<br>   │  ├─ rx speed:   120 Gb/s = 3 lanes * 40 Gb/s<br>   │  ├─ tx speed:   40 Gb/s = 1 lanes * 40 Gb/s<br>   │  └─ authflags:  none<br>   ├─ authorized:    Wed Sep  3 11:23:28 2025<br>   ├─ connected:     Wed Sep  3 09:52:22 2025<br>   └─ stored:        Wed Sep  3 11:23:28 2025<br>      ├─ policy:     auto<br>      └─ key:        no<br><br></code></pre></td></tr></table></figure>
+
+<p>此外，出于方便起见，也可以在 BIOS&#x2F;UEFI 配置界面当中将 Thunderbolt Security Level 修改为 <code>No Security (SL0)</code> ，从而做到即插即用，缺点就是会存在安全隐患：）</p>
+
                 
               </div>
             
