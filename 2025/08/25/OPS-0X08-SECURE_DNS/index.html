@@ -1,0 +1,888 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="《爱，死亡，袋鼠校园网》">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【OPS.0x08】搭建安全可靠的 DNS over HTTPS">
+<meta property="og:url" content="http://example.com/2025/08/25/OPS-0X08-SECURE_DNS/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="《爱，死亡，袋鼠校园网》">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2025/11/20/tlEeaKqkbAD9XsJ.png">
+<meta property="article:published_time" content="2025-08-24T19:31:40.000Z">
+<meta property="article:modified_time" content="2026-01-07T18:12:35.093Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="运维">
+<meta property="article:tag" content="DNS over HTTPS">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2025/11/20/tlEeaKqkbAD9XsJ.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【OPS.0x08】搭建安全可靠的 DNS over HTTPS - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" target="_blank" rel="noopener" href="https://github.com/arttnba3">
+                <i class="iconfont icon-github-fill"></i>
+                GitHub
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://s2.loli.net/2025/11/20/XUeipQ86TlJKfW1.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【OPS.0x08】搭建安全可靠的 DNS over HTTPS"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-08-25 05:31" pubdate>
+          2025年8月25日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          46 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【OPS.0x08】搭建安全可靠的 DNS over HTTPS</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2026年1月8日 凌晨
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>《爱，死亡，袋鼠校园网》</p>
+<span id="more"></span>
+
+<h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><blockquote>
+<p>注：本文 <strong>仅</strong> 涉及 <strong>澳洲大学校园</strong> 的网络相关状况！ ！！<strong>不涉及也不适用任何澳洲境外的任何相关或无关场景！！！</strong></p>
+</blockquote>
+<p>众所周知笔者现在在南半球某个充满了袋鼠的国家的某所不知名大学读博 <del>摆烂</del> 当中（说实话呆了这么久，笔者的感受是 <em>袋鼠真没有之前还在国内刷各种视频平台看到的那样有攻击性，大部分都还挺怕人的</em> ， <del>当然也有可能是因为笔者体积比较大看起来不好惹</del> ），而出于各种各样的目的（例如为了保护师生的身心健康），校园网中通常都会部署各种各样的硬件或软件的保护措施（例如防火墙等），从而阻止学校内的人员访问校方不想让他们访问的网站，例如笔者在 <a target="_blank" rel="noopener" href="https://arttnba3.cn/2024/08/31/OPS-0X02-AUSTRALIA_FIREWALL_ESCAPE/">【OPS.0x02】如何在澳洲校园网内玩原神</a> 这篇博客中就讲到一个例子便是校园网无法访问包括淘宝在内的一些网站：</p>
+<p><img src="https://s2.loli.net/2025/11/19/o2cnyQJjfzH4SuC.png" srcset="/img/loading.gif" lazyload></p>
+<p>正如笔者在此前的博客中说到的那样， <code>虽然说 在学校就该正经搞科研 ，但是笔者还是不太能忍受得了学校内各种网络封锁的存在</code> ，因此当时笔者的解决方案便是通过使用在云厂商购买的虚拟专用服务器来代理笔者对部分网站的访问流量，从而绕过校园网内对于这些网站的封锁</p>
+<p><img src="https://s2.loli.net/2024/09/11/7PhaTAnFjBvLJGM.png" srcset="/img/loading.gif" lazyload></p>
+<p>但随着时间的流逝笔者发现澳洲的网络又存在一个问题便是来自官方的 <code>DNS 污染</code> ，众所周知我们访问网站的过程可以简单分为两步，第一步是向 DNS 服务器进行 DNS 请求以将域名解析成 IP，第二步才是向这个 IP 发起网络访问请求，而各大 ISP 默认分配给你的 DNS 服务器通常是他们自己的 DNS 服务器，这些 DNS 服务器会出于各种目的对部分网站给出错误的解析结果，例如对盗版网站的封锁：</p>
+<p><img src="https://s2.loli.net/2025/11/19/5PQuqTBxfprdJGa.png" srcset="/img/loading.gif" lazyload></p>
+<p>——如何解决这个问题？一个比较简单的办法就是换用可信的公共 DNS 服务器，例如 Cloudflare 的 <code>1.1.1.1</code> 或是 Google 的 <code>8.8.8.8</code> ，他们通常都会给你返回可信的 DNS 查询结果，但对于笔者的校园网环境而言，又存在一个问题便是 <em>由于澳洲校园网有防火墙，笔者没有办法访问这些公共 DNS 服务器的 DNS 服务</em> ：</p>
+<p><img src="https://s2.loli.net/2025/11/19/3RYsduhKpGw4ky5.png" srcset="/img/loading.gif" lazyload></p>
+<p>——如何解决这个问题？我们不难想到的是可以使用一些更加安全的 DNS 服务，例如 <code>DNS over TLS (DoT)</code> 和 <code>DNS over HTTPS (DoH)</code> ，通过加密信道去传递我们的 DNS 请求，这样在“攻击者”（指澳洲校园防火墙）看来他便不能知道我们是在进行 DNS 请求，也不知道我们具体在为访问哪个网站进行 DNS 请求，尤其是 DoH ，其流量特征对于防火墙这种中间人攻击而言便只是我们在正常地访问一个普通的网站，他是没有办法也不可能知道我们具体的流量内容是 DNS 请求的：</p>
+<p><img src="https://s2.loli.net/2025/11/19/VyScAgm4aRKG7oM.png" srcset="/img/loading.gif" lazyload></p>
+<p>——但是这又存在一个问题，既然校园网能够封锁一些普通的网站，而他又要阻止我们访问公共 DNS 服务器， <em>那么他有什么理由不封锁这些公共 DoH 网站呢？</em> </p>
+<p><img src="https://s2.loli.net/2025/11/19/oFza6IMxpgXtw8J.png" srcset="/img/loading.gif" lazyload></p>
+<p>——不过话又说回来，对于普通的绝大部分网站的访问而言，澳洲校园网是不会进行封锁的，因此我们可以通过自行搭建 DoH 服务器的方式来为自己提供一个安全可靠的 DNS 服务器，从而绕过 DNS 封锁：</p>
+<p><img src="https://s2.loli.net/2025/11/19/rO1RtBy8xFk63Ua.png" srcset="/img/loading.gif" lazyload></p>
+<p>因此本篇博客主要讲述如何自行搭建一个可用的 DNS over HTTPS 服务：）</p>
+<h2 id="架构设计"><a href="#架构设计" class="headerlink" title="架构设计"></a>架构设计</h2><p>我们的基本方案如下图所示：</p>
+<p><img src="https://s2.loli.net/2025/11/20/tlEeaKqkbAD9XsJ.png" srcset="/img/loading.gif" lazyload></p>
+<p>简而言之便是客户端侧由 <code>systemd-resolved</code> 负责接受所有的 DNS 请求（更适用于 systemd-based 的系统），并转发给 <code>dnscrypt-proxy</code> （支持 DoH），<code>dnscrypt-proxy</code> 再向我们的 VPS 发起 DoH 请求，VPS 前端使用 NGINX 监听并建立一个网站进行伪装，并将 DoH 请求转发给本地的 coredns，由 coredns 负责向可信的公共 DNS 服务器进行请求</p>
+<h1 id="0x01-DoH-服务器配置"><a href="#0x01-DoH-服务器配置" class="headerlink" title="0x01. DoH 服务器配置"></a>0x01. DoH 服务器配置</h1><h2 id="NGINX-配置"><a href="#NGINX-配置" class="headerlink" title="NGINX 配置"></a>NGINX 配置</h2><p>我们首先进行服务端的配置，由于 <code>dnscrypt-proxy</code>  的 DoH 默认使用 POST 方法，Content-Type 自动设置为 <code>application/dns-message</code> ，这是我们在服务端可以将 DoH 请求与普通 Web 访问请求进行区分的一个方法，因此接下来我们先在公网服务器搭建一个网站（怎么搭建就不用👴多说了8），然后修改 NGINX 相关配置如下：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-comment"># 匹配咱们的参数并进行标识的变量</span><br><span class="hljs-attribute">map</span> <span class="hljs-string">&quot;<span class="hljs-variable">$request_method</span>:<span class="hljs-variable">$http_content_type</span>:<span class="hljs-variable">$uri</span>&quot;</span> <span class="hljs-variable">$proxy_flag</span> &#123;<br>    <span class="hljs-attribute">default</span> <span class="hljs-number">0</span>;<br>    &quot;POST:application/dns-message:/index.html&quot; &quot;doh&quot;;<br>&#125;<br><br><span class="hljs-section">server</span> &#123;<br>    <span class="hljs-comment"># ...</span><br>    <span class="hljs-comment"># 网页基本配置比如说 ssl 证书路径之类的，这里就直接省略了</span><br>    <br>    <span class="hljs-section">location</span> = /doh &#123;<br>        <span class="hljs-attribute">if</span> (<span class="hljs-variable">$proxy_flag</span> != <span class="hljs-string">&quot;doh&quot;</span>) &#123;<br>            <span class="hljs-attribute">return</span> <span class="hljs-number">404</span>;<br>        &#125;<br><br>        <span class="hljs-attribute">proxy_set_header</span> Host <span class="hljs-variable">$http_host</span>;<br>        <span class="hljs-attribute">proxy_set_header</span> X-Real-IP <span class="hljs-variable">$remote_addr</span>;<br>        <span class="hljs-attribute">proxy_set_header</span> X-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;<br>        <span class="hljs-attribute">proxy_redirect</span> <span class="hljs-literal">off</span>;<br>        <span class="hljs-attribute">proxy_http_version</span> <span class="hljs-number">1</span>.<span class="hljs-number">1</span>;<br>        <span class="hljs-attribute">proxy_buffering</span> <span class="hljs-literal">off</span>;<br><br>        <span class="hljs-attribute">proxy_pass</span> http://127.0.0.1:8053/dns-query;<br>    &#125;<br>    <br>    <span class="hljs-section">location</span> = /index.html &#123;<br>        <span class="hljs-attribute">root</span> 你的网页文件夹路径;<br>        <br>        <span class="hljs-attribute">if</span> (<span class="hljs-variable">$proxy_flag</span> = <span class="hljs-string">&quot;doh&quot;</span>) &#123;<br>            <span class="hljs-attribute">rewrite</span><span class="hljs-regexp"> ^</span> /doh <span class="hljs-literal">last</span>;<br>        &#125;<br>        <br>        <span class="hljs-attribute">try_files</span> /index.html =<span class="hljs-number">404</span>;<br>    &#125;<br>    <br>    <span class="hljs-comment"># 你的一些其他网页配置</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>完成后重启 NGINX：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl restart nginx</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="CoreDNS-配置"><a href="#CoreDNS-配置" class="headerlink" title="CoreDNS 配置"></a>CoreDNS 配置</h2><p>然后是配置服务器的 DoH 后端，这里我们选择 <a target="_blank" rel="noopener" href="https://github.com/coredns/coredns">CoreDNS</a> ，其使用 Golang 进行编写，有着更好的性能表现以及高并发支持，这里我们使用 Docker 进行安装（因为这东西虽然火但不知道为什么没有进到各大发行版软件仓库），首先将镜像拉到本地：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">docker pull coredns/coredns:latest</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来编写配置文件（例如 <code>/home/你的用户名/coredns/Corefile</code> ，后面我们会将其映射进容器里），配置仅监听 <code>127.0.0.1</code> 的 8053 端口，并将 DNS 请求转发到大家所熟知的 Cloudflare 的 DNS 服务器 <code>1.1.1.1</code> ：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">https://.:8053 &#123;<br>        <span class="hljs-built_in">bind</span> 127.0.0.1<br>        forward . 1.1.1.1<br>        cache 30<br>        <span class="hljs-built_in">log</span><br>        errors<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里不使用 <code>8.8.8.8</code> 是因为 <code>8.8.8.8</code> 的 <strong>部分解析结果不准</strong> ，例如 <code>dnslog.cn</code> 使用 <code>8.8.8.8</code> 查询 <strong>居然得到</strong> <code>127.0.0.1</code> ， <strong>如果查询结果失真的话那咱们搞这个 DoH 就没意义了</strong> ，因此这里笔者使用 Cloudflare 的 <code>1.1.1.1</code> 服务器而非 Google 的 <code>8.8.8.8</code> </p>
+<p><img src="https://s2.loli.net/2025/11/05/4hnA9aeJziCBdxP.png" srcset="/img/loading.gif" lazyload></p>
+</blockquote>
+<p>然后启动 docker，这里配置使用本地网络，不然会有一些奇奇怪怪的问题：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">docker run -d \</span><br><span class="language-bash">	--network=host \</span><br><span class="language-bash">	--restart=always \</span><br><span class="language-bash">	--name=coredns \</span><br><span class="language-bash">	-v 你的Corefile配置文件路径:/Corefile \</span><br><span class="language-bash">	coredns/coredns:latest</span><br></code></pre></td></tr></table></figure>
+
+<p>现在咱们的安全的 DNS 服务器就完成配置了：）</p>
+<h1 id="0x02-客户端配置"><a href="#0x02-客户端配置" class="headerlink" title="0x02. 客户端配置"></a>0x02. 客户端配置</h1><p>接下来我们进行客户端的配置，不同的操作系统平台配置方式不同</p>
+<h2 id="Linux"><a href="#Linux" class="headerlink" title="Linux"></a>Linux</h2><p>在 Linux 下我们使用 dnscrypt-proxy + systemd-resolved 的配置方案</p>
+<h3 id="配置-dnscrypt-proxy"><a href="#配置-dnscrypt-proxy" class="headerlink" title="配置 dnscrypt-proxy"></a>配置 dnscrypt-proxy</h3><p>我们首先为本地回环 <code>lo</code> 添加一个新的本地 IP <code>127.0.0.2</code> ，我们的 dnscrypt-proxy 将监听这个 IP ：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo ip addr add 127.0.0.2/8 dev lo</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来安装 dnscrypt-proxy，笔者是 Gentoo Linux 系统：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo emerge -av net-dns/dnscrypt-proxy</span><br></code></pre></td></tr></table></figure>
+
+<p>接下来配置 <code>dnscrypt-proxy</code> 使用安全的 <code>DNS over HTTPS</code> ，修改配置文件   <code>/etc/dnscrypt-proxy/dnscrypt-proxy.toml</code> 对应项为如下内容，这里注意的一点是虽然 DoH 在 <a target="_blank" rel="noopener" href="https://datatracker.ietf.org/doc/html/rfc8484">RFC8484</a> 中定义的默认路径是 <code>/dns-query</code> ，但是对于中间人攻击而言这个路径对其是可见的，从而可能会阻断我们的 DoH 查询，因此这里用正常的 <code>index.html</code> 做伪装：</p>
+<blockquote>
+<p>这里的 stamp 的生成可以使用 <a href="">https://dnscrypt.info/stamps/</a> ，简而言之如图：</p>
+<p><img src="https://s2.loli.net/2025/11/05/YxPG5I2V4WEwKFU.png" srcset="/img/loading.gif" lazyload></p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 自定义配置名，对应下面的 static.</span><br>server_names = [<span class="hljs-string">&#x27;mydoh&#x27;</span>]<br><br><span class="hljs-comment"># 监听的地址与端口</span><br>listen_addresses = [<span class="hljs-string">&#x27;127.0.0.2:53&#x27;</span>]<br><br><span class="hljs-comment"># 启动阶段的 DNS，负责解析域名对应的 IP，这里笔者只是惯例写了两个常见的公共 DNS，但你有可能需要额外添加上 ISP 自动分配给你的 DNS，因为就像笔者之前说的，公共 DNS 不一定可用，这种情况下你只能先依赖 ISP 默认分配的 DNS 进行这一阶段的域名解析</span><br>bootstrap_resolvers = [<span class="hljs-string">&#x27;223.5.5.5:53&#x27;</span>, <span class="hljs-string">&#x27;114.114.114.114:53&#x27;</span>]<br><br><span class="hljs-comment"># 具体配置</span><br>[static]<br>  [static.mydoh]<br>    stamp = <span class="hljs-string">&quot;自己生成&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>然后启用服务：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl <span class="hljs-built_in">enable</span> --now dnscrypt-proxy.service</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="配置-systemd-resolved"><a href="#配置-systemd-resolved" class="headerlink" title="配置 systemd-resolved"></a>配置 systemd-resolved</h3><p>接下来我们让 <code>systemd-resolved</code> 完全接管本地的 DNS 请求并建立转发到 <code>dnscrypt-proxy</code> ，首先将 <code>/etc/resolv.conf</code> 建立为一个到 <code>/run/systemd/resolve/stub-resolv.conf</code> 的符号链接：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo <span class="hljs-built_in">ln</span> -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf</span><br></code></pre></td></tr></table></figure>
+
+<p>然后让 <code>systemd-resolved</code> 将 DNS 请求转发至 <code>dnscrypt-proxy</code> ，编辑 <code>/etc/systemd/resolved.conf</code> 配置如下内容：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Resolve]</span><br><span class="hljs-comment"># 默认 DNS 服务器</span><br><span class="hljs-attr">DNS</span>=<span class="hljs-number">127.0</span>.<span class="hljs-number">0.2</span><br><span class="hljs-comment"># 在本地（默认 127.0.0.53:53）建立 DNS 服务器监听，并分发至指定的 DNS</span><br><span class="hljs-attr">DNSStubListener</span>=<span class="hljs-literal">yes</span><br><span class="hljs-comment"># 不回落到任何其他 DNS</span><br>FallbackDNS=<br><span class="hljs-comment"># 强制 resolved 忽略所有 link DNS</span><br><span class="hljs-attr">Domains</span>=~.<br><span class="hljs-comment"># 不使用 DNSSEC，否则部分网站的解析结果有可能会出现失败</span><br><span class="hljs-attr">DNSSEC</span>=<span class="hljs-literal">no</span><br></code></pre></td></tr></table></figure>
+
+<p>然后重启  <code>systemd-resolved</code> （该服务是默认启用的）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl restart systemd-resolved.service</span><br></code></pre></td></tr></table></figure>
+
+<p>简单测试一下，我们使用 tcpdump 在服务端捕获 tcp 包，可以看到在我们进行 DNS 请求的过程当中服务端的 CoreDNS 确实接收到了包，在客户端也确实成功地获得了正确的 DNS 解析结果，至此我们成功完成了 DoH 的搭建与使用：</p>
+<p><img src="https://s2.loli.net/2025/11/20/XUeipQ86TlJKfW1.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="Windows（🕊🕊🕊）"><a href="#Windows（🕊🕊🕊）" class="headerlink" title="Windows（🕊🕊🕊）"></a>Windows（🕊🕊🕊）</h2><p>Windows 下的可操作空间似乎是没有 Linux 那么多的，不过 dnscrypt-proxy 是一个跨平台软件，因此我们也可以使用类似的解决方案</p>
+<h3 id="配置-dnscrypt-proxy-1"><a href="#配置-dnscrypt-proxy-1" class="headerlink" title="配置 dnscrypt-proxy"></a>配置 dnscrypt-proxy</h3><p>首先前往官方的发布页面 <a target="_blank" rel="noopener" href="https://github.com/DNSCrypt/dnscrypt-proxy/releases">https://github.com/DNSCrypt/dnscrypt-proxy/releases</a> 下载 Windows 的包，这里笔者选择下载 MSI 包并安装到系统中：</p>
+<p><img src="https://s2.loli.net/2025/12/20/MKHTahsQX3zfVmP.png" srcset="/img/loading.gif" lazyload></p>
+<p>dnscrypt-proxy 会被安装到 <code>C:\Program Files\DNSCrypt</code> 目录下，因此接下来我们来到这个目录下，其同时会提供一份 <code>example-dnscrypt-proxy.toml</code> ，我们将其复制并更名为 <code>dnscrypt-proxy.toml</code> ，然后按照和 Linux 一样的方法添加配置：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-comment"># 自定义配置名，对应下面的 static.</span><br><span class="hljs-attr">server_names</span> = [<span class="hljs-string">&#x27;mydoh&#x27;</span>]<br><br><span class="hljs-comment"># 监听的地址与端口</span><br><span class="hljs-attr">listen_addresses</span> = [<span class="hljs-string">&#x27;127.0.0.1:53&#x27;</span>]<br><br><span class="hljs-comment"># 启动阶段的 DNS，负责解析域名对应的 IP，这里笔者只是惯例写了两个常见的公共 DNS，但你有可能需要额外添加上 ISP 自动分配给你的 DNS，因为就像笔者之前说的，公共 DNS 不一定可用，这种情况下你只能先依赖 ISP 默认分配的 DNS 进行这一阶段的域名解析</span><br><span class="hljs-attr">bootstrap_resolvers</span> = [<span class="hljs-string">&#x27;223.5.5.5:53&#x27;</span>, <span class="hljs-string">&#x27;114.114.114.114:53&#x27;</span>]<br><br><span class="hljs-comment"># 具体配置</span><br><span class="hljs-section">[static]</span><br>  <span class="hljs-section">[static.mydoh]</span><br>    <span class="hljs-attr">stamp</span> = <span class="hljs-string">&quot;自己生成&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>然后将 <code>dnscrypt-proxy</code> 注册为服务：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-built_in">PS</span>&gt; <br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/OPS/" class="category-chain-item">OPS</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/">#Linux</a>
+      
+        <a href="/tags/%E8%BF%90%E7%BB%B4/">#运维</a>
+      
+        <a href="/tags/DNS-over-HTTPS/">#DNS over HTTPS</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【OPS.0x08】搭建安全可靠的 DNS over HTTPS</div>
+      <div>http://example.com/2025/08/25/OPS-0X08-SECURE_DNS/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年8月25日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2025/09/30/OPS-0X09-SOFT_ROUTER_GUIDE/" title="【OPS.0x09】家用软路由手搓日志">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【OPS.0x09】家用软路由手搓日志</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2025/07/29/CVE-0X0E-CVE-2024-26816/" title="【CVE.0x0E】CVE-2024-26816 漏洞分析及利用">
+                        <span class="hidden-mobile">【CVE.0x0E】CVE-2024-26816 漏洞分析及利用</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      桂ICP备2022005068号-1
+    </a>
+  </span>
+  
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

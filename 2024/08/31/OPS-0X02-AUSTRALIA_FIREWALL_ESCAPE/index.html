@@ -21,13 +21,13 @@
     <meta name="description" content="这个原神啊，能忍住一秒不玩的都是神人了">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【OPS.0x02】如何在澳洲校园网内玩原神">
-<meta property="og:url" content="https://arttnba3.github.io/2024/08/31/OPS-0X02-AUSTRALIA_FIREWALL_ESCAPE/index.html">
+<meta property="og:url" content="http://example.com/2024/08/31/OPS-0X02-AUSTRALIA_FIREWALL_ESCAPE/index.html">
 <meta property="og:site_name" content="arttnba3&#39;s blog">
 <meta property="og:description" content="这个原神啊，能忍住一秒不玩的都是神人了">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2024/09/11/7PhaTAnFjBvLJGM.png">
 <meta property="article:published_time" content="2024-08-30T15:46:31.000Z">
-<meta property="article:modified_time" content="2025-10-26T18:21:00.019Z">
+<meta property="article:modified_time" content="2025-11-19T11:17:03.229Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="运维">
 <meta property="article:tag" content="原神">
@@ -79,7 +79,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"arttnba3.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -332,7 +332,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2025年10月27日 凌晨
+                    本文最后更新于：2025年11月19日 晚上
                   
                 
               </p>
@@ -450,7 +450,7 @@
 
 <h4 id="进行证书签发"><a href="#进行证书签发" class="headerlink" title="进行证书签发"></a>进行证书签发</h4><p>接下来进行证书的签发， acme.sh 默认使用 ZeroSSL 进行签发，你也可以参照 Wiki 改成自己喜欢的证书签发方（比如 <code>Let&#39;s Encrypt</code> 之类的），不过签发前需要验证域名归属，这里主要有两种验证方式</p>
 <h5 id="方法一：通过-Web-服务器进行验证"><a href="#方法一：通过-Web-服务器进行验证" class="headerlink" title="方法一：通过 Web 服务器进行验证"></a>方法一：通过 Web 服务器进行验证</h5><p>简而言之原理就是你需要先把域名解析到安装的服务器，且你需要启动一个 http web 服务，acme.sh 会在你指定的网站目录下创建临时文件供验证 （因此当前用户需要对对应目录有 <strong>写</strong> 权限），证书默认安装到  <code>~/.acme.sh/你的域名/</code> ，整个过程可以说非常流畅，下面是一个例子：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">acme.sh --issue \</span><br><span class="language-bash">-d 你的域名 \</span><br><span class="language-bash">-d 这里可以是你的第二个域名因为支持同时签发多个域名 \</span><br><span class="language-bash">--webroot 你的网站文件根目录</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">acme.sh --issue \</span><br><span class="language-bash">-d 你的域名 \</span><br><span class="language-bash">--webroot 你的网站文件根目录</span><br></code></pre></td></tr></table></figure>
 
 <p>然后你便可以使用如下命令安装证书到指定位置：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">acme.sh --install-cert \</span><br><span class="language-bash">-d 你的域名 \</span><br><span class="language-bash">--key-file 自行指定的的key路径 \</span><br><span class="language-bash">--fullchain-file 自行指定的cert路径</span><br></code></pre></td></tr></table></figure>
@@ -693,7 +693,7 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>【OPS.0x02】如何在澳洲校园网内玩原神</div>
-      <div>https://arttnba3.github.io/2024/08/31/OPS-0X02-AUSTRALIA_FIREWALL_ESCAPE/</div>
+      <div>http://example.com/2024/08/31/OPS-0X02-AUSTRALIA_FIREWALL_ESCAPE/</div>
     </div>
     <div class="license-meta">
       

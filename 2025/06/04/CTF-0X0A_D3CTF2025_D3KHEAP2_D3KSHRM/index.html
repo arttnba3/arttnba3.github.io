@@ -21,13 +21,13 @@
     <meta name="description" content="《火星救援之企鹅男孩与美人a3战士与非预期解》">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【CTF.0x0A】D^ 3CTF2025 d3kheap2、d3kshrm 出题手记">
-<meta property="og:url" content="https://arttnba3.github.io/2025/06/04/CTF-0X0A_D3CTF2025_D3KHEAP2_D3KSHRM/index.html">
+<meta property="og:url" content="http://example.com/2025/06/04/CTF-0X0A_D3CTF2025_D3KHEAP2_D3KSHRM/index.html">
 <meta property="og:site_name" content="arttnba3&#39;s blog">
 <meta property="og:description" content="《火星救援之企鹅男孩与美人a3战士与非预期解》">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://s2.loli.net/2025/07/03/zlVyKdbOGMgkP9A.png">
 <meta property="article:published_time" content="2025-06-03T16:21:19.000Z">
-<meta property="article:modified_time" content="2025-07-02T20:49:47.864Z">
+<meta property="article:modified_time" content="2025-11-21T18:42:00.229Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Linux Kernel">
@@ -84,7 +84,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"arttnba3.github.io","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -337,7 +337,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2025年7月3日 早上
+                    本文最后更新于：2025年11月22日 凌晨
                   
                 
               </p>
@@ -399,7 +399,7 @@
 <p>因此， <strong>纯粹的 cross-cache attack 在我看来更适用于 d3kheap2</strong> ，但无论如何感谢他们开发了如此强大的利用技术并拓宽了我们的视野到另一个层面</p>
 <p>另一个点便是如同 Pspray 这样的通过计时侧信道攻击来预测分配 SLUB 页面的辅助技术对于不局限于 <code>d3kheap2</code> 的通用内核堆利用而言似乎没有太多作用，一个核心的原因便是随着像 <code>CONFIG_RANDOM_KMALLOC_CACHES</code> 这样的缓解措施的出现在内核主线使得一个新的 SLUB page 是否被分配对于我们而言不再那么重要，因为我们的对象总会从不同的独立的池中随机分配，进行大量的堆喷并进行近似估计似乎是唯一的可行方法，尽管在 <code>d3kheap2</code> 没有开启这一缓解措施，笔者仍然想讲一讲与真实世界利用有关的东西，希望大家不要介意：）</p>
 <p>尽管关于 Linux kernel exploitation 笔者还有很多想说的话，但似乎写到这里的时候文章已经太长了，那么就让我们就此打住吧，无论如何我要感谢每一位参加了这个 CTF 并尝试进行解题的选手，无论你们是否获得了 flag</p>
-<h1 id="0x02-D3KSHRM-1-Solve"><a href="#0x02-D3KSHRM-1-Solve" class="headerlink" title="0x02. D3KSHRM | 1 Solve"></a>0x02. D3KSHRM | 1 Solve</h1><p>You know what? Sharing is always a good moral quality. That’s the reason why I’m going to share some of my precious memories with all of you!</p>
+<h1 id="0x02-D3KSHRM-2-Solve"><a href="#0x02-D3KSHRM-2-Solve" class="headerlink" title="0x02. D3KSHRM | 2 Solve"></a>0x02. D3KSHRM | 2 Solve</h1><p>You know what? Sharing is always a good moral quality. That’s the reason why I’m going to share some of my precious memories with all of you!</p>
 <blockquote>
 <p>Copyright(c) 2025 &lt;ディーキューブ・シーティーエフ カーネル Pwn 製作委員会&gt;</p>
 <p>Author: arttnba3 @ L-team x El3ctronic x D^3CTF</p>
@@ -448,7 +448,7 @@
 <h2 id="What’s-more…-1"><a href="#What’s-more…-1" class="headerlink" title="What’s more…"></a>What’s more…</h2><p>本题的介绍来自于我非常喜欢的一个由 <a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=0Kio3t3nXJo">Halo Top 设计的广告</a> ，尽管这个视频或许只是为了乐趣而创造的，但这也给了我一些言语无法表达的特别感受，因此我选择其作为题目描述的基础并修改了一部分以给你们一些无意义的句子，就像 flag 所言：）</p>
 <p>我创造这个题目的最初的灵感来自于 <a target="_blank" rel="noopener" href="https://github.com/arttnba3/Linux-kernel-exploitation/tree/main/CVE/CVE-2023-2008">CVE-2023-2008</a> ，其同样是一个 OOB 内存映射的漏洞，因此实话实说这个题目并不如我所预期的那样有难度且有创造性，非常抱歉我虽然一直想给你们展示一些炫酷的东西但这一次并没有展示足够库的玩意</p>
 <p>另一个我选择修改现有漏洞的原因是 <em>我确实没有太多时间来完成这些题目</em> ，由于我已经从本科毕业了，我并没有太关注于我的后辈们今年准备 D^3CTF 的情况，直到 <strong>比赛开始的大概 10 天前</strong> 才知道今年几乎还没有 pwn 题，因此我不得不在脑子里几乎没有什么新的研究成果的情况下冲刺准备今年的 Pwn 题以确保比赛能像往年一样正常举办， <strong>非常抱歉今年笔者未能带来和 2023 年的 d3kcache 一样炫酷的玩意</strong> </p>
-<p>而如果你足够注意中国内核模块，你会注意到我在计算 <code>vm_area</code> 的引用计数上写了另一个非预期漏洞： <strong>我忘了写 vm_open() 以添加引用计数，但仍记得写 vm_close() 以减少引用计数！</strong> 这迷惑了不少选手并让他们浪费了很多时间尝试利用这个漏洞，因为实际上其并不好利用，因为页面很难被同时用作用户映射页面与 SLUB 页面（但如果你足够感兴趣，或许你可以看看 <a target="_blank" rel="noopener" href="https://github.com/arttnba3/Linux-kernel-exploitation/tree/main/CVE/CVE-2024-0582">CVE-2024-0582</a> ，其情况与之相似，但我不确定这对 <code>d3kshrm</code> 是否同样有用，所以祝你好运），我非常抱歉因为这道题出得太赶了我没有仔细检查</p>
+<p>而如果你足够注意这个内核模块，你会注意到我在计算 <code>vm_area</code> 的引用计数上写了另一个非预期漏洞： <strong>我忘了写 vm_open() 以添加引用计数，但仍记得写 vm_close() 以减少引用计数！</strong> 这迷惑了不少选手并让他们浪费了很多时间尝试利用这个漏洞，因为实际上其并不好利用，因为页面很难被同时用作用户映射页面与 SLUB 页面（但如果你足够感兴趣，或许你可以看看 <a target="_blank" rel="noopener" href="https://github.com/arttnba3/Linux-kernel-exploitation/tree/main/CVE/CVE-2024-0582">CVE-2024-0582</a> ，其情况与之相似，但我不确定这对 <code>d3kshrm</code> 是否同样有用，所以祝你好运），我非常抱歉因为这道题出得太赶了我没有仔细检查</p>
 <p>从整场比赛而言，仅有来自 <a target="_blank" rel="noopener" href="https://ctftime.org/team/19208/">MNGA</a> 战队的 <code>Tplus</code> 选手成功以预期解法解出了这道题，<strong>让我们祝贺这位唯一在比赛期间以预期解解出这道题的选手！</strong> 而来自 <a target="_blank" rel="noopener" href="https://wm-team.cn/">W&amp;M</a> 的 <a target="_blank" rel="noopener" href="https://9anux.org/2025/06/02/d3kshrm/">Qanux</a> 选手在比赛结束后也同样以预期解法解出了这道题目（因为他没想到还有个 <code>-revenge</code> 版本从而在用非预期解得分后便出去吃大餐了），无论如何我认为我们都应当为他们鼓掌与庆贺</p>
 <p>另一个有趣的点是你们或许会忽视 <strong>在 kmem_cache 被创建时便会分配一份新的 SLUB 页面</strong> ，这意味着我们的堆风水应当关注于 <strong>下一个新分配的 SLUB 页面</strong> ，我认为这是 <code>Tplus</code> 选手与 <code>Qanux</code> 选手所自行编写的预期解法的成功率较低的缘故：他们关注于第一份 SLUB，而我的官方解法关注于第二份 SLUB，因此我的成功利用页级堆风水的概率超过 <code>80%</code> 且在打远程时无需爆破</p>
 <p>尽管关于 Linux kernel exploitation 笔者还有很多想说的话，但似乎写到这里的时候文章已经太长了，那么就让我们就此打住吧，无论如何我要感谢每一位参加了这个 CTF 并尝试进行解题的选手，无论你们是否获得了 flag</p>
@@ -516,7 +516,7 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>【CTF.0x0A】D^ 3CTF2025 d3kheap2、d3kshrm 出题手记</div>
-      <div>https://arttnba3.github.io/2025/06/04/CTF-0X0A_D3CTF2025_D3KHEAP2_D3KSHRM/</div>
+      <div>http://example.com/2025/06/04/CTF-0X0A_D3CTF2025_D3KHEAP2_D3KSHRM/</div>
     </div>
     <div class="license-meta">
       
