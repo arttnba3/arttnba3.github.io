@@ -1,0 +1,992 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="奥利给，干了兄弟们！（指直接用贪心算法）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【ALGORITHM.0x02】Dijkstra 算法浅析">
+<meta property="og:url" content="http://example.com/2020/04/23/ALGORITHM-0X02-DIJKSTRA/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="奥利给，干了兄弟们！（指直接用贪心算法）">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2026/02/01/cAUgwkx9NKjOtPM.gif">
+<meta property="article:published_time" content="2020-04-23T13:49:22.000Z">
+<meta property="article:modified_time" content="2026-02-17T22:21:50.460Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="C&amp;C++">
+<meta property="article:tag" content="Algorithm">
+<meta property="article:tag" content="Dijkstra">
+<meta property="article:tag" content="Graph Theory">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://s2.loli.net/2026/02/01/cAUgwkx9NKjOtPM.gif">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【ALGORITHM.0x02】Dijkstra 算法浅析 - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" target="_blank" rel="noopener" href="https://github.com/arttnba3">
+                <i class="iconfont icon-github-fill"></i>
+                GitHub
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://files.seeusercontent.com/2026/02/17/r9Oe/pasted-image-1771366609748.webp') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【ALGORITHM.0x02】Dijkstra 算法浅析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-04-23 23:49" pubdate>
+          2020年4月23日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          19k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          161 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【ALGORITHM.0x02】Dijkstra 算法浅析</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2026年2月18日 上午
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>奥利给，干了兄弟们！（指直接用贪心算法）</p>
+<span id="more"></span>
+
+<h1 id="0x00-绪论"><a href="#0x00-绪论" class="headerlink" title="0x00.绪论"></a>0x00.绪论</h1><p><strong>Dijkstra算法</strong>算是图论当中最为基础的算法之一，也是各类信息学竞赛（ Olympiad in Informatics ）当中各大图论算法的基础，碰巧今天的离散数学课刚好讲到了Dijkstra算法，所以作为一名蒟蒻·前OIer，今天就来简单讲讲什么是Dijkstra算法XD</p>
+<p><del>不过我当年打OI的时候基本没怎么研究过图论，所以没出过啥成绩XD</del></p>
+<h2 id="Pre-图的表示"><a href="#Pre-图的表示" class="headerlink" title="Pre. 图的表示"></a>Pre. 图的表示</h2><p>我们首先补充一下 <code>图</code> 这一数据结构的表示方法，首先给出图的定义：</p>
+<p>$$<br>G &#x3D; (V, E)<br>$$</p>
+<p>其中， <code>G</code>  即为图，  <code>V</code> 为顶点的非空有限集合， <code>E</code> 为边的非空有限集合，因此图的定义实际上是 <code>(顶点,边)</code> 的二元组，由此我们有如下的表示图的数据结构：</p>
+<h3 id="边表示"><a href="#边表示" class="headerlink" title="边表示"></a>边表示</h3><p>由图的定义我们不难想到我们可以直接通过 <strong>存储边——节点间连接关系</strong> 的方式来表示一张图，例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utility&gt;</span></span><br><br><span class="hljs-keyword">typedef</span> std::pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; Edge; <span class="hljs-comment">// start -&gt; end</span><br><span class="hljs-keyword">typedef</span> std::vector&lt;Edge&gt; Graph;<br></code></pre></td></tr></table></figure>
+
+<p>不难看出，使用边来表示一张图是最朴素的基于图的定义进行实现的表示方式，这种方式既可以表示有向图，也可以表示无向图，在表示有向图时，我们通常可以默认定义边的方向是由第一个节点到第二个节点</p>
+<p>这种表示方式非常适合稀疏的图</p>
+<h3 id="邻接表（Adjunct-List）"><a href="#邻接表（Adjunct-List）" class="headerlink" title="邻接表（Adjunct List）"></a>邻接表（Adjunct List）</h3><p><strong>邻接表</strong> 是图的朴素边表示的一种优化，我们注意到原本的表示在针对单个进行查询时一旦相关联的边散落在数组里，则非常容易消耗掉大量额外的时间，因此我们不难想到的是 <strong>把每个节点与之相关的边放在一起</strong> ，由此我们就有了 <strong>邻接矩阵的表示方式——分开单独记录从某个节点到另一个节点的连接关系</strong>，以下是一个例子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utility&gt;</span></span><br><br><span class="hljs-keyword">typedef</span> std::pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; EdgeOut;  <span class="hljs-comment">// destination, weight</span><br><span class="hljs-keyword">typedef</span> std::vector&lt;std::vector&lt;EdgeOut&gt;&gt; Graph;<br></code></pre></td></tr></table></figure>
+
+<p>邻接表是非常通用的用于存储图的方式，我们会在后面经常见到她 XD</p>
+<h3 id="邻接矩阵（Adjunct-Matrix）"><a href="#邻接矩阵（Adjunct-Matrix）" class="headerlink" title="邻接矩阵（Adjunct Matrix）"></a>邻接矩阵（Adjunct Matrix）</h3><p>邻接矩阵表示是另外一种常用的图的表示方式，即定义一个二维数组（二维矩阵）来表示图，当二维矩阵的特定成员值非 0 时即表示 <strong>存在一条边</strong> ，例如 <code>g[i][j] != 0</code> 时即表示节点 <code>i</code> 与 <code>j</code> 之间存在一条边（如果是有向图，则通常表示存在一条由 <code>i</code> 到 <code>j</code> 的边）</p>
+<p><strong>如果是边带有权值的图，则可以直接使用 g[i][j] 的值表示边的权值</strong> </p>
+<p>以下是一个例子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><br><span class="hljs-keyword">typedef</span> std::vector&lt;std::vector&lt;<span class="hljs-type">int</span>&gt;&gt; Graph;<br></code></pre></td></tr></table></figure>
+
+<p>当然，也可以直接这么表示（毕竟 OI 代码只需要用一次 XD）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">define</span> MAX_NODE_NR 0x1000;</span><br><span class="hljs-type">int</span> graph[MAX_NODE_NR][MAX_NODE_NR];<br></code></pre></td></tr></table></figure>
+
+<p>这种表示方式对于单条边的查询而言只需要 <code>O(1)</code> 的时间复杂度，比较适合稠密的图，但是缺点在于需要提前分配大量的空间，不适合稀疏的图（会浪费不少内存空间），尤其是对于节点数量较多的图而言，这种二维数组所占用的空间会爆炸式增长（悲）</p>
+<h1 id="0x01-简介：什么是Dijkstra算法？"><a href="#0x01-简介：什么是Dijkstra算法？" class="headerlink" title="0x01. 简介：什么是Dijkstra算法？"></a>0x01. 简介：什么是Dijkstra算法？</h1><p>Dijkstra 算法是由计算机科学家 Dijkstra 提出的基于 <strong>贪心</strong> 算法的计算非负带权图的单源最短路径的算法，简而言之，Dijkstra 算法会先以某个点作为起始点，并进行如下初始化操作：</p>
+<ul>
+<li><p>定义两个集合：</p>
+<ul>
+<li>集合 <code>S</code> ：已经计算了最短距离的点的集合</li>
+<li>集合 <code>T</code> ：尚未计算最短距离的点的集合，所有的点在一开始会被放入这个集合</li>
+</ul>
+</li>
+<li><p>初始化起始点 <code>s</code> 的距离 <code>dist(n)</code> 为 0，初始化所有其他点的距离为 <code>无限大</code></p>
+</li>
+</ul>
+<p>接下来进行如下循环：</p>
+<ul>
+<li>从集合 <code>T</code> 当中选取距离最短的点 <code>n</code> 加入到 <code>S</code> </li>
+<li>计算从点 <code>n</code> 出发到其他可直达点（单次设为 <code>m</code> ）的距离 <code>dist(n) + edge(n, m)</code> ，如果这个值小于 <code>dist(m)</code> ，则将 <code>dist(m)</code> 更新为该值，该操作被称为 <strong>松弛</strong> （relax）操作</li>
+</ul>
+<blockquote>
+<p>需要注意，对于已经加入 <code>S</code> 的节点，我们不需要反复松弛，因为朴素 Dijkstra 认为到该点的最小距离已被计算，无需额外重复计算</p>
+</blockquote>
+<p>由于起始点的距离被初始化为 0，因此第一次循环必定会选择起始点，由此逐渐扩散到从起始点直达的各个节点，并逐渐扩散下去，下面这张 GIF 很好地表现了这个过程：</p>
+<p><img src="https://s2.loli.net/2026/02/01/cAUgwkx9NKjOtPM.gif" srcset="/img/loading.gif" lazyload alt="从 Wikipedia 偷的"></p>
+<p>当然，我们注意到这个过程是针对 <strong>有向图</strong> 的，那么针对 <strong>无向图</strong> 该怎么解决呢？其实非常简单——</p>
+<ul>
+<li>将每一条无向图的边视作两条往返的有向图边即可</li>
+</ul>
+<h2 id="示例代码"><a href="#示例代码" class="headerlink" title="示例代码"></a>示例代码</h2><p>我们不难看出，由于我们每次都需要对选取的点的所有出边进行遍历，因此 <strong>邻接表</strong> 在形式上是最适合 Dijkstra 算法的</p>
+<p>以下是一份代码例子，输入格式如下：</p>
+<ul>
+<li>第一行是四个整数 <code>s, e, n, m</code> ，分别表示起始点、终点、图的点数、图的边数</li>
+<li>接下来 <code>m</code> 行每行三个整数 <code>u, v, w</code>，表示图中有一条从 <em>u</em> 到 <em>v</em> 的边权为 <em>w</em> 的有向边</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utility&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;climits&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;queue&gt;</span></span><br><br><span class="hljs-keyword">typedef</span> std::pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; EdgeOut;<br><span class="hljs-keyword">typedef</span> std::vector&lt;std::vector&lt;EdgeOut&gt;&gt; Graph;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">dijkstra</span><span class="hljs-params">(<span class="hljs-type">const</span> Graph&amp; graph, <span class="hljs-type">int</span> node_nr, <span class="hljs-type">int</span> start, <span class="hljs-type">int</span> end)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-function">std::vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">dist</span><span class="hljs-params">(node_nr, INT_MAX)</span></span>;<br>    <span class="hljs-function">std::vector&lt;<span class="hljs-type">bool</span>&gt; <span class="hljs-title">visited</span><span class="hljs-params">(node_nr, <span class="hljs-literal">false</span>)</span></span>;<br><br>    dist[start] = <span class="hljs-number">0</span>;<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; node_nr; i++) &#123;<br>        <span class="hljs-type">int</span> n, min_dist = INT_MAX;<br>        <span class="hljs-type">bool</span> found = <span class="hljs-literal">false</span>;<br><br>        <span class="hljs-comment">// choose the minimal</span><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; node_nr; j++) &#123;<br>            <span class="hljs-keyword">if</span> ((!visited[j]) &amp;&amp; (dist[j] &lt; min_dist)) &#123;<br>                n = j;<br>                min_dist = dist[j];<br>                found = <span class="hljs-literal">true</span>;<br>            &#125;<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (!found) &#123;<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br><br>        visited[n] = <span class="hljs-literal">true</span>;<br><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; graph[n].<span class="hljs-built_in">size</span>(); j++) &#123;<br>            <span class="hljs-type">int</span> m = graph[n][j].first;<br>            <span class="hljs-type">int</span> w = graph[n][j].second;<br>            <span class="hljs-keyword">if</span> ((!visited[m]) &amp;&amp; (dist[m] &gt; (dist[n] + w))) &#123;<br>                dist[m] = dist[n] + w;<br>            &#125;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> dist[end];<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv, <span class="hljs-type">char</span> **envp)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> edge_nr, node_nr;<br>    <span class="hljs-type">int</span> start, end, shortest;<br><br>    <span class="hljs-comment">// read input</span><br>    std::cin &gt;&gt; start &gt;&gt; end &gt;&gt; node_nr &gt;&gt; edge_nr;<br><br>    <span class="hljs-function">Graph <span class="hljs-title">graph</span><span class="hljs-params">(node_nr)</span></span>;<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; edge_nr; i++) &#123;<br>        <span class="hljs-type">int</span> u, v, w;<br>        std::cin &gt;&gt; u &gt;&gt; v &gt;&gt; w;<br>        graph[u].<span class="hljs-built_in">push_back</span>(&#123;v, w&#125;);<br>    &#125;<br><br>    <span class="hljs-comment">// do dijkstra</span><br>    shortest = <span class="hljs-built_in">dijkstra</span>(graph, node_nr, start, end);<br>    <br>    <span class="hljs-comment">// output result</span><br>    <span class="hljs-keyword">if</span> (shortest != INT_MAX) &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Shortest distance is: &quot;</span> &lt;&lt; shortest &lt;&lt; std::endl;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Destination not arrivable!&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>我们用之前的动图作为样例简单测试一下，预期输出是 <code>20</code>：</p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs basic"><span class="hljs-symbol">0 </span><span class="hljs-number">3</span> <span class="hljs-number">6</span> <span class="hljs-number">9</span><br><span class="hljs-symbol">0 </span><span class="hljs-number">1</span> <span class="hljs-number">7</span><br><span class="hljs-symbol">0 </span><span class="hljs-number">2</span> <span class="hljs-number">9</span><br><span class="hljs-symbol">0 </span><span class="hljs-number">5</span> <span class="hljs-number">14</span><br><span class="hljs-symbol">1 </span><span class="hljs-number">2</span> <span class="hljs-number">10</span><br><span class="hljs-symbol">1 </span><span class="hljs-number">3</span> <span class="hljs-number">15</span><br><span class="hljs-symbol">2 </span><span class="hljs-number">3</span> <span class="hljs-number">11</span><br><span class="hljs-symbol">2 </span><span class="hljs-number">5</span> <span class="hljs-number">2</span><br><span class="hljs-symbol">3 </span><span class="hljs-number">4</span> <span class="hljs-number">6</span><br><span class="hljs-symbol">4 </span><span class="hljs-number">5</span> <span class="hljs-number">9</span><br></code></pre></td></tr></table></figure>
+
+<p>成功输出最短距离 <code>20</code> ：</p>
+<p><img src="https://s2.loli.net/2026/02/01/2ktbiIThR5QXErK.png" srcset="/img/loading.gif" lazyload></p>
+<p>接下来我们构造一个终点不可达的有向图：</p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs basic"><span class="hljs-symbol">0 </span><span class="hljs-number">4</span> <span class="hljs-number">5</span> <span class="hljs-number">3</span><br><span class="hljs-symbol">0 </span><span class="hljs-number">1</span> <span class="hljs-number">5</span><br><span class="hljs-symbol">1 </span><span class="hljs-number">2</span> <span class="hljs-number">6</span><br><span class="hljs-symbol">3 </span><span class="hljs-number">4</span> <span class="hljs-number">2</span><br></code></pre></td></tr></table></figure>
+
+<p>测试，成功输出不可达：</p>
+<p><img src="https://s2.loli.net/2026/02/01/hHD8Q4MS75tq3IJ.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="例题：POJ-2387-Til-the-Cows-Come-Home"><a href="#例题：POJ-2387-Til-the-Cows-Come-Home" class="headerlink" title="例题：POJ 2387 - Til the Cows Come Home"></a>例题：<a target="_blank" rel="noopener" href="http://poj.org/problem?id=2387">POJ 2387 - Til the Cows Come Home</a></h3><blockquote>
+<h3 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h3><p><img src="https://s2.loli.net/2026/02/01/6zQWIGdBj2EyLUg.png" srcset="/img/loading.gif" lazyload></p>
+</blockquote>
+<p>嗯嘛，题目给出 <code>N</code> 个点和 <code>T</code> 条双向边（无向图），让我们找出从点 1 到点 N （题目使用的是 <code>landmark</code> ）的最短路径，简而言之呢，这是非常经典的一道单源最短路问题，因此我们非常容易想到要使用 Dijkstra 进行解决即可</p>
+<p>因为题目给的节点是从 1 开始，所以我们构建一个有 N + 1 节点的图，并忽视节点 0 即可</p>
+<p>需要注意的是题目是 <strong>无向图</strong> ，因此在读取输入时我们应当建立 <strong>两节点间的往返的两条边</strong> </p>
+<p>以及有几个坑点：</p>
+<ul>
+<li>题目是先给边数再给点数，注意不要弄反（测试用例非常恶心地给了边数&#x3D;&#x3D;点数的情况，导致你本地测试的时候不会意识到这一坑点，然后一提交就 WA）</li>
+<li>POJ 编译器非常老，模板如果有 <code>&gt;&gt;</code> 嵌套，需要写成 <code>&gt; &gt;</code> ，否则会 CE</li>
+</ul>
+<p>AC 代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utility&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;climits&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;queue&gt;</span></span><br><br><span class="hljs-keyword">typedef</span> std::pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; Edge;<br><span class="hljs-keyword">typedef</span> std::vector&lt;std::vector&lt;Edge&gt; &gt; Graph;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">dijkstra</span><span class="hljs-params">(<span class="hljs-type">const</span> Graph&amp; graph, <span class="hljs-type">int</span> node_nr, <span class="hljs-type">int</span> start, <span class="hljs-type">int</span> end)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-function">std::vector&lt;<span class="hljs-type">long</span> <span class="hljs-type">long</span>&gt; <span class="hljs-title">dist</span><span class="hljs-params">(node_nr, LLONG_MAX)</span></span>;<br>    <span class="hljs-function">std::vector&lt;<span class="hljs-type">bool</span>&gt; <span class="hljs-title">visited</span><span class="hljs-params">(node_nr, <span class="hljs-literal">false</span>)</span></span>;<br><br>    dist[start] = <span class="hljs-number">0</span>;<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">1</span>; i &lt; node_nr; i++) &#123;<br>        <span class="hljs-type">int</span> n, min_dist = INT_MAX;<br>        <span class="hljs-type">bool</span> found = <span class="hljs-literal">false</span>;<br><br>        <span class="hljs-comment">// choose the minimal</span><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">1</span>; j &lt; node_nr; j++) &#123;<br>            <span class="hljs-keyword">if</span> ((!visited[j]) &amp;&amp; (dist[j] &lt; min_dist)) &#123;<br>                n = j;<br>                min_dist = dist[j];<br>                found = <span class="hljs-literal">true</span>;<br>            &#125;<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (!found) &#123;<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br><br>        visited[n] = <span class="hljs-literal">true</span>;<br><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; graph[n].<span class="hljs-built_in">size</span>(); j++) &#123;<br>            <span class="hljs-type">int</span> m = graph[n][j].first;<br>            <span class="hljs-type">int</span> w = graph[n][j].second;<br>            <span class="hljs-keyword">if</span> (!visited[m] &amp;&amp; dist[n] != LLONG_MAX &amp;&amp; dist[m] &gt; dist[n] + w) &#123;<br>                dist[m] = dist[n] + w;<br>            &#125;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> dist[end];<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv, <span class="hljs-type">char</span> **envp)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> edge_nr, node_nr;<br>    <span class="hljs-type">int</span> shortest;<br><br>    <span class="hljs-comment">// read input</span><br>    std::cin &gt;&gt; edge_nr &gt;&gt; node_nr;<br><br>    <span class="hljs-function">Graph <span class="hljs-title">graph</span><span class="hljs-params">(node_nr + <span class="hljs-number">1</span>)</span></span>;<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; edge_nr; i++) &#123;<br>        <span class="hljs-type">int</span> u, v, w;<br>        std::cin &gt;&gt; u &gt;&gt; v &gt;&gt; w;<br>        graph[u].<span class="hljs-built_in">push_back</span>(&#123;v, w&#125;);<br>        graph[v].<span class="hljs-built_in">push_back</span>(&#123;u, w&#125;);<br>    &#125;<br><br>    <span class="hljs-comment">// do dijkstra</span><br>    shortest = <span class="hljs-built_in">dijkstra</span>(graph, node_nr + <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, node_nr);<br>    <br>    <span class="hljs-comment">// output result</span><br>    std::cout &lt;&lt; shortest &lt;&lt; std::endl;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="0x02-进阶：Dijkstra-的堆优化"><a href="#0x02-进阶：Dijkstra-的堆优化" class="headerlink" title="0x02. 进阶：Dijkstra 的堆优化"></a>0x02. 进阶：Dijkstra 的堆优化</h1><p>我们注意到在 Dijkstra 算法当中存在一个非常耗时的操作便是 <strong>每次执行一个节点都要循环遍历 T 中节点列表找出最小节点，两层的遍历循环直接导致了我们的时间复杂度飙升到 O(N^2 + M)</strong> </p>
+<blockquote>
+<p>以 Leetcode 的 <a target="_blank" rel="noopener" href="https://leetcode.cn/problems/minimum-cost-path-with-edge-reversals/">3650. 边反转的最小路径总成本</a> 为例，这是一道非常朴素的 Dijkstra 无向图的题目，但是给的部分测试点的结构非常大，会导致朴素 Dijkstra 算法 TLE</p>
+<p><img src="https://s2.loli.net/2026/02/02/jMdESJeOuimkHIt.png" srcset="/img/loading.gif" lazyload></p>
+</blockquote>
+<p>如何破局？我们不难想到的是——<strong>如果我们每次都能直接取出最小节点，我们在这一块的时间复杂度便会大幅降低</strong> ，之后影响时间复杂度的就只是我们的排列操作和遍历每条边的操作</p>
+<p>但是我们注意到这个排列操作是需要 <strong>动态进行的，因为每一次更新节点都会导致重排序，因此我们需要一个良好的数据结构帮助我们动态维护这样一个排序队列</strong></p>
+<p>如何解决这个问题？这就要引入我们的新数据结构——</p>
+<h2 id="数据结构：堆"><a href="#数据结构：堆" class="headerlink" title="数据结构：堆"></a>数据结构：堆</h2><p>二叉堆（Binary Heap）是一种特殊的 <strong>完全二叉树</strong> （除最后一层以外全满的二叉树，且最后一层要么满、要么在右边缺少若干连续节点），其额外满足如下性质：</p>
+<ul>
+<li>对于堆中的任意节点 <code>P</code> 与 <code>C</code> ，若 P 是 C 的父节点，则 P 的值小于等于&#x2F;大于等于 C 的值，此时的堆称为 <strong>最小堆&#x2F;最大堆</strong> （min heap&#x2F;max heap）</li>
+</ul>
+<p>我们将堆的根节点称为堆顶（heap top），底层最靠右的节点称为堆底（heap bottom）</p>
+<p><img src="https://s2.loli.net/2026/02/01/cOejVf53znZspAX.png" srcset="/img/loading.gif" lazyload></p>
+<p>二叉堆的好处在哪？我们注意到， <strong>对于最大堆&#x2F;最小堆而言，根节点的值总会是堆内的最大值&#x2F;最小值</strong> ，此外， <strong>二叉堆的插入&#x2F;删除节点操作会需要维持二叉堆的特性，这保持了根节点总会是堆内的最大&#x2F;最小值</strong> ——事实上，二叉堆只有根节点的值是会被外部直接使用的，其他节点的值按这个规律放置是为了方便动态插入与删除</p>
+<p>这非常适合我们所需要的动态优先队列的数据结构，因此下面我们来看与二叉堆相关的操作</p>
+<h3 id="Pre-二叉树的数组表示形式"><a href="#Pre-二叉树的数组表示形式" class="headerlink" title="Pre. 二叉树的数组表示形式"></a>Pre. 二叉树的数组表示形式</h3><p>通常而言我们比较常用于表示树这个数据结构的自然是链表，比如说：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">TreeNode</span> &#123;<br>    <span class="hljs-type">int</span> val;<br>    <span class="hljs-keyword">struct</span> <span class="hljs-title class_">TreeNode</span> *left, *right;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>但是传统的链表形式存在一些缺点，例如两个左右子树指针占用的空间比较多、大量的动态内存分配、离散结构导致的非连续性内存访问造成的 cache miss…</p>
+<p>诚然，在绝大部分情况下，我们不得不承认离散的链表形式是不可或缺的，但是其缺点也确乎让人难以忍受，因此我们不禁去想：是否能够优化一下树的存储结构，使其有着优秀的查询访问性能呢？</p>
+<p>常规的离散的树或许有点困难（当然，我们也可以看到 B Tree 这样有趣的家伙），但是对于 <strong>完全二叉树</strong> （Complete Binary Tree）而言，我们注意到其有一个朴素规律或许对我们有所启发：第一、二、三、四、…层的节点数总会是 1、2、4、8、…</p>
+<p>——<strong>既然每一层的节点数量都是固定的，我直接用一个连续的数组来存放一棵完全二叉树，岂不妙哉？</strong> 由此我们便有了 <strong>二叉树的数组表示形式</strong>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">typedef</span> std::vector&lt;<span class="hljs-type">int</span>&gt; BinaryTree; <span class="hljs-comment">// .size() - 1 is the heap end (last element)</span><br><span class="hljs-comment">// for init, we should fill the [0] as temp</span><br></code></pre></td></tr></table></figure>
+
+<p>其有着如下特点：</p>
+<ul>
+<li>通过数组下标的连续访问，我们可以直接对这棵完全二叉树进行广度优先搜索</li>
+<li>我们可以一定程度上节省空间（不需要存储子树指针），且 <strong>连续内存访问对 CPU Cache 友好</strong></li>
+<li>当根节点下标设为 <code>1</code> 时，我们可以很方便地计算一个节点的亲节点（&#x3D; <code>i / 2 向下取整</code> ）与左右子树的下标（左子树 &#x3D; <code>i * 2</code> ， 右子树 &#x3D; <code>i * 2 + 1</code> ）</li>
+</ul>
+<p>由于数组操作十分方便，因此对于 <strong>二叉堆</strong> 这种树，通常会选择使用数组而非常规的链表来存放</p>
+<blockquote>
+<p>但是对于绝大部分树如红黑树等，实践中还是更惯用链表，其复杂的操作使用指针反而不方便</p>
+</blockquote>
+<h3 id="上浮-下沉-操作"><a href="#上浮-下沉-操作" class="headerlink" title="上浮 &#x2F; 下沉 操作"></a>上浮 &#x2F; 下沉 操作</h3><p>在进行插入与删除前，我们先来看二叉堆的两个经典动作：上浮与下沉</p>
+<ul>
+<li><strong>上浮</strong> （Swimming）即一个节点在树中不断向上（亲节点）移动（交换位置），直至该二叉树满足最大&#x2F;最小堆的特性</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">swim_min_heap</span><span class="hljs-params">(BinaryTree &amp;tree, <span class="hljs-type">int</span> idx)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">while</span> (idx &gt; <span class="hljs-number">1</span> &amp;&amp; tree[idx] &lt; tree[idx / <span class="hljs-number">2</span>]) &#123;<br>        <span class="hljs-comment">// swap with parent</span><br>        <span class="hljs-type">int</span> tmp = tree[idx];<br>        tree[idx] = tree[idx / <span class="hljs-number">2</span>];<br>        tree[idx / <span class="hljs-number">2</span>] = tmp;<br>        <span class="hljs-comment">// be parent</span><br>        idx = idx / <span class="hljs-number">2</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>下沉</strong> （Sinking）即一个节点在树中不断向下（左或右子树）移动（交换位置），直至该二叉树满足最大&#x2F;最小堆的特性</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">sink_min_heap</span><span class="hljs-params">(BinaryTree &amp;tree, <span class="hljs-type">int</span> heap_end, <span class="hljs-type">int</span> idx)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">while</span> (idx * <span class="hljs-number">2</span> &lt;= heap_end) &#123; <span class="hljs-comment">// we have child!</span><br>        <span class="hljs-type">int</span> target = idx * <span class="hljs-number">2</span>; <span class="hljs-comment">// left child</span><br>        <span class="hljs-comment">// right child bigger, set as target instead of left</span><br>        <span class="hljs-keyword">if</span> ((target + <span class="hljs-number">1</span>) &lt;= heap_end &amp;&amp; tree[target + <span class="hljs-number">1</span>] &lt; tree[target]) &#123;<br>            target = target + <span class="hljs-number">1</span>;<br>        &#125;<br>        <span class="hljs-comment">// no need to swap, just left</span><br>        <span class="hljs-keyword">if</span> (tree[idx] &lt;= tree[target]) &#123;<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br>        <span class="hljs-comment">// swap with child</span><br>        <span class="hljs-type">int</span> tmp = tree[idx];<br>        tree[idx] = tree[target];<br>        tree[target] = tmp;<br>        <span class="hljs-comment">// be the child</span><br>        idx = target;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="插入-删除操作"><a href="#插入-删除操作" class="headerlink" title="插入 &#x2F; 删除操作"></a>插入 &#x2F; 删除操作</h3><p>不难看出，插入与删除操作可以基于（需要依赖于）我们前面所定义的两个动作进行实现</p>
+<p><strong>插入的实现比较简单，我们可以直接将新的节点创建在堆的末尾</strong> ，之后不断进行 <strong>上浮</strong> ，直至亲节点不大于&#x2F;不小于该节点或是到顶（满足最小&#x2F;最大堆的特性）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">insert_min_heap</span><span class="hljs-params">(BinaryTree &amp;tree, <span class="hljs-type">int</span> val)</span></span><br><span class="hljs-function"></span>&#123;<br>    tree.<span class="hljs-built_in">push_back</span>(val);<br>    <span class="hljs-built_in">swim_min_heap</span>(tree, tree.<span class="hljs-built_in">size</span>() - <span class="hljs-number">1</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>对于删除而言则稍微有些复杂，首先需要说明的是二叉堆 <strong>只允许根节点被删除</strong> （也就是拿出最大&#x2F;最小节点），因此我们考虑如何在删除根节点后仍旧保持我们的树仍是一个二叉堆</p>
+<p>直接删除根节点后我们的二叉堆会变成两棵树，如果要合并两棵树未免有些复杂，很明显我们要在这个过程中尽量避免太多的复杂操作，因此我们不难想到可以 <strong>临时将一个节点调度到根节点，之后再不断下沉以他的位置</strong> —— 我们不难想到 <strong>堆末尾的节点非常适合担任这个工作，这样我们便无需调整太多节点，只需要将新的根节点不断下沉即可</strong></p>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">delete_root_min_heap</span><span class="hljs-params">(BinaryTree &amp;tree)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> heap_end = tree.<span class="hljs-built_in">size</span>() - <span class="hljs-number">1</span>;<br>    <span class="hljs-type">int</span> res = tree[<span class="hljs-number">1</span>];<br>    tree[<span class="hljs-number">1</span>] = tree[heap_end];<br>    tree.<span class="hljs-built_in">pop_back</span>();<br>    <span class="hljs-built_in">sink_min_heap</span>(tree, heap_end - <span class="hljs-number">1</span>, <span class="hljs-number">1</span>);<br>    <span class="hljs-keyword">return</span> res;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="如何用堆来进行优化？"><a href="#如何用堆来进行优化？" class="headerlink" title="如何用堆来进行优化？"></a>如何用堆来进行优化？</h3><p>现在我们已经了解了堆的性质，那么我们该如何使用堆优化查找过程呢？从前面的朴素 Dijkstra 出发，一个比较朴素的思路便是将所有的点维护到一个最小堆当中，每次取出最小的点，遍历其所有的边之后更新目标节点的最小距离</p>
+<p>不难发现实际上我们并不需要在一开始就将所有的点都加入到这个最小堆当中（因为除起始点外所有的点的初始距离都被初始化为无限大，这会多出很多无效比较操作），由于一个点的距离在被更新之后才会变为非最大值——<strong>此时这个节点的值对我们才是有意义的</strong> ，因此我们可以：</p>
+<ul>
+<li><strong>在初始时仅将起始点加入到最小堆中，之后每次循环遍历根节点所能达到的边，若进行了松弛操作则将目标点加入最小堆，直到最小堆中无节点为止</strong></li>
+</ul>
+<p>有一个需要注意的地方是我们要比较的是到目标节点的距离，但是交换的是节点编号，因此最小堆的成员值我们应当设为一个 <code>pair</code> ：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">typedef</span> std::vector&lt;std::pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt;&gt; BinaryTree; <span class="hljs-comment">// node, dist</span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">dijkstra</span><span class="hljs-params">(Graph &amp;g, <span class="hljs-type">int</span> node_nr; <span class="hljs-type">int</span> start, <span class="hljs-type">int</span> end)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-function">std::vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">dist</span><span class="hljs-params">(node_nr, INT_MAX)</span></span>;<br>    <span class="hljs-function">std::vector&lt;<span class="hljs-type">bool</span>&gt; <span class="hljs-title">visited</span><span class="hljs-params">(node_nr, <span class="hljs-literal">false</span>)</span></span>;<br>    <span class="hljs-function">BinaryTree <span class="hljs-title">min_heap</span><span class="hljs-params">(<span class="hljs-number">1</span>, &#123;<span class="hljs-number">114514</span>, <span class="hljs-number">1919810</span>&#125;)</span></span>; <span class="hljs-comment">// useless idx 0</span><br>    <br>    dist[start] = <span class="hljs-number">0</span>;<br>    <span class="hljs-built_in">insert_min_heap</span>(min_heap, &#123;start, dist[start]&#125;);<br>    <span class="hljs-keyword">while</span> (min_heap.<span class="hljs-built_in">size</span>() != <span class="hljs-number">1</span>) &#123;<br>        <span class="hljs-type">int</span> curr = min_heap[<span class="hljs-number">1</span>].first;<br>        <span class="hljs-built_in">delete_root_min_heap</span>(min_heap);<br>        <br>        <span class="hljs-keyword">if</span> (visited[curr]) &#123;<br>            <span class="hljs-keyword">continue</span>;<br>        &#125;<br>        <br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; g[curr].<span class="hljs-built_in">size</span>(); i++) &#123;<br>            <span class="hljs-type">int</span> next = g[curr][i].first;<br>            <span class="hljs-type">int</span> new_dist = g[curr][i].second + dist[curr];<br>            <span class="hljs-keyword">if</span> ((!visited[next]) &amp;&amp; (new_dist &lt; dist[next])) &#123;<br>                dist[next] = new_dist;<br>                <span class="hljs-built_in">insert_min_heap</span>(min_heap, &#123;next, dist[next]&#125;);<br>            &#125;<br>        &#125;<br>    &#125;<br>    <br>    <span class="hljs-keyword">return</span> dist[end];<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="Tricks：直接使用-std-priority-queue"><a href="#Tricks：直接使用-std-priority-queue" class="headerlink" title="Tricks：直接使用 std::priority_queue"></a>Tricks：直接使用 std::priority_queue</h3><p>我们注意到如果在 OI 赛场上每次都要手写这种复杂数据结构，未免太过于耗时，因此 C++ 非常贴心地为我们提供了 <code>std::priority_queue&lt;T&gt;</code> 这一数据结构，其内部实现便是二叉堆：）</p>
+<h2 id="例题：洛谷-U405825-【模板】堆优化-Dijkstra"><a href="#例题：洛谷-U405825-【模板】堆优化-Dijkstra" class="headerlink" title="例题：洛谷 - U405825 【模板】堆优化 Dijkstra"></a>例题：洛谷 - U405825 【模板】堆优化 Dijkstra</h2><p>简而言之，这是一道数据经过特殊构造的 Dijkstra 模板题，题目描述就是朴素 Dijkstra 这里就不搬上来了，我们首先看看如果直接写朴素 Disjktra 会是什么样子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;algorithm&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utility&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;queue&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;climits&gt;</span></span><br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-keyword">typedef</span> pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; EdgeOut;<br><span class="hljs-keyword">typedef</span> vector&lt;vector&lt;EdgeOut&gt;&gt; Graph;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">dijkstra</span><span class="hljs-params">(Graph &amp;g, <span class="hljs-type">int</span> n, <span class="hljs-type">int</span> start, <span class="hljs-type">int</span> end)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-function">vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">dist</span><span class="hljs-params">(n + <span class="hljs-number">1</span>, INT_MAX)</span></span>;<br>    <span class="hljs-function">vector&lt;<span class="hljs-type">bool</span>&gt; <span class="hljs-title">visited</span><span class="hljs-params">(n + <span class="hljs-number">1</span>, <span class="hljs-literal">false</span>)</span></span>;<br>    <br>    dist[start] = <span class="hljs-number">0</span>;<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; n; i++) &#123;<br>        <span class="hljs-type">int</span> curr = INT_MIN, min_dist = INT_MAX;<br><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">1</span>; j &lt;= n; j++) &#123;<br>            <span class="hljs-keyword">if</span> ((!visited[j]) &amp;&amp; (dist[j] &lt; min_dist)) &#123;<br>                min_dist = dist[j];<br>                curr = j;<br>            &#125;<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (curr == INT_MIN) &#123;<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br><br>        visited[curr] = <span class="hljs-literal">true</span>;<br><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; g[curr].<span class="hljs-built_in">size</span>(); j++) &#123;<br>            <span class="hljs-type">int</span> next = g[curr][j].first;<br>            <span class="hljs-type">int</span> new_dist = g[curr][j].second + min_dist;<br>            <span class="hljs-keyword">if</span> ((!visited[next]) &amp;&amp; (dist[next] &gt; new_dist)) &#123;<br>                dist[next] = new_dist;<br>            &#125;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> dist[end];<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv, <span class="hljs-type">char</span> **envp)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> n, m, x, y;<br><br>    ios::<span class="hljs-built_in">sync_with_stdio</span>(<span class="hljs-literal">false</span>);<br>    cin.<span class="hljs-built_in">tie</span>(<span class="hljs-literal">nullptr</span>);<br>    cout.<span class="hljs-built_in">tie</span>(<span class="hljs-literal">nullptr</span>);<br><br>    cin &gt;&gt; n &gt;&gt; m &gt;&gt; x &gt;&gt; y;<br><br>    <span class="hljs-function">Graph <span class="hljs-title">g</span><span class="hljs-params">(n + <span class="hljs-number">1</span>)</span></span>;<br>    <br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; m; i++) &#123;<br>        <span class="hljs-type">int</span> u, v, c;<br>        cin &gt;&gt; u &gt;&gt; v &gt;&gt; c;<br>        g[u].<span class="hljs-built_in">push_back</span>(&#123;v, c&#125;);<br>        g[v].<span class="hljs-built_in">push_back</span>(&#123;u, c&#125;);<br>    &#125;<br><br>    cout &lt;&lt; <span class="hljs-built_in">dijkstra</span>(g, n, x, y) &lt;&lt; endl;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>简单提交一下，不难看出我们直接 TLE：</p>
+<p><img src="https://files.seeusercontent.com/2026/02/17/Wwn8/pasted-image-1771358587271.webp" srcset="/img/loading.gif" lazyload></p>
+<p>因此我们需要使用堆优化来改善我们 Dijkstra 算法过程中最小节点的查找时间，将代码修改如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;algorithm&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utility&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;queue&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;climits&gt;</span></span><br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-keyword">typedef</span> pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; EdgeOut;<br><span class="hljs-keyword">typedef</span> vector&lt;vector&lt;EdgeOut&gt;&gt; Graph;<br><span class="hljs-keyword">typedef</span> vector&lt;pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">long</span> <span class="hljs-type">long</span>&gt;&gt; BinaryTree; <span class="hljs-comment">// node, dist</span><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">swim_min_heap</span><span class="hljs-params">(BinaryTree &amp;tree, <span class="hljs-type">int</span> idx)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">while</span> (idx &gt; <span class="hljs-number">1</span> &amp;&amp; tree[idx].second &lt; tree[idx / <span class="hljs-number">2</span>].second) &#123;<br>        pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">long</span> <span class="hljs-type">long</span>&gt; temp = tree[idx];<br>        tree[idx] = tree[idx / <span class="hljs-number">2</span>];<br>        tree[idx / <span class="hljs-number">2</span>] = temp;<br>        idx /= <span class="hljs-number">2</span>;<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">insert_min_heap</span><span class="hljs-params">(BinaryTree &amp;tree, pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">long</span> <span class="hljs-type">long</span>&gt; new_node)</span></span><br><span class="hljs-function"></span>&#123;<br>    tree.<span class="hljs-built_in">push_back</span>(new_node);<br>    <span class="hljs-built_in">swim_min_heap</span>(tree, tree.<span class="hljs-built_in">size</span>() - <span class="hljs-number">1</span>);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">sink_min_heap</span><span class="hljs-params">(BinaryTree &amp;tree)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> idx = <span class="hljs-number">1</span>, heap_end = tree.<span class="hljs-built_in">size</span>() - <span class="hljs-number">1</span>;<br>    <span class="hljs-keyword">while</span> (idx * <span class="hljs-number">2</span> &lt;= heap_end) &#123;<br>        <span class="hljs-type">int</span> target = idx * <span class="hljs-number">2</span>;<br><br>        <span class="hljs-keyword">if</span> (((target + <span class="hljs-number">1</span>) &lt;= heap_end) &amp;&amp; tree[target + <span class="hljs-number">1</span>].second &lt; tree[target].second) &#123;<br>            target = target + <span class="hljs-number">1</span>;<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (tree[idx].second &lt;= tree[target].second) &#123;<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br><br>        pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">long</span> <span class="hljs-type">long</span>&gt; tmp = tree[idx];<br>        tree[idx] = tree[target];<br>        tree[target] = tmp;<br>        idx = target;<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">delete_root_min_heap</span><span class="hljs-params">(BinaryTree &amp;tree)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> heap_end = tree.<span class="hljs-built_in">size</span>() - <span class="hljs-number">1</span>;<br>    tree[<span class="hljs-number">1</span>] = tree[heap_end];<br>    tree.<span class="hljs-built_in">pop_back</span>();<br>    <span class="hljs-built_in">sink_min_heap</span>(tree);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">long</span> <span class="hljs-type">long</span> <span class="hljs-title">dijkstra</span><span class="hljs-params">(Graph &amp;g, <span class="hljs-type">int</span> n, <span class="hljs-type">int</span> start, <span class="hljs-type">int</span> end)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-function">vector&lt;<span class="hljs-type">long</span> <span class="hljs-type">long</span>&gt; <span class="hljs-title">dist</span><span class="hljs-params">(n + <span class="hljs-number">1</span>, LLONG_MAX)</span></span>;<br>    <span class="hljs-function">vector&lt;<span class="hljs-type">bool</span>&gt; <span class="hljs-title">visited</span><span class="hljs-params">(n + <span class="hljs-number">1</span>, <span class="hljs-literal">false</span>)</span></span>;<br>    <span class="hljs-function">BinaryTree <span class="hljs-title">tree</span><span class="hljs-params">(<span class="hljs-number">1</span>, &#123;<span class="hljs-number">1</span>, <span class="hljs-number">114514</span>&#125;)</span></span>;<br>    <br>    dist[start] = <span class="hljs-number">0</span>;<br>    <span class="hljs-built_in">insert_min_heap</span>(tree, &#123;start, dist[start]&#125;);<br><br>    <span class="hljs-keyword">while</span> (tree.<span class="hljs-built_in">size</span>() != <span class="hljs-number">1</span>) &#123;<br>        <span class="hljs-type">int</span> curr = tree[<span class="hljs-number">1</span>].first;<br>        <span class="hljs-built_in">delete_root_min_heap</span>(tree);<br><br>        <span class="hljs-keyword">if</span> (visited[curr]) &#123;<br>            <span class="hljs-keyword">continue</span>;<br>        &#125;<br><br>        visited[curr] = <span class="hljs-literal">true</span>;<br><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; g[curr].<span class="hljs-built_in">size</span>(); j++) &#123;<br>            <span class="hljs-type">int</span> next = g[curr][j].first;<br>            <span class="hljs-type">long</span> <span class="hljs-type">long</span> new_dist = g[curr][j].second + dist[curr];<br>            <span class="hljs-keyword">if</span> ((!visited[next]) &amp;&amp; (dist[next] &gt; new_dist)) &#123;<br>                dist[next] = new_dist;<br>                <span class="hljs-built_in">insert_min_heap</span>(tree, &#123;next, dist[next]&#125;);<br>            &#125;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> dist[end];<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv, <span class="hljs-type">char</span> **envp)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> n, m, x, y;<br><br>    ios::<span class="hljs-built_in">sync_with_stdio</span>(<span class="hljs-literal">false</span>);<br>    cin.<span class="hljs-built_in">tie</span>(<span class="hljs-literal">nullptr</span>);<br>    cout.<span class="hljs-built_in">tie</span>(<span class="hljs-literal">nullptr</span>);<br><br>    cin &gt;&gt; n &gt;&gt; m &gt;&gt; x &gt;&gt; y;<br><br>    <span class="hljs-function">Graph <span class="hljs-title">g</span><span class="hljs-params">(n + <span class="hljs-number">1</span>)</span></span>;<br>    <br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; m; i++) &#123;<br>        <span class="hljs-type">int</span> u, v, c;<br>        cin &gt;&gt; u &gt;&gt; v &gt;&gt; c;<br>        g[u].<span class="hljs-built_in">push_back</span>(&#123;v, c&#125;);<br>        g[v].<span class="hljs-built_in">push_back</span>(&#123;u, c&#125;);<br>    &#125;<br><br>    cout &lt;&lt; <span class="hljs-built_in">dijkstra</span>(g, n, x, y) &lt;&lt; endl;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>这个时候我们会发现大部分节点都过了， <strong>但是还有一个节点 TLE</strong> ：</p>
+<p><img src="https://files.seeusercontent.com/2026/02/17/f0gN/pasted-image-1771361635128.webp" srcset="/img/loading.gif" lazyload></p>
+<p>如何破局？让我们重新思考我们手写的这个最小堆，我们会发现一些可以优化的点：</p>
+<ul>
+<li>在 Dijkstra 中， <strong>当某个点被作为最小距离 Pop 时，其最短路便已经被确定</strong> ，但我们目前的朴素写法仍会在 end 被 Pop 后继续遍历后续的点，这部分操作是无效的</li>
+<li>部分节点可能会 <strong>重复入堆</strong> （虽然对于重复的点，我们只会使用最小值，这保证了答案的正确性，但是仍然给我们带来不少重复的堆上操作）</li>
+</ul>
+<p>现在让我们优化一下这两个点：</p>
+<ul>
+<li>我们可以在出堆的节点为目标节点时便结束循环，以减少无效距离计算</li>
+<li>在入堆时检查堆中是否已有该节点，若有则直接修改其值，并进行上浮，我们可以使用一个额外的数组维护每个节点的索引</li>
+</ul>
+<p>修改后的代码如下（两个点都要改！否则还是会有可能 TLE）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;algorithm&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utility&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;queue&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;climits&gt;</span></span><br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-keyword">typedef</span> pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; EdgeOut;<br><span class="hljs-keyword">typedef</span> vector&lt;vector&lt;EdgeOut&gt;&gt; Graph;<br><span class="hljs-keyword">typedef</span> vector&lt;pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">long</span> <span class="hljs-type">long</span>&gt;&gt; BinaryTree; <span class="hljs-comment">// node, dist</span><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">swim_min_heap</span><span class="hljs-params">(BinaryTree &amp;tree, vector&lt;<span class="hljs-type">int</span>&gt; &amp;idxs, <span class="hljs-type">int</span> idx)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">while</span> (idx &gt; <span class="hljs-number">1</span> &amp;&amp; tree[idx].second &lt; tree[idx / <span class="hljs-number">2</span>].second) &#123;<br>        pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">long</span> <span class="hljs-type">long</span>&gt; temp = tree[idx];<br>        <span class="hljs-type">int</span> tidx = idxs[tree[idx].first];<br>        <br>        tree[idx] = tree[idx / <span class="hljs-number">2</span>];<br>        tree[idx / <span class="hljs-number">2</span>] = temp;<br><br>        idxs[tree[idx].first] = idx;<br>        idxs[tree[idx / <span class="hljs-number">2</span>].first] = idx / <span class="hljs-number">2</span>;<br>        <br>        idx /= <span class="hljs-number">2</span>;<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">insert_min_heap</span><span class="hljs-params">(BinaryTree &amp;tree, vector&lt;<span class="hljs-type">int</span>&gt; &amp;idxs, pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">long</span> <span class="hljs-type">long</span>&gt; new_node)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> target;<br>    <span class="hljs-keyword">if</span> (idxs[new_node.first] != <span class="hljs-number">-1</span>) &#123;<br>        target = idxs[new_node.first];<br>        tree[target].second = new_node.second;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        target = tree.<span class="hljs-built_in">size</span>();<br>        idxs[new_node.first] = target;<br>        tree.<span class="hljs-built_in">push_back</span>(new_node);<br>    &#125;<br>    <span class="hljs-built_in">swim_min_heap</span>(tree, idxs, target);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">sink_min_heap</span><span class="hljs-params">(BinaryTree &amp;tree, vector&lt;<span class="hljs-type">int</span>&gt; &amp;idxs)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> idx = <span class="hljs-number">1</span>, heap_end = tree.<span class="hljs-built_in">size</span>() - <span class="hljs-number">1</span>;<br>    <span class="hljs-keyword">while</span> (idx * <span class="hljs-number">2</span> &lt;= heap_end) &#123;<br>        <span class="hljs-type">int</span> target = idx * <span class="hljs-number">2</span>;<br><br>        <span class="hljs-keyword">if</span> (((target + <span class="hljs-number">1</span>) &lt;= heap_end) &amp;&amp; tree[target + <span class="hljs-number">1</span>].second &lt; tree[target].second) &#123;<br>            target = target + <span class="hljs-number">1</span>;<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (tree[idx].second &lt;= tree[target].second) &#123;<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br><br>        pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">long</span> <span class="hljs-type">long</span>&gt; tmp = tree[idx];<br>        <span class="hljs-type">int</span> tidx = idxs[idx];<br><br>        tree[idx] = tree[target];<br>        tree[target] = tmp;<br><br>        idxs[tree[idx].first] = idx;<br>        idxs[tree[target].first] = target;<br><br>        idx = target;<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">delete_root_min_heap</span><span class="hljs-params">(BinaryTree &amp;tree, vector&lt;<span class="hljs-type">int</span>&gt; &amp;idxs)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> heap_end = tree.<span class="hljs-built_in">size</span>() - <span class="hljs-number">1</span>;<br>    idxs[tree[<span class="hljs-number">1</span>].first] = <span class="hljs-number">-1</span>;<br>    tree[<span class="hljs-number">1</span>] = tree[heap_end];<br>    idxs[tree[<span class="hljs-number">1</span>].first] = <span class="hljs-number">1</span>;<br>    tree.<span class="hljs-built_in">pop_back</span>();<br>    <span class="hljs-built_in">sink_min_heap</span>(tree, idxs);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">long</span> <span class="hljs-type">long</span> <span class="hljs-title">dijkstra</span><span class="hljs-params">(Graph &amp;g, <span class="hljs-type">int</span> n, <span class="hljs-type">int</span> start, <span class="hljs-type">int</span> end)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-function">vector&lt;<span class="hljs-type">long</span> <span class="hljs-type">long</span>&gt; <span class="hljs-title">dist</span><span class="hljs-params">(n + <span class="hljs-number">1</span>, LLONG_MAX)</span></span>;<br>    <span class="hljs-function">vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">idxs</span><span class="hljs-params">(n + <span class="hljs-number">1</span>, <span class="hljs-number">-1</span>)</span></span>;<br>    <span class="hljs-function">vector&lt;<span class="hljs-type">bool</span>&gt; <span class="hljs-title">visited</span><span class="hljs-params">(n + <span class="hljs-number">1</span>, <span class="hljs-literal">false</span>)</span></span>;<br>    <span class="hljs-function">BinaryTree <span class="hljs-title">tree</span><span class="hljs-params">(<span class="hljs-number">1</span>, &#123;<span class="hljs-number">1</span>, <span class="hljs-number">114514</span>&#125;)</span></span>;<br>    <br>    dist[start] = <span class="hljs-number">0</span>;<br>    <span class="hljs-built_in">insert_min_heap</span>(tree, idxs, &#123;start, dist[start]&#125;);<br><br>    <span class="hljs-keyword">while</span> (tree.<span class="hljs-built_in">size</span>() != <span class="hljs-number">1</span>) &#123;<br>        <span class="hljs-type">int</span> curr = tree[<span class="hljs-number">1</span>].first;<br>        <span class="hljs-type">long</span> <span class="hljs-type">long</span> curr_dist = tree[<span class="hljs-number">1</span>].second;<br>        <span class="hljs-built_in">delete_root_min_heap</span>(tree, idxs);<br><br>        <span class="hljs-keyword">if</span> (curr == end) &#123;<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (visited[curr]) &#123;<br>            <span class="hljs-keyword">continue</span>;<br>        &#125;<br><br>        visited[curr] = <span class="hljs-literal">true</span>;<br><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; g[curr].<span class="hljs-built_in">size</span>(); j++) &#123;<br>            <span class="hljs-type">int</span> next = g[curr][j].first;<br>            <span class="hljs-type">long</span> <span class="hljs-type">long</span> new_dist = g[curr][j].second + dist[curr];<br>            <span class="hljs-keyword">if</span> ((!visited[next]) &amp;&amp; (dist[next] &gt; new_dist)) &#123;<br>                dist[next] = new_dist;<br>                <span class="hljs-built_in">insert_min_heap</span>(tree, idxs, &#123;next, dist[next]&#125;);<br>            &#125;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> dist[end];<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv, <span class="hljs-type">char</span> **envp)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> n, m, x, y;<br><br>    ios::<span class="hljs-built_in">sync_with_stdio</span>(<span class="hljs-literal">false</span>);<br>    cin.<span class="hljs-built_in">tie</span>(<span class="hljs-literal">nullptr</span>);<br>    cout.<span class="hljs-built_in">tie</span>(<span class="hljs-literal">nullptr</span>);<br><br>    cin &gt;&gt; n &gt;&gt; m &gt;&gt; x &gt;&gt; y;<br><br>    <span class="hljs-function">Graph <span class="hljs-title">g</span><span class="hljs-params">(n + <span class="hljs-number">1</span>)</span></span>;<br>    <br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; m; i++) &#123;<br>        <span class="hljs-type">int</span> u, v, c;<br>        cin &gt;&gt; u &gt;&gt; v &gt;&gt; c;<br>        g[u].<span class="hljs-built_in">push_back</span>(&#123;v, c&#125;);<br>        g[v].<span class="hljs-built_in">push_back</span>(&#123;u, c&#125;);<br>    &#125;<br><br>    cout &lt;&lt; <span class="hljs-built_in">dijkstra</span>(g, n, x, y) &lt;&lt; endl;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>成功 AC：</p>
+<p><img src="https://files.seeusercontent.com/2026/02/17/fk9D/pasted-image-1771363594825.webp" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>这里其实也可以直接使用 STL 的 <code>priority_queue</code> ，而不是像我们现在这样费劲地手写最小堆，例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;algorithm&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utility&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;queue&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;climits&gt;</span></span><br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-keyword">typedef</span> pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; EdgeOut;<br><span class="hljs-keyword">typedef</span> vector&lt;vector&lt;EdgeOut&gt;&gt; Graph;<br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">compare</span> &#123;<br>    <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">operator</span><span class="hljs-params">()</span><span class="hljs-params">(pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">long</span> <span class="hljs-type">long</span>&gt; a, pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">long</span> <span class="hljs-type">long</span>&gt; b)</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> a.second &gt; b.second;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">long</span> <span class="hljs-type">long</span> <span class="hljs-title">dijkstra</span><span class="hljs-params">(Graph &amp;g, <span class="hljs-type">int</span> n, <span class="hljs-type">int</span> start, <span class="hljs-type">int</span> end)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-function">vector&lt;<span class="hljs-type">long</span> <span class="hljs-type">long</span>&gt; <span class="hljs-title">dist</span><span class="hljs-params">(n + <span class="hljs-number">1</span>, LLONG_MAX)</span></span>;<br>    <span class="hljs-function">vector&lt;<span class="hljs-type">bool</span>&gt; <span class="hljs-title">visited</span><span class="hljs-params">(n + <span class="hljs-number">1</span>, <span class="hljs-literal">false</span>)</span></span>;<br>    priority_queue&lt;pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">long</span> <span class="hljs-type">long</span>&gt;, vector&lt;pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">long</span> <span class="hljs-type">long</span>&gt;&gt;, compare&gt; min_heap;<br>    <br>    dist[start] = <span class="hljs-number">0</span>;<br>    min_heap.<span class="hljs-built_in">push</span>(&#123;start, dist[start]&#125;);<br><br>    <span class="hljs-keyword">while</span> (!min_heap.<span class="hljs-built_in">empty</span>()) &#123;<br>        <span class="hljs-type">int</span> curr = min_heap.<span class="hljs-built_in">top</span>().first;<br>        min_heap.<span class="hljs-built_in">pop</span>();<br><br>        <span class="hljs-keyword">if</span> (curr == end) &#123;<br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (visited[curr]) &#123;<br>            <span class="hljs-keyword">continue</span>;<br>        &#125;<br><br>        visited[curr] = <span class="hljs-literal">true</span>;<br><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; g[curr].<span class="hljs-built_in">size</span>(); j++) &#123;<br>            <span class="hljs-type">int</span> next = g[curr][j].first;<br>            <span class="hljs-type">long</span> <span class="hljs-type">long</span> new_dist = g[curr][j].second + dist[curr];<br>            <span class="hljs-keyword">if</span> ((!visited[next]) &amp;&amp; (dist[next] &gt; new_dist)) &#123;<br>                dist[next] = new_dist;<br>                min_heap.<span class="hljs-built_in">push</span>(&#123;next, dist[next]&#125;);<br>            &#125;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> dist[end];<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv, <span class="hljs-type">char</span> **envp)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> n, m, x, y;<br><br>    ios::<span class="hljs-built_in">sync_with_stdio</span>(<span class="hljs-literal">false</span>);<br>    cin.<span class="hljs-built_in">tie</span>(<span class="hljs-literal">nullptr</span>);<br>    cout.<span class="hljs-built_in">tie</span>(<span class="hljs-literal">nullptr</span>);<br><br>    cin &gt;&gt; n &gt;&gt; m &gt;&gt; x &gt;&gt; y;<br><br>    <span class="hljs-function">Graph <span class="hljs-title">g</span><span class="hljs-params">(n + <span class="hljs-number">1</span>)</span></span>;<br>    <br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; m; i++) &#123;<br>        <span class="hljs-type">int</span> u, v, c;<br>        cin &gt;&gt; u &gt;&gt; v &gt;&gt; c;<br>        g[u].<span class="hljs-built_in">push_back</span>(&#123;v, c&#125;);<br>        g[v].<span class="hljs-built_in">push_back</span>(&#123;u, c&#125;);<br>    &#125;<br><br>    cout &lt;&lt; <span class="hljs-built_in">dijkstra</span>(g, n, x, y) &lt;&lt; endl;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>也可以 AC，而且还比我们费力手写的更快（悲）：</p>
+<p><img src="https://files.seeusercontent.com/2026/02/17/Oql8/pasted-image-1771364040182.webp" srcset="/img/loading.gif" lazyload></p>
+</blockquote>
+<h1 id="0xFF-更多相关题目"><a href="#0xFF-更多相关题目" class="headerlink" title="0xFF. 更多相关题目"></a>0xFF. 更多相关题目</h1><p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/path-with-maximum-probability/">Leetcode - 1514. 概率最大的路径</a></p>
+<p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/minimum-cost-path-with-edge-reversals/">Leetcode - 3650. 边反转的最小路径总成本</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.luogu.com.cn/problem/P1144">洛谷 P1144 最短路计数</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/ALGORITHM/" class="category-chain-item">ALGORITHM</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C-C/">#C&C++</a>
+      
+        <a href="/tags/Algorithm/">#Algorithm</a>
+      
+        <a href="/tags/Dijkstra/">#Dijkstra</a>
+      
+        <a href="/tags/Graph-Theory/">#Graph Theory</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【ALGORITHM.0x02】Dijkstra 算法浅析</div>
+      <div>http://example.com/2020/04/23/ALGORITHM-0X02-DIJKSTRA/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年4月23日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/09/08/CTF-0X00-BUUOJ-PWN/" title="【CTF.0x00】BUUCTF/BUUOJ-Pwn WP">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【CTF.0x00】BUUCTF/BUUOJ-Pwn WP</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/04/21/ALGORITHM-0X01-DYNAMIC_PROGRAMMING/" title="【ALGORITHM.0x01】动态规划算法浅析">
+                        <span class="hidden-mobile">【ALGORITHM.0x01】动态规划算法浅析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      桂ICP备2022005068号-1
+    </a>
+  </span>
+  
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
