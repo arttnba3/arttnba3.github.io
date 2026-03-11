@@ -1,0 +1,897 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/avatar.png">
+  <link rel="icon" href="/img/avatar.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="arttnba3">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00.绪论Kruskal 算法与 Prim 算法 是较为常用的用来 查找最小生成树 的算法，刚好今天上离散数学课的时候讲到了最小生成树，所以作为一名蒟蒻前·OIer 咱今天也来简单讲讲 重新复习 这都是些个什么东西 XD （又想起了当年高中图论学不好赛场上被暴打的惨痛经历…） 0x01 生成树&amp;最小生成树在正式讲解这两个算法之前我们先来看看什么是 生成树 和 最小生成树，众所周知我">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【ALGORITHM.0x03】求最小生成树：Kruskal与Prim算法浅析">
+<meta property="og:url" content="http://example.com/2020/04/23/ALGORITHM-0X03-KRUSKAL_PRIM/index.html">
+<meta property="og:site_name" content="arttnba3&#39;s blog">
+<meta property="og:description" content="0x00.绪论Kruskal 算法与 Prim 算法 是较为常用的用来 查找最小生成树 的算法，刚好今天上离散数学课的时候讲到了最小生成树，所以作为一名蒟蒻前·OIer 咱今天也来简单讲讲 重新复习 这都是些个什么东西 XD （又想起了当年高中图论学不好赛场上被暴打的惨痛经历…） 0x01 生成树&amp;最小生成树在正式讲解这两个算法之前我们先来看看什么是 生成树 和 最小生成树，众所周知我">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://files.seeusercontent.com/2026/02/18/rl3C/pasted-image-1771402154823.webp">
+<meta property="article:published_time" content="2020-04-23T13:49:22.000Z">
+<meta property="article:modified_time" content="2026-02-22T12:02:05.000Z">
+<meta property="article:author" content="arttnba3">
+<meta property="article:tag" content="C&amp;C++">
+<meta property="article:tag" content="Algorithm">
+<meta property="article:tag" content="Graph Theory">
+<meta property="article:tag" content="Kruskal Algorithm">
+<meta property="article:tag" content="Spanning Tree">
+<meta property="article:tag" content="Minimum Spanning Tree">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://files.seeusercontent.com/2026/02/18/rl3C/pasted-image-1771402154823.webp">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>【ALGORITHM.0x03】求最小生成树：Kruskal与Prim算法浅析 - arttnba3&#39;s blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.2","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 80vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>arttnba3&#39;s blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                友链
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" target="_blank" rel="noopener" href="https://github.com/arttnba3">
+                <i class="iconfont icon-github-fill"></i>
+                GitHub
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/atom.xml">
+                <i class="iconfont icon-rss"></i>
+                rss
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('https://files.seeusercontent.com/2026/02/18/6iwM/pasted-image-1771401731692.webp') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="【ALGORITHM.0x03】求最小生成树：Kruskal与Prim算法浅析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-04-23 23:49" pubdate>
+          2020年4月23日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          12k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          97 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+        <div class="scroll-down-bar">
+          <i class="iconfont icon-arrowdown"></i>
+        </div>
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">【ALGORITHM.0x03】求最小生成树：Kruskal与Prim算法浅析</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2026年2月22日 晚上
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h1 id="0x00-绪论"><a href="#0x00-绪论" class="headerlink" title="0x00.绪论"></a>0x00.绪论</h1><p><strong>Kruskal 算法与 Prim 算法</strong> 是较为常用的用来 <strong>查找最小生成树</strong> 的算法，刚好今天上离散数学课的时候讲到了最小生成树，所以作为一名蒟蒻前·OIer 咱今天也来简单讲讲 <del>重新复习</del> 这都是些个什么东西 XD （又想起了当年高中图论学不好赛场上被暴打的惨痛经历…）</p>
+<h1 id="0x01-生成树-最小生成树"><a href="#0x01-生成树-最小生成树" class="headerlink" title="0x01 生成树&amp;最小生成树"></a>0x01 生成树&amp;最小生成树</h1><p>在正式讲解这两个算法之前我们先来看看什么是 生成树 和 最小生成树，众所周知我们一张 <strong>连通的无向图</strong> 一般有很多条边连着很多个顶点，从任意一点出发都有路径达到另一个点， <strong>生成树</strong> （Spanning Tree）即为 <strong>具有该连通无向图所有顶点的树形连通子图</strong> ，一棵生成树必须满足如下特性：</p>
+<ul>
+<li>是树（即不存在环）</li>
+<li>包含原图的所有顶点</li>
+<li>边的数量为 <code>顶点数 - 1</code></li>
+</ul>
+<p>由此我们不难得到以下扩展结论：</p>
+<ul>
+<li>一张连通的无向图可以有多个生成树，但是他们的顶点与边的数量都固定相同</li>
+<li>移除任意一条边都会破坏生成树的连通性</li>
+<li>在生成树中添加一条边会形成环</li>
+</ul>
+<p><img src="https://files.seeusercontent.com/2026/02/18/6iwM/pasted-image-1771401731692.webp" srcset="/img/loading.gif" lazyload></p>
+<p>而 <strong>最小生成树</strong> （Minimum Spanning Tree）针对的便是 <strong>边带有权值</strong> 的情况：当一棵生成树有着最小的权值和时，我们便称之为最小生成树，类似地我们有如下特性：</p>
+<ul>
+<li>一张连通图中可能有多个最小生成树（在所有边权值相等的极端情况下，该图的所有生成树都是最小生成树）</li>
+<li>如果图中每一条边的权值都互不相同，则 <strong>最小生成树唯一</strong></li>
+</ul>
+<p><img src="https://files.seeusercontent.com/2026/02/18/rl3C/pasted-image-1771402154823.webp" srcset="/img/loading.gif" lazyload></p>
+<p>最小生成树有很多可以应用的地方，例如电网的路径规划等</p>
+<blockquote>
+<p>图的几种表示方法我们已经在 <a target="_blank" rel="noopener" href="https://arttnba3.cn/2020/04/23/ALGORITHM-0X02-DIJKSTRA/">【ALGORITHM.0x02】Dijkstra 算法浅析 </a> 当中进行叙述，这里不再赘述</p>
+</blockquote>
+<h1 id="0x02-Kruskal-算法"><a href="#0x02-Kruskal-算法" class="headerlink" title="0x02. Kruskal 算法"></a>0x02. Kruskal 算法</h1><p>既然最小生成树在现实生活中是非常有用的（？），因此我们自然需要想办法求解一张图当中的最小生成树，一个比较常用的算法是由美国数学家 Joseph Bernard Kruskal 在 1956 年发表的 Kruskal 算法，该算法以 <strong>边</strong> 为核心 使用 <strong>贪心策略</strong> 进行最小生成树的产生，具体而言：</p>
+<ul>
+<li>首先创建一份与原图相同的无边副本（拷贝原图点集）</li>
+<li>将原图中的所有边的权值从小到大排序</li>
+<li>从最小边开始进行遍历，若该边的两个点不在同一连通分量中（在新图中两点尚不连通），则添加该边到新图中</li>
+<li>重复遍历过程，直到选够 <code>n - 1</code> 条边</li>
+</ul>
+<p>在算法的中间过程中，可能会创建很多不连通的子连通分量，之后这些子连通分量再进行连接，因此需要注意的是 ， <strong>如果图不连通，则 Kruskal 只能得到最小生成森林</strong> </p>
+<p>下面这张来自 Wikipedia 的 GIF 很好地演示了 Kruskal 算法的基本过程：</p>
+<p><img src="https://files.seeusercontent.com/2026/02/18/2joX/MST_kruskal_en.gif" srcset="/img/loading.gif" lazyload></p>
+<p>在实现细节上，对于连通分量的判断，我们其实很容易想到可以使用 <a target="_blank" rel="noopener" href="https://arttnba3.cn/2019/09/20/ALGORITHM-0X00-DISJOINT_SET/">并查集</a> 进行实现——将每个点初始化为独立集合，之后在不断连接的过程中合并即可</p>
+<p>以下是一个非常 <strong>朴素</strong> 的 Kruskal 的例子，我们假设输入和输出都是无向图的邻接表表示（即对于一条 u、v之间的边，我们在输入和输出的图里都存在 u-&gt;v 和 v-&gt;u 两条边）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;algorithm&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;numeric&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;tuple&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utility&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;queue&gt;</span></span><br><br><span class="hljs-keyword">typedef</span> std::tuple&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; Edge; <span class="hljs-comment">// start, end, weight</span><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">EdgeCmp</span> &#123;<br>    <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">operator</span><span class="hljs-params">()</span><span class="hljs-params">(Edge <span class="hljs-type">const</span>&amp; a, Edge <span class="hljs-type">const</span>&amp; b)</span> <span class="hljs-type">const</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">2</span>&gt;(a) &gt; std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">2</span>&gt;(b); <span class="hljs-comment">// min-heap</span><br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">typedef</span> std::pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; EdgeOut; <span class="hljs-comment">// end, weight</span><br><span class="hljs-keyword">typedef</span> std::vector&lt;std::vector&lt;EdgeOut&gt;&gt; Graph; <span class="hljs-comment">// adjunct list</span><br><br><span class="hljs-function">Graph <span class="hljs-title">kruskal</span><span class="hljs-params">(Graph &amp;g, <span class="hljs-type">int</span> node_nr)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-function">Graph <span class="hljs-title">res</span><span class="hljs-params">(node_nr)</span></span>;<br>    <span class="hljs-function">std::vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">rels</span><span class="hljs-params">(node_nr)</span></span>;<br>    std::priority_queue&lt;Edge, vector&lt;Edge&gt;, EdgeCmp&gt; min_heap;<br><br>    <span class="hljs-comment">/* init for disjoint set */</span><br>    std::<span class="hljs-built_in">iota</span>(rels.<span class="hljs-built_in">begin</span>(), rels.<span class="hljs-built_in">end</span>(), <span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">auto</span> find_x = [&amp;](<span class="hljs-type">int</span> x) -&gt; <span class="hljs-type">int</span> &#123;<br>        std::vector&lt;<span class="hljs-type">int</span>&gt; path;<br><br>        <span class="hljs-keyword">while</span> (rels[x] != x) &#123;<br>            path.<span class="hljs-built_in">push_back</span>(x);<br>            x = rels[x];<br>        &#125;<br>        <br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> n : path) &#123;<br>            rels[n] = x;<br>        &#125;<br>        <br>        <span class="hljs-keyword">return</span> x;<br>    &#125;;<br>    <span class="hljs-keyword">auto</span> union_set = [&amp;](<span class="hljs-type">int</span> x, <span class="hljs-type">int</span> y) -&gt; <span class="hljs-type">void</span> &#123;<br>        rels[<span class="hljs-built_in">find_x</span>(x)] = <span class="hljs-built_in">find_x</span>(y);<br>    &#125;;<br>    <br>	<span class="hljs-comment">/* sort edges by weight */</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; g.<span class="hljs-built_in">size</span>(); i++) &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; g[i].<span class="hljs-built_in">size</span>(); j++) &#123;<br>            <span class="hljs-keyword">if</span> (i &lt;  g[i][j].first) &#123;<br>                min_heap.<span class="hljs-built_in">push</span>(&#123;i, g[i][j].first, g[i][j].second&#125;);<br>            &#125;<br>            <span class="hljs-comment">// we don&#x27;t need this, in fact</span><br>            <span class="hljs-comment">//min_heap.push(&#123;g[i][j].first, i, g[i][j].second&#125;);</span><br>        &#125;<br>    &#125;<br>    <br>    <span class="hljs-comment">/* add nodes by edges until n - 1 edges */</span><br>	<span class="hljs-type">int</span> edge_added = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">while</span> (((node_nr - <span class="hljs-number">1</span>) != edge_added) &amp;&amp; (!min_heap.<span class="hljs-built_in">empty</span>())) &#123;<br>        Edge min_edge = min_heap.<span class="hljs-built_in">top</span>();<br>        min_heap.<span class="hljs-built_in">pop</span>();<br>        <br>        <span class="hljs-type">int</span> start = std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">0</span>&gt;(min_edge);<br>        <span class="hljs-type">int</span> end = std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">1</span>&gt;(min_edge);<br>        <br>        <span class="hljs-type">int</span> rs = <span class="hljs-built_in">find_x</span>(start);<br>        <span class="hljs-type">int</span> re = <span class="hljs-built_in">find_x</span>(end);<br>        <span class="hljs-keyword">if</span> (rs != re) &#123;<br>            <span class="hljs-built_in">union_set</span>(rs, re);<br>            res[start].<span class="hljs-built_in">push_back</span>(&#123;end, std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">2</span>&gt;(min_edge)&#125;);<br>            res[end].<span class="hljs-built_in">push_back</span>(&#123;start, std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">2</span>&gt;(min_edge)&#125;);<br>            edge_added++;<br>        &#125;<br>    &#125;<br>    <br>    <span class="hljs-keyword">return</span> res;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>实际上对于 Kruskal 而言，我们使用 <strong>朴素边表示</strong> 更加适合，因为邻接表更适用于有向图，而我们的 Kruskal 算法仅适用于无向图，这会导致很多额外的数据处理过程</p>
+<p>以下是一个 <strong>朴素</strong> 的使用朴素边表示的 Kruskal 算法示例，更加简洁：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;algorithm&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;numeric&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;tuple&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utility&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;queue&gt;</span></span><br><br><span class="hljs-keyword">typedef</span> std::tuple&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; Edge; <span class="hljs-comment">// node1, node2, weight</span><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">EdgeCmpAscending</span> &#123;<br>    <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">operator</span><span class="hljs-params">()</span><span class="hljs-params">(Edge <span class="hljs-type">const</span>&amp; a, Edge <span class="hljs-type">const</span>&amp; b)</span> <span class="hljs-type">const</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">2</span>&gt;(a) &lt; std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">2</span>&gt;(b);<br>    &#125;<br>&#125;;<br><span class="hljs-keyword">typedef</span> std::vector&lt;Edge&gt; Graph;<br><br><span class="hljs-function">Graph <span class="hljs-title">kruskal</span><span class="hljs-params">(Graph &amp;g_src, <span class="hljs-type">int</span> node_nr)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">/* kruskal variables */</span><br>    Graph res;<br>    <span class="hljs-type">int</span> edge_added = <span class="hljs-number">0</span>;<br>    std::vector&lt;Edge&gt; edges;<br><br>    <span class="hljs-comment">/* disjoint set */</span><br>    <span class="hljs-function">std::vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">rels</span><span class="hljs-params">(node_nr)</span></span>;<br>    std::<span class="hljs-built_in">iota</span>(rels.<span class="hljs-built_in">begin</span>(), rels.<span class="hljs-built_in">end</span>(), <span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">auto</span> find_x = [&amp;](<span class="hljs-type">int</span> x) -&gt; <span class="hljs-type">int</span> &#123;<br>        <span class="hljs-keyword">while</span> (rels[x] != x) &#123;<br>            rels[x] = rels[rels[x]];<br>            x = rels[x];<br>        &#125;<br>        <br>        <span class="hljs-keyword">return</span> x;<br>    &#125;;<br>    <span class="hljs-keyword">auto</span> unite_xy = [&amp;](<span class="hljs-type">int</span> x, <span class="hljs-type">int</span> y) -&gt; <span class="hljs-type">void</span> &#123;<br>        <span class="hljs-type">int</span> rx = <span class="hljs-built_in">find_x</span>(x);<br>        <span class="hljs-type">int</span> ry = <span class="hljs-built_in">find_x</span>(y);<br>        rels[rx] = ry;<br>    &#125;;<br>    <br>    <span class="hljs-comment">/* start kruskal */</span><br>    <span class="hljs-keyword">for</span> (Edge &amp;edge : g_src) &#123;<br>        edges.<span class="hljs-built_in">push_back</span>(edge);<br>    &#125;<br>    <br>    <span class="hljs-built_in">sort</span>(edges.<span class="hljs-built_in">begin</span>(), edges.<span class="hljs-built_in">end</span>(), EdgeCmpAscending&#123;&#125;);<br>    <br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; edges.<span class="hljs-built_in">size</span>() &amp;&amp; ((node_nr - <span class="hljs-number">1</span>) != edge_added); i++) &#123;<br>        <span class="hljs-type">const</span> Edge &amp;edge = edges[i];<br>        <span class="hljs-type">int</span> u = std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">0</span>&gt;(edge);<br>        <span class="hljs-type">int</span> v = std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">1</span>&gt;(edge);<br>        <span class="hljs-type">int</span> w = std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">2</span>&gt;(edge);<br><br>        <span class="hljs-type">int</span> ru = <span class="hljs-built_in">find_x</span>(u);<br>        <span class="hljs-type">int</span> rv = <span class="hljs-built_in">find_x</span>(v);<br>        <span class="hljs-keyword">if</span> (ru != rv) &#123;<br>            <span class="hljs-built_in">unite_xy</span>(ru, rv);<br>            res.<span class="hljs-built_in">push_back</span>(edge);<br>            edge_added++;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> res;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="例题：洛谷-P3366-【模板】最小生成树"><a href="#例题：洛谷-P3366-【模板】最小生成树" class="headerlink" title="例题：洛谷 - P3366 【模板】最小生成树"></a>例题：<a target="_blank" rel="noopener" href="https://www.luogu.com.cn/problem/P3366">洛谷 - P3366 【模板】最小生成树</a></h2><p>题目就不抄了，简而言之非常朴素的 Kruskal 算法，输入是图，要求我们在有最小生成树时输出边权值和，没有则输出 No，什么情况下会无法创建最小生成树？答案是在我们遍历完所有边之后，加入到新图的边的数量不为 <code>n-1</code> 的时候，说明我们只成功创建了最小生成森林</p>
+<p>这里我们直接把上面的 Kruskal 代码简单改改即可，这里注意点标号从 1 开始：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;algorithm&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;numeric&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;tuple&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utility&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;queue&gt;</span></span><br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-keyword">typedef</span> std::tuple&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; Edge; <span class="hljs-comment">// node1, node2, weight</span><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">EdgeCmpAscending</span> &#123;<br>    <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">operator</span><span class="hljs-params">()</span><span class="hljs-params">(Edge <span class="hljs-type">const</span>&amp; a, Edge <span class="hljs-type">const</span>&amp; b)</span> <span class="hljs-type">const</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">2</span>&gt;(a) &lt; std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">2</span>&gt;(b);<br>    &#125;<br>&#125;;<br><span class="hljs-keyword">typedef</span> std::vector&lt;Edge&gt; Graph;<br><br><span class="hljs-function"><span class="hljs-type">long</span> <span class="hljs-type">long</span> <span class="hljs-title">kruskal</span><span class="hljs-params">(Graph &amp;g_src, <span class="hljs-type">int</span> node_nr)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">/* kruskal variables */</span><br>    Graph g_res;<br>    <span class="hljs-type">long</span> <span class="hljs-type">long</span> res = <span class="hljs-number">0</span>;<br>    <span class="hljs-type">int</span> edge_added = <span class="hljs-number">0</span>;<br>    std::vector&lt;Edge&gt; edges;<br><br>    <span class="hljs-comment">/* disjoint set */</span><br>    <span class="hljs-function">std::vector&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">rels</span><span class="hljs-params">(node_nr + <span class="hljs-number">1</span>)</span></span>;<br>    std::<span class="hljs-built_in">iota</span>(rels.<span class="hljs-built_in">begin</span>(), rels.<span class="hljs-built_in">end</span>(), <span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">auto</span> find_x = [&amp;](<span class="hljs-type">int</span> x) -&gt; <span class="hljs-type">int</span> &#123;<br>        <span class="hljs-keyword">while</span> (rels[x] != x) &#123;<br>            rels[x] = rels[rels[x]];<br>            x = rels[x];<br>        &#125;<br>        <br>        <span class="hljs-keyword">return</span> x;<br>    &#125;;<br>    <span class="hljs-keyword">auto</span> unite_xy = [&amp;](<span class="hljs-type">int</span> x, <span class="hljs-type">int</span> y) -&gt; <span class="hljs-type">void</span> &#123;<br>        <span class="hljs-type">int</span> rx = <span class="hljs-built_in">find_x</span>(x);<br>        <span class="hljs-type">int</span> ry = <span class="hljs-built_in">find_x</span>(y);<br>        rels[rx] = ry;<br>    &#125;;<br>    <br>    <span class="hljs-comment">/* start kruskal */</span><br>    <span class="hljs-keyword">for</span> (Edge &amp;edge : g_src) &#123;<br>        edges.<span class="hljs-built_in">push_back</span>(edge);<br>    &#125;<br>    <br>    <span class="hljs-built_in">sort</span>(edges.<span class="hljs-built_in">begin</span>(), edges.<span class="hljs-built_in">end</span>(), EdgeCmpAscending&#123;&#125;);<br>    <br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; edges.<span class="hljs-built_in">size</span>() &amp;&amp; ((node_nr - <span class="hljs-number">1</span>) != edge_added); i++) &#123;<br>        <span class="hljs-type">const</span> Edge &amp;edge = edges[i];<br>        <span class="hljs-type">int</span> u = std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">0</span>&gt;(edge);<br>        <span class="hljs-type">int</span> v = std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">1</span>&gt;(edge);<br>        <span class="hljs-type">int</span> w = std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">2</span>&gt;(edge);<br><br>        <span class="hljs-type">int</span> ru = <span class="hljs-built_in">find_x</span>(u);<br>        <span class="hljs-type">int</span> rv = <span class="hljs-built_in">find_x</span>(v);<br>        <span class="hljs-keyword">if</span> (ru != rv) &#123;<br>            <span class="hljs-built_in">unite_xy</span>(ru, rv);<br>            g_res.<span class="hljs-built_in">push_back</span>(edge);<br>            edge_added++;<br>            res += w;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> edge_added == (node_nr - <span class="hljs-number">1</span>) ? res : <span class="hljs-number">-1</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv, <span class="hljs-type">char</span> **envp)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> m, n;<br><br>    ios::<span class="hljs-built_in">sync_with_stdio</span>(<span class="hljs-literal">false</span>);<br>    cin.<span class="hljs-built_in">tie</span>(<span class="hljs-literal">nullptr</span>);<br>    cout.<span class="hljs-built_in">tie</span>(<span class="hljs-literal">nullptr</span>);<br><br>    cin &gt;&gt; m &gt;&gt; n;<br><br>    Graph g;<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; n; i++) &#123;<br>        <span class="hljs-type">int</span> u, v, w;<br>        cin &gt;&gt; u &gt;&gt; v &gt;&gt; w;<br>        g.<span class="hljs-built_in">push_back</span>(&#123;u, v, w&#125;);<br>    &#125;<br><br>    <span class="hljs-type">long</span> <span class="hljs-type">long</span> res = <span class="hljs-built_in">kruskal</span>(g, m);<br>    <span class="hljs-keyword">if</span> (res != <span class="hljs-number">-1</span>) &#123;<br>        cout &lt;&lt; res &lt;&lt; endl;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        cout &lt;&lt; <span class="hljs-string">&quot;orz&quot;</span> &lt;&lt; endl;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>直接 AC，不过应该没什么 hack 数据， <del>这个 Kruskal 的写法也不怎么优雅</del> ：</p>
+<p><img src="https://files.seeusercontent.com/2026/02/18/g9Pl/pasted-image-1771448193994.webp" srcset="/img/loading.gif" lazyload></p>
+<h1 id="0x03-Prim-算法"><a href="#0x03-Prim-算法" class="headerlink" title="0x03. Prim 算法"></a>0x03. Prim 算法</h1><p>不同于 Kruskal 算法以边作为核心，Prim 算法建立最小生成树的方法是以 <strong>点</strong> 作为核心使用 <strong>贪心策略</strong> 进行最小生成树的产生，具体而言：</p>
+<ul>
+<li>创建空点集 <code>V</code> 与空边集 <code>E</code>，选取任一点为起始点添加到 <code>V</code> 中</li>
+<li>不断进行如下操作，直至点集 <code>V</code> 与原图点集相同：<ul>
+<li>在原图边集合中选取权值最小的边 <code>(u, v)</code> ，其中 <code>u</code> 为 <code>V</code> 中元素而 <code>v</code> 为未加入 <code>V</code> 的元素</li>
+<li>将 <code>v</code> 加入 <code>V</code> ，将 <code>(u, v)</code> 加入 <code>E</code></li>
+</ul>
+</li>
+</ul>
+<p>我们不难看出，Prim 算法基于点为核心的特性，使其适合使用邻接表来完成算法过程，以下是一个朴素的基于邻接表的 Prim 算法实现：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utility&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;climits&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;set&gt;</span></span><br><br><span class="hljs-keyword">typedef</span> std::pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt; EdgeOut;<br><span class="hljs-keyword">typedef</span> std::vector&lt;std::vector&lt;EdgeOut&gt;&gt; Graph;<br><br><span class="hljs-function">Graph <span class="hljs-title">prim</span><span class="hljs-params">(<span class="hljs-type">const</span> Graph &amp;g_src, <span class="hljs-type">int</span> node_nr)</span></span><br><span class="hljs-function"></span>&#123;<br>    std::set&lt;<span class="hljs-type">int</span>&gt; pset;<br>    <span class="hljs-function">Graph <span class="hljs-title">g_res</span><span class="hljs-params">(node_nr)</span></span>;<br><br>    <span class="hljs-type">int</span> start = <span class="hljs-number">0</span>; <span class="hljs-comment">// or any, whatever</span><br>    pset.<span class="hljs-built_in">insert</span>(start);<br>    <br>    <span class="hljs-keyword">while</span> (pset.<span class="hljs-built_in">size</span>() &lt; node_nr) &#123;<br>        <span class="hljs-type">int</span> u, v, w = INT_MAX;<br><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; g_src.<span class="hljs-built_in">size</span>(); i++) &#123;<br>            <span class="hljs-keyword">if</span> (pset.<span class="hljs-built_in">find</span>(i) == pset.<span class="hljs-built_in">end</span>()) &#123;<br>                <span class="hljs-keyword">continue</span>;<br>            &#125;<br><br>            <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; g_src[i].<span class="hljs-built_in">size</span>(); j++) &#123;<br>                <span class="hljs-keyword">if</span> (pset.<span class="hljs-built_in">find</span>(g_src[i][j].first) != pset.<span class="hljs-built_in">end</span>()) &#123;<br>                    <span class="hljs-keyword">continue</span>;<br>                &#125;<br><br>                <span class="hljs-keyword">if</span> (g_src[i][j].second &lt; w) &#123;<br>                    u = i;<br>                    v = g_src[i][j].first;<br>                    w = g_src[i][j].second;<br>                &#125;<br>            &#125;<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (w == INT_MAX) &#123; <span class="hljs-comment">// nothing to do</span><br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br>        <br>        pset.<span class="hljs-built_in">insert</span>(v);<br>        g_res[u].<span class="hljs-built_in">push_back</span>(&#123;v, w&#125;);<br>        g_res[v].<span class="hljs-built_in">push_back</span>(&#123;u, w&#125;);<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> g_res;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="例题：洛谷-P3366-【模板】最小生成树-1"><a href="#例题：洛谷-P3366-【模板】最小生成树-1" class="headerlink" title="例题：洛谷 - P3366 【模板】最小生成树"></a>例题：<a target="_blank" rel="noopener" href="https://www.luogu.com.cn/problem/P3366">洛谷 - P3366 【模板】最小生成树</a></h2><p>和之前是同一题，不同的是这次我们使用 Prim 算法而非 Kruskal 算法进行最小生成树的求解，直接将上面的模板改一改即可：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utility&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;climits&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;set&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;tuple&gt;</span></span><br><br><span class="hljs-keyword">typedef</span> std::tuple&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>, <span class="hljs-type">long</span> <span class="hljs-type">long</span>&gt; Edge;<br><span class="hljs-keyword">typedef</span> std::pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">long</span> <span class="hljs-type">long</span>&gt; EdgeOut;<br><span class="hljs-keyword">typedef</span> std::vector&lt;std::vector&lt;EdgeOut&gt;&gt; Graph;<br><br><span class="hljs-function"><span class="hljs-type">long</span> <span class="hljs-type">long</span> <span class="hljs-title">prim</span><span class="hljs-params">(<span class="hljs-type">const</span> Graph &amp;g_src, <span class="hljs-type">int</span> node_nr)</span></span><br><span class="hljs-function"></span>&#123;<br>    std::set&lt;<span class="hljs-type">int</span>&gt; pset;<br>    <span class="hljs-function">Graph <span class="hljs-title">g_res</span><span class="hljs-params">(node_nr + <span class="hljs-number">1</span>)</span></span>;<br>    <span class="hljs-type">long</span> <span class="hljs-type">long</span> res = <span class="hljs-number">0</span>;<br><br>    <span class="hljs-type">int</span> start = <span class="hljs-number">1</span>; <span class="hljs-comment">// or any, whatever</span><br>    pset.<span class="hljs-built_in">insert</span>(start);<br>    <br>    <span class="hljs-keyword">while</span> (pset.<span class="hljs-built_in">size</span>() &lt; node_nr) &#123;<br>        <span class="hljs-type">int</span> u, v;<br>        <span class="hljs-type">long</span> <span class="hljs-type">long</span> w = LLONG_MAX;<br><br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">1</span>; i&lt;= node_nr; i++) &#123;<br>            <span class="hljs-keyword">if</span> (pset.<span class="hljs-built_in">find</span>(i) == pset.<span class="hljs-built_in">end</span>()) &#123;<br>                <span class="hljs-keyword">continue</span>;<br>            &#125;<br><br>            <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; g_src[i].<span class="hljs-built_in">size</span>(); j++) &#123;<br>                <span class="hljs-keyword">if</span> (pset.<span class="hljs-built_in">find</span>(g_src[i][j].first) != pset.<span class="hljs-built_in">end</span>()) &#123;<br>                    <span class="hljs-keyword">continue</span>;<br>                &#125;<br><br>                <span class="hljs-keyword">if</span> (g_src[i][j].second &lt; w) &#123;<br>                    u = i;<br>                    v = g_src[i][j].first;<br>                    w = g_src[i][j].second;<br>                &#125;<br>            &#125;<br>        &#125;<br><br>        <span class="hljs-keyword">if</span> (w == LLONG_MAX) &#123; <span class="hljs-comment">// nothing to do</span><br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br>        <br>        pset.<span class="hljs-built_in">insert</span>(v);<br>        g_res[u].<span class="hljs-built_in">push_back</span>(&#123;v, w&#125;);<br>        g_res[v].<span class="hljs-built_in">push_back</span>(&#123;u, w&#125;);<br>        res += w;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> pset.<span class="hljs-built_in">size</span>() == node_nr ? res : <span class="hljs-number">-1</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv, <span class="hljs-type">char</span> **envp)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> n, m;<br><br>    std::cin &gt;&gt; n &gt;&gt; m;<br>    <span class="hljs-function">Graph <span class="hljs-title">g</span><span class="hljs-params">(n + <span class="hljs-number">1</span>)</span></span>;<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; m; i++) &#123;<br>        <span class="hljs-type">int</span> u, v;<br>        <span class="hljs-type">long</span> <span class="hljs-type">long</span> w;<br>        std::cin &gt;&gt; u &gt;&gt; v &gt;&gt; w;<br>        g[u].<span class="hljs-built_in">push_back</span>(&#123;v, w&#125;);<br>        g[v].<span class="hljs-built_in">push_back</span>(&#123;u, w&#125;);<br>    &#125;<br><br>    <span class="hljs-type">long</span> <span class="hljs-type">long</span> res = <span class="hljs-built_in">prim</span>(g, n);<br>    <span class="hljs-keyword">if</span> (res != <span class="hljs-number">-1</span>) &#123;<br>        std::cout &lt;&lt; res &lt;&lt; std::endl;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;orz&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>——你以为直接过了？Too young too simpe！Sometimes naive！我们会发现有三个点 TLE 了：</p>
+<p><img src="https://files.seeusercontent.com/2026/02/18/Vm0m/pasted-image-1771448586647.webp" srcset="/img/loading.gif" lazyload></p>
+<h3 id="优化：堆优化"><a href="#优化：堆优化" class="headerlink" title="优化：堆优化"></a>优化：堆优化</h3><p>和前面的 <a target="_blank" rel="noopener" href="https://arttnba3.cn/2020/04/23/ALGORITHM-0X02-DIJKSTRA/">朴素 Dijkstra</a> 算法一样，我们发现在我们的朴素 Prim 算法实现当中有一些可以优化的点：</p>
+<ul>
+<li>对于最小边的选取是一个双重循环，这直接把时间复杂度拉满了，因此我们不难想到类似的优化方法——使用二叉堆优化最小边的查找过程，同时在每次新加入一个点时将其边加入到二叉堆中即可</li>
+<li><code>std::set</code> 的成本其实并不低，实际上我们要标识某个点是否已经加入新点集只需要直接使用一个 <code>vector&lt;char&gt;</code> 就可以</li>
+</ul>
+<p>修改原本的代码为如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;vector&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utility&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;climits&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;set&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;tuple&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;queue&gt;</span></span><br><br><span class="hljs-keyword">typedef</span> std::tuple&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>, <span class="hljs-type">long</span> <span class="hljs-type">long</span>&gt; Edge;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">EdgeCmp</span> &#123;<br>   <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">operator</span><span class="hljs-params">()</span><span class="hljs-params">(<span class="hljs-type">const</span> Edge &amp;a, <span class="hljs-type">const</span> Edge &amp;b)</span> </span>&#123;<br>       <span class="hljs-keyword">return</span> std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">2</span>&gt;(a) &gt; std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">2</span>&gt;(b);<br>   &#125; <br>&#125;;<br><span class="hljs-keyword">typedef</span> std::pair&lt;<span class="hljs-type">int</span>, <span class="hljs-type">long</span> <span class="hljs-type">long</span>&gt; EdgeOut;<br><span class="hljs-keyword">typedef</span> std::vector&lt;std::vector&lt;EdgeOut&gt;&gt; Graph;<br><br><span class="hljs-function"><span class="hljs-type">long</span> <span class="hljs-type">long</span> <span class="hljs-title">prim</span><span class="hljs-params">(<span class="hljs-type">const</span> Graph &amp;g_src, <span class="hljs-type">int</span> node_nr)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-function">std::vector&lt;<span class="hljs-type">char</span>&gt; <span class="hljs-title">pset</span><span class="hljs-params">(node_nr + <span class="hljs-number">1</span>, <span class="hljs-number">0</span>)</span></span>;<br>    <span class="hljs-function">Graph <span class="hljs-title">g_res</span><span class="hljs-params">(node_nr + <span class="hljs-number">1</span>)</span></span>;<br>    <span class="hljs-type">long</span> <span class="hljs-type">long</span> res = <span class="hljs-number">0</span>;<br>    std::priority_queue&lt;Edge, std::vector&lt;Edge&gt;, EdgeCmp&gt; edge_heap;<br>    <span class="hljs-type">int</span> node_added = <span class="hljs-number">1</span>;<br><br>    <span class="hljs-type">int</span> start = <span class="hljs-number">1</span>; <span class="hljs-comment">// or any, whatever</span><br>    pset[start] = <span class="hljs-number">1</span>;<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; g_src[start].<span class="hljs-built_in">size</span>(); i++) &#123;<br>         edge_heap.<span class="hljs-built_in">push</span>(&#123;start, g_src[start][i].first, g_src[start][i].second &#125;);<br>    &#125;<br>    <br>    <span class="hljs-keyword">while</span> (node_added &lt; node_nr &amp;&amp; !edge_heap.<span class="hljs-built_in">empty</span>()) &#123;<br>        <span class="hljs-type">int</span> u, v;<br>        <span class="hljs-type">long</span> <span class="hljs-type">long</span> w;<br><br>        Edge edge = edge_heap.<span class="hljs-built_in">top</span>();<br>        edge_heap.<span class="hljs-built_in">pop</span>();<br>        <span class="hljs-keyword">if</span> (pset[std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">0</span>&gt;(edge)] == <span class="hljs-number">0</span> || pset[std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">1</span>&gt;(edge)] != <span class="hljs-number">0</span>) &#123;<br>            <span class="hljs-keyword">continue</span>;<br>        &#125;<br><br>        u = std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">0</span>&gt;(edge);<br>        v = std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">1</span>&gt;(edge);<br>        w = std::<span class="hljs-built_in">get</span>&lt;<span class="hljs-number">2</span>&gt;(edge);<br><br>        pset[v] = <span class="hljs-number">1</span>;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; g_src[v].<span class="hljs-built_in">size</span>(); i++) &#123;<br>             edge_heap.<span class="hljs-built_in">push</span>(&#123;v, g_src[v][i].first, g_src[v][i].second &#125;);<br>        &#125;<br><br>        g_res[u].<span class="hljs-built_in">push_back</span>(&#123;v, w&#125;);<br>        g_res[v].<span class="hljs-built_in">push_back</span>(&#123;u, w&#125;);<br>        res += w;<br>        node_added++;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> node_added == node_nr ? res : <span class="hljs-number">-1</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv, <span class="hljs-type">char</span> **envp)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> n, m;<br><br>    std::cin &gt;&gt; n &gt;&gt; m;<br>    <span class="hljs-function">Graph <span class="hljs-title">g</span><span class="hljs-params">(n + <span class="hljs-number">1</span>)</span></span>;<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; m; i++) &#123;<br>        <span class="hljs-type">int</span> u, v;<br>        <span class="hljs-type">long</span> <span class="hljs-type">long</span> w;<br>        std::cin &gt;&gt; u &gt;&gt; v &gt;&gt; w;<br>        g[u].<span class="hljs-built_in">push_back</span>(&#123;v, w&#125;);<br>        g[v].<span class="hljs-built_in">push_back</span>(&#123;u, w&#125;);<br>    &#125;<br><br>    <span class="hljs-type">long</span> <span class="hljs-type">long</span> res = <span class="hljs-built_in">prim</span>(g, n);<br>    <span class="hljs-keyword">if</span> (res != <span class="hljs-number">-1</span>) &#123;<br>        std::cout &lt;&lt; res &lt;&lt; std::endl;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;orz&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>成功 AC，不过似乎比我们前面的 Kruskal 慢一些：</p>
+<p><img src="https://files.seeusercontent.com/2026/02/18/psO2/pasted-image-1771451854266.webp" srcset="/img/loading.gif" lazyload></p>
+<h1 id="0x04-进阶"><a href="#0x04-进阶" class="headerlink" title="0x04. 进阶"></a>0x04. 进阶</h1><blockquote>
+<p>🕊🕊🕊</p>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/ALGORITHM/" class="category-chain-item">ALGORITHM</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/C-C/">#C&C++</a>
+      
+        <a href="/tags/Algorithm/">#Algorithm</a>
+      
+        <a href="/tags/Graph-Theory/">#Graph Theory</a>
+      
+        <a href="/tags/Kruskal-Algorithm/">#Kruskal Algorithm</a>
+      
+        <a href="/tags/Spanning-Tree/">#Spanning Tree</a>
+      
+        <a href="/tags/Minimum-Spanning-Tree/">#Minimum Spanning Tree</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>【ALGORITHM.0x03】求最小生成树：Kruskal与Prim算法浅析</div>
+      <div>http://example.com/2020/04/23/ALGORITHM-0X03-KRUSKAL_PRIM/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>arttnba3</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年4月23日</div>
+        </div>
+      
+      
+      <div class="license-meta-item">
+        <div>许可协议</div>
+        <div>
+          
+            
+            
+              <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+              <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                <i class="iconfont icon-by"></i>
+              </span>
+              </a>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/04/23/ALGORITHM-0X02-DIJKSTRA/" title="【ALGORITHM.0x02】Dijkstra 算法浅析">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【ALGORITHM.0x02】Dijkstra 算法浅析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/04/21/ALGORITHM-0X01-DYNAMIC_PROGRAMMING/" title="【ALGORITHM.0x01】动态规划算法浅析">
+                        <span class="hidden-mobile">【ALGORITHM.0x01】动态规划算法浅析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  <article id="comments" lazyload>
+    
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.4.17/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appid":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appkey":"tuvJh3xYxPFcW2JB6K26RKP2","path":"window.location.pathname","placeholder":"说点什么呗（笑）","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false,"appId":"ICj6cPRQWFTNiOttBHlzxnIv-gzGzoHsz","appKey":"tuvJh3xYxPFcW2JB6K26RKP2"},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+  </article>
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  <!-- 网站运行时间的设置 -->
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+      var now = new Date();
+      function createtime() {
+          var grt= new Date("04/20/2020 17:48:48");//此处修改你的建站时间或者网站上线时间
+          now.setTime(now.getTime()+250);
+          days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+          hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+          if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+          mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+          seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+          snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+          document.getElementById("timeDate").innerHTML = "arttnba3的小屋已经安全存在了 "+dnum+" 天 ";
+          document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+      }
+  setInterval("createtime()",250);
+  </script>
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      桂ICP备2022005068号-1
+    </a>
+  </span>
+  
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      headingSelector : CONFIG.toc.headingSelector || 'h1,h2,h3,h4,h5,h6',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      collapseDepth   : CONFIG.toc.collapseDepth || 0,
+      scrollSmooth    : true,
+      headingsOffset  : -boardTop
+    });
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.10/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.1/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
