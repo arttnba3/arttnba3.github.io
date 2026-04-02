@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://steamuserimages-a.akamaihd.net/ugc/43107956178667128/BC3271F0AA6DFA2EF54A2D119994087298A53BC6/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false">
 <meta property="article:published_time" content="2024-04-29T19:23:41.000Z">
-<meta property="article:modified_time" content="2025-10-01T16:22:36.448Z">
+<meta property="article:modified_time" content="2026-03-29T19:09:08.071Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Gentoo Linux">
@@ -89,7 +89,7 @@
 
 
   
-<meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
+<meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="arttnba3's blog" type="application/atom+xml">
 </head>
 
 
@@ -263,7 +263,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          20k 字
+          24k 字
         
       </span>
     
@@ -274,7 +274,7 @@
         
         
         
-          171 分钟
+          200 分钟
         
       </span>
     
@@ -329,7 +329,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2025年10月2日 凌晨
+                    本文最后更新于：2026年3月30日 早上
                   
                 
               </p>
@@ -343,7 +343,7 @@
 <h1 id="0x00-一切开始之前"><a href="#0x00-一切开始之前" class="headerlink" title="0x00. 一切开始之前"></a>0x00. 一切开始之前</h1><blockquote>
 <p>熟悉的废话环节，可以直接跳过不看：）</p>
 </blockquote>
-<p>熟悉笔者的朋友都知道笔者是一个微软死忠粉（ <del>虽然这位微软死忠粉现在并没有在将由微软开发的操作系统作为主力</del> ），因此手上自然而然会有一些 Surface 设备（当然绝大部分都出二手回血了，👴只能说学生时代缺钱的穷 b 是这样的），恰好笔者手边有一台闲置的 Surface Pro 8 设备，而 Surface 从这一代设备开始有一个支持方便快捷地自行更换硬盘的设计，同时笔者原有的设备是最低配的版本 （8G 运存 + 128G 存储），因此笔者就想把这台陪伴了笔者大四期间多个夜晚的设备（因为晚上宿舍断电，所以有这样一台续航长的办公本还是很重要的， <del>当然这里肯定有人要问为什么不用 macbook 了，虽然说 mac 的续航时间确实比 Windows 阵营任何的笔记本要长得多，但是笔者当时并没有钱能够买得起哪怕是一台二手的 macbook，而且既然都买 macbook 了再买二手未免有些寒碜，可能有人又会抬杠说 Surface 都买了怎么买不起 macbook，毕竟最低配的 Surface 价格终究是比最低配的 macbook 要便宜不少，同时还有一个比较重要的原因便是笔者此前很多工作还是需要在 X86 平台上完成，mac 下虽然有 Rosetta 或是 Parallel，但是转译终究还是会带来一定的性能损耗，而且使用起来并不优雅，那这里可能又会有人问为什么不买联想或是其他牌子的同价位办公本，那👴只能说田牌就是信仰</del> ）给简单升级一下，在替换大容量硬盘的同时顺便装一个 Windows + Linux 双系统，<strong>前者是为了保留原汁原味的 Surface 体验，后者则是纯粹为了瞎折腾</strong>：）</p>
+<p>熟悉笔者的朋友都知道笔者是一个 <strong>微软死忠粉</strong> （ <del>虽然这位微软死忠粉现在并没有在将由微软开发的操作系统作为主力不过👴寻思这难道不应该是微软的问题吗把系统做的这么烂</del> ），因此手上自然而然会有一些 Surface 设备（当然绝大部分都出二手回血了，👴只能说学生时代缺钱的穷 b 是这样的），恰好笔者手边有一台闲置的 Surface Pro 8 设备，而 Surface 从这一代设备开始有一个支持方便快捷地自行更换硬盘的设计，同时笔者原有的设备是最低配的版本 （8G 运存 + 128G 存储），因此笔者就想把这台陪伴了笔者大四期间多个夜晚的设备（因为晚上宿舍断电，所以有这样一台续航长的办公本还是很重要的， <del>当然这里肯定有人要问为什么不用 macbook 了，虽然说 mac 的续航时间确实比 Windows 阵营任何的笔记本要长得多，但是笔者当时并没有钱能够买得起哪怕是一台二手的 macbook，而且既然都买 macbook 了再买二手未免有些寒碜，可能有人又会抬杠说 Surface 都买了怎么买不起 macbook，毕竟最低配的 Surface 价格终究是比最低配的 macbook 要便宜不少，同时还有一个比较重要的原因便是笔者此前很多工作还是需要在 X86 平台上完成，mac 下虽然有 Rosetta 或是 Parallel，但是转译终究还是会带来一定的性能损耗，而且使用起来并不优雅，那这里可能又会有人问为什么不买联想或是其他牌子的同价位办公本，那👴只能说田牌就是信仰</del> ）给简单升级一下，在替换大容量硬盘的同时顺便装一个 Windows + Linux 双系统，<strong>前者是为了保留原汁原味的 Surface 体验，后者则是纯粹为了瞎折腾</strong>：）</p>
 <p>出于各种因素的考虑（ <del>可能是偷工减料</del> ）微软为 Surface Pro 选用了 2230 规格的 SSD，这个规格的 SSD 并不好找，尤其是笔者目前肉身位于地大物穷的位于大洋彼岸离所有国家都很远的澳洲，找了半天<a target="_blank" rel="noopener" href="https://cplonline.com.au/micron-mtfdkbk2t0qfm-1bd1aabyyr-2400-2tb-m-2-2230-nvme-ssd.html">才在 CPL 上找到一款镁光的 2230 规格的 2TB SSD</a>，虽然商品页面写着 <code>NOT Compatible with Surface Pro 8/9</code> ，但是<strong>在笔者看来理论上来说不兼容的情况不太可能发生</strong>，同时笔者在微软社区上找到了 <a target="_blank" rel="noopener" href="https://answers.microsoft.com/en-us/surface/forum/all/what-is-the-max-ssd-my-surface-pro8-will-accept/4cf1ff6d-0bb8-415a-a4b9-690e31808f34">一篇成功在 Surface Pro 8 上安装这一款 SSD 的帖子</a>，那“不兼容”一说想来应当是无稽之谈（又或者是微软的商业手段，因为这样你就不会去买便宜硬盘了，而会屈服于微软官方商城贵得要死性价比极低的官方贴牌硬盘，<strong>而事实证明 Micron 的这块 SSD 确实是可以兼容的</strong>），因此笔者选了一个风和日丽 <del>但其实下着细雨</del> 的日子前往墨尔本的某家 CPL 线下门店取到了这款 SSD （ <del>是的这就是发达国家比较常见的购物方式，没有国内那样发达的物流网络说实话👴感觉买啥都不方便，当然出来活动活动筋骨也是好的，不过更主要的还有一点就是配送费太贵了</del> ）</p>
 <p><img src="https://s2.loli.net/2024/04/27/q3giJxNV9ZpvrIS.png" srcset="/img/loading.gif" lazyload alt="价格比国内贵上好几百 RMB，澳洲的大部分电子产品都是如此"></p>
 <p>接下来是对系统发行版的选择，Windows 自然不用说直接装最新的 Win 11，那么 Linux 该选择哪一种发行版呢？首先考虑比较贴近上游的 Linux 发行版——</p>
@@ -438,18 +438,18 @@
 <li>SWAP 分区（<code>swap</code> ）：交换内存</li>
 </ul>
 <p>Surface 上仅有一块 SSD ，所以硬盘路径基本上定死为 <code>/dev/nvme0n1</code> ，如果你在其他有多块硬盘的机器上参照本文进行配置则注意识别自己想要安装的键盘</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">cfdisk /dev/nvme0n1</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">root # cfdisk /dev/nvme0n1<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>注：这一步使用 LiveGUI CD 中的 KDE Partitioner 或是 GParted 也可以</p>
 </blockquote>
 <p><img src="https://s2.loli.net/2024/04/30/y6X4YeOlGKPbNkC.jpg" srcset="/img/loading.gif" lazyload alt="100M 是 Windows 分区弄错了留下来的一个多余的无用空间，因为 NTFS 没法前扩所以笔者也懒得管了"></p>
 <p>接下来创建文件系统，惯例地 <code>mkfs</code> 一把梭，开始之前最好先 <code>fdisk -l</code> 再辨别一下自己想要格式化的分区：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">mkfs.fat -F 32 /dev/nvme0n1p4</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mkfs.ext4 /dev/nvme0n1p5</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mkswap /dev/nvme0n1p6</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">swapon /dev/nvme0n1p6</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mkfs.ext4 /dev/nvme0n1p7</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">root # mkfs.fat -F 32 /dev/nvme0n1p4<br>root # mkfs.ext4 /dev/nvme0n1p5<br>root # mkswap /dev/nvme0n1p6<br>root # swapon /dev/nvme0n1p6<br>root # mkfs.ext4 /dev/nvme0n1p7<br></code></pre></td></tr></table></figure>
 
 <p><img src="https://s2.loli.net/2024/04/30/FCveHV8alMDSgPW.jpg" srcset="/img/loading.gif" lazyload alt="日志输出太长了，没法拍完屏，将就看看"></p>
 <p>最后就是挂载文件系统了：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">mkdir</span> /mnt/gentoo</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mount /dev/nvme0n1p5 /mnt/gentoo</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">mkdir</span> /mnt/gentoo/boot</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">mkdir</span> /mnt/gentoo/boot/efi</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">mkdir</span> /mnt/gentoo/home</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mount /dev/nvme0n1p4 /mnt/gentoo/boot/efi</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mount /dev/nvme0n1p7 /mnt/gentoo/home</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell">root # mkdir -p /mnt/gentoo<br>root # mount /dev/nvme0n1p5 /mnt/gentoo<br>root # mkdir -p /mnt/gentoo/boot<br>root # mkdir -p /mnt/gentoo/boot/efi<br>root # mkdir -p /mnt/gentoo/home<br>root # mount /dev/nvme0n1p4 /mnt/gentoo/boot/efi<br>root # mount /dev/nvme0n1p7 /mnt/gentoo/home<br></code></pre></td></tr></table></figure>
 
 <h2 id="安装-Stage-3"><a href="#安装-Stage-3" class="headerlink" title="安装 Stage 3"></a>安装 Stage 3</h2><p><code>Stage</code> 可以简单理解为构建 Gentoo Linux 系统的各个不同阶段：</p>
 <ul>
@@ -463,40 +463,44 @@
 <p>systemd 某种程度上也成为了 Linux 的事实标准了，不得不感叹红帽的大手…但笔者相比起 OpenRC 而言确实比较习惯 systemd，所以也没什么好纠结的…</p>
 <p><img src="https://syste.md/" srcset="/img/loading.gif" lazyload></p>
 </blockquote>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cd</span> /mnt/gentoo</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">wget https://distfiles.gentoo.org/releases/amd64/autobuilds/20240428T163427Z/stage3-amd64-desktop-systemd-20240428T163427Z.tar.xz</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">tar xpvf stage3-*.tar.xz --xattrs-include=<span class="hljs-string">&#x27;*.*&#x27;</span> --numeric-owner</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">root # cd /mnt/gentoo<br>root # wget https://distfiles.gentoo.org/releases/amd64/autobuilds/20240428T163427Z/stage3-amd64-desktop-systemd-20240428T163427Z.tar.xz<br>root # tar xpvf stage3-*.tar.xz --xattrs-include=&#x27;*.*&#x27; --numeric-owner<br></code></pre></td></tr></table></figure>
 
 <p>然后是配置机器时间：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">chronyd -q</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">root # chronyd -q<br></code></pre></td></tr></table></figure>
 
-<p>接下来配置编译选项，Portage 在运行时会读取一个 <code>make.conf</code> 配置文件，位于文件系统根目录下的 <code>/etc/portage/make.conf</code> 当中，Stage 3 文件中已经给我们提供好了一个空白模板，其中主要是一些编译参数与选项，我们只需要根据自身习惯进行修改即可：</p>
+<p>接下来配置编译选项，Portage 在运行时会读取一个 <code>make.conf</code> 配置文件，位于文件系统根目录下的 <code>/etc/portage/make.conf</code> 当中（别忘了这里要加上 <code>/mnt/gentoo</code> ），Stage 3 文件中已经给我们提供好了一个空白模板，其中主要是一些编译参数与选项，我们只需要根据自身习惯进行修改即可：</p>
 <blockquote>
 <p>一般来说只需要在 <code>COMMON_FLAGS</code> 中添加 <code>-march=native</code> 以告诉编译器选择当前的系统体系结构，此时 GCC 会自动调查 CPU 并配置合适的 flag，但若是当前机器正在为其他机器编译时则不应当启用该项</p>
 <p>对于内存比较小的设备，则不应当启用 <code>-pipe</code> 编译选项，因为这使用管道而非文件来存放编译中间文件，而这将占用更多的内存，从而导致编译器可能被 kill 掉而编译失败</p>
 <p>其他的可用选项可以参照 <a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki//etc/portage/make.conf">Gentoo wiki</a></p>
 </blockquote>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">vim ./etc/portage/make.conf</span><br></code></pre></td></tr></table></figure>
+<p>下面是笔者自用的 <code>make.conf</code> ，大家如有需要可以参考</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">These settings were <span class="hljs-built_in">set</span> by the catalyst build script that automatically</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">built this stage.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Please consult /usr/share/portage/config/make.conf.example <span class="hljs-keyword">for</span> a more</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">detailed example.</span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">###############################</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">                             <span class="hljs-comment">#</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"> System-wide configurations  <span class="hljs-comment">#</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">                             <span class="hljs-comment">#</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">###############################</span></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Compiler options</span><br>COMMON_FLAGS=&quot;-O2 -pipe -march=x86-64 -mtune=generic&quot;<br>CFLAGS=&quot;$&#123;COMMON_FLAGS&#125;&quot;<br>CXXFLAGS=&quot;$&#123;COMMON_FLAGS&#125;&quot;<br>FCFLAGS=&quot;$&#123;COMMON_FLAGS&#125;&quot;<br>FFLAGS=&quot;$&#123;COMMON_FLAGS&#125;&quot;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Compilation configuration</span><br>MAKEOPTS=&quot;-j8 -l9&quot; # l=n+1 would be good<br>PORTAGE_NICENESS=19<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Graphics</span><br>VIDEO_CARDS=&quot;intel virgl&quot;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">USE flags</span><br>USE=&quot;alsa cdr dbus dvd flatpak kde modules-sign networkmanager nftables plasma pipewire qt5 qt6 systemd wayland X xwayland&quot;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">What to accepted</span><br>ACCEPT_KEYWORDS=&quot;amd64&quot;<br>ACCEPT_LICENSE=&quot;*&quot;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">boot loader</span><br>GRUB_PLATFORMS=&quot;efi-64&quot;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">input</span><br>INPUT_DEVICES=&quot;libinput&quot;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">#####################################</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">                                   <span class="hljs-comment">#</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"> Software-specific configurations  <span class="hljs-comment">#</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">                                   <span class="hljs-comment">#</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">#####################################</span></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">QEMU</span><br>QEMU_USER_TARGETS=&quot;i386 x86_64 arm armeb aarch64 aarch64_be mips mips64 mips64el mipsel mipsn32 mipsn32el riscv32 riscv64 loongarch64&quot;<br>QEMU_SOFTMMU_TARGETS=&quot;i386 x86_64 arm aarch64 loongarch64 mips mips64 mips64el mipsel riscv32 riscv64&quot;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">###########</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">         <span class="hljs-comment">#</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"> Others  <span class="hljs-comment">#</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">         <span class="hljs-comment">#</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">###########</span></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">NOTE: This stage was built with the bindist USE flag enabled</span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">This sets the language of build output to English.</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">Please keep this setting intact when reporting bugs.</span><br>LC_MESSAGES=C.UTF-8<br><br></code></pre></td></tr></table></figure>
 
 <h2 id="安装基本系统"><a href="#安装基本系统" class="headerlink" title="安装基本系统"></a>安装基本系统</h2><p>接下来复制 DNS 信息，从而确保 chroot 之后有网可用：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cp</span> --dereference /etc/resolv.conf /mnt/gentoo/etc/</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">root # cp --dereference /etc/resolv.conf /mnt/gentoo/etc/<br></code></pre></td></tr></table></figure>
 
 <p>接下来挂载一些必要的文件系统并 chroot 到根目录，也可以直接通过 <code>arch-chroot /mnt/gentoo</code> 命令完成：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">mount --types proc /proc /mnt/gentoo/proc</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mount --rbind /sys /mnt/gentoo/sys</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mount --make-rslave /mnt/gentoo/sys</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mount --rbind /dev /mnt/gentoo/dev</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mount --make-rslave /mnt/gentoo/dev</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mount --<span class="hljs-built_in">bind</span> /run /mnt/gentoo/run</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mount --make-slave /mnt/gentoo/run</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">chroot</span> /mnt/gentoo /bin/bash</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">source</span> /etc/profile</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">export</span> PS1=<span class="hljs-string">&quot;(chroot) <span class="hljs-variable">$&#123;PS1&#125;</span>&quot;</span></span><br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>有一点要注意的是在 stage3 里可用的编辑器只有 nano，如果你和笔者一样更喜欢 vim 则需要稍晚时候进行安装</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell">root # mount --types proc /proc /mnt/gentoo/proc<br>root # mount --rbind /sys /mnt/gentoo/sys<br>root # mount --make-rslave /mnt/gentoo/sys<br>root # mount --rbind /dev /mnt/gentoo/dev<br>root # mount --make-rslave /mnt/gentoo/dev<br>root # mount --bind /run /mnt/gentoo/run<br>root # mount --make-slave /mnt/gentoo/run<br>root # chroot /mnt/gentoo /bin/bash<br>root # source /etc/profile<br>root # export PS1=&quot;(chroot) $&#123;PS1&#125;&quot;<br></code></pre></td></tr></table></figure>
 
-<p>接下来配置 Portage 仓库：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">mkdir</span> --parents /etc/portage/repos.conf</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cp</span> /usr/share/portage/config/repos.conf /etc/portage/repos.conf/gentoo.conf</span><br></code></pre></td></tr></table></figure>
+<p>接下来为 Portage 配置一个 RSYNC 仓库：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # mkdir --parents /etc/portage/repos.conf<br>(chroot) root # cp /usr/share/portage/config/repos.conf /etc/portage/repos.conf/gentoo.conf<br></code></pre></td></tr></table></figure>
 
 <p>接下来安装 Gentoo ebuild 数据库快照：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge-webrsync</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # emerge-webrsync<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>（可选配置：选择镜像站）</p>
 <p>若有需要，则可以使用 <code>mirrorselect</code> 这个工具来手动选择想要使用的镜像源（空格键选中后 enter，可以选多个项），本质上是往 <code>make.conf</code> 中写入新的 <code>GENTOO_MIRRORS</code> 变量：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask --verbose --oneshot app-portage/mirrorselect</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">mirrorselect -i -o &gt;&gt; /etc/portage/make.conf</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # emerge --ask --verbose --oneshot app-portage/mirrorselect<br>(chroot) root # mirrorselect -i -o &gt;&gt; /etc/portage/make.conf<br></code></pre></td></tr></table></figure>
 
 
 </blockquote>
 <p>接下来配置系统的 <code>profile</code> （决定了系统的默认配置，例如 <code>USE</code> 和 <code>CFLAGS</code> 等），第一条命令用来查看可用配置，第二条则进行选择，这里笔者选择了 <code>default/linux/amd64/23.0/desktop/plasma/systemd</code> ：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">eselect profile list</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">eselect profile <span class="hljs-built_in">set</span> 28</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # eselect profile list<br>(chroot) root # eselect profile set 28<br></code></pre></td></tr></table></figure>
 
 <blockquote>
 <p>（可选配置：添加二进制包源）</p>
@@ -510,7 +514,7 @@
 <p>若选择这种方式，则在修改后需要额外运行 <code>getuto</code> 命令进行配置</p>
 </blockquote>
 <p>接下来配置 <code>CPU_FLAGS_*</code> 变量，编译器会在编译特定汇编代码&#x2F;指令时使用，笔者是 <code>x86/64</code> 架构所以应当为 <code>CPU_FLAGS_X86</code> ，不过工具 <code>cpuid2cpuflags</code> 可以帮我们完成输出：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask --oneshot app-portage/cpuid2cpuflags</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;*/* <span class="hljs-subst">$(cpuid2cpuflags)</span>&quot;</span> &gt; /etc/portage/package.use/00cpu-flags</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # emerge --ask --oneshot app-portage/cpuid2cpuflags<br>(chroot) root # echo &quot;*/* $(cpuid2cpuflags)&quot; &gt; /etc/portage/package.use/00cpu-flags<br></code></pre></td></tr></table></figure>
 
 <p>接下来在 <code>/etc/portage/make.conf</code> 中添加 <code>VIDEO_CARDS</code> 变量，用以恰当地配置 GPU，Surface Pro 8 只有一个 Intel 核显所以该变量应为：</p>
 <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">VIDEO_CARDS</span>=<span class="hljs-string">&quot;intel&quot;</span><br></code></pre></td></tr></table></figure>
@@ -524,24 +528,26 @@
 
 </blockquote>
 <p>接下来配置时区，笔者用的是 systemd ，所以直接将时区文件软链接到 <code>/etc/localtime</code> 即可：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">ln</span> -sf ../usr/share/zoneinfo/Australia/Melbourne /etc/localtime</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # ln -sf ../usr/share/zoneinfo/Australia/Melbourne /etc/localtime<br></code></pre></td></tr></table></figure>
 
 <p>然后是进行本地化配置，在 <code>/etc/locale.gen</code> 中添加对应项即可，例如：</p>
 <figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">en_US</span> ISO-<span class="hljs-number">8859</span>-<span class="hljs-number">1</span><br><span class="hljs-attribute">en_US</span>.UTF-<span class="hljs-number">8</span> UTF-<span class="hljs-number">8</span><br><span class="hljs-attribute">zh_CN</span> GBK <br><span class="hljs-attribute">zh_CN</span>.UTF-<span class="hljs-number">8</span> UTF-<span class="hljs-number">8</span><br></code></pre></td></tr></table></figure>
 
 <p>接下来运行 <code>locale-gen</code> 命令，其会根据  <code>/etc/locale.gen</code> 中项进行生成，生成结束后通过 <code>eselect</code> 命令进行选择，这里最好先选择 <code>C.utf8</code> ，完成之后更新环境变量：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">locale-gen</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">eselect locale list</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">eselect locale <span class="hljs-built_in">set</span> 2</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">env-update &amp;&amp; <span class="hljs-built_in">source</span> /etc/profile &amp;&amp; <span class="hljs-built_in">export</span> PS1=<span class="hljs-string">&quot;(chroot) <span class="hljs-variable">$&#123;PS1&#125;</span>&quot;</span></span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # locale-gen<br>(chroot) root # eselect locale list<br>(chroot) root # eselect locale set 2<br>(chroot) root # env-update &amp;&amp; source /etc/profile &amp;&amp; export PS1=&quot;(chroot) $&#123;PS1&#125;&quot;<br></code></pre></td></tr></table></figure>
 
 <p>对于中文用户，你可能会需要 gentoo 中文社区的仓库：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask app-eselect/eselect-repository</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">eselect repository <span class="hljs-built_in">enable</span> gentoo-zh</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">emaint <span class="hljs-built_in">sync</span> -r gentoo-zh</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # emerge --ask app-eselect/eselect-repository<br>(chroot) root # eselect repository enable gentoo-zh<br>(chroot) root # emaint sync -r gentoo-zh<br></code></pre></td></tr></table></figure>
 
-<h2 id="编译与安装内核"><a href="#编译与安装内核" class="headerlink" title="编译与安装内核"></a>编译与安装内核</h2><blockquote>
-<p>（可选配置：安装固件与微码）</p>
-<p>在开始配置内核前我们可以安装可选的微码与固件，Surface Pro 8 是 Intel CPU，所以微码应当安装 <code>sys-firmware/intel-microcode</code> 包，固件则都为通用的 <code>sys-kernel/linux-firmware</code> 包：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask sys-firmware/intel-microcode</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask sys-kernel/linux-firmware</span><br></code></pre></td></tr></table></figure>
+<h2 id="编译与安装内核"><a href="#编译与安装内核" class="headerlink" title="编译与安装内核"></a>编译与安装内核</h2><p>在开始配置内核前我们可以安装 CPU 微码与几个固件包，Surface Pro 8 是 Intel CPU，所以微码应当安装 <code>sys-firmware/intel-microcode</code> 包，通用的 <code>sys-kernel/linux-firmware</code> 固件包通常在 Linux 下是不可或缺的，而 <code>sys-firmware/sof-firmware</code> 则为 <code>Sound Open Firmware</code> 音频驱动所需要的：</p>
+<blockquote>
+<p>很多无限网卡和 GPU 之类的在 Linux 下需要这些固件包才能正常工作，例如 Intel 的部分型号的网卡</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # emerge --ask sys-firmware/intel-microcode sys-kernel/linux-firmware sys-firmware/sof-firmware<br></code></pre></td></tr></table></figure>
 
-<p>可能会遇到 <code>all ebuilds that could satisfy * have been masked</code> 的错误，这是因为 LICENSE 配置问题，通过如下命令进行补充即可：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;sys-kernel/linux-firmware @BINARY-REDISTRIBUTABLE&quot;</span> | <span class="hljs-built_in">tee</span> -a /etc/portage/package.license</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;sys-firmware/intel-microcode @BINARY-REDISTRIBUTABLE&quot;</span> | <span class="hljs-built_in">tee</span> -a /etc/portage/package.license</span><br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>可能会遇到 <code>all ebuilds that could satisfy * have been masked</code> 的错误，这是因为 LICENSE 配置问题，通过如下命令进行补充即可（或者可以选择和笔者上面的 <code>make.conf</code> 一样直接配置接受所有协议）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">&gt;</span><span class="language-bash">(<span class="hljs-built_in">chroot</span>) root <span class="hljs-comment"># echo &quot;sys-kernel/linux-firmware @BINARY-REDISTRIBUTABLE&quot; | tee -a /etc/portage/package.license</span></span><br>(chroot) root # echo &quot;sys-firmware/intel-microcode @BINARY-REDISTRIBUTABLE&quot; | tee -a /etc/portage/package.license<br></code></pre></td></tr></table></figure>
 </blockquote>
 <p>虽然内核主线暂且缺少一些 Surface 驱动，但是有一个社区项目 <a target="_blank" rel="noopener" href="https://github.com/linux-surface/linux-surface">linux-surface</a> 提供了部分驱动，可惜的是该项目本身仅提供 Arch&#x2F;Debian&#x2F;Fedora 的版本，而在 Wiki 中 fork 到 Gentoo 这边<a target="_blank" rel="noopener" href="https://github.com/Parinz/Surface-Gentoo">对应仓库</a>的维护者不知道什么时候已经跑路了，因此笔者只能先用默认的内核，这里我们有三种大方向上的选择：</p>
 <ul>
@@ -550,38 +556,26 @@
 <li>纯手工编译安装内核：通过 <code>eselect kernel</code> 拉取内核源码后手工 <code>make</code> 进行配置、编译、安装，_<a target="_blank" rel="noopener" href="https://github.com/arttnba3/XDU-SCE_OS-Experiment_2021/tree/main/Exp-7">就像你的操作系统老师让你在操作系统实验课上做的那样</a>_ ， <del>没让你自己从 kernel.org 拉就偷着乐吧</del></li>
 </ul>
 <p>作为 Linux kernel hacker，手工编译内核自然是第一选择，主要原因是方便更改编译选项 <del>而且这样看起来会显得👴比较帅</del> </p>
-<blockquote>
-<p>不选 distribution 的原因是配置文件中可能未必默认包含笔者需要的硬件驱动，再逐条改起来有点麻烦，而 Genkernel 感觉有点上不去下不来卡在那里了</p>
-</blockquote>
-<p>首先安装必要的工具：</p>
-<blockquote>
-<p>其中 <a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Installkernel">installkernel</a> 是可选包，用于自动安装新的内核并更新 bootloader 配置， <del>如果你比较闲的话也可以手工完成</del></p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask sys-apps/pciutils</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask sys-kernel/installkernel</span><br></code></pre></td></tr></table></figure>
+<p>首先为 <code>sys-kernel/gentoo-sources</code> 配置一个 USE flag，USE flag 是 Gentoo 这个发行版的精髓，可以让我们按需开关软件包的功能（不同软件包可以开启哪些 USE flag 可以在 Gentoo 官网进行查询），我们创建文件 <code>/etc/portage/package.use/gentoo-sources</code> 并写入如下内容以开启 <code>symlink</code> 这一 USE flag，作用是在安装软件包时自动更新 <code>/usr/src/linux</code> 的符号链接指向内核源码所在文件夹：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sys-kernel/gentoo-sources symlink<br></code></pre></td></tr></table></figure>
 
-<p>拉取 Gentoo 官方维护的内核源码：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask sys-kernel/gentoo-sources</span><br></code></pre></td></tr></table></figure>
+<p>接下来拉取 Gentoo 官方维护的内核源码 <code>sys-kernel/gentoo-sources</code> 和一个工具包 <code>sys-apps/pciutils</code>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # emerge --ask sys-kernel/gentoo-sources sys-apps/pciutils<br></code></pre></td></tr></table></figure>
 
-<blockquote>
-<p>如果你选择用 gentoo 官方的内核配置（<code>gentoo-kernel</code>），可能出现提示需要检查 configure 的问题，使用如下命令修复：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">dispatch-conf</span><br></code></pre></td></tr></table></figure>
-
-<p>基本上一路 <code>u</code> （update） 即可</p>
-</blockquote>
 <p>使用如下命令查看当前安装的源码：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">eselect kernel list</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # eselect kernel list<br></code></pre></td></tr></table></figure>
 
-<p>通常我们会在 Linux 系统中维护一个指向当前内核源码的符号链接 <code>/usr/src/linux</code>，在 Gentoo 下我们通过如下命令手动创建（序号由 <code>eselect</code> 命令获得）：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">eselect kernel <span class="hljs-built_in">set</span> 1</span><br></code></pre></td></tr></table></figure>
+<p>通常我们会在 Linux 系统中维护一个指向当前内核源码的符号链接 <code>/usr/src/linux</code>，在 Gentoo 下我们可以通过如下命令切换该文件夹指向系统里安装的不同版本的内核源码（序号由 <code>eselect</code> 命令获得）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # eselect kernel set 1<br></code></pre></td></tr></table></figure>
 
-<p>接下来创建配置文件 <code>.config</code> ，这里笔者 <strong>推荐使用默认的</strong>  <code>make defconfig</code> ，你也可以使用 <code>make localmodconfig</code> 来检测硬件并决定开启的内核模块，根据自己的需求进行选择即可：</p>
+<p>接下来创建配置文件 <code>.config</code> ，这里笔者推荐使用默认的  <code>make defconfig</code> ，你也可以使用 <code>make localmodconfig</code> 来检测硬件并决定开启的内核模块（不过按笔者个人经验，一般会缺很多），根据自己的需求进行选择即可：</p>
 <blockquote>
 <p>内核模块会独立存在，如果你想让内核模块被编译到 <code>vmlinuz</code> 中，使用 <code>localyesconfig</code> ，如果你想要开启尽可能多的编译选项，可以选择 <code>allyesconfig</code> 或 <code>allmodconfig</code> </p>
 <blockquote>
-<p> 此外，集成到内核中的内核模块可能会有点小问题（例如笔者曾经碰到过 Intel 网卡驱动独立存在可以正常存活但集成到内核中便无法正常工作的情况）</p>
+<p> 此外，集成到内核中的内核模块可能会有点小问题（例如笔者曾经碰到过 Intel 网卡驱动独立存在（<code>=m</code> ）可以正常存活但集成到内核中便无法正常工作的情况）</p>
 </blockquote>
 </blockquote>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cd</span> /usr/src/linux</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">make defconfig</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # cd /usr/src/linux<br>(chroot) root # make defconfig<br></code></pre></td></tr></table></figure>
 
 <p>接下来用 menuconfig 手动改一些选项，其会在已有的 <code>.config</code> 基础上进行修改，这里我们要决定的包括 OpenRC&#x2F;systemd 的选择、常用文件系统支持、额外选一些 Surface 相关的驱动等，具体参见 <a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Kernel#Alternative:_Manual_configuration">Gentoo handbook</a>：</p>
 <blockquote>
@@ -591,101 +585,98 @@
 <p>如果不清楚应该添加哪个固件，可以 <code>dmesg | grep -i wifi | grep -i ucode</code> 查看在 LiveISO 当中使用的是哪个</p>
 </blockquote>
 </blockquote>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">make menuconfig</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # make menuconfig<br></code></pre></td></tr></table></figure>
+
+<p>为了安全性，我们可以为内核模块配置签名，从而保障内核模块的完整性，在内核源码目录下创建文件 <code>certs/x509.genkey</code> 并写入如下内容：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[ req ]</span><br><span class="hljs-attr">default_bits</span> = <span class="hljs-number">4096</span><br><span class="hljs-attr">distinguished_name</span> = req_distinguished_name<br><span class="hljs-attr">prompt</span> = <span class="hljs-literal">no</span><br><span class="hljs-attr">string_mask</span> = utf8only<br><span class="hljs-attr">x509_extensions</span> = myexts<br><br><span class="hljs-section">[ req_distinguished_name ]</span><br><span class="hljs-comment"># 这几条可以改成你自己想写入的信息</span><br><span class="hljs-attr">O</span> = Unspecified company<br><span class="hljs-attr">CN</span> = Build time autogenerated kernel key<br><span class="hljs-attr">emailAddress</span> = unspecified.user@unspecified.company<br><br><span class="hljs-section">[ myexts ]</span><br><span class="hljs-attr">basicConstraints</span>=critical,CA:<span class="hljs-literal">FALSE</span><br><span class="hljs-attr">keyUsage</span>=digitalSignature<br><span class="hljs-attr">subjectKeyIdentifier</span>=hash<br><span class="hljs-attr">authorityKeyIdentifier</span>=keyid<br><br></code></pre></td></tr></table></figure>
+
+<p>以及检查一下 <code>.config</code> 中的 <code>CONFIG_MODULE_SIG_KEY</code> 这一项，内核会在值为 <code>&quot;certs/signing_key.pem&quot;</code> 的时候使用 <code>certs/x509.genkey</code> 来生成签名密钥，这也是为什么我们前面要编写 <code>x509.genkey</code> 文件 （该文件默认不存在，但是又被依赖）：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">CONFIG_MODULE_SIG</span>=y<br><span class="hljs-attr">CONFIG_MODULE_SIG_FORCE</span>=y<br><span class="hljs-attr">CONFIG_MODULE_SIG_HASH</span>=<span class="hljs-string">&quot;sha256&quot;</span><br><span class="hljs-attr">CONFIG_MODULE_SIG_KEY</span>=<span class="hljs-string">&quot;certs/signing_key.pem&quot;</span><br></code></pre></td></tr></table></figure>
 
 <p>然后开始编译内核，这可能会需要一定的时间：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">make -j$(<span class="hljs-built_in">nproc</span>) bzImage modules</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # make -j$(nproc) bzImage modules<br></code></pre></td></tr></table></figure>
 
-<p>接下来使用 <a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Installkernel">installkernel</a> 安装内核，这里笔者选择使用 <code>GRUB + systemd</code> ，首先创建文件 <code>/etc/portage/package.use/installkernel</code> 并写入：</p>
+<p>接下来使用 <a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Installkernel">installkernel</a> 辅助的内核安装过程，其会帮助我们调用 dracut 等生成 initramfs， 首先还是配置 USE flag，创建文件 <code>/etc/portage/package.use/installkernel</code> 并写入：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sys-kernel/installkernel grub dracut<br></code></pre></td></tr></table></figure>
 
-<p>然后运行：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask sys-kernel/installkernel</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">make -j$(<span class="hljs-built_in">nproc</span>) modules_install</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">make install</span><br></code></pre></td></tr></table></figure>
+<p>然后安装  <a target="_blank" rel="noopener" href="https://wiki.gentoo.org/wiki/Installkernel">installkernel</a> ：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # emerge --ask sys-kernel/installkernel<br></code></pre></td></tr></table></figure>
+
+<p>以及创建</p>
+<p>最后正式进行内核的安装，这包括将内核模块安装到 <code>/lib/modules</code> 目录、拷贝内核压缩镜像 <code>bzImage</code> 到 <code>/boot</code> 目录下、生成新的 GRUB 配置到 <code>/boot/grub</code> 下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # make -j$(nproc) modules_install<br>(chroot) root # make install<br></code></pre></td></tr></table></figure>
 
 <h2 id="配置系统"><a href="#配置系统" class="headerlink" title="配置系统"></a>配置系统</h2><p>首先配置 <code>/etc/fstab</code> ，这个文件决定了在系统启动时哪些分区该被挂载到哪些目录，为了保证挂载的一致性，通常我们会选择使用一个分区的 UUID 进行挂载，而非设备路径，因为在有着多个磁盘的环境中不同磁盘的路径在启动后未必一致</p>
 <blockquote>
 <p>不过因为笔者的 Surface Pro 8 仅有一个盘位，所以是可以使用设备路径进行挂载的，但保险起见还是用 UUID 进行挂载</p>
 </blockquote>
 <p>首先查看不同分区的 UUID：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">blkid</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # blkid<br></code></pre></td></tr></table></figure>
 
 <p>接下来按照分区用途编写 fstab，以笔者的配置为例：</p>
 <figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">UUID</span>=f0e95c49-e05d-<span class="hljs-number">4659</span>-a617-bfdaee35af7c none       swap  sw           <span class="hljs-number">0</span> <span class="hljs-number">0</span><br><span class="hljs-attribute">UUID</span>=<span class="hljs-number">8317</span>cece-<span class="hljs-number">8</span>c46-<span class="hljs-number">4</span>fec-bdf6-ddab4aa23249 /          ext4  defaults     <span class="hljs-number">0</span> <span class="hljs-number">1</span><br><span class="hljs-attribute">UUID</span>=<span class="hljs-number">5</span>e8624e3-b40e-<span class="hljs-number">4</span>e6c-be02-e72a99e94462 /home      ext4  data=ordered <span class="hljs-number">0</span> <span class="hljs-number">2</span><br><span class="hljs-attribute">UUID</span>=C215-<span class="hljs-number">9</span>C27                            /boot/efi  vfat  utf8         <span class="hljs-number">0</span> <span class="hljs-number">2</span><br></code></pre></td></tr></table></figure>
 
 <p>然后配置主机名：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;Surface-Pro-8&quot;</span> &gt; /etc/hostname</span><br></code></pre></td></tr></table></figure>
-
-<p>配置 DHCP：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask net-misc/dhcpcd</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">systemctl <span class="hljs-built_in">enable</span> dhcpcd</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # echo &quot;Surface-Pro-8&quot; &gt; /etc/hostname<br></code></pre></td></tr></table></figure>
 
 <p>设置 root 密码：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">passwd</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # passwd<br></code></pre></td></tr></table></figure>
 
-<p>初始化一些配置：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">systemd-machine-id-setup</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">systemd-firstboot --prompt</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">systemctl preset-all --preset-mode=enable-only</span><br></code></pre></td></tr></table></figure>
-
-<blockquote>
-<p>（可选）配置文件索引</p>
-<p>通过空间换时间的方式加快文件搜索速度：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask sys-apps/mlocate</span><br></code></pre></td></tr></table></figure>
-
-
-</blockquote>
 <p>配置 shell 自动补全，gentoo 默认使用 bash：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask app-shells/bash-completion</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # emerge --ask app-shells/bash-completion<br></code></pre></td></tr></table></figure>
 
 <p>配置时间同步：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask net-misc/chrony</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">systemctl <span class="hljs-built_in">enable</span> chronyd.service</span><br></code></pre></td></tr></table></figure>
-
-<p>配置文件系统和磁盘相关的一些工具，笔者只用 ext4 和 fat32：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask sys-fs/e2fsprogs sys-fs/dosfstools</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask sys-block/io-scheduler-udev-rules</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # emerge --ask net-misc/chrony<br>(chroot) root # systemctl enable chronyd.service<br></code></pre></td></tr></table></figure>
 
 <p>安装网络相关的一些包：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask net-dialup/ppp net-wireless/iw net-wireless/wpa_supplicant</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # emerge --ask net-dialup/ppp net-wireless/iw net-wireless/wpa_supplicant<br></code></pre></td></tr></table></figure>
 
-<p>安装 NetworkManager：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask net-misc/networkmanager</span><br></code></pre></td></tr></table></figure>
+<p>安装 NetworkManager 并启用对应的 systemd service：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # emerge --ask net-misc/networkmanager<br>(chroot) root # systemctl enable NetworkManager<br></code></pre></td></tr></table></figure>
 
-<p>完成后我们通过修改 <code>/etc/portage/make.conf</code> 中的 USE flags 添加相关软件对 NetworkManager 的支持：</p>
-<blockquote>
-<p>添加完 USE flags 后别忘了通过如下命令进行更新：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask --changed-use --deep @world</span><br></code></pre></td></tr></table></figure>
+<p>初始化一些系统配置：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # systemd-machine-id-setup<br>(chroot) root # systemd-firstboot --prompt<br>(chroot) root # systemctl preset-all --preset-mode=enable-only<br></code></pre></td></tr></table></figure>
 
-</blockquote>
-<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">USE</span><span class="hljs-operator">=</span><span class="hljs-string">&quot;$&#123;USE&#125; networkmanager&quot;</span><br></code></pre></td></tr></table></figure>
-
-<p>完成安装后启用对应的 systemd service：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">systemctl <span class="hljs-built_in">enable</span> NetworkManager</span><br></code></pre></td></tr></table></figure>
+<p>配置文件系统和磁盘相关的一些工具，笔者只用 ext4 和 fat32：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # emerge --ask sys-fs/e2fsprogs sys-fs/dosfstools<br>(chroot) root # emerge --ask sys-block/io-scheduler-udev-rules<br></code></pre></td></tr></table></figure>
 
 <p>安装 sudo ，解注释 <code>%wheel ALL=(ALL:ALL) ALL</code> 所在行： </p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask app-admin/sudo</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">visudo</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # emerge --ask app-admin/sudo<br>(chroot) root # visudo<br></code></pre></td></tr></table></figure>
 
 <p>前面我们只配置了 root 用户，所以别忘了配置一个日常用的管理员用户：</p>
 <blockquote>
 <p>这里会报一个 <code>Creating mailbox file: No such file or directory</code> 的错误，可以不用管</p>
 </blockquote>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">groupadd arttnba3</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">useradd -g arttnba3 -m -G <span class="hljs-built_in">users</span>,wheel,audio,cdrom,floppy,portage,usb,video -s /bin/bash arttnba3</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">passwd arttnba3</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # groupadd arttnba3<br>(chroot) root # useradd -g arttnba3 -m -G users,wheel,audio,cdrom,floppy,portage,usb,video -s /bin/bash arttnba3<br>(chroot) root # passwd arttnba3<br></code></pre></td></tr></table></figure>
 
 <h2 id="安装-boot-loader"><a href="#安装-boot-loader" class="headerlink" title="安装 boot loader"></a>安装 boot loader</h2><p>按惯例直接用 GRUB 就行， <del>真的会有人去用 systemd-boot 🐴</del> ：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;GRUB_PLATFORMS=&quot;efi-64&quot;&#x27;</span> &gt;&gt; /etc/portage/make.conf</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask --update --newuse --verbose sys-boot/grub</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask sys-boot/os-prober</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Gentoo</span><br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>如果你没有参照笔者上面的 <code>make.conf</code> 进行配置，别忘了添加这一行配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">GRUB_PLATFORMS=<span class="hljs-string">&quot;efi-64&quot;</span><br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>首先还是配置一个 USE flag，创建 <code>/etc/portage/package.use/grub</code> 文件 并写入如下内容：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sys-boot/grub mount<br></code></pre></td></tr></table></figure>
+
+<p>接下来进行 grub 的安装以及对应的 EFI 的安装：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # emerge --ask --update --newuse --verbose sys-boot/grub sys-boot/os-prober<br>(chroot) root # grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Gentoo<br></code></pre></td></tr></table></figure>
 
 <p>默认的 grub 主题比较难看，而且在高分辨率屏下看着属实有些难受，所以笔者这里选择安装一个 <a href="">minegrub</a> 主题，首先克隆仓库：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">emerge --ask dev-vcs/git</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cd</span> ~</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">git <span class="hljs-built_in">clone</span> https://github.com/Lxtharia/minegrub-theme.git</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cd</span> ./minegrub-theme</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cp</span> -ruv ./minegrub /boot/grub/themes/</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # emerge --ask dev-vcs/git<br>(chroot) root # cd ~<br>(chroot) root # git clone https://github.com/Lxtharia/minegrub-theme.git<br>(chroot) root # cd ./minegrub-theme<br>(chroot) root # cp -ruv ./minegrub /boot/grub/themes/<br></code></pre></td></tr></table></figure>
 
 <p>接下来修改 grub 配置文件 <code>/etc/default/grub</code>：</p>
 <figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">GRUB_THEME=<span class="hljs-regexp">/boot/g</span>rub<span class="hljs-regexp">/themes/mi</span>negrub/theme.txt<br></code></pre></td></tr></table></figure>
 
 <p>添加自动更新背景字体的 systemd 服务：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">cp</span> ./minegrub-update.service /etc/systemd/system</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">systemctl <span class="hljs-built_in">enable</span> minegrub-update.service</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # cp ./minegrub-update.service /etc/systemd/system<br>(chroot) root # systemctl enable minegrub-update.service<br></code></pre></td></tr></table></figure>
 
 <p>最后将 grub 配置写入 grub.cfg 中：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">grub-mkconfig -o /boot/grub/grub.cfg</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # grub-mkconfig -o /boot/grub/grub.cfg<br></code></pre></td></tr></table></figure>
 
 <p>最后重启系统，别忘了拔 u 盘：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">exit</span></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">umount -l /mnt/gentoo/dev&#123;/shm,/pts,&#125;</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">umount -R /mnt/gentoo</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">reboot</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # exit<br>root # umount -l /mnt/gentoo/dev&#123;/shm,/pts,&#125;<br>root # umount -R /mnt/gentoo<br>root # reboot<br></code></pre></td></tr></table></figure>
 
 <p>进入系统后我们用 os-probe 完成双系统引导中对 Windows 的检测以及 grub entry 的生成（当然如果你比较闲也可以手写），这里别忘了检查 <code>/etc/default/grub</code> 中是否有 <code>GRUB_DISABLE_OS_PROBER=false</code> ：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">grub-mkconfig -o /boot/grub/grub.cfg</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">root # grub-mkconfig -o /boot/grub/grub.cfg<br></code></pre></td></tr></table></figure>
 
 <h2 id="安装-KDE-Wayland"><a href="#安装-KDE-Wayland" class="headerlink" title="安装 KDE + Wayland"></a>安装 KDE + Wayland</h2><p>首先按惯例连接网络：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">nmtui</span><br></code></pre></td></tr></table></figure>
@@ -719,7 +710,7 @@
 <blockquote>
 <p>如果没有，检查一下你的 <code>gentoo-zh</code> 仓库是否启用成功</p>
 </blockquote>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo emerge --ask --autounmask app-i18n/fcitx-meta</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo dispatch-conf <span class="hljs-comment"># 这里直接 u 就好</span></span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo emerge --ask app-i18n/fcitx-meta app-i18n/fcitx-chinese-addons</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo emerge --ask app-i18n/fcitx app-i18n/fcitx-chinese-addons</span><br></code></pre></td></tr></table></figure>
 
 <p>最后按惯例在设置的 <code>virtual keyboard</code> 里选中 <code>fcitx5</code> ，然后右键 panel 的小企鹅图标找 <code>Pinyin</code> 即可：</p>
 <p><img src="https://s2.loli.net/2024/05/08/Fau4LnKdUomslJY.jpg" srcset="/img/loading.gif" lazyload alt="image.png"></p>
@@ -741,11 +732,11 @@
 </blockquote>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo emerge --ask sys-apps/flatpak</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo</span><br></code></pre></td></tr></table></figure>
 
-<p>然后是中国大陆这边常用的微信，我们可以直接从 flathub 安装：</p>
+<p>然后是中国大陆这边常用的微信，我们可以直接从 flathub 安装，以及为了让 fcitx 正常工作，我们会需要补充一些环境变量：</p>
 <blockquote>
 <p><del>从 flathub 安装还有个好处就是不怕微信扫你盘</del> </p>
 </blockquote>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">flatpak install com.tencent.WeChat.flatpak</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">flatpak install com.tencent.WeChat.flatpak</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">flatpak override --user --<span class="hljs-built_in">env</span>=QT_IM_MODULE=fcitx com.tencent.WeChat</span><br><span class="hljs-meta prompt_">$ </span><span class="language-bash">flatpak override --user --<span class="hljs-built_in">env</span>=XMODIFIERS=@im=fcitx com.tencent.WeChat</span><br></code></pre></td></tr></table></figure>
 
 <p>QQ Linux 版提供了 AppImage 可用，不过还需要提前安个依赖：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo emerge --ask app-crypt/mit-krb5</span><br></code></pre></td></tr></table></figure>
@@ -753,8 +744,9 @@
 <p>之后随便放到个目录里然后写个 shortcut 放到 <code>~/.local/share/applications</code> 下就行：</p>
 <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Desktop Entry]</span><br><span class="hljs-attr">Name</span>=QQ<br><span class="hljs-attr">GenericName</span>=Tencent QQ<br><span class="hljs-attr">Exec</span>=/home/arttnba3/Applications/QQ/QQ_3.<span class="hljs-number">2.7</span>_240422_x<span class="hljs-number">86_64_01</span>.appimage<br><span class="hljs-attr">Version</span>=<span class="hljs-number">3.2</span>.<span class="hljs-number">7.240422</span><br><span class="hljs-attr">Type</span>=Application<br><span class="hljs-attr">Categories</span>=Network<span class="hljs-comment">;</span><br><span class="hljs-attr">Terminal</span>=<span class="hljs-literal">false</span><br><span class="hljs-attr">Icon</span>=com.qq.QQ<br></code></pre></td></tr></table></figure>
 
-
-
+<blockquote>
+<p>当然 QQ 其实也有 Flatpak 版：）</p>
+</blockquote>
 <h1 id="0x03-遇到的一些问题"><a href="#0x03-遇到的一些问题" class="headerlink" title="0x03. 遇到的一些问题"></a>0x03. 遇到的一些问题</h1><h2 id="触摸板驱动问题（solved）"><a href="#触摸板驱动问题（solved）" class="headerlink" title="触摸板驱动问题（solved）"></a>触摸板驱动问题（solved）</h2><p>主要表现：</p>
 <ul>
 <li>启动后点按有效，但是多指手势（如双指&#x3D;&#x3D;右键）无效</li>
