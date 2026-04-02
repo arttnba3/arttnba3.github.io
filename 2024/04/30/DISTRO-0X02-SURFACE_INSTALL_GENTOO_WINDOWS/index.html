@@ -27,7 +27,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://steamuserimages-a.akamaihd.net/ugc/43107956178667128/BC3271F0AA6DFA2EF54A2D119994087298A53BC6/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false">
 <meta property="article:published_time" content="2024-04-29T19:23:41.000Z">
-<meta property="article:modified_time" content="2026-03-29T19:09:08.071Z">
+<meta property="article:modified_time" content="2026-04-02T04:43:10.962Z">
 <meta property="article:author" content="arttnba3">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Gentoo Linux">
@@ -274,7 +274,7 @@
         
         
         
-          200 分钟
+          201 分钟
         
       </span>
     
@@ -329,7 +329,7 @@
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2026年3月30日 早上
+                    本文最后更新于：2026年4月2日 下午
                   
                 
               </p>
@@ -643,6 +643,9 @@
 <p>安装 sudo ，解注释 <code>%wheel ALL=(ALL:ALL) ALL</code> 所在行： </p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # emerge --ask app-admin/sudo<br>(chroot) root # visudo<br></code></pre></td></tr></table></figure>
 
+<p>以及安装通用输入驱动，否则 <em>可能</em> 会遇到无法输入的问题：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # emerge -av x11-drivers/xf86-input-evdev<br></code></pre></td></tr></table></figure>
+
 <p>前面我们只配置了 root 用户，所以别忘了配置一个日常用的管理员用户：</p>
 <blockquote>
 <p>这里会报一个 <code>Creating mailbox file: No such file or directory</code> 的错误，可以不用管</p>
@@ -660,22 +663,22 @@
 <p>接下来进行 grub 的安装以及对应的 EFI 的安装：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # emerge --ask --update --newuse --verbose sys-boot/grub sys-boot/os-prober<br>(chroot) root # grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Gentoo<br></code></pre></td></tr></table></figure>
 
-<p>默认的 grub 主题比较难看，而且在高分辨率屏下看着属实有些难受，所以笔者这里选择安装一个 <a href="">minegrub</a> 主题，首先克隆仓库：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # emerge --ask dev-vcs/git<br>(chroot) root # cd ~<br>(chroot) root # git clone https://github.com/Lxtharia/minegrub-theme.git<br>(chroot) root # cd ./minegrub-theme<br>(chroot) root # cp -ruv ./minegrub /boot/grub/themes/<br></code></pre></td></tr></table></figure>
+<p>默认的 grub 主题比较难看，而且在高分辨率屏下看着属实有些难受，所以笔者这里选择安装一个 <a target="_blank" rel="noopener" href="https://github.com/Lxtharia/double-minegrub-menu">double-minegrub</a> 主题，首先安装 git：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # emerge --ask dev-vcs/git<br></code></pre></td></tr></table></figure>
 
-<p>接下来修改 grub 配置文件 <code>/etc/default/grub</code>：</p>
-<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">GRUB_THEME=<span class="hljs-regexp">/boot/g</span>rub<span class="hljs-regexp">/themes/mi</span>negrub/theme.txt<br></code></pre></td></tr></table></figure>
+<p>接下来将该仓库克隆到本地，之后直接使用笔者编写的 install.sh 即可一键完成安装：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # cd ~<br>(chroot) root # git clone https://github.com/Lxtharia/double-minegrub-menu.git<br>(chroot) root # cd ./double-minegrub-menu<br>(chroot) root # ./install.sh<br></code></pre></td></tr></table></figure>
 
-<p>添加自动更新背景字体的 systemd 服务：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # cp ./minegrub-update.service /etc/systemd/system<br>(chroot) root # systemctl enable minegrub-update.service<br></code></pre></td></tr></table></figure>
-
-<p>最后将 grub 配置写入 grub.cfg 中：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # grub-mkconfig -o /boot/grub/grub.cfg<br></code></pre></td></tr></table></figure>
-
-<p>最后重启系统，别忘了拔 u 盘：</p>
+<p>最后 <strong>重启系统</strong>，别忘了拔 u 盘：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">(chroot) root # exit<br>root # umount -l /mnt/gentoo/dev&#123;/shm,/pts,&#125;<br>root # umount -R /mnt/gentoo<br>root # reboot<br></code></pre></td></tr></table></figure>
 
-<p>进入系统后我们用 os-probe 完成双系统引导中对 Windows 的检测以及 grub entry 的生成（当然如果你比较闲也可以手写），这里别忘了检查 <code>/etc/default/grub</code> 中是否有 <code>GRUB_DISABLE_OS_PROBER=false</code> ：</p>
+<p>进入新系统后我们启用 os-probe 完成双系统引导中对 Windows 的检测以及 grub entry 的生成（当然如果你比较闲也可以手写），首先编辑 <code>/etc/default/grub</code> 添加如下配置 ：</p>
+<blockquote>
+<p>说实话这个配置名👴一直觉得挺搞的，双重否定表肯定都来了</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">GRUB_DISABLE_OS_PROBER=<span class="hljs-literal">false</span><br></code></pre></td></tr></table></figure>
+
+<p>然后运行如下命令重新生成 grub 配置即可，这一步我们不在 chroot 中进行的原因是会把 LiveISO 也弄进 grub 配置里，所以最好还是在一个没有其他存储设备干扰的情况下进行重生成：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">root # grub-mkconfig -o /boot/grub/grub.cfg<br></code></pre></td></tr></table></figure>
 
 <h2 id="安装-KDE-Wayland"><a href="#安装-KDE-Wayland" class="headerlink" title="安装 KDE + Wayland"></a>安装 KDE + Wayland</h2><p>首先按惯例连接网络：</p>
@@ -690,9 +693,6 @@
 <blockquote>
 <p>如果你和笔者一样使用类似 Surface Pro 的性能比较低下的笔记本，那么这个编译会耗费相当长的时间（至少数个小时），正所谓 <code>“一杯茶，一包烟，Gentoo编译一整天”</code> （笑）</p>
 </blockquote>
-<p>以及安装通用输入驱动，否则 <em>可能</em> 会遇到无法输入的问题：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo emerge -av x11-drivers/xf86-input-evdev</span><br></code></pre></td></tr></table></figure>
-
 <p>plasma-meta 包自带依赖 sddm ，直接启用：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo systemctl <span class="hljs-built_in">enable</span> --now sddm.service</span><br></code></pre></td></tr></table></figure>
 
@@ -706,10 +706,7 @@
 <h2 id="安装中文字体与输入法"><a href="#安装中文字体与输入法" class="headerlink" title="安装中文字体与输入法"></a>安装中文字体与输入法</h2><p>首先安装中文字体，毕竟大家都不喜欢看到一大片方块：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo emerge --ask media-fonts/arphicfonts</span><br></code></pre></td></tr></table></figure>
 
-<p>中文输入法按惯例选择来自 Gentoo 中文社区的 fcitx ，不过默认被 masked 了，得先 unmasked 一下：</p>
-<blockquote>
-<p>如果没有，检查一下你的 <code>gentoo-zh</code> 仓库是否启用成功</p>
-</blockquote>
+<p>中文输入法按惯例选择 fcitx ：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo emerge --ask app-i18n/fcitx app-i18n/fcitx-chinese-addons</span><br></code></pre></td></tr></table></figure>
 
 <p>最后按惯例在设置的 <code>virtual keyboard</code> 里选中 <code>fcitx5</code> ，然后右键 panel 的小企鹅图标找 <code>Pinyin</code> 即可：</p>
@@ -720,7 +717,7 @@
 <h2 id="安装常用软件"><a href="#安装常用软件" class="headerlink" title="安装常用软件"></a>安装常用软件</h2><blockquote>
 <p>因为笔者没有协议洁癖所以前面设置了接受所有协议，如果你有但是又需要安装部分软件则需要参照 wiki 手动修改 <code>/etc/portage/package.license</code> ：）</p>
 </blockquote>
-<p>首先是 chrome，有社区从 deb 重新打的包：</p>
+<p>首先是 chrome，有从 deb 重新打的包：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$ </span><span class="language-bash">sudo emerge --ask www-client/google-chrome</span><br></code></pre></td></tr></table></figure>
 
 <p>以及 vscode：</p>
@@ -766,7 +763,7 @@
 <blockquote>
 <p>当然，笔者的主力系统最后确乎迁移去了 Gentoo，以及笔者的 openSUSE Tumbleweed 的引导被 Windows 更新干废了的事情，又是另一个故事了…</p>
 </blockquote>
-<p>除此之外，Gentoo 的各种优点 <em>似乎也没有理想中的那么好</em> ，作为一个滚动发行版，Gentoo 明显是没有 Arch、openSUSE Tumbleweed、Fedora 这样紧贴上游的（当然，如果能实现所谓“调试好了再发布”，那在能确保稳定性的情况下软件包旧一点其实无所谓，但事实上他们似乎并没有能做到这一点）； <code>USE flag</code> 等配置听起来舒服，但是大部分情况下其实并不需要这样的特性（<strong>但少部分情况下你真的需要的时候真的非常爽，是其他发行版没法带给你的体验</strong>），和其他发行版的包管理器的使用体验拉不开太大的差距（当然，大部分情况下一个包管理器又能想要多不一样的体验呢？）；Gentoo wiki 以前一直都被吹嘘能和 Arch wiki 有得一拼，但真正用起来能清晰感受到在内容上前者很明显差了后者好几个档次……</p>
+<p>除此之外，Gentoo 的各种优点 <em>似乎也没有理想中的那么好</em> ，作为一个滚动发行版，Gentoo 明显是没有 Arch、openSUSE Tumbleweed、Fedora 这样紧贴上游的（当然，将全局软件包的 <code>accept_keyword</code> 配置为 <code>~amd64</code> 是可以直接做到像 Debian sid 那样紧贴 Gentoo 的上游， <strong>但是比较尴尬的是 Gentoo 上游有的软件包其实并不紧贴上游</strong> ，这或许是因为 Gentoo 的维护者不够多的缘故；此外如果能实现所谓“调试好了再发布”，那在能确保稳定性的情况下软件包旧一点其实无所谓，但事实上他们似乎并没有能做到这一点）； <code>USE flag</code> 等配置听起来舒服，但是大部分情况下其实并不需要这样的特性（<strong>但少部分情况下你真的需要的时候真的非常爽，是其他发行版没法带给你的体验</strong>），和其他发行版的包管理器的使用体验拉不开太大的差距（当然，在软件包集合都是那些的情况下，大部分时候只是一个包管理器对不同又能带来多不一样的体验呢？）；Gentoo wiki 以前一直都被吹嘘能和 Arch wiki 有得一拼，但真正用起来能清晰感受到在部分内容上前者很明显是比后者差不少的（当然，也有优秀不少的内容，个人觉得究其原因是 Gentoo Wiki 现在的编写者在数量上逐渐不如 Arch Wiki 那么多了，毕竟属于 Gentoo 的辉煌时代其实是在本世纪前十年）……</p>
 <p>但这些其实都是小问题，毕竟 Linux 用户和苹果用户一样有着非常强的自适应性，尤其是在使用 Arch&#x2F;Gentoo 这样的高度自定义的发行版的时候，出现问题了大家总会第一时间自适应地认为“是不是自己什么地方没有配置好”，可惜 Gentoo 社区一直在走下坡路却是一个不争的事实，虽然 Gentoo 听起来似乎有着各式各样不同的优点， <strong>但使用的人数确乎一直在慢慢减少，也很少有新鲜血液加入，因此很多软件包也没人打，在论坛问问题也没人回复，这又导致没人愿意继续用 Gentoo</strong> ——对于 Gentoo 社区所遇到的“马太效应“的问题，笔者思考了许久，感觉似乎没有一个比较好的解决方案，而这似乎是所有规模比较小的发行版都会遇到的问题，发行版用的人少导致社区缺少人维护从而导致系统没有那么好用，系统可用性的降低又使得人员出走，最后“强者愈强，弱者愈弱”</p>
 <p>——而对于这个不得不被正视的问题，<strong>社区除了等死以外似乎并没有什么能做的事情</strong>，但同样是支持高度定制的系统， <strong>Gentoo 和 Arch 的命运为什么差得越来越多了呢？</strong></p>
 
